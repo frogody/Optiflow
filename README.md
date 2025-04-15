@@ -1,84 +1,54 @@
-# FlowOrchestrator
+# Optiflow
 
-FlowOrchestrator is a web application that enables users to design, visualize, and adjust workflows involving multiple applications connected via the Model Context Protocol (MCP). The application provides a natural language interface for workflow modifications and intelligent orchestration capabilities.
+A modern dashboard for managing and orchestrating your workflow automations. Built with Next.js and featuring a sleek, neon-styled interface.
 
 ## Features
 
-- Natural language interface for workflow modifications
-- Visual workflow editor with advanced mode
-- MCP integration for application communication
-- Real-time workflow validation and updates
-- Intelligent workflow orchestration
+- Modern, neon-styled UI with dark theme
+- Connected applications management
+- Command input interface
+- Quick actions and workflow management
+- Responsive design
 
-## Prerequisites
+## Tech Stack
 
-- Node.js 18.x or later
-- npm 9.x or later
+- Next.js 14
+- TypeScript
+- Tailwind CSS
+- Framer Motion
+- Zustand for state management
 
-## Installation
+## Getting Started
 
 1. Clone the repository:
-```bash
-git clone https://github.com/yourusername/flow-orchestrator.git
-cd flow-orchestrator
-```
+   ```bash
+   git clone git@github.com:frogody/Optiflow.git
+   ```
 
 2. Install dependencies:
-```bash
-npm install
-```
+   ```bash
+   cd Optiflow
+   npm install
+   ```
 
-3. Create a `.env.local` file in the root directory and add your environment variables:
-```env
-NEXT_PUBLIC_API_URL=http://localhost:3000
-```
+3. Run the development server:
+   ```bash
+   npm run dev
+   ```
 
-## Development
-
-To start the development server:
-
-```bash
-npm run dev
-```
-
-The application will be available at `http://localhost:3000`.
-
-## Building for Production
-
-To create a production build:
-
-```bash
-npm run build
-```
-
-To start the production server:
-
-```bash
-npm start
-```
+4. Open [http://localhost:3000](http://localhost:3000) in your browser.
 
 ## Project Structure
 
-```
-flow-orchestrator/
-├── src/
-│   ├── app/              # Next.js app directory
-│   ├── components/       # React components
-│   ├── services/         # Service implementations
-│   │   └── mcp/         # MCP service
-│   └── types/           # TypeScript type definitions
-├── public/              # Static assets
-└── package.json         # Project dependencies
-```
+- `/src/app` - Next.js app router pages
+- `/src/components` - Reusable React components
+- `/src/lib` - Utilities and state management
+- `/public` - Static assets and icons
 
 ## Contributing
 
-1. Fork the repository
-2. Create your feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit your changes (`git commit -m 'Add some amazing feature'`)
-4. Push to the branch (`git push origin feature/amazing-feature`)
-5. Open a Pull Request
+Contributions are welcome! Please feel free to submit a Pull Request.
 
 ## License
 
-This project is licensed under the MIT License - see the LICENSE file for details. 
+MIT 
