@@ -13,7 +13,7 @@
   "dependencies": {
     "@headlessui/react": "^2.2.1",
     "@heroicons/react": "^2.2.0",
-    "@pipedream/sdk": "^1.7.0",
+    "@pipedream/sdk": "^1.5.0",
     "@prisma/client": "^5.10.0",
     "@types/bcryptjs": "^2.4.6",
     "@types/js-cookie": "^3.0.6",
