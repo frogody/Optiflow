@@ -3,7 +3,7 @@
 import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 
-export default function DefaultPage() {
+export default function HomePage() {
   const router = useRouter();
 
   useEffect(() => {
@@ -12,7 +12,7 @@ export default function DefaultPage() {
 
   return (
     <div className="flex items-center justify-center min-h-screen">
-      <div className="loading-pulse gradient-text text-xl">Welcome to Optiflow</div>
+      <div className="loading-pulse gradient-text text-xl">Redirecting to Connections...</div>
     </div>
   );
 } 

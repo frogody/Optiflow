@@ -31,10 +31,10 @@ interface UserNavItem {
 }
 
 interface DashboardProps {
-  orchestratorId: string;
+  orchestratorId?: string;
 }
 
-export default function Dashboard({ orchestratorId }: DashboardProps) {
+export default function Dashboard({ orchestratorId = 'default' }: DashboardProps) {
   const router = useRouter();
   const { currentUser } = useUserStore();
   const [isLoading, setIsLoading] = useState(true);

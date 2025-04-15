@@ -25,7 +25,6 @@ export class ClaudeService {
   
   constructor(config: ClaudeConfig) {
     this.config = {
-      model: 'claude-3-sonnet-20240229',
       maxTokens: 4096,
       temperature: 0.7,
       ...config

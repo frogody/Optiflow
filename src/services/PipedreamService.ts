@@ -1,142 +1,134 @@
-import { createClient } from "@pipedream/sdk";
+import { createBackendClient } from '@pipedream/sdk/server';
 
 interface PipedreamConfig {
-  apiKey: string;
-  apiSecret: string;
+  clientId: string;
+  clientSecret: string;
+  projectId: string;
+  environment?: 'development' | 'production';
 }
 
-interface ApiRequestOptions {
-  endpoint: string;
-  method: string;
-  data?: any;
-}
-
-export type ConnectionStatus = 'connected' | 'disconnected' | 'connecting' | 'error';
-
-interface Connection {
-  status: ConnectionStatus;
+interface ConnectionStatus {
+  status: 'connected' | 'disconnected' | 'error';
   lastConnected?: Date;
   error?: string;
-  connection: any;
 }
 
 export class PipedreamService {
-  private client: any;
-  private connections: Map<string, Connection>;
+  private client: ReturnType<typeof createBackendClient>;
+  private connections: Map<string, ConnectionStatus>;
 
   constructor(config: PipedreamConfig) {
-    this.client = createClient({
-      apiKey: config.apiKey,
-      apiSecret: config.apiSecret
-    });
+    const clientOpts = {
+      environment: config.environment || 'development',
+      projectId: config.projectId,
+      credentials: {
+        clientId: config.clientId,
+        clientSecret: config.clientSecret
+      }
+    };
+    this.client = createBackendClient(clientOpts);
     this.connections = new Map();
   }
 
-  private getConnectionKey(appName: string, userId: string): string {
-    return `${appName}-${userId}`;
-  }
-
-  async getConnectionStatus(appName: string, userId: string): Promise<ConnectionStatus> {
-    const key = this.getConnectionKey(appName, userId);
-    return this.connections.get(key)?.status || 'disconnected';
-  }
-
-  async connectToApp(appName: string, userId: string) {
-    const key = this.getConnectionKey(appName, userId);
-    
+  async getConnectionStatus(appId: string, userId: string): Promise<ConnectionStatus> {
     try {
-      // Check if connection already exists
-      const existingConnection = this.connections.get(key);
-      if (existingConnection?.status === 'connected') {
-        return existingConnection.connection;
-      }
+      const key = `${appId}:${userId}`;
+      const status = this.connections.get(key) || {
+        status: 'disconnected'
+      };
+      return status;
+    } catch (error) {
+      console.error('Error getting connection status:', error);
+      return {
+        status: 'error',
+        error: error instanceof Error ? error.message : 'Unknown error'
+      };
+    }
+  }
 
-      // Update status to connecting
-      this.connections.set(key, {
-        status: 'connecting',
-        connection: null
+  async connectToApp(appId: string, userId: string): Promise<ConnectionStatus> {
+    try {
+      const key = `${appId}:${userId}`;
+      
+      // Attempt to establish connection
+      await this.client.getAccounts({
+        app: appId,
+        external_user_id: userId
       });
 
-      // Create new connection
-      const connection = await this.client.connect({
-        app: appName,
+      const status: ConnectionStatus = {
+        status: 'connected',
+        lastConnected: new Date()
+      };
+      this.connections.set(key, status);
+      return status;
+    } catch (error) {
+      console.error('Error connecting to app:', error);
+      const errorStatus: ConnectionStatus = {
+        status: 'error',
+        error: error instanceof Error ? error.message : 'Unknown error'
+      };
+      this.connections.set(`${appId}:${userId}`, errorStatus);
+      return errorStatus;
+    }
+  }
+
+  async makeApiRequest<T>(
+    appId: string, 
+    userId: string,
+    endpoint: string,
+    method: 'GET' | 'POST' | 'PUT' | 'DELETE' = 'GET',
+    data?: unknown
+  ): Promise<T> {
+    try {
+      // Check connection status first
+      const status = await this.getConnectionStatus(appId, userId);
+      if (status.status === 'error') {
+        throw new Error(`Connection error: ${status.error}`);
+      }
+      if (status.status === 'disconnected') {
+        await this.connectToApp(appId, userId);
+      }
+
+      // Make the API request
+      const response = await this.client.runAction({
+        actionId: {
+          key: endpoint
+        },
+        configuredProps: data as Record<string, any>,
         externalUserId: userId
       });
 
-      // Store successful connection
-      this.connections.set(key, {
-        status: 'connected',
-        lastConnected: new Date(),
-        connection
-      });
-      
-      console.log(`Connected to ${appName} successfully for user ${userId}`);
-      return connection;
+      return response as T;
     } catch (error) {
-      // Store error state
-      this.connections.set(key, {
-        status: 'error',
-        error: error instanceof Error ? error.message : 'Unknown error',
-        connection: null
-      });
-      
-      console.error(`Failed to connect to ${appName}:`, error);
-      throw error;
-    }
-  }
-
-  async makeApiRequest(appName: string, userId: string, options: ApiRequestOptions) {
-    const key = this.getConnectionKey(appName, userId);
-    
-    try {
-      const connection = await this.connectToApp(appName, userId);
-      const response = await connection.makeRequest({
-        endpoint: options.endpoint,
-        method: options.method,
-        data: options.data
-      });
-
-      return response;
-    } catch (error) {
-      // Update connection status on error
-      this.connections.set(key, {
-        status: 'error',
-        error: error instanceof Error ? error.message : 'API request failed',
-        connection: this.connections.get(key)?.connection
-      });
-      
       console.error('API request failed:', error);
-      throw error;
+      throw error instanceof Error ? error : new Error('API request failed');
     }
   }
 
-  async disconnectApp(appName: string, userId: string) {
-    const key = this.getConnectionKey(appName, userId);
-    const connectionData = this.connections.get(key);
-    
-    if (connectionData?.connection) {
-      try {
-        // Implement any necessary cleanup for the specific app
-        // For example: await connectionData.connection.disconnect();
-        
-        this.connections.set(key, {
-          status: 'disconnected',
-          connection: null
-        });
-        
-        console.log(`Disconnected from ${appName} for user ${userId}`);
-      } catch (error) {
-        console.error(`Error disconnecting from ${appName}:`, error);
-        throw error;
-      }
+  async disconnectApp(appId: string, userId: string): Promise<void> {
+    try {
+      const key = `${appId}:${userId}`;
+      await this.client.deleteAccount(appId);
+      this.connections.delete(key);
+    } catch (error) {
+      console.error('Error disconnecting:', error);
+      throw error instanceof Error ? error : new Error('Failed to disconnect');
     }
   }
 
-  async disconnectAll() {
-    const entries = Array.from(this.connections.entries());
-    for (const [key, connectionData] of entries) {
-      const [appName, userId] = key.split('-');
-      await this.disconnectApp(appName, userId);
+  async disconnectAllApps(appId: string): Promise<void> {
+    try {
+      await this.client.deleteAccountsByApp(appId);
+      // Clear all connections for this app
+      Array.from(this.connections.entries()).forEach(([key]) => {
+        if (key.startsWith(`${appId}:`)) {
+          this.connections.delete(key);
+        }
+      });
+    } catch (error) {
+      console.error('Error disconnecting all:', error);
+      throw error instanceof Error ? error : new Error('Failed to disconnect all');
     }
   }
 } 

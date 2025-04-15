@@ -64,6 +64,7 @@ export default function FlowDashboard({ orchestratorId, flowId }: FlowDashboardP
 
         // Initialize and start the agent
         const aoraAgent = new AoraAgent({
+          claudeApiKey: process.env.NEXT_PUBLIC_CLAUDE_API_KEY || '',
           maxConcurrentConnections: 2,
           retryAttempts: 3
         });

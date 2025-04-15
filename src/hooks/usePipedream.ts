@@ -13,7 +13,12 @@ export function usePipedream({ appName, autoConnect = false }: UsePipedreamOptio
   const [error, setError] = useState<Error | null>(null);
   const { currentUser } = useUserStore();
   
-  const pipedreamService = new PipedreamService(pipedreamConfig);
+  // Ensure environment is typed correctly
+  const config = {
+    ...pipedreamConfig,
+    environment: pipedreamConfig.environment as 'development' | 'production' | undefined
+  };
+  const pipedreamService = new PipedreamService(config);
 
   useEffect(() => {
     if (autoConnect && currentUser && !isConnecting) {
@@ -43,11 +48,7 @@ export function usePipedream({ appName, autoConnect = false }: UsePipedreamOptio
       throw new Error('User must be logged in to make requests');
     }
 
-    return pipedreamService.makeApiRequest(appName, currentUser.id, {
-      endpoint,
-      method,
-      data
-    });
+    return pipedreamService.makeApiRequest(appName, currentUser.id, endpoint, method as any, data);
   };
 
   const disconnect = async () => {

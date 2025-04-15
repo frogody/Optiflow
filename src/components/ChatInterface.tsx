@@ -3,6 +3,7 @@
 import React, { useState, useCallback } from 'react';
 import { useWorkflowStore } from '@/lib/workflowStore';
 import { mcpService } from '@/services/mcp/MCPService';
+import { useUserStore } from '@/lib/userStore';
 
 interface Orchestrator {
   id: string;
@@ -58,7 +59,12 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({ selectedOrchestrator }) =
     if (!selectedOrchestrator) return;
 
     try {
-      const response = await mcpService.sendRequest(selectedOrchestrator.id, 'process_natural_language', {
+      const userId = useUserStore.getState().currentUser?.id;
+      if (!userId) {
+        throw new Error('User not authenticated');
+      }
+
+      const response = await mcpService.sendRequest(userId, selectedOrchestrator.id, 'process_natural_language', {
         text,
         workflow: workflow || undefined,
       });

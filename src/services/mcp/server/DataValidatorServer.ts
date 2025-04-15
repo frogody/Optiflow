@@ -1,6 +1,34 @@
 import { MCPServer } from './MCPServer';
 import { MCPRequest, MCPResponse } from '../types';
 
+interface ValidationRule {
+  required?: boolean;
+}
+
+interface ValidationRules {
+  [key: string]: ValidationRule;
+}
+
+interface ValidationError {
+  field: string;
+  message: string;
+}
+
+interface ValidationResults {
+  isValid: boolean;
+  errors: ValidationError[];
+  warnings: ValidationError[];
+}
+
+interface CleaningRule {
+  trim?: boolean;
+  lowercase?: boolean;
+}
+
+interface CleaningRules {
+  [key: string]: CleaningRule;
+}
+
 export class DataValidatorServer extends MCPServer {
   constructor() {
     super(
@@ -26,10 +54,10 @@ export class DataValidatorServer extends MCPServer {
   }
 
   private async validateData(request: MCPRequest): Promise<MCPResponse> {
-    const { data, rules } = request.params;
+    const { data, rules } = request.params as { data: Record<string, any>, rules: ValidationRules };
     
     // Simulate data validation
-    const validationResults = {
+    const validationResults: ValidationResults = {
       isValid: true,
       errors: [],
       warnings: [],
@@ -56,7 +84,7 @@ export class DataValidatorServer extends MCPServer {
   }
 
   private async cleanData(request: MCPRequest): Promise<MCPResponse> {
-    const { data, cleaningRules } = request.params;
+    const { data, cleaningRules } = request.params as { data: Record<string, any>, cleaningRules: CleaningRules };
     
     // Simulate data cleaning
     const cleanedData = { ...data };

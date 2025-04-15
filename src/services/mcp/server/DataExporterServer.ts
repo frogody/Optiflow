@@ -1,6 +1,15 @@
 import { MCPServer } from './MCPServer';
 import { MCPRequest, MCPResponse } from '../types';
 
+interface FormattingRule {
+  dateFormat?: boolean;
+  numberFormat?: boolean;
+}
+
+interface FormattingRules {
+  [key: string]: FormattingRule;
+}
+
 export class DataExporterServer extends MCPServer {
   constructor() {
     super(
@@ -53,7 +62,7 @@ export class DataExporterServer extends MCPServer {
   }
 
   private async formatData(request: MCPRequest): Promise<MCPResponse> {
-    const { data, formattingRules } = request.params;
+    const { data, formattingRules } = request.params as { data: Record<string, any>, formattingRules: FormattingRules };
     
     // Simulate data formatting
     const formattedData = { ...data };
