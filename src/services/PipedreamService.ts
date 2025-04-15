@@ -1,4 +1,4 @@
-import { createBackendClient } from '@pipedream/sdk/server';
+import { createBackendClient } from '@pipedream/sdk';
 
 interface PipedreamConfig {
   clientId: string;
