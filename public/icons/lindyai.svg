@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="48" height="48" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="48" height="48" rx="12" fill="#1A1A2E"/>
+  <!-- Flower petals -->
+  <path d="M24 14C26 18 30 20 34 20C30 20 26 22 24 26C22 22 18 20 14 20C18 20 22 18 24 14Z" fill="#3CDFFF"/>
+  <path d="M24 22C26 26 30 28 34 28C30 28 26 30 24 34C22 30 18 28 14 28C18 28 22 26 24 22Z" fill="#3CDFFF"/>
+  <path d="M32 24C28 26 26 30 26 34C26 30 24 26 20 24C24 22 26 18 26 14C26 18 28 22 32 24Z" fill="#3CDFFF"/>
+  <path d="M16 24C20 26 22 30 22 34C22 30 24 26 28 24C24 22 22 18 22 14C22 18 20 22 16 24Z" fill="#3CDFFF"/>
+  <!-- Center circle -->
+  <circle cx="24" cy="24" r="4" fill="#3CDFFF"/>
+</svg> 
