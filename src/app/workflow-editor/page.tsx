@@ -318,7 +318,22 @@ function WorkflowEditorContent() {
               type: 'smoothstep'
             }}
             edgesFocusable={false}
-            onInit={setReactFlowInstance}
+            deleteKeyCode={["Backspace", "Delete"]}
+            minZoom={0.2}
+            maxZoom={1.5}
+            elementsSelectable={true}
+            nodesDraggable={true}
+            style={{ backgroundColor: "#111827" }}
+            onInit={(reactFlowInstance) => {
+              setReactFlowInstance(reactFlowInstance);
+              // Set the node element background color to transparent
+              const nodeElements = document.querySelectorAll('.react-flow__node');
+              nodeElements.forEach((node) => {
+                (node as HTMLElement).style.backgroundColor = 'transparent';
+                // Remove any background images
+                (node as HTMLElement).style.backgroundImage = 'none';
+              });
+            }}
             onDrop={onDrop}
             onDragOver={onDragOver}
           >

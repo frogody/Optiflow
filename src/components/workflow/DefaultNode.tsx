@@ -39,10 +39,15 @@ export default function DefaultNode({ data, selected, isConnectable, id }: Defau
     <>
       <div 
         className={`
-          relative bg-dark-50 p-4 rounded-lg border-2 min-w-[180px] shadow-lg
+          relative bg-dark-50 p-4 rounded-lg border-2 min-w-[200px] shadow-lg
           ${selected ? 'border-primary shadow-neon' : 'border-gray-700'}
-          transition-all duration-300
+          transition-all duration-300 backdrop-blur-sm
         `}
+        style={{ 
+          backgroundColor: 'rgba(17, 24, 39, 0.95)',
+          backdropFilter: 'blur(5px)',
+          WebkitBackdropFilter: 'blur(5px)'
+        }}
       >
         <Handle
           type="target"
