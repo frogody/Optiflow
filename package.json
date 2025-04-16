@@ -15,7 +15,8 @@
     "docker:stop": "docker-compose down",
     "deploy": "sh deploy.sh",
     "check-env": "node scripts/check-env.js",
-    "generate-secret": "node scripts/generate-secret.js"
+    "generate-secret": "node scripts/generate-secret.js",
+    "vercel-build": "npm run build"
   },
   "dependencies": {
     "@auth/core": "^0.38.0",
@@ -64,6 +65,6 @@
     "typescript": "^5.3.3"
   },
   "engines": {
-    "node": ">=18.x"
+    "node": "18.x"
   }
 }
