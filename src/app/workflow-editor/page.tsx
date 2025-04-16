@@ -25,6 +25,8 @@ import { AIAgentConfigData } from '@/components/workflow/AIAgentConfig';
 import NodePalette from '@/components/workflow/NodePalette';
 import { DefaultNodeData } from '@/components/workflow/DefaultNodeConfig';
 import CustomEdge from '@/components/workflow/CustomEdge';
+import WorkflowSettingsPanel, { WorkflowSettings } from '@/components/workflow/WorkflowSettings';
+import { Cog6ToothIcon } from '@heroicons/react/24/outline';
 
 // Define a union type for node data
 type NodeDataType = {
@@ -232,6 +234,31 @@ function WorkflowEditorContent() {
   const [edges, setEdges, onEdgesChange] = useEdgesState<EdgeDataType>(initialEdges);
   const [reactFlowInstance, setReactFlowInstance] = useState<any>(null);
   
+  // Add state for workflow settings and modal
+  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+  const [workflowSettings, setWorkflowSettings] = useState<WorkflowSettings>({
+    memoryEnabled: true,
+    memoryType: 'buffer',
+    memorySize: 1024,
+    contextWindowSize: 10,
+    
+    safeMode: false,
+    autoSave: true,
+    executionTimeout: 300,
+    maxConcurrentNodes: 5,
+    
+    ragEnabled: false,
+    knowledgeBase: '',
+    similarityThreshold: 0.7,
+    maxDocuments: 5,
+    
+    notifyOnCompletion: true,
+    notifyOnError: true,
+    
+    debugMode: false,
+    logLevel: 'error',
+  });
+
   // Handle connections between nodes
   const onConnect = useCallback(
     (connection: Connection) =>
@@ -388,6 +415,15 @@ function WorkflowEditorContent() {
     [reactFlowInstance, setNodes, onNodeConfigChange, onDefaultNodeConfigChange]
   );
   
+  // Handler for saving workflow settings
+  const handleSaveSettings = (settings: WorkflowSettings) => {
+    setWorkflowSettings(settings);
+    console.log('Workflow settings updated:', settings);
+    
+    // Apply any necessary changes based on new settings
+    // For example, updating execution environment or context window
+  };
+  
   return (
     <div className="h-screen w-full flex flex-col">
       {/* Header */}
@@ -397,12 +433,20 @@ function WorkflowEditorContent() {
         </div>
         <div className="flex items-center space-x-2">
           <button
+            className="p-2 rounded-md text-gray-300 hover:bg-dark-200 transition-colors"
+            onClick={() => setIsSettingsOpen(true)}
+            title="Workflow Settings"
+          >
+            <Cog6ToothIcon className="h-5 w-5" />
+          </button>
+          <button
             className="px-4 py-2 text-sm font-medium text-dark-50 dark:text-white bg-gradient-to-r from-primary to-secondary rounded-md shadow"
             onClick={() => {
               // Export workflow logic
               const workflow = {
                 nodes,
                 edges,
+                settings: workflowSettings,
               };
               console.log('Workflow saved:', workflow);
               alert('Workflow saved!');
@@ -463,6 +507,32 @@ function WorkflowEditorContent() {
             onDrop={onDrop}
             onDragOver={onDragOver}
           >
+            {/* Add a Panel component for workflow execution controls */}
+            <Panel position="top-right" className="bg-dark-50 p-2 rounded-md border border-gray-700 shadow-lg m-2">
+              <div className="flex items-center gap-2">
+                {workflowSettings.safeMode && (
+                  <div className="py-1 px-2 bg-yellow-600 text-xs text-white rounded-md flex items-center">
+                    <span>Safe Mode</span>
+                  </div>
+                )}
+                {workflowSettings.memoryEnabled && (
+                  <div className="py-1 px-2 bg-blue-600 text-xs text-white rounded-md flex items-center">
+                    <span>Memory: {workflowSettings.memoryType}</span>
+                  </div>
+                )}
+                {workflowSettings.ragEnabled && (
+                  <div className="py-1 px-2 bg-green-600 text-xs text-white rounded-md flex items-center">
+                    <span>RAG: {workflowSettings.knowledgeBase || 'Enabled'}</span>
+                  </div>
+                )}
+                {workflowSettings.debugMode && (
+                  <div className="py-1 px-2 bg-purple-600 text-xs text-white rounded-md flex items-center">
+                    <span>Debug</span>
+                  </div>
+                )}
+              </div>
+            </Panel>
+            
             <Controls 
               className="bg-dark-50 border border-gray-700 rounded-md shadow-lg"
             />
@@ -488,6 +558,14 @@ function WorkflowEditorContent() {
           </ReactFlow>
         </div>
       </div>
+      
+      {/* Settings Dialog */}
+      <WorkflowSettingsPanel
+        isOpen={isSettingsOpen}
+        onClose={() => setIsSettingsOpen(false)}
+        initialSettings={workflowSettings}
+        onSave={handleSaveSettings}
+      />
     </div>
   );
 }
