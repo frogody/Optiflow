@@ -9,6 +9,10 @@ Optiflow is a modern platform for connecting and automating APIs and workflows w
 - Workflow creation and management
 - Dashboard for monitoring connections and workflows
 - Modern, responsive UI with dark mode
+- Create custom workflows with drag and drop interface
+- Connect with popular services via OAuth
+- Execute workflows automatically or manually
+- AI-powered workflow recommendations
 
 ## Tech Stack
 
@@ -22,8 +26,9 @@ Optiflow is a modern platform for connecting and automating APIs and workflows w
 
 ### Prerequisites
 
-- Node.js 18+ and npm
-- Access to Pipedream account (for API integrations)
+- Node.js 18+
+- npm or yarn
+- A Pipedream account for integration capabilities
 
 ### Installation
 
@@ -36,19 +41,68 @@ Optiflow is a modern platform for connecting and automating APIs and workflows w
 2. Install dependencies:
    ```bash
    npm install
+   # or
+   yarn install
    ```
 
-3. Copy the example environment file and configure your variables:
-   ```bash
-   cp .env.example .env.local
-   ```
+3. Set up environment variables
+Copy `.env.example` to `.env.local` and fill in the required values:
+
+```bash
+cp .env.example .env.local
+```
 
 4. Run the development server:
    ```bash
    npm run dev
+   # or
+   yarn dev
    ```
 
 5. Open [http://localhost:3000](http://localhost:3000) in your browser.
+
+## Pipedream Integration Setup
+
+Optiflow uses Pipedream for connecting to third-party services. Follow these steps to set up the integration:
+
+1. Create a Pipedream account at [https://pipedream.com](https://pipedream.com)
+
+2. Create a new project in the Pipedream dashboard
+
+3. Set up OAuth2 clients:
+   - Go to **Settings** > **OAuth** > **New OAuth App**
+   - Create OAuth apps for each service you want to integrate (Slack, GitHub, etc.)
+   - Note the OAuth client ID for each app
+
+4. Create Connect token:
+   - Go to **Settings** > **API** > **Create Token**
+   - Give it a name like "Optiflow Integration"
+   - Copy the token
+
+5. Update your `.env.local` file with the Pipedream credentials:
+   ```
+   NEXT_PUBLIC_PIPEDREAM_CLIENT_ID=your_client_id_here
+   PIPEDREAM_CLIENT_SECRET=your_client_secret_here
+   NEXT_PUBLIC_PIPEDREAM_PROJECT_ID=your_project_id_here
+   NEXT_PUBLIC_PIPEDREAM_TOKEN=your_token_here
+   NEXT_PUBLIC_PIPEDREAM_FRONTEND_HOST=pipedream.com
+   ```
+
+6. Configure a callback URL in your Pipedream OAuth settings:
+   - For local development: `http://localhost:3000/api/oauth/callback`
+   - For production: `https://your-domain.com/api/oauth/callback`
+
+## Available Integrations
+
+Optiflow supports connections to the following services through Pipedream:
+
+- Slack
+- Gmail
+- GitHub
+- Google Sheets
+- Airtable
+- Stripe
+- And many more!
 
 ## Deployment
 
