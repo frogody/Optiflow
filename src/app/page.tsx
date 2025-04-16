@@ -8,6 +8,7 @@ import { motion } from 'framer-motion';
 import { useUserStore } from '@/lib/userStore';
 import { FaArrowUpRightFromSquare } from 'react-icons/fa6';
 import { HiOutlineChartBar, HiOutlineCog, HiOutlineLightningBolt } from 'react-icons/hi';
+import DemoModal from '@/components/DemoModal';
 
 interface WorkflowStep {
   step: string;
@@ -31,6 +32,7 @@ export default function LandingPage() {
   const router = useRouter();
   const { currentUser } = useUserStore();
   const [isLoading, setIsLoading] = useState(false);
+  const [showDemoModal, setShowDemoModal] = useState(false);
 
   // Report cards
   const reportCards: ReportCard[] = [
@@ -115,12 +117,12 @@ export default function LandingPage() {
                 Start Automating
               </button>
               
-              <Link 
-                href="#demo" 
+              <button
+                onClick={() => setShowDemoModal(true)}
                 className="mt-3 sm:mt-0 w-full sm:w-auto px-6 py-3 md:py-4 text-center border border-[#3CDFFF] text-[#3CDFFF] rounded-lg hover:bg-[#3CDFFF]/10 transition-all"
               >
                 Watch Demo
-              </Link>
+              </button>
             </div>
           </motion.div>
         </div>
@@ -230,6 +232,9 @@ export default function LandingPage() {
           </div>
         </div>
       </section>
+      
+      {/* Demo Modal */}
+      <DemoModal isOpen={showDemoModal} onClose={() => setShowDemoModal(false)} />
     </div>
   );
 } 
