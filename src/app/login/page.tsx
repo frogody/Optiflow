@@ -9,6 +9,7 @@ import Cookies from 'js-cookie';
 import Image from 'next/image';
 import GoogleLoginButton from '@/components/GoogleLoginButton';
 import { signIn } from 'next-auth/react';
+import TestLoginButton from '@/components/TestLoginButton';
 
 function LoginForm() {
   const router = useRouter();
@@ -145,6 +146,11 @@ function LoginForm() {
               Continue with GitHub
             </button>
             <GoogleLoginButton className="w-full" />
+            
+            {/* Add Test Login Button */}
+            {process.env.NODE_ENV !== 'production' && (
+              <TestLoginButton />
+            )}
           </div>
           
           <div className="relative mb-6">

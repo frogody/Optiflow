@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import { useUserStore } from '@/lib/userStore';
 import Cookies from 'js-cookie';
-import { getUserById } from '@/lib/auth';
+import { getUserById, createTestUser } from '@/lib/auth';
 import { toast } from 'react-hot-toast';
 
 /**
@@ -18,6 +18,11 @@ export default function SessionInitializer() {
     const initializeSession = async () => {
       try {
         setLoading(true);
+        
+        // Create a test user for development
+        if (process.env.NODE_ENV !== 'production') {
+          await createTestUser();
+        }
         
         // Only attempt to restore if no current user is set
         if (!currentUser) {

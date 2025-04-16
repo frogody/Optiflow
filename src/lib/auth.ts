@@ -30,6 +30,39 @@ const saveUsers = (users: Map<string, any>) => {
   localStorage.setItem('users', JSON.stringify(Array.from(users.entries())));
 };
 
+// Create a test user for development
+export async function createTestUser() {
+  if (typeof window === 'undefined') return;
+  
+  try {
+    const email = process.env.TEST_USER_EMAIL || 'demo@example.com';
+    const password = process.env.TEST_USER_PASSWORD || 'password123';
+    const name = 'Demo User';
+    
+    const users = getUsers();
+    
+    // Only create test user if it doesn't exist
+    if (!users.has(email)) {
+      console.log('Creating test user for development');
+      const hashedPassword = await hash(password, 10);
+      const userId = btoa(email).slice(0, 24);
+      
+      const user = {
+        id: userId,
+        email: email,
+        password: hashedPassword,
+        name: name,
+      };
+      
+      users.set(email, user);
+      saveUsers(users);
+      console.log('Test user created. You can login with:', email, 'and password from .env.local');
+    }
+  } catch (error) {
+    console.error('Error creating test user:', error);
+  }
+}
+
 export async function registerUser(credentials: UserCredentials) {
   const validated = userSchema.parse(credentials);
   const users = getUsers();
