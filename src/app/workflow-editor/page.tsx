@@ -209,55 +209,65 @@ function WorkflowEditorContent() {
   );
   
   return (
-    <div className="h-screen w-full flex">
-      {/* Node Palette */}
-      <NodePalette className="w-64" />
+    <div className="h-screen w-full flex flex-col">
+      {/* Header */}
+      <div className="bg-dark-50 border-b border-dark-200 p-3 flex items-center justify-between">
+        <div className="flex items-center">
+          <h1 className="text-xl font-semibold text-white ml-2">Workflow Editor</h1>
+        </div>
+        <div className="flex items-center space-x-2">
+          <button
+            className="px-4 py-2 text-sm font-medium text-dark-50 dark:text-white bg-gradient-to-r from-primary to-secondary rounded-md shadow"
+            onClick={() => {
+              // Export workflow logic
+              const workflow = {
+                nodes,
+                edges,
+              };
+              console.log('Workflow saved:', workflow);
+              alert('Workflow saved!');
+            }}
+          >
+            Save Workflow
+          </button>
+        </div>
+      </div>
       
-      {/* Flow Editor */}
-      <div className="flex-1" ref={reactFlowWrapper}>
-        <ReactFlow
-          nodes={updatedNodes}
-          edges={edges}
-          onNodesChange={onNodesChange}
-          onEdgesChange={onEdgesChange}
-          onConnect={onConnect}
-          nodeTypes={nodeTypes}
-          connectionLineType={ConnectionLineType.SmoothStep}
-          snapToGrid={true}
-          fitView
-          onInit={setReactFlowInstance}
-          onDrop={onDrop}
-          onDragOver={onDragOver}
-          className="bg-gray-50 dark:bg-dark-100"
-        >
-          <Controls className="bg-white dark:bg-dark-50 border border-gray-200 dark:border-gray-700" />
-          <MiniMap
-            nodeStrokeWidth={3}
-            className="bg-white dark:bg-dark-50 border border-gray-200 dark:border-gray-700"
-          />
-          <Background
-            color={isDarkMode ? '#333' : '#aaa'}
-            gap={16}
-            size={1}
-            variant={BackgroundVariant.Dots}
-          />
-          <Panel position="top-right" className="bg-white dark:bg-dark-50 p-2 rounded-md shadow">
-            <button
-              className="px-4 py-2 text-sm font-medium text-dark-50 dark:text-white bg-gradient-to-r from-primary to-secondary rounded-md shadow"
-              onClick={() => {
-                // Export workflow logic
-                const workflow = {
-                  nodes,
-                  edges,
-                };
-                console.log('Workflow saved:', workflow);
-                alert('Workflow saved!');
-              }}
-            >
-              Save Workflow
-            </button>
-          </Panel>
-        </ReactFlow>
+      {/* Content */}
+      <div className="flex flex-1 overflow-hidden">
+        {/* Node Palette */}
+        <NodePalette className="w-64" />
+        
+        {/* Flow Editor */}
+        <div className="flex-1" ref={reactFlowWrapper}>
+          <ReactFlow
+            nodes={updatedNodes}
+            edges={edges}
+            onNodesChange={onNodesChange}
+            onEdgesChange={onEdgesChange}
+            onConnect={onConnect}
+            nodeTypes={nodeTypes}
+            connectionLineType={ConnectionLineType.SmoothStep}
+            snapToGrid={true}
+            fitView
+            onInit={setReactFlowInstance}
+            onDrop={onDrop}
+            onDragOver={onDragOver}
+            className="bg-gray-50 dark:bg-dark-100"
+          >
+            <Controls className="bg-white dark:bg-dark-50 border border-gray-200 dark:border-gray-700" />
+            <MiniMap
+              nodeStrokeWidth={3}
+              className="bg-white dark:bg-dark-50 border border-gray-200 dark:border-gray-700"
+            />
+            <Background
+              color={isDarkMode ? '#333' : '#aaa'}
+              gap={16}
+              size={1}
+              variant={BackgroundVariant.Dots}
+            />
+          </ReactFlow>
+        </div>
       </div>
     </div>
   );

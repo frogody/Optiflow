@@ -110,7 +110,16 @@ export default function NodePalette({ className = '' }: NodePaletteProps) {
   
   return (
     <div className={`bg-dark-50 border-r border-dark-200 overflow-y-auto flex flex-col ${className}`}>
-      <div className="p-3 border-b border-dark-200">
+      <div className="p-3 border-b border-dark-200 bg-gradient-to-r from-primary/20 to-secondary/20">
+        <div className="flex items-center mb-3">
+          <div className="flex h-8 w-8 items-center justify-center rounded-full bg-gradient-to-r from-primary to-secondary mr-2">
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 17v-5.5M12 5v1.5" />
+            </svg>
+          </div>
+          <h2 className="text-lg font-semibold text-white">Flow Builder</h2>
+        </div>
         <h3 className="font-medium text-white mb-2">Node Palette</h3>
         <input
           type="text"
