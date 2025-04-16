@@ -15,10 +15,12 @@ import ReactFlow, {
   Panel,
   BackgroundVariant,
   Node,
+  XYPosition,
 } from 'reactflow';
 import 'reactflow/dist/style.css';
 import useNodeTypes from '@/components/workflow/NodeTypesFactory';
 import { AIAgentConfigData } from '@/components/workflow/AIAgentConfig';
+import NodePalette from '@/components/workflow/NodePalette';
 
 // Define node data type to fix TypeScript errors
 interface NodeData {
@@ -90,7 +92,8 @@ const initialEdges = [
   },
 ];
 
-export default function WorkflowEditor() {
+// A wrapper component that provides the ReactFlow context
+function WorkflowEditorContent() {
   // Get color mode manually since we don't need the theme provider
   const isDarkMode = typeof window !== 'undefined' ? 
     window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches : 
@@ -104,6 +107,7 @@ export default function WorkflowEditor() {
   // Set up nodes and edges state
   const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
   const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
+  const [reactFlowInstance, setReactFlowInstance] = useState<any>(null);
   
   // Handle connections between nodes
   const onConnect = useCallback(
@@ -156,52 +160,114 @@ export default function WorkflowEditor() {
     });
   }, [nodes, onNodeConfigChange]);
   
+  // Handle drag over to allow dropping
+  const onDragOver = useCallback((event: React.DragEvent) => {
+    event.preventDefault();
+    event.dataTransfer.dropEffect = 'move';
+  }, []);
+  
+  // Handle dropping a new node
+  const onDrop = useCallback(
+    (event: React.DragEvent) => {
+      event.preventDefault();
+      
+      if (!reactFlowInstance || !reactFlowWrapper.current) {
+        return;
+      }
+      
+      // Get the dropped data
+      const dataStr = event.dataTransfer.getData('application/reactflow');
+      if (!dataStr) return;
+      
+      const nodeData = JSON.parse(dataStr);
+      
+      // Get the position from the drop event
+      const reactFlowBounds = reactFlowWrapper.current.getBoundingClientRect();
+      const position = reactFlowInstance.project({
+        x: event.clientX - reactFlowBounds.left,
+        y: event.clientY - reactFlowBounds.top,
+      }) as XYPosition;
+      
+      // Create a unique ID based on the node type and a timestamp
+      const id = `${nodeData.id}-${Date.now()}`;
+      
+      // Create the new node
+      const newNode = {
+        id,
+        type: nodeData.type,
+        position,
+        data: { 
+          label: nodeData.label,
+          description: nodeData.description,
+        } as NodeData,
+      };
+      
+      // Add the new node to the flow
+      setNodes((nds) => nds.concat(newNode));
+    },
+    [reactFlowInstance, setNodes]
+  );
+  
   return (
-    <div className="h-screen w-full bg-white dark:bg-dark">
-      <ReactFlowProvider>
-        <div className="h-full w-full" ref={reactFlowWrapper}>
-          <ReactFlow
-            nodes={updatedNodes}
-            edges={edges}
-            onNodesChange={onNodesChange}
-            onEdgesChange={onEdgesChange}
-            onConnect={onConnect}
-            nodeTypes={nodeTypes}
-            connectionLineType={ConnectionLineType.SmoothStep}
-            snapToGrid={true}
-            fitView
-            className="bg-gray-50 dark:bg-dark-100"
-          >
-            <Controls className="bg-white dark:bg-dark-50 border border-gray-200 dark:border-gray-700" />
-            <MiniMap
-              nodeStrokeWidth={3}
-              className="bg-white dark:bg-dark-50 border border-gray-200 dark:border-gray-700"
-            />
-            <Background
-              color={isDarkMode ? '#333' : '#aaa'}
-              gap={16}
-              size={1}
-              variant={BackgroundVariant.Dots}
-            />
-            <Panel position="top-right" className="bg-white dark:bg-dark-50 p-2 rounded-md shadow">
-              <button
-                className="px-4 py-2 text-sm font-medium text-dark-50 dark:text-white bg-gradient-to-r from-primary to-secondary rounded-md shadow"
-                onClick={() => {
-                  // Export workflow logic
-                  const workflow = {
-                    nodes,
-                    edges,
-                  };
-                  console.log('Workflow saved:', workflow);
-                  alert('Workflow saved!');
-                }}
-              >
-                Save Workflow
-              </button>
-            </Panel>
-          </ReactFlow>
-        </div>
-      </ReactFlowProvider>
+    <div className="h-screen w-full flex">
+      {/* Node Palette */}
+      <NodePalette className="w-64" />
+      
+      {/* Flow Editor */}
+      <div className="flex-1" ref={reactFlowWrapper}>
+        <ReactFlow
+          nodes={updatedNodes}
+          edges={edges}
+          onNodesChange={onNodesChange}
+          onEdgesChange={onEdgesChange}
+          onConnect={onConnect}
+          nodeTypes={nodeTypes}
+          connectionLineType={ConnectionLineType.SmoothStep}
+          snapToGrid={true}
+          fitView
+          onInit={setReactFlowInstance}
+          onDrop={onDrop}
+          onDragOver={onDragOver}
+          className="bg-gray-50 dark:bg-dark-100"
+        >
+          <Controls className="bg-white dark:bg-dark-50 border border-gray-200 dark:border-gray-700" />
+          <MiniMap
+            nodeStrokeWidth={3}
+            className="bg-white dark:bg-dark-50 border border-gray-200 dark:border-gray-700"
+          />
+          <Background
+            color={isDarkMode ? '#333' : '#aaa'}
+            gap={16}
+            size={1}
+            variant={BackgroundVariant.Dots}
+          />
+          <Panel position="top-right" className="bg-white dark:bg-dark-50 p-2 rounded-md shadow">
+            <button
+              className="px-4 py-2 text-sm font-medium text-dark-50 dark:text-white bg-gradient-to-r from-primary to-secondary rounded-md shadow"
+              onClick={() => {
+                // Export workflow logic
+                const workflow = {
+                  nodes,
+                  edges,
+                };
+                console.log('Workflow saved:', workflow);
+                alert('Workflow saved!');
+              }}
+            >
+              Save Workflow
+            </button>
+          </Panel>
+        </ReactFlow>
+      </div>
     </div>
+  );
+}
+
+// Wrap with ReactFlowProvider to provide context
+export default function WorkflowEditor() {
+  return (
+    <ReactFlowProvider>
+      <WorkflowEditorContent />
+    </ReactFlowProvider>
   );
 } 

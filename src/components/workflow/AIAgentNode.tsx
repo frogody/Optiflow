@@ -55,7 +55,7 @@ export default function AIAgentNode({ data, selected }: AIAgentNodeProps) {
                 {nodeConfig?.name || data.label}
               </h3>
               <p className="text-xs text-gray-400">
-                {data.description || "Analyze content with AI"}
+                {nodeConfig?.description || data.description || "Analyze content with AI"}
               </p>
             </div>
             <button 

@@ -20,6 +20,7 @@ export interface AIAgentConfigData {
   temperature: number;
   tools: string[];
   contextStrategy: string;
+  description?: string;
 }
 
 const availableTools = [
@@ -60,6 +61,7 @@ export default function AIAgentConfig({ isOpen, onClose, onSave, initialConfig }
     temperature: initialConfig?.temperature || 0.7,
     tools: initialConfig?.tools || [],
     contextStrategy: initialConfig?.contextStrategy || 'all_inputs',
+    description: initialConfig?.description || 'Analyze content with AI',
   });
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
@@ -127,6 +129,21 @@ export default function AIAgentConfig({ isOpen, onClose, onSave, initialConfig }
                       id="name"
                       name="name"
                       value={config.name}
+                      onChange={handleInputChange}
+                      className="w-full px-3 py-2 bg-dark-100 border border-dark-200 rounded-md text-white focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+                    />
+                  </div>
+                  
+                  {/* Description Field */}
+                  <div>
+                    <label htmlFor="description" className="block text-sm font-medium text-gray-200 mb-1">
+                      Description
+                    </label>
+                    <input
+                      type="text"
+                      id="description"
+                      name="description"
+                      value={config.description}
                       onChange={handleInputChange}
                       className="w-full px-3 py-2 bg-dark-100 border border-dark-200 rounded-md text-white focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
                     />
