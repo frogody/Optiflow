@@ -56,4 +56,11 @@ fi
 
 echo -e "${GREEN}Deployment completed successfully!${NC}"
 echo -e "${YELLOW}Don't forget to configure your Pipedream OAuth App with the correct callback URL${NC}"
-echo -e "${YELLOW}See PIPEDREAM_DEPLOYMENT.md for more details${NC}" 
+echo -e "${YELLOW}See PIPEDREAM_DEPLOYMENT.md for more details${NC}"
+
+NEXT_PUBLIC_PIPEDREAM_CLIENT_ID=your_pipedream_client_id
+PIPEDREAM_CLIENT_SECRET=your_pipedream_client_secret
+PIPEDREAM_PROJECT_ID=your_pipedream_project_id
+PIPEDREAM_PROJECT_ENVIRONMENT=production
+NEXT_PUBLIC_APP_URL=https://your-app.vercel.app
+NEXT_PUBLIC_PIPEDREAM_REDIRECT_URI=https://your-app.vercel.app/api/pipedream/callback 

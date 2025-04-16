@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import { useUserStore } from '@/lib/userStore';
 import { toast } from 'react-hot-toast';
 
@@ -13,6 +13,35 @@ interface OneflowCredentials {
   accountId: string;
 }
 
+// Safe localStorage wrapper
+const safeStorage = {
+  getItem: (key: string): string | null => {
+    if (typeof window === 'undefined') return null;
+    try {
+      return localStorage.getItem(key);
+    } catch (e) {
+      console.warn('Failed to read from localStorage:', e);
+      return null;
+    }
+  },
+  setItem: (key: string, value: string): void => {
+    if (typeof window === 'undefined') return;
+    try {
+      localStorage.setItem(key, value);
+    } catch (e) {
+      console.warn('Failed to write to localStorage:', e);
+    }
+  },
+  removeItem: (key: string): void => {
+    if (typeof window === 'undefined') return;
+    try {
+      localStorage.removeItem(key);
+    } catch (e) {
+      console.warn('Failed to remove from localStorage:', e);
+    }
+  }
+};
+
 export function useOneflow({ autoConnect = false }: UseOneflowOptions = {}) {
   const [isConnecting, setIsConnecting] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
@@ -23,6 +52,28 @@ export function useOneflow({ autoConnect = false }: UseOneflowOptions = {}) {
 
   // Base URL for Oneflow API
   const baseUrl = 'https://api.oneflow.com/v1';
+
+  // Load saved credentials on mount
+  useEffect(() => {
+    const savedCredentials = safeStorage.getItem('oneflow_credentials');
+    if (savedCredentials) {
+      try {
+        const parsed = JSON.parse(savedCredentials);
+        setCredentials(parsed);
+        setConnectionStatus('connected');
+        if (autoConnect) {
+          testConnection(parsed.apiKey, parsed.accountId).catch(() => {
+            setConnectionStatus('error');
+            setCredentials(null);
+            safeStorage.removeItem('oneflow_credentials');
+          });
+        }
+      } catch (e) {
+        console.warn('Failed to parse saved credentials:', e);
+        safeStorage.removeItem('oneflow_credentials');
+      }
+    }
+  }, [autoConnect]);
 
   // Function to test credentials by making a simple API call
   const testConnection = useCallback(async (apiKey: string, accountId: string): Promise<boolean> => {
@@ -70,18 +121,13 @@ export function useOneflow({ autoConnect = false }: UseOneflowOptions = {}) {
       // Test the connection
       await testConnection(apiKey, accountId);
       
-      // Store credentials (in a real app, you would encrypt these)
-      setCredentials({ apiKey, accountId });
-      
-      // Update connection status
+      // Store credentials
+      const newCredentials = { apiKey, accountId };
+      setCredentials(newCredentials);
       setConnectionStatus('connected');
       
-      // Save to local storage
-      try {
-        localStorage.setItem('oneflow_credentials', JSON.stringify({ apiKey, accountId }));
-      } catch (storageError) {
-        console.warn('Failed to save Oneflow credentials to localStorage:', storageError);
-      }
+      // Save to storage using safe wrapper
+      safeStorage.setItem('oneflow_credentials', JSON.stringify(newCredentials));
       
       toast.success('Connected to Oneflow successfully!');
       return true;
@@ -99,14 +145,9 @@ export function useOneflow({ autoConnect = false }: UseOneflowOptions = {}) {
   // Function to disconnect from Oneflow
   const disconnect = useCallback(async () => {
     try {
-      // Clear credentials
       setCredentials(null);
-      
-      // Update connection status
       setConnectionStatus('disconnected');
-      
-      // Remove from local storage
-      localStorage.removeItem('oneflow_credentials');
+      safeStorage.removeItem('oneflow_credentials');
       
       toast.success('Disconnected from Oneflow successfully');
       return true;
@@ -203,31 +244,6 @@ export function useOneflow({ autoConnect = false }: UseOneflowOptions = {}) {
       setIsProcessing(false);
     }
   }, [credentials]);
-
-  // Load saved credentials on initialization
-  useState(() => {
-    try {
-      const savedCredentials = localStorage.getItem('oneflow_credentials');
-      if (savedCredentials) {
-        const parsed = JSON.parse(savedCredentials) as OneflowCredentials;
-        setCredentials(parsed);
-        setConnectionStatus('connected');
-        
-        if (autoConnect) {
-          testConnection(parsed.apiKey, parsed.accountId)
-            .then(() => {
-              setConnectionStatus('connected');
-            })
-            .catch(() => {
-              setConnectionStatus('error');
-              localStorage.removeItem('oneflow_credentials');
-            });
-        }
-      }
-    } catch (err) {
-      console.error('Error loading saved Oneflow credentials:', err);
-    }
-  });
 
   return {
     connect,
