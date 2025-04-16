@@ -16,12 +16,15 @@ import ReactFlow, {
   BackgroundVariant,
   Node,
   XYPosition,
+  MarkerType,
+  EdgeTypes,
 } from 'reactflow';
 import 'reactflow/dist/style.css';
 import useNodeTypes from '@/components/workflow/NodeTypesFactory';
 import { AIAgentConfigData } from '@/components/workflow/AIAgentConfig';
 import NodePalette from '@/components/workflow/NodePalette';
 import { DefaultNodeData } from '@/components/workflow/DefaultNodeConfig';
+import CustomEdge from '@/components/workflow/CustomEdge';
 
 // Define a union type for node data
 type NodeDataType = {
@@ -34,41 +37,71 @@ type NodeDataType = {
   onConfigChange?: (data: any) => void;
 };
 
+// Define the edge data type
+type EdgeDataType = {
+  label?: string;
+  dashed?: boolean;
+  onDelete?: (id: string) => void;
+};
+
+// Define custom edge types
+const customEdgeTypes: EdgeTypes = {
+  custom: CustomEdge,
+};
+
 // Initial nodes for the workflow
 const initialNodes: Node<NodeDataType>[] = [
   {
-    id: 'extract-1',
+    id: 'scraper-1',
     type: 'default',
-    position: { x: 250, y: 100 },
+    position: { x: 100, y: 100 },
     data: { 
       id: 'extract-webpage-1',
       type: 'extract-webpage',
-      label: 'Extract Webpage Text',
-      description: 'Extract text content from a webpage URL',
+      label: 'Extract Company Data',
+      description: 'Scrape company information from website',
       settings: {
-        url: 'https://example.com',
-        includeImages: false
+        url: 'https://example.com/company',
+        selector: '.company-info',
+        includeImages: true,
+        maxDepth: 2
+      }
+    },
+  },
+  {
+    id: 'process-1',
+    type: 'default',
+    position: { x: 100, y: 250 },
+    data: {
+      id: 'process-data-1',
+      type: 'process-data',
+      label: 'Format Company Data',
+      description: 'Transform scraped data into structured format',
+      settings: {
+        inputFormat: 'html',
+        outputFormat: 'json',
+        transformation: '{\n  "name": "data.companyName",\n  "email": "data.contactEmail",\n  "phone": "data.contactPhone"\n}'
       }
     },
   },
   {
     id: 'agent-1',
     type: 'aiAgent',
-    position: { x: 250, y: 250 },
+    position: { x: 100, y: 400 },
     data: { 
-      label: 'AI Agent',
-      description: 'Analyze the content to determine if it\'s a good lead',
+      label: 'AI Lead Qualifier',
+      description: 'Analyze company data to determine if it\'s a good lead',
       config: {
         name: 'Lead Analyzer',
         type: 'Conditional',
-        prompt: `You are an AI assistant that helps analyze webpage content to determine if it's a good lead.
+        prompt: `You are an AI assistant that helps analyze company data to determine if it's a good lead.
 Consider the following factors:
-- Relevance to our industry
-- Indication of needs or pain points
-- Company size and potential
-- Contact information availability
+- Company size and industry
+- Recent news or events
+- Contact information completeness
+- Online presence
 
-Analyze the provided content and respond with:
+Analyze the provided data and respond with:
 1. Whether this is a good lead (Yes/No)
 2. Confidence level (Low/Medium/High)
 3. Brief justification for your assessment`,
@@ -81,37 +114,104 @@ Analyze the provided content and respond with:
     },
   },
   {
+    id: 'conditional-1',
+    type: 'default',
+    position: { x: 100, y: 550 },
+    data: {
+      id: 'conditional-1',
+      type: 'conditional',
+      label: 'Lead Quality Check',
+      description: 'Route based on AI qualification result',
+      settings: {
+        condition: 'result.isQualified == true',
+        trueLabel: 'Good Lead',
+        falseLabel: 'Poor Lead'
+      }
+    },
+  },
+  {
     id: 'email-1',
     type: 'default',
-    position: { x: 250, y: 400 },
+    position: { x: 300, y: 700 },
     data: {
-      id: 'first-outreach-email-1',
-      type: 'first-outreach-email',
-      label: 'First Outreach Email',
-      description: 'Send first email in the sequence',
+      id: 'send-email-1',
+      type: 'send-email',
+      label: 'Send to Sales Team',
+      description: 'Notify sales team about qualified lead',
       settings: {
-        template: 'cold-outreach',
-        subject: 'Opportunity with our solution'
+        to: 'sales@company.com',
+        subject: 'New Qualified Lead: {{data.company.name}}',
+        body: 'A new lead has been qualified by our AI system.\n\nCompany: {{data.company.name}}\nContact: {{data.company.contact}}\nConfidence: {{result.confidence}}\n\nReason: {{result.justification}}',
+        attachments: 'lead-details.pdf'
+      }
+    },
+  },
+  {
+    id: 'database-1',
+    type: 'default',
+    position: { x: -100, y: 700 },
+    data: {
+      id: 'database-1',
+      type: 'database',
+      label: 'Save to CRM',
+      description: 'Store lead information in database',
+      settings: {
+        connectionString: 'postgresql://user:pass@localhost:5432/crm',
+        queryType: 'insert',
+        query: 'INSERT INTO leads (name, email, phone, status, source) VALUES (:name, :email, :phone, :status, :source)',
+        parameters: '{\n  "name": "{{data.company.name}}",\n  "email": "{{data.company.email}}",\n  "phone": "{{data.company.phone}}",\n  "status": "unqualified",\n  "source": "web-scraper"\n}'
       }
     },
   },
 ];
 
 // Initial edges connecting the nodes
-const initialEdges = [
+const initialEdges: Edge<EdgeDataType>[] = [
   {
     id: 'e1-2',
-    source: 'extract-1',
-    target: 'agent-1',
+    source: 'scraper-1',
+    target: 'process-1',
+    type: 'custom',
     animated: true,
-    type: 'smoothstep',
+    data: { label: 'Raw Data' }
   },
   {
     id: 'e2-3',
-    source: 'agent-1',
-    target: 'email-1',
+    source: 'process-1',
+    target: 'agent-1',
+    type: 'custom',
     animated: true,
-    type: 'smoothstep',
+    data: { label: 'Structured Data' }
+  },
+  {
+    id: 'e3-4',
+    source: 'agent-1',
+    target: 'conditional-1',
+    type: 'custom',
+    animated: true,
+    data: { label: 'Analysis' }
+  },
+  {
+    id: 'e4-5',
+    source: 'conditional-1',
+    target: 'email-1',
+    type: 'custom',
+    animated: true,
+    data: { 
+      label: 'Qualified',
+      dashed: false 
+    }
+  },
+  {
+    id: 'e4-6',
+    source: 'conditional-1',
+    target: 'database-1',
+    type: 'custom',
+    animated: true,
+    data: { 
+      label: 'Unqualified',
+      dashed: true 
+    }
   },
 ];
 
@@ -129,7 +229,7 @@ function WorkflowEditorContent() {
   
   // Set up nodes and edges state
   const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
-  const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
+  const [edges, setEdges, onEdgesChange] = useEdgesState<EdgeDataType>(initialEdges);
   const [reactFlowInstance, setReactFlowInstance] = useState<any>(null);
   
   // Handle connections between nodes
@@ -139,8 +239,9 @@ function WorkflowEditorContent() {
         addEdge(
           {
             ...connection,
-            type: 'smoothstep',
+            type: 'custom',
             animated: true,
+            data: { label: 'Connection' }
           },
           eds
         )
@@ -193,6 +294,8 @@ function WorkflowEditorContent() {
             data: {
               ...updatedData,
               onConfigChange: (data: DefaultNodeData) => onDefaultNodeConfigChange(node.id, data),
+              // Ensure label is always defined
+              label: updatedData.label || node.data.label || 'Node',
             },
           };
         }
@@ -200,6 +303,22 @@ function WorkflowEditorContent() {
       })
     );
   }, [setNodes]);
+  
+  // Handle edge deletion
+  const onEdgeDelete = useCallback((edgeId: string) => {
+    setEdges((eds) => eds.filter((e) => e.id !== edgeId));
+  }, [setEdges]);
+  
+  // Update edges data with delete handler
+  const updatedEdges = useMemo(() => {
+    return edges.map(edge => ({
+      ...edge,
+      data: {
+        ...edge.data,
+        onDelete: onEdgeDelete
+      }
+    }));
+  }, [edges, onEdgeDelete]);
   
   // Handle drag over to allow dropping
   const onDragOver = useCallback((event: React.DragEvent) => {
@@ -264,7 +383,7 @@ function WorkflowEditorContent() {
       };
       
       // Add the new node to the flow
-      setNodes((nds) => [...nds, newNode]);
+      setNodes((nds) => [...nds, newNode as Node<NodeDataType>]);
     },
     [reactFlowInstance, setNodes, onNodeConfigChange, onDefaultNodeConfigChange]
   );
@@ -303,19 +422,26 @@ function WorkflowEditorContent() {
         <div className="flex-1" ref={reactFlowWrapper}>
           <ReactFlow
             nodes={updatedNodes}
-            edges={edges}
+            edges={updatedEdges}
             onNodesChange={onNodesChange}
             onEdgesChange={onEdgesChange}
             onConnect={onConnect}
             nodeTypes={nodeTypes}
+            edgeTypes={customEdgeTypes}
             connectionLineType={ConnectionLineType.SmoothStep}
             snapToGrid={true}
             fitView
             className="bg-dark-100"
             defaultEdgeOptions={{
+              type: 'custom',
               style: { stroke: '#6366f1', strokeWidth: 2 },
               animated: true,
-              type: 'smoothstep'
+              markerEnd: {
+                type: MarkerType.ArrowClosed,
+                width: 20,
+                height: 20,
+                color: '#6366f1',
+              },
             }}
             edgesFocusable={false}
             deleteKeyCode={["Backspace", "Delete"]}

@@ -9,7 +9,19 @@ import {
   ClockIcon,
   AdjustmentsHorizontalIcon,
   ServerIcon,
-  CloudIcon
+  CloudIcon,
+  ChatBubbleLeftRightIcon,
+  DocumentDuplicateIcon,
+  ArrowPathIcon,
+  UserIcon,
+  TableCellsIcon,
+  BeakerIcon,
+  CodeBracketIcon,
+  CpuChipIcon,
+  ChartBarIcon,
+  FolderIcon,
+  PaperAirplaneIcon,
+  CalendarIcon
 } from '@heroicons/react/24/outline';
 
 // Map of node types to icons for representation
@@ -20,11 +32,22 @@ const nodeTypeIcons: Record<string, any> = {
   'api': ServerIcon,
   'process-data': AdjustmentsHorizontalIcon,
   'cloud-function': CloudIcon,
+  'chatbot': ChatBubbleLeftRightIcon,
+  'conditional': ArrowPathIcon,
+  'contact': UserIcon,
+  'database': TableCellsIcon,
+  'transform': BeakerIcon,
+  'code': CodeBracketIcon,
+  'ml-model': CpuChipIcon,
+  'analytics': ChartBarIcon,
+  'file-manager': FolderIcon,
+  'social-post': PaperAirplaneIcon,
+  'scheduler': CalendarIcon,
   'default': AdjustmentsHorizontalIcon
 };
 
 // Field type definitions
-export type FieldType = 'text' | 'textarea' | 'number' | 'email' | 'url' | 'select' | 'checkbox' | 'date' | 'time';
+export type FieldType = 'text' | 'textarea' | 'number' | 'email' | 'url' | 'select' | 'checkbox' | 'date' | 'time' | 'json' | 'code' | 'color';
 
 export interface FieldConfig {
   type: FieldType;
@@ -34,6 +57,7 @@ export interface FieldConfig {
   required?: boolean;
   options?: { label: string; value: any }[];
   defaultValue?: any;
+  language?: string; // For code editor
 }
 
 // Map of node types to their field configurations
@@ -56,6 +80,12 @@ const nodeConfigs: Record<string, Record<string, FieldConfig>> = {
       type: 'checkbox',
       label: 'Include Images',
       description: 'Whether to include images in extraction'
+    },
+    maxDepth: {
+      type: 'number',
+      label: 'Max Depth',
+      description: 'Maximum crawl depth for linked pages',
+      defaultValue: 1
     }
   },
   'send-email': {
@@ -77,6 +107,17 @@ const nodeConfigs: Record<string, Record<string, FieldConfig>> = {
       label: 'Body',
       description: 'Email body content',
       placeholder: 'Enter your email content here...'
+    },
+    attachments: {
+      type: 'text',
+      label: 'Attachments',
+      description: 'Comma-separated file paths to attach',
+      placeholder: '/path/to/file1.pdf, /path/to/file2.jpg'
+    },
+    sendAt: {
+      type: 'date',
+      label: 'Send At',
+      description: 'Schedule email for later delivery'
     }
   },
   'wait': {
@@ -91,6 +132,12 @@ const nodeConfigs: Record<string, Record<string, FieldConfig>> = {
       type: 'time',
       label: 'Wait Until',
       description: 'Wait until specific time (optional)'
+    },
+    condition: {
+      type: 'text',
+      label: 'Condition',
+      description: 'Wait until this condition is met',
+      placeholder: '{{variable}} == "value"'
     }
   },
   'api': {
@@ -109,7 +156,8 @@ const nodeConfigs: Record<string, Record<string, FieldConfig>> = {
         { label: 'GET', value: 'GET' },
         { label: 'POST', value: 'POST' },
         { label: 'PUT', value: 'PUT' },
-        { label: 'DELETE', value: 'DELETE' }
+        { label: 'DELETE', value: 'DELETE' },
+        { label: 'PATCH', value: 'PATCH' }
       ],
       defaultValue: 'GET'
     },
@@ -124,6 +172,384 @@ const nodeConfigs: Record<string, Record<string, FieldConfig>> = {
       label: 'Body',
       description: 'Request body as JSON',
       placeholder: '{"key": "value"}'
+    },
+    authentication: {
+      type: 'select',
+      label: 'Authentication',
+      description: 'Authentication method',
+      options: [
+        { label: 'None', value: 'none' },
+        { label: 'Basic Auth', value: 'basic' },
+        { label: 'Bearer Token', value: 'bearer' },
+        { label: 'API Key', value: 'apikey' },
+        { label: 'OAuth 2.0', value: 'oauth2' }
+      ],
+      defaultValue: 'none'
+    },
+    retryCount: {
+      type: 'number',
+      label: 'Retry Count',
+      description: 'Number of retries on failure',
+      defaultValue: 3
+    }
+  },
+  'process-data': {
+    inputFormat: {
+      type: 'select',
+      label: 'Input Format',
+      description: 'Format of the input data',
+      options: [
+        { label: 'JSON', value: 'json' },
+        { label: 'CSV', value: 'csv' },
+        { label: 'XML', value: 'xml' },
+        { label: 'Text', value: 'text' }
+      ],
+      defaultValue: 'json'
+    },
+    outputFormat: {
+      type: 'select',
+      label: 'Output Format',
+      description: 'Format of the output data',
+      options: [
+        { label: 'JSON', value: 'json' },
+        { label: 'CSV', value: 'csv' },
+        { label: 'XML', value: 'xml' },
+        { label: 'Text', value: 'text' }
+      ],
+      defaultValue: 'json'
+    },
+    transformation: {
+      type: 'textarea',
+      label: 'Transformation',
+      description: 'Transformation expression or mapping',
+      placeholder: '{ "newField": data.oldField }'
+    },
+    filterCondition: {
+      type: 'text',
+      label: 'Filter Condition',
+      description: 'Filter data based on this condition',
+      placeholder: 'data.age > 30'
+    }
+  },
+  'database': {
+    connectionString: {
+      type: 'text',
+      label: 'Connection String',
+      description: 'Database connection string',
+      placeholder: 'postgresql://user:password@localhost:5432/mydb',
+      required: true
+    },
+    query: {
+      type: 'textarea',
+      label: 'SQL Query',
+      description: 'SQL query to execute',
+      placeholder: 'SELECT * FROM users WHERE active = true',
+      required: true
+    },
+    queryType: {
+      type: 'select',
+      label: 'Query Type',
+      description: 'Type of SQL operation',
+      options: [
+        { label: 'Select', value: 'select' },
+        { label: 'Insert', value: 'insert' },
+        { label: 'Update', value: 'update' },
+        { label: 'Delete', value: 'delete' }
+      ],
+      defaultValue: 'select'
+    },
+    parameters: {
+      type: 'textarea',
+      label: 'Query Parameters',
+      description: 'Parameters as JSON object',
+      placeholder: '{"id": 123, "status": "active"}'
+    }
+  },
+  'conditional': {
+    condition: {
+      type: 'text',
+      label: 'Condition',
+      description: 'Condition to evaluate',
+      placeholder: '{{variable}} == "value"',
+      required: true
+    },
+    trueLabel: {
+      type: 'text',
+      label: 'True Path Label',
+      description: 'Label for the true condition path',
+      defaultValue: 'True'
+    },
+    falseLabel: {
+      type: 'text',
+      label: 'False Path Label',
+      description: 'Label for the false condition path',
+      defaultValue: 'False'
+    }
+  },
+  'chatbot': {
+    initialMessage: {
+      type: 'text',
+      label: 'Initial Message',
+      description: 'First message to send to the user',
+      placeholder: 'Hello! How can I help you today?'
+    },
+    model: {
+      type: 'select',
+      label: 'AI Model',
+      description: 'AI model to use for responses',
+      options: [
+        { label: 'GPT-4o', value: 'gpt-4o' },
+        { label: 'Claude 3', value: 'claude-3' },
+        { label: 'Llama 3', value: 'llama-3' }
+      ],
+      defaultValue: 'gpt-4o'
+    },
+    systemPrompt: {
+      type: 'textarea',
+      label: 'System Prompt',
+      description: 'Instructions for the AI',
+      placeholder: 'You are a helpful assistant that helps customers with product inquiries.'
+    },
+    maxTurns: {
+      type: 'number',
+      label: 'Max Turns',
+      description: 'Maximum conversation turns before escalation',
+      defaultValue: 5
+    },
+    fallbackMessage: {
+      type: 'text',
+      label: 'Fallback Message',
+      description: 'Message when the bot cannot help',
+      placeholder: "I'm sorry, I'll connect you with a human agent."
+    }
+  },
+  'social-post': {
+    platform: {
+      type: 'select',
+      label: 'Platform',
+      description: 'Social media platform',
+      options: [
+        { label: 'Twitter/X', value: 'twitter' },
+        { label: 'LinkedIn', value: 'linkedin' },
+        { label: 'Facebook', value: 'facebook' },
+        { label: 'Instagram', value: 'instagram' }
+      ],
+      required: true
+    },
+    content: {
+      type: 'textarea',
+      label: 'Content',
+      description: 'Post content',
+      placeholder: 'Check out our latest product launch!',
+      required: true
+    },
+    media: {
+      type: 'text',
+      label: 'Media URLs',
+      description: 'Comma-separated list of media URLs',
+      placeholder: 'https://example.com/image1.jpg, https://example.com/image2.jpg'
+    },
+    scheduledTime: {
+      type: 'date',
+      label: 'Scheduled Time',
+      description: 'When to publish the post'
+    }
+  },
+  'code': {
+    language: {
+      type: 'select',
+      label: 'Language',
+      description: 'Programming language',
+      options: [
+        { label: 'JavaScript', value: 'javascript' },
+        { label: 'Python', value: 'python' },
+        { label: 'PHP', value: 'php' },
+        { label: 'Ruby', value: 'ruby' },
+        { label: 'Shell', value: 'shell' }
+      ],
+      defaultValue: 'javascript'
+    },
+    code: {
+      type: 'textarea',
+      label: 'Code',
+      description: 'Code to execute',
+      placeholder: 'console.log("Hello World");',
+      required: true
+    },
+    timeout: {
+      type: 'number',
+      label: 'Timeout',
+      description: 'Max execution time in seconds',
+      defaultValue: 30
+    },
+    environmentVariables: {
+      type: 'textarea',
+      label: 'Environment Variables',
+      description: 'Environment variables as JSON',
+      placeholder: '{"API_KEY": "abc123", "DEBUG": "true"}'
+    }
+  },
+  'ml-model': {
+    modelType: {
+      type: 'select',
+      label: 'Model Type',
+      description: 'Type of machine learning model',
+      options: [
+        { label: 'Classification', value: 'classification' },
+        { label: 'Regression', value: 'regression' },
+        { label: 'Clustering', value: 'clustering' },
+        { label: 'Image Recognition', value: 'image' },
+        { label: 'Natural Language', value: 'nlp' }
+      ],
+      required: true
+    },
+    modelURL: {
+      type: 'url',
+      label: 'Model URL',
+      description: 'URL for the model endpoint or file',
+      placeholder: 'https://api.example.com/models/sentiment',
+      required: true
+    },
+    inputMapping: {
+      type: 'textarea',
+      label: 'Input Mapping',
+      description: 'Map workflow data to model inputs',
+      placeholder: '{"text": "{{data.content}}", "language": "en"}'
+    },
+    outputMapping: {
+      type: 'textarea',
+      label: 'Output Mapping',
+      description: 'Map model outputs to workflow data',
+      placeholder: '{"sentiment": "result.label", "confidence": "result.score"}'
+    }
+  },
+  'analytics': {
+    trackingId: {
+      type: 'text',
+      label: 'Tracking ID',
+      description: 'Analytics tracking identifier',
+      placeholder: 'UA-XXXXXXXX-X',
+      required: true
+    },
+    eventType: {
+      type: 'select',
+      label: 'Event Type',
+      description: 'Type of analytics event',
+      options: [
+        { label: 'Page View', value: 'pageview' },
+        { label: 'Event', value: 'event' },
+        { label: 'Transaction', value: 'transaction' },
+        { label: 'Social', value: 'social' },
+        { label: 'Timing', value: 'timing' }
+      ],
+      defaultValue: 'event'
+    },
+    eventCategory: {
+      type: 'text',
+      label: 'Event Category',
+      description: 'Category of the event',
+      placeholder: 'Workflow'
+    },
+    eventAction: {
+      type: 'text',
+      label: 'Event Action',
+      description: 'Action performed',
+      placeholder: 'Node Execution'
+    },
+    eventLabel: {
+      type: 'text',
+      label: 'Event Label',
+      description: 'Label for the event',
+      placeholder: '{{nodeId}}'
+    },
+    eventValue: {
+      type: 'number',
+      label: 'Event Value',
+      description: 'Numeric value for the event',
+      placeholder: '1'
+    }
+  },
+  'file-manager': {
+    operation: {
+      type: 'select',
+      label: 'Operation',
+      description: 'File operation to perform',
+      options: [
+        { label: 'Read', value: 'read' },
+        { label: 'Write', value: 'write' },
+        { label: 'Append', value: 'append' },
+        { label: 'Delete', value: 'delete' },
+        { label: 'Copy', value: 'copy' },
+        { label: 'Move', value: 'move' },
+        { label: 'Rename', value: 'rename' }
+      ],
+      required: true
+    },
+    sourcePath: {
+      type: 'text',
+      label: 'Source Path',
+      description: 'Path to the source file',
+      placeholder: '/path/to/source.txt',
+      required: true
+    },
+    destinationPath: {
+      type: 'text',
+      label: 'Destination Path',
+      description: 'Path to the destination file',
+      placeholder: '/path/to/destination.txt'
+    },
+    content: {
+      type: 'textarea',
+      label: 'Content',
+      description: 'Content to write to the file',
+      placeholder: 'File content goes here'
+    },
+    encoding: {
+      type: 'select',
+      label: 'Encoding',
+      description: 'File encoding',
+      options: [
+        { label: 'UTF-8', value: 'utf8' },
+        { label: 'ASCII', value: 'ascii' },
+        { label: 'Binary', value: 'binary' }
+      ],
+      defaultValue: 'utf8'
+    }
+  },
+  'scheduler': {
+    scheduleType: {
+      type: 'select',
+      label: 'Schedule Type',
+      description: 'Type of schedule',
+      options: [
+        { label: 'One-time', value: 'once' },
+        { label: 'Recurring', value: 'recurring' }
+      ],
+      required: true
+    },
+    startDate: {
+      type: 'date',
+      label: 'Start Date',
+      description: 'When to start the schedule',
+      required: true
+    },
+    cronExpression: {
+      type: 'text',
+      label: 'Cron Expression',
+      description: 'Cron expression for recurring schedules',
+      placeholder: '0 9 * * 1-5'
+    },
+    endDate: {
+      type: 'date',
+      label: 'End Date',
+      description: 'When to end the schedule (optional)'
+    },
+    timezone: {
+      type: 'text',
+      label: 'Timezone',
+      description: 'Timezone for the schedule',
+      placeholder: 'America/New_York',
+      defaultValue: 'UTC'
     }
   }
 };
@@ -142,7 +568,7 @@ const getFieldConfig = (nodeType: string, fieldKey: string): FieldConfig => {
     return { type: 'url', label: formatFieldName(fieldKey) };
   } else if (fieldKey.includes('duration') || fieldKey.includes('count') || fieldKey.includes('amount')) {
     return { type: 'number', label: formatFieldName(fieldKey) };
-  } else if (fieldKey.includes('description') || fieldKey.includes('body') || fieldKey.includes('content')) {
+  } else if (fieldKey.includes('description') || fieldKey.includes('body') || fieldKey.includes('content') || fieldKey.includes('code') || fieldKey.includes('query')) {
     return { type: 'textarea', label: formatFieldName(fieldKey) };
   } else if (fieldKey.includes('enabled') || fieldKey.includes('active') || fieldKey.startsWith('is') || fieldKey.startsWith('has')) {
     return { type: 'checkbox', label: formatFieldName(fieldKey) };
@@ -150,6 +576,10 @@ const getFieldConfig = (nodeType: string, fieldKey: string): FieldConfig => {
     return { type: 'date', label: formatFieldName(fieldKey) };
   } else if (fieldKey.includes('time')) {
     return { type: 'time', label: formatFieldName(fieldKey) };
+  } else if (fieldKey.includes('color')) {
+    return { type: 'color', label: formatFieldName(fieldKey) };
+  } else if (fieldKey.includes('json') || fieldKey.includes('config')) {
+    return { type: 'textarea', label: formatFieldName(fieldKey) };
   }
   
   // Default to text
@@ -164,7 +594,12 @@ const formatFieldName = (fieldName: string): string => {
     .replace(/^./, str => str.toUpperCase())
     // Handle special cases
     .replace(/Url/g, 'URL')
-    .replace(/Api/g, 'API');
+    .replace(/Api/g, 'API')
+    .replace(/Sql/g, 'SQL')
+    .replace(/Json/g, 'JSON')
+    .replace(/Xml/g, 'XML')
+    .replace(/Csv/g, 'CSV')
+    .replace(/Id/g, 'ID');
 };
 
 export interface DefaultNodeData {
