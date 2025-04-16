@@ -3,8 +3,8 @@
 import { useState } from 'react';
 import { useUserStore } from '@/lib/userStore';
 import { useEffect } from 'react';
-// Replace the real PipedreamConnectButton with our mock version for development
-import MockPipedreamConnectButton from '@/components/MockPipedreamConnectButton';
+// Import the real PipedreamConnectButton
+import PipedreamConnectButton from '@/components/PipedreamConnectButton';
 import { toast } from 'react-hot-toast';
 
 export default function ConnectionsPage() {
@@ -128,7 +128,7 @@ export default function ConnectionsPage() {
                   <h3 className="text-lg font-semibold mb-4 text-dark-50 dark:text-white">
                     {app.name}
                   </h3>
-                  <MockPipedreamConnectButton
+                  <PipedreamConnectButton
                     appSlug={app.slug}
                     buttonText={`Connect ${app.name}`}
                     onSuccess={handleConnectionSuccess}
