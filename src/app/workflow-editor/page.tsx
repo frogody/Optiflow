@@ -21,22 +21,35 @@ import 'reactflow/dist/style.css';
 import useNodeTypes from '@/components/workflow/NodeTypesFactory';
 import { AIAgentConfigData } from '@/components/workflow/AIAgentConfig';
 import NodePalette from '@/components/workflow/NodePalette';
+import { DefaultNodeData } from '@/components/workflow/DefaultNodeConfig';
 
-// Define node data type to fix TypeScript errors
-interface NodeData {
+// Define a union type for node data
+type NodeDataType = {
+  id?: string;
+  type?: string;
   label: string;
   description?: string;
+  settings?: Record<string, any>;
   config?: AIAgentConfigData;
-  onConfigChange?: (config: AIAgentConfigData) => void;
-}
+  onConfigChange?: (data: any) => void;
+};
 
 // Initial nodes for the workflow
-const initialNodes = [
+const initialNodes: Node<NodeDataType>[] = [
   {
     id: 'extract-1',
     type: 'default',
     position: { x: 250, y: 100 },
-    data: { label: 'Extract Webpage Text' } as NodeData,
+    data: { 
+      id: 'extract-webpage-1',
+      type: 'extract-webpage',
+      label: 'Extract Webpage Text',
+      description: 'Extract text content from a webpage URL',
+      settings: {
+        url: 'https://example.com',
+        includeImages: false
+      }
+    },
   },
   {
     id: 'agent-1',
@@ -63,14 +76,24 @@ Analyze the provided content and respond with:
         temperature: 0.7,
         tools: ['web_search'],
         contextStrategy: 'all_inputs',
+        description: 'Analyze the content to determine if it\'s a good lead',
       }
-    } as NodeData,
+    },
   },
   {
     id: 'email-1',
     type: 'default',
     position: { x: 250, y: 400 },
-    data: { label: 'First Outreach Email' } as NodeData,
+    data: {
+      id: 'first-outreach-email-1',
+      type: 'first-outreach-email',
+      label: 'First Outreach Email',
+      description: 'Send first email in the sequence',
+      settings: {
+        template: 'cold-outreach',
+        subject: 'Opportunity with our solution'
+      }
+    },
   },
 ];
 
@@ -136,7 +159,7 @@ function WorkflowEditorContent() {
             data: {
               ...node.data,
               config,
-            } as NodeData,
+            },
           };
         }
         return node;
@@ -153,12 +176,30 @@ function WorkflowEditorContent() {
           data: {
             ...node.data,
             onConfigChange: (config: AIAgentConfigData) => onNodeConfigChange(node.id, config),
-          } as NodeData,
+          },
         };
       }
       return node;
     });
   }, [nodes, onNodeConfigChange]);
+
+  // Handle default node configuration updates
+  const onDefaultNodeConfigChange = useCallback((nodeId: string, updatedData: DefaultNodeData) => {
+    setNodes((nds) =>
+      nds.map((node) => {
+        if (node.id === nodeId) {
+          return {
+            ...node,
+            data: {
+              ...updatedData,
+              onConfigChange: (data: DefaultNodeData) => onDefaultNodeConfigChange(node.id, data),
+            },
+          };
+        }
+        return node;
+      })
+    );
+  }, [setNodes]);
   
   // Handle drag over to allow dropping
   const onDragOver = useCallback((event: React.DragEvent) => {
@@ -194,18 +235,38 @@ function WorkflowEditorContent() {
       // Create the new node
       const newNode = {
         id,
-        type: nodeData.type,
+        type: nodeData.type === 'ai-agent' ? 'aiAgent' : 'default',
         position,
-        data: { 
-          label: nodeData.label,
-          description: nodeData.description,
-        } as NodeData,
+        data: nodeData.type === 'ai-agent' 
+          ? { 
+              label: nodeData.label,
+              description: nodeData.description,
+              config: {
+                name: nodeData.label,
+                type: 'Conditional',
+                prompt: 'Enter your prompt here...',
+                model: 'gpt-4o',
+                temperature: 0.7,
+                tools: [],
+                contextStrategy: 'all_inputs',
+                description: nodeData.description
+              },
+              onConfigChange: (config: AIAgentConfigData) => onNodeConfigChange(id, config)
+            }
+          : { 
+              id,
+              type: nodeData.id,
+              label: nodeData.label,
+              description: nodeData.description,
+              settings: {},
+              onConfigChange: (data: DefaultNodeData) => onDefaultNodeConfigChange(id, data)
+            },
       };
       
       // Add the new node to the flow
-      setNodes((nds) => nds.concat(newNode));
+      setNodes((nds) => [...nds, newNode]);
     },
-    [reactFlowInstance, setNodes]
+    [reactFlowInstance, setNodes, onNodeConfigChange, onDefaultNodeConfigChange]
   );
   
   return (
