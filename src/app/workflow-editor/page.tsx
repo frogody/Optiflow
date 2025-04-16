@@ -311,18 +311,35 @@ function WorkflowEditorContent() {
             connectionLineType={ConnectionLineType.SmoothStep}
             snapToGrid={true}
             fitView
+            className="bg-dark-100"
+            defaultEdgeOptions={{
+              style: { stroke: '#6366f1', strokeWidth: 2 },
+              animated: true,
+              type: 'smoothstep'
+            }}
+            edgesFocusable={false}
             onInit={setReactFlowInstance}
             onDrop={onDrop}
             onDragOver={onDragOver}
-            className="bg-gray-50 dark:bg-dark-100"
           >
-            <Controls className="bg-white dark:bg-dark-50 border border-gray-200 dark:border-gray-700" />
+            <Controls 
+              className="bg-dark-50 border border-gray-700 rounded-md shadow-lg"
+            />
             <MiniMap
               nodeStrokeWidth={3}
-              className="bg-white dark:bg-dark-50 border border-gray-200 dark:border-gray-700"
+              className="bg-dark-50 border border-gray-700 rounded-md shadow-lg"
+              nodeBorderRadius={8}
+              nodeColor={(node) => {
+                switch (node.type) {
+                  case 'aiAgent':
+                    return '#6366f1';
+                  default:
+                    return '#334155';
+                }
+              }}
             />
             <Background
-              color={isDarkMode ? '#333' : '#aaa'}
+              color="#333"
               gap={16}
               size={1}
               variant={BackgroundVariant.Dots}
