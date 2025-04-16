@@ -1,33 +1,35 @@
-import React, { memo } from 'react';
+'use client';
+
+import React from 'react';
 import { Handle, Position, NodeProps } from 'reactflow';
 
-const ActionNode = ({ data, isConnectable }: NodeProps) => {
+interface ActionNodeData {
+  label: string;
+  icon: string;
+  description: string;
+  category: string;
+}
+
+function ActionNode({ data }: NodeProps<ActionNodeData>) {
   return (
-    <div className="bg-gradient-to-r from-primary/90 to-primary-dark rounded-md shadow-lg p-4 min-w-[180px]">
+    <div className="p-3 rounded-lg bg-gradient-to-r from-primary/10 to-primary/5 border border-primary/30 shadow-neon min-w-[180px]">
       <Handle
         type="target"
         position={Position.Top}
-        isConnectable={isConnectable}
-        className="w-3 h-3 bg-blue-300"
+        className="w-3 h-3 !bg-primary"
       />
-      
-      <div className="flex items-center mb-2">
-        <span className="text-xl mr-2">{data.icon || '✉️'}</span>
-        <div className="text-white font-medium">{data.label}</div>
+      <div className="flex flex-col items-center p-2">
+        <div className="text-2xl mb-2">{data.icon}</div>
+        <div className="font-semibold text-white text-center mb-1">{data.label}</div>
+        <div className="text-xs text-white/60 text-center">{data.description}</div>
       </div>
-      
-      {data.description && (
-        <div className="text-white/70 text-xs">{data.description}</div>
-      )}
-      
       <Handle
         type="source"
         position={Position.Bottom}
-        isConnectable={isConnectable}
-        className="w-3 h-3 bg-blue-300"
+        className="w-3 h-3 !bg-primary"
       />
     </div>
   );
-};
+}
 
-export default memo(ActionNode); 
+export default ActionNode; 

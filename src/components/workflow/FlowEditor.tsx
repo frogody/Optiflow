@@ -96,6 +96,27 @@ const nodeTemplates = [
   }
 ];
 
+// Check if an app is already connected (in development mode)
+const isAppConnected = (appId: string): boolean => {
+  if (typeof window === 'undefined') return false;
+  
+  try {
+    // Get user ID from localStorage or use a default
+    const currentUser = JSON.parse(localStorage.getItem('user_store') || '{}');
+    const userId = currentUser?.state?.currentUser?.id || 'default-user';
+    
+    // Get connections from localStorage
+    const connectionsStr = localStorage.getItem(`mock_connections_${userId}`);
+    if (!connectionsStr) return false;
+    
+    const connections = JSON.parse(connectionsStr);
+    return connections.some((conn: any) => conn.app === appId);
+  } catch (error) {
+    console.error('Error checking app connection status:', error);
+    return false;
+  }
+};
+
 export default function FlowEditor({ initialFlow, onSave }: FlowEditorProps) {
   // Initialize with empty or provided flow
   const [nodes, setNodes, onNodesChange] = useNodesState(initialFlow?.nodes || []);
@@ -105,6 +126,33 @@ export default function FlowEditor({ initialFlow, onSave }: FlowEditorProps) {
   const [showSidebar, setShowSidebar] = useState(true);
   const reactFlowWrapper = useRef<HTMLDivElement>(null);
   const [reactFlowInstance, setReactFlowInstance] = useState<any>(null);
+
+  // Load connected apps on mount
+  useEffect(() => {
+    const loadConnectedApps = () => {
+      if (typeof window === 'undefined') return;
+      
+      try {
+        // Get user ID from localStorage or use a default
+        const currentUser = JSON.parse(localStorage.getItem('user_store') || '{}');
+        const userId = currentUser?.state?.currentUser?.id || 'default-user';
+        
+        // Get connections from localStorage
+        const connectionsStr = localStorage.getItem(`mock_connections_${userId}`);
+        if (!connectionsStr) return;
+        
+        const connections = JSON.parse(connectionsStr);
+        const appIds = connections.map((conn: any) => conn.app);
+        
+        // Update state with connected apps
+        setConnectedApps(appIds);
+      } catch (error) {
+        console.error('Error loading connected apps:', error);
+      }
+    };
+    
+    loadConnectedApps();
+  }, []);
 
   // Handle node connection
   const onConnect = useCallback(
@@ -120,11 +168,46 @@ export default function FlowEditor({ initialFlow, onSave }: FlowEditorProps) {
 
   // Handle connecting an app
   const handleConnectApp = (appId: string) => {
+    if (isAppConnected(appId)) {
+      toast.success(`Already connected to ${appId}`);
+      return;
+    }
+
     toast.success(`Connecting to ${appId}...`);
-    // Simulate connecting to app
+    
+    // Create a mock connection
     setTimeout(() => {
-      setConnectedApps(prev => [...prev, appId]);
-      toast.success(`Successfully connected to ${appId}!`);
+      try {
+        // Get user ID from localStorage or use a default
+        const currentUser = JSON.parse(localStorage.getItem('user_store') || '{}');
+        const userId = currentUser?.state?.currentUser?.id || 'default-user';
+        
+        // Get existing connections
+        const connectionsStr = localStorage.getItem(`mock_connections_${userId}`) || '[]';
+        const connections = JSON.parse(connectionsStr);
+        
+        // Add new connection
+        const app = availableApps.find(a => a.id === appId);
+        const newConnection = {
+          id: `mock-${appId}-${Date.now()}`,
+          app: appId,
+          app_name: app?.name || appId,
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString()
+        };
+        
+        connections.push(newConnection);
+        
+        // Save updated connections
+        localStorage.setItem(`mock_connections_${userId}`, JSON.stringify(connections));
+        
+        // Update state
+        setConnectedApps(prev => [...prev, appId]);
+        toast.success(`Successfully connected to ${appId}!`);
+      } catch (error) {
+        console.error('Error connecting to app:', error);
+        toast.error(`Failed to connect to ${appId}`);
+      }
     }, 1500);
   };
 

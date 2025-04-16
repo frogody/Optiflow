@@ -1,16 +1,17 @@
 'use client';
 
 import { useState } from 'react';
-import PipedreamConnectButton from '@/components/PipedreamConnectButton';
-import { getUserAccounts } from '@/lib/pipedream/server';
 import { useUserStore } from '@/lib/userStore';
 import { useEffect } from 'react';
+// Replace the real PipedreamConnectButton with our mock version for development
+import MockPipedreamConnectButton from '@/components/MockPipedreamConnectButton';
+import { toast } from 'react-hot-toast';
 
 export default function ConnectionsPage() {
   const { currentUser } = useUserStore();
   const userId = currentUser?.id || '';
   const [connections, setConnections] = useState<any[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(false);
 
   const commonApps = [
     { slug: 'slack', name: 'Slack' },
@@ -21,34 +22,55 @@ export default function ConnectionsPage() {
     { slug: 'stripe', name: 'Stripe' }
   ];
 
-  // Load user connections
+  // Use local storage for development to store mock connections
   useEffect(() => {
     if (!userId) return;
 
-    async function loadConnections() {
+    const loadMockConnections = () => {
       try {
-        setIsLoading(true);
-        const accounts = await getUserAccounts(userId);
-        setConnections(accounts.data || []);
+        const stored = localStorage.getItem(`mock_connections_${userId}`);
+        if (stored) {
+          setConnections(JSON.parse(stored));
+        }
       } catch (error) {
-        console.error('Error loading connections:', error);
-      } finally {
-        setIsLoading(false);
+        console.error('Error loading mock connections:', error);
       }
-    }
+    };
 
-    loadConnections();
+    loadMockConnections();
   }, [userId]);
 
   const handleConnectionSuccess = async (accountId: string) => {
-    // Refresh connections after successful connection
+    // For development, store in localStorage
     if (!userId) return;
     
     try {
-      const accounts = await getUserAccounts(userId);
-      setConnections(accounts.data || []);
+      // Find the app that was just connected
+      const [, appSlug] = accountId.split('-');
+      const app = commonApps.find(a => a.slug === appSlug);
+      
+      if (!app) return;
+      
+      // Create a mock connection record
+      const newConnection = {
+        id: accountId,
+        app: appSlug,
+        app_name: app.name,
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString()
+      };
+      
+      // Add to state
+      const updatedConnections = [...connections, newConnection];
+      setConnections(updatedConnections);
+      
+      // Save to localStorage
+      localStorage.setItem(`mock_connections_${userId}`, JSON.stringify(updatedConnections));
+      
+      toast.success(`Successfully connected to ${app.name}!`);
     } catch (error) {
-      console.error('Error refreshing connections:', error);
+      console.error('Error saving mock connection:', error);
+      toast.error('Failed to save connection');
     }
   };
 
@@ -106,7 +128,7 @@ export default function ConnectionsPage() {
                   <h3 className="text-lg font-semibold mb-4 text-dark-50 dark:text-white">
                     {app.name}
                   </h3>
-                  <PipedreamConnectButton
+                  <MockPipedreamConnectButton
                     appSlug={app.slug}
                     buttonText={`Connect ${app.name}`}
                     onSuccess={handleConnectionSuccess}

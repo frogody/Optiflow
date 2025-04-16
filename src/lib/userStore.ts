@@ -1,3 +1,5 @@
+'use client';
+
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 
@@ -29,6 +31,7 @@ export interface User {
   id: string;
   email: string;
   name?: string;
+  image?: string;
 }
 
 export interface UserState {
@@ -42,12 +45,22 @@ export interface UserState {
   updateToolConnection: (userId: string, toolName: string, connection: ToolConnection) => void;
   updateMcpConnection: (userId: string, orchestratorId: string, connection: OrchestratorConnection) => void;
   getEnvironment: (userId: string) => UserEnvironment | null;
+  setUser: (user: User | null) => void;
+  logoutUser: () => void;
 }
+
+// For development and testing purposes, we'll create a mock user
+const createMockUser = (): User => ({
+  id: 'mock-user-1',
+  name: 'Demo User',
+  email: 'demo@example.com',
+  image: 'https://avatars.githubusercontent.com/u/12345678',
+});
 
 export const useUserStore = create<UserState>()(
   persist(
     (set, get) => ({
-      currentUser: null,
+      currentUser: createMockUser(), // Use mock user for development
       isLoading: true,
       environments: {},
       setCurrentUser: (user) => set({ currentUser: user, isLoading: false }),
@@ -83,7 +96,9 @@ export const useUserStore = create<UserState>()(
       getEnvironment: (userId) => {
         const state = get();
         return state.environments[userId] || null;
-      }
+      },
+      setUser: (user) => set({ currentUser: user }),
+      logoutUser: () => set({ currentUser: null }),
     }),
     {
       name: 'user-environment-storage',
