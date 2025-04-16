@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useUserStore } from '@/lib/userStore';
-import { authenticateUser } from '@/lib/auth';
+import { authenticateUser, createTestUser } from '@/lib/auth';
 import Cookies from 'js-cookie';
 import { toast } from 'react-hot-toast';
 
@@ -14,39 +14,57 @@ export default function TestLoginButton() {
 
   const handleTestLogin = async () => {
     setIsLoading(true);
+    const loadingToast = toast.loading('Logging in with test account...');
 
     try {
+      // Force test user creation first
+      await createTestUser();
+      
       const email = 'demo@example.com';
       const password = 'password123';
       
-      toast.loading('Logging in with test account...');
+      console.log('Attempting to log in with test account:', email);
       
       // Authenticate with test credentials
       const user = await authenticateUser(email, password);
       
-      toast.dismiss();
-      toast.success('Logged in as test user');
+      if (!user || !user.id) {
+        throw new Error('Failed to authenticate test user - invalid user data returned');
+      }
+      
+      console.log('Authentication successful for user:', user.email);
       
       // Set user in store
       setCurrentUser({
         id: user.id,
         email: user.email,
-        name: user.name,
+        name: user.name || 'Demo User',
       });
       
-      // Set authentication cookie
+      // Set authentication cookie with secure settings
       Cookies.set('user-token', user.id, { 
         expires: 7, 
         path: '/',
         sameSite: 'strict'
       });
       
-      // Redirect to dashboard
-      router.push('/dashboard');
+      toast.dismiss(loadingToast);
+      toast.success('Logged in as test user');
+      
+      // Redirect to dashboard after a short delay
+      setTimeout(() => {
+        router.push('/dashboard');
+      }, 500);
     } catch (error) {
-      toast.dismiss();
+      toast.dismiss(loadingToast);
       console.error('Test login error:', error);
-      toast.error('Test login failed. Did you refresh the page to create the test user?');
+      
+      // Show more detailed error
+      if (error instanceof Error) {
+        toast.error(`Login failed: ${error.message}`);
+      } else {
+        toast.error('Test login failed. Please check console for details.');
+      }
     } finally {
       setIsLoading(false);
     }

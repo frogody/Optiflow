@@ -21,13 +21,34 @@ export interface SocialLoginCredentials {
 // Helper functions for localStorage
 const getUsers = () => {
   if (typeof window === 'undefined') return new Map();
-  const stored = localStorage.getItem('users');
-  return stored ? new Map(JSON.parse(stored)) : new Map();
+  
+  try {
+    const stored = localStorage.getItem('users');
+    if (!stored) {
+      console.log('No users found in localStorage, creating empty map');
+      return new Map();
+    }
+    
+    // Parse the stored JSON data
+    const parsed = JSON.parse(stored);
+    console.log('Found users in localStorage:', parsed ? parsed.length / 2 : 0, 'users');
+    return new Map(parsed);
+  } catch (error) {
+    console.error('Error getting users from localStorage:', error);
+    return new Map();
+  }
 };
 
 const saveUsers = (users: Map<string, any>) => {
   if (typeof window === 'undefined') return;
-  localStorage.setItem('users', JSON.stringify(Array.from(users.entries())));
+  
+  try {
+    const data = Array.from(users.entries());
+    console.log('Saving users to localStorage:', data.length, 'users');
+    localStorage.setItem('users', JSON.stringify(data));
+  } catch (error) {
+    console.error('Error saving users to localStorage:', error);
+  }
 };
 
 // Create a test user for development
