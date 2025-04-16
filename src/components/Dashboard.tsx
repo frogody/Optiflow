@@ -199,8 +199,9 @@ export default function Dashboard({ orchestratorId = 'default' }: DashboardProps
                       <Image
                         src={flow.icon}
                         alt={flow.name}
-                        layout="fill"
-                        objectFit="contain"
+                        width={32}
+                        height={32}
+                        style={{ width: '100%', height: '100%', objectFit: 'contain' }}
                       />
                     </div>
                   ) : (

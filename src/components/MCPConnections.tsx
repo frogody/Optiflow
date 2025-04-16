@@ -38,7 +38,7 @@ export default function MCPConnections() {
     },
     {
       name: 'Gmail',
-      icon: '/icons/gmail.svg',
+      icon: '/icons/gmail_logo.svg',
       description: 'Email communication and management',
       category: 'Communication',
       status: 'disconnected'
@@ -89,7 +89,8 @@ export default function MCPConnections() {
                   <Image
                     src={app.icon}
                     alt={app.name}
-                    layout="fill"
+                    width={48}
+                    height={48}
                     className="rounded-lg"
                   />
                 </div>

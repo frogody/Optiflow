@@ -1,0 +1,103 @@
+.shadow-glow {
+  box-shadow: 0 0 15px var(--glow-color);
+}
+
+.shadow-glow-intense {
+  box-shadow: 0 0 25px var(--glow-color);
+}
+
+.loading-pulse {
+  animation: pulse 1.5s infinite ease-in-out;
+}
+
+@keyframes pulse {
+  0% {
+    opacity: 0.6;
+  }
+  50% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0.6;
+  }
+}
+
+.neural-bg {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-image: 
+    radial-gradient(circle at 25% 25%, var(--glow-color) 0%, transparent 50%),
+    radial-gradient(circle at 75% 75%, var(--glow-color) 0%, transparent 50%),
+    linear-gradient(to bottom, var(--background-start), var(--background-end));
+  z-index: 0;
+  opacity: 0.8;
+  transition: background-color 0.3s ease;
+}
+
+.light .gradient-text {
+  background: linear-gradient(to right, var(--primary), var(--secondary));
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  display: inline-block;
+}
+
+.dark .gradient-text {
+  background: linear-gradient(to right, #FF5722, #FF9800);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  display: inline-block;
+}
+
+/* Light theme specific styles */
+.light .bg-dark-100\/30 {
+  background-color: rgba(255, 255, 255, 0.85);
+  box-shadow: var(--shadow);
+  border: 1px solid var(--border-color);
+}
+
+.light .bg-dark-100\/30:hover {
+  border-color: var(--border-hover);
+  box-shadow: var(--shadow-hover);
+}
+
+.light select, 
+.light input {
+  background-color: rgba(255, 255, 255, 0.7) !important;
+  border-color: var(--border-color) !important;
+  color: var(--text-color) !important;
+}
+
+.light select:hover, 
+.light input:hover {
+  border-color: var(--border-hover) !important;
+}
+
+/* Toggle switch enhancements */
+.light button[class*="rounded-full"] span {
+  background-color: white;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+}
+
+.dark button[class*="rounded-full"] span {
+  background-color: white;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.4);
+}
+
+.light button[class*="rounded-full"].bg-primary {
+  box-shadow: 0 0 10px rgba(2, 132, 199, 0.4);
+}
+
+.dark button[class*="rounded-full"].bg-primary {
+  box-shadow: 0 0 10px rgba(60, 223, 255, 0.4);
+}
+
+/* Ensure toggle switches have smooth transitions */
+button[class*="rounded-full"] {
+  transition: background-color 0.3s ease, box-shadow 0.3s ease;
+  outline: none;
+} 

@@ -1,54 +1,122 @@
-# Optiflow
+# Optiflow - API and Workflow Automation Platform
 
-A modern dashboard for managing and orchestrating your workflow automations. Built with Next.js and featuring a sleek, neon-styled interface.
+Optiflow is a modern platform for connecting and automating APIs and workflows with a focus on simplicity and powerful integration capabilities.
 
 ## Features
 
-- Modern, neon-styled UI with dark theme
-- Connected applications management
-- Command input interface
-- Quick actions and workflow management
-- Responsive design
+- User authentication and session management
+- API connectivity with popular services (Clay, HubSpot, n8n, Gmail)
+- Workflow creation and management
+- Dashboard for monitoring connections and workflows
+- Modern, responsive UI with dark mode
 
 ## Tech Stack
 
-- Next.js 14
-- TypeScript
-- Tailwind CSS
-- Framer Motion
-- Zustand for state management
+- **Frontend**: Next.js, React, TailwindCSS, Framer Motion
+- **State Management**: Zustand
+- **Authentication**: Custom implementation with bcrypt and cookies
+- **API Integration**: Pipedream SDK
+- **Styling**: TailwindCSS with custom components
 
 ## Getting Started
 
+### Prerequisites
+
+- Node.js 18+ and npm
+- Access to Pipedream account (for API integrations)
+
+### Installation
+
 1. Clone the repository:
    ```bash
-   git clone git@github.com:frogody/Optiflow.git
+   git clone https://github.com/yourusername/optiflow.git
+   cd optiflow
    ```
 
 2. Install dependencies:
    ```bash
-   cd Optiflow
    npm install
    ```
 
-3. Run the development server:
+3. Copy the example environment file and configure your variables:
+   ```bash
+   cp .env.example .env.local
+   ```
+
+4. Run the development server:
    ```bash
    npm run dev
    ```
 
-4. Open [http://localhost:3000](http://localhost:3000) in your browser.
+5. Open [http://localhost:3000](http://localhost:3000) in your browser.
+
+## Deployment
+
+### Building for Production
+
+```bash
+npm run build
+npm run start
+```
+
+### Deployment on Vercel
+
+1. Connect your GitHub repository to Vercel
+2. Configure environment variables in the Vercel dashboard
+3. Deploy with default settings
+
+### Deployment on Other Platforms
+
+The application can be deployed to any platform that supports Node.js:
+
+1. Build the application:
+   ```bash
+   npm run build
+   ```
+2. Start the production server:
+   ```bash
+   npm run start
+   ```
 
 ## Project Structure
 
-- `/src/app` - Next.js app router pages
-- `/src/components` - Reusable React components
-- `/src/lib` - Utilities and state management
-- `/public` - Static assets and icons
+```
+optiflow/
+├── public/             # Static assets
+├── src/
+│   ├── app/            # Next.js App Router pages and layouts
+│   ├── components/     # Reusable UI components
+│   ├── hooks/          # Custom React hooks
+│   ├── lib/            # Utility libraries and authentication
+│   ├── services/       # API services and integrations
+│   └── types/          # TypeScript type definitions
+├── .env.example        # Example environment variables
+├── middleware.ts       # Next.js middleware for authentication
+└── package.json        # Project dependencies and scripts
+```
 
-## Contributing
+## Authentication Flow
 
-Contributions are welcome! Please feel free to submit a Pull Request.
+1. User registers or logs in
+2. Session is stored in:
+   - Zustand store for runtime
+   - Cookie for persistent sessions
+3. SessionInitializer component restores the user session
+4. Protected routes are guarded by middleware
+
+## API Integration
+
+Optiflow uses Pipedream SDK to connect to external services. For each integration:
+
+1. Configure connection in the Connections page
+2. Authenticate with the external service
+3. Use the connection in workflows
 
 ## License
 
-MIT 
+[MIT](LICENSE)
+
+## Credits
+
+- Built by the Optiflow Team
+- Icons and illustrations from various sources 

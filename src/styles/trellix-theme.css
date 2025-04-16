@@ -1,0 +1,163 @@
+/* Trellix-inspired theme styles */
+
+:root {
+  --trellix-background: #000000;
+  --trellix-gradient-start: #0a1e36;
+  --trellix-gradient-end: #0c2a1e;
+  --trellix-accent: #00e676;
+  --trellix-accent-dark: #00c853;
+  --trellix-accent-light: #69f0ae;
+  --trellix-text: #ffffff;
+  --trellix-text-secondary: rgba(255, 255, 255, 0.7);
+  --trellix-card-bg: rgba(15, 28, 41, 0.5);
+  --trellix-card-border: rgba(0, 230, 118, 0.2);
+  --trellix-glow: rgba(0, 230, 118, 0.3);
+}
+
+.trellix-bg {
+  background: linear-gradient(135deg, var(--trellix-gradient-start), var(--trellix-gradient-end));
+  background-size: 200% 200%;
+  animation: gradientFlow 15s ease infinite;
+}
+
+.trellix-card {
+  background: var(--trellix-card-bg);
+  border: 1px solid var(--trellix-card-border);
+  border-radius: 12px;
+  backdrop-filter: blur(8px);
+  transition: all 0.3s ease;
+}
+
+.trellix-card:hover {
+  border-color: var(--trellix-accent);
+  box-shadow: 0 0 20px var(--trellix-glow);
+}
+
+.trellix-accent-text {
+  color: var(--trellix-accent);
+}
+
+.trellix-gradient-text {
+  background: linear-gradient(90deg, var(--trellix-accent), var(--trellix-accent-light));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.trellix-button {
+  background: var(--trellix-accent);
+  color: #000000;
+  font-weight: 600;
+  padding: 0.75rem 1.5rem;
+  border-radius: 4px;
+  transition: all 0.3s ease;
+}
+
+.trellix-button:hover {
+  background: var(--trellix-accent-light);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0, 230, 118, 0.4);
+}
+
+.trellix-button-outline {
+  background: transparent;
+  color: var(--trellix-accent);
+  border: 1px solid var(--trellix-accent);
+  font-weight: 600;
+  padding: 0.75rem 1.5rem;
+  border-radius: 4px;
+  transition: all 0.3s ease;
+}
+
+.trellix-button-outline:hover {
+  background: rgba(0, 230, 118, 0.1);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0, 230, 118, 0.2);
+}
+
+.trellix-nav {
+  background: rgba(0, 0, 0, 0.7);
+  backdrop-filter: blur(8px);
+  border-bottom: 1px solid rgba(0, 230, 118, 0.1);
+}
+
+.trellix-glow-effect {
+  position: absolute;
+  width: 300px;
+  height: 300px;
+  border-radius: 50%;
+  background: var(--trellix-accent);
+  filter: blur(100px);
+  opacity: 0.15;
+}
+
+@keyframes floatCard {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
+.trellix-floating-card {
+  animation: floatCard 6s ease-in-out infinite;
+}
+
+/* Different animation timing for multiple cards */
+.trellix-floating-card:nth-child(2n) {
+  animation-delay: 1s;
+}
+
+.trellix-floating-card:nth-child(3n) {
+  animation-delay: 2s;
+}
+
+/* Report/news card styles */
+.trellix-report-card {
+  background: rgba(15, 28, 41, 0.7);
+  border: 1px solid rgba(0, 230, 118, 0.2);
+  border-radius: 12px;
+  overflow: hidden;
+  transition: all 0.3s ease;
+  position: relative;
+}
+
+.trellix-report-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
+  border-color: var(--trellix-accent);
+}
+
+.trellix-report-icon {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  width: 28px;
+  height: 28px;
+  background: rgba(0, 230, 118, 0.2);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--trellix-accent);
+}
+
+/* Mini report notification */
+.trellix-mini-report {
+  background: rgba(15, 28, 41, 0.8);
+  border: 1px solid rgba(0, 230, 118, 0.3);
+  border-radius: 30px;
+  padding: 8px 16px;
+  display: inline-flex;
+  align-items: center;
+  backdrop-filter: blur(8px);
+}
+
+/* Responsive design adjustments */
+@media (max-width: 768px) {
+  .trellix-glow-effect {
+    width: 200px;
+    height: 200px;
+  }
+} 

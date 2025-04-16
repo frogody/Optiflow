@@ -3,17 +3,64 @@
 @tailwind utilities;
 
 @import '../styles/theme.css';
+@import '../styles/trellix-theme.css';
 
-:root {
+/* Mobile-first breakpoint for xs screens */
+@layer utilities {
+  @variants responsive {
+    .xs\:flex-row {
+      flex-direction: row;
+    }
+    .xs\:text-left {
+      text-align: left;
+    }
+    .xs\:mb-0 {
+      margin-bottom: 0;
+    }
+  }
+}
+
+:root, .light {
+  --background-start: #f8f9fb;
+  --background-end: #eef2ff;
+  --text-color: #1e293b;
+  --text-secondary: #475569;
+  --primary: #0284c7;
+  --primary-dark: #0369a1;
+  --secondary: #7c3aed;
+  --secondary-dark: #6d28d9;
+  --card-bg: rgba(255, 255, 255, 0.8);
+  --card-bg-hover: rgba(255, 255, 255, 0.95);
+  --border-color: rgba(203, 213, 225, 0.8);
+  --border-hover: #0284c7;
+  --glow-color: rgba(56, 189, 248, 0.2);
+  --nav-bg: rgba(255, 255, 255, 0.95);
+  --input-bg: rgba(255, 255, 255, 0.9);
+  --button-text: #ffffff;
+  --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1);
+  --shadow-hover: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -4px rgba(0, 0, 0, 0.1);
+  --touch-target-size: 44px; /* Minimum touch target size */
+}
+
+.dark {
   --background-start: #000000;
   --background-end: #0A0A0A;
+  --text-color: #ffffff;
+  --text-secondary: rgba(255, 255, 255, 0.7);
   --primary: #3CDFFF;
   --primary-dark: #2BA4CC;
   --secondary: #4AFFD4;
   --secondary-dark: #35CCA7;
   --card-bg: rgba(0, 0, 0, 0.8);
+  --card-bg-hover: rgba(26, 26, 35, 0.9);
   --border-color: rgba(60, 223, 212, 0.2);
+  --border-hover: #4AFFD4;
   --glow-color: rgba(60, 223, 212, 0.15);
+  --nav-bg: rgba(0, 0, 0, 0.8);
+  --input-bg: rgba(0, 0, 0, 0.6);
+  --button-text: #ffffff;
+  --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.5), 0 2px 4px -2px rgba(0, 0, 0, 0.5);
+  --shadow-hover: 0 10px 15px -3px rgba(0, 0, 0, 0.7), 0 4px 6px -4px rgba(0, 0, 0, 0.7);
 }
 
 @keyframes gradientFlow {
@@ -45,8 +92,8 @@
     box-shadow: 0 0 20px var(--glow-color);
   }
   50% {
-    border-color: rgba(60, 223, 212, 0.4);
-    box-shadow: 0 0 30px rgba(60, 223, 212, 0.3);
+    border-color: var(--border-hover);
+    box-shadow: 0 0 30px var(--glow-color);
   }
 }
 
@@ -59,37 +106,69 @@
   }
 }
 
+/* Base styles */
+html {
+  -webkit-text-size-adjust: 100%; /* Prevent font scaling in landscape on iOS */
+  touch-action: manipulation; /* Remove delay on mobile devices */
+}
+
 body {
   background: linear-gradient(to bottom right, var(--background-start), var(--background-end));
   min-height: 100vh;
-  color: white;
+  color: var(--text-color);
   font-feature-settings: "ss01", "ss02", "cv01", "cv02";
+  transition: background-color 0.3s ease, color 0.3s ease;
+  text-rendering: optimizeSpeed; /* Optimizes for speed over legibility and geometric precision */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 /* Modern card and container styles */
 .glass-container {
-  background: rgba(26, 31, 53, 0.7);
+  background: var(--card-bg);
   backdrop-filter: blur(12px);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  border: 1px solid var(--border-color);
   border-radius: 16px;
+  transition: all 0.3s ease;
+  box-shadow: var(--shadow);
+}
+
+.glass-container:hover {
+  box-shadow: var(--shadow-hover);
+  border-color: var(--border-hover);
 }
 
 .feature-card {
+  position: relative;
   background: var(--card-bg);
   border: 1px solid var(--border-color);
   border-radius: 12px;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: var(--shadow);
+  height: 100%;
+  display: flex;
+  flex-direction: column;
 }
 
 .feature-card:hover {
   transform: translateY(-2px);
-  border-color: var(--primary);
-  box-shadow: 0 8px 30px rgba(59, 130, 246, 0.15);
+  border-color: var(--border-hover);
+  box-shadow: var(--shadow-hover);
+  background: var(--card-bg-hover);
+}
+
+/* Touch-friendly styles */
+.touch-manipulation {
+  touch-action: manipulation; /* Disable double-tap to zoom */
+  min-height: var(--touch-target-size);
+  min-width: var(--touch-target-size);
+  display: inline-flex;
+  align-items: center;
 }
 
 /* Typography enhancements */
 .heading-gradient {
-  background: linear-gradient(135deg, #fff 0%, rgba(255, 255, 255, 0.85) 100%);
+  background: linear-gradient(135deg, var(--text-color) 0%, var(--text-secondary) 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
@@ -110,11 +189,25 @@ body {
   border-radius: 8px;
   font-weight: 500;
   transition: all 0.3s ease;
+  touch-action: manipulation;
+  min-height: var(--touch-target-size);
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .primary-button:hover {
   transform: translateY(-1px);
   box-shadow: 0 4px 20px rgba(59, 130, 246, 0.3);
+}
+
+/* Improve tap targets for all interactive elements */
+a, button, input, select, textarea, [role="button"] {
+  touch-action: manipulation;
+}
+
+a:active, button:active, [role="button"]:active {
+  opacity: 0.7; /* Provide visual feedback on tap */
 }
 
 /* Grid and layout utilities */
@@ -141,14 +234,67 @@ body {
 /* Responsive design helpers */
 @media (max-width: 768px) {
   .feature-card {
-    margin: 0.5rem;
+    padding: 1rem;
+    margin-bottom: 1rem;
   }
   
   .heading-gradient {
-    font-size: 2rem;
+    font-size: 1.75rem;
+  }
+  
+  .primary-button, a.primary-button, button.primary-button {
+    padding: 0.75rem 1rem;
+    width: 100%;
+    justify-content: center;
+  }
+  
+  input, select, textarea {
+    font-size: 16px !important; /* Prevent iOS Safari zoom on focus */
+  }
+  
+  .container {
+    padding-left: 1rem;
+    padding-right: 1rem;
   }
 }
 
+/* Small mobile screens */
+@media (max-width: 480px) {
+  html {
+    font-size: 14px; /* Slightly smaller base font size */
+  }
+  
+  h1 {
+    font-size: 1.75rem !important;
+  }
+  
+  h2 {
+    font-size: 1.5rem !important;
+  }
+  
+  .py-4 {
+    padding-top: 0.75rem;
+    padding-bottom: 0.75rem;
+  }
+  
+  .px-6 {
+    padding-left: 1rem;
+    padding-right: 1rem;
+  }
+}
+
+/* Mobile landscape */
+@media (max-height: 480px) and (orientation: landscape) {
+  .pt-16 {
+    padding-top: 0.5rem !important;
+  }
+  
+  .pb-24 {
+    padding-bottom: 1rem !important;
+  }
+}
+
+/* Dark mode & theme */
 .bg-dark {
   background: transparent;
 }
@@ -470,15 +616,28 @@ button:hover {
 
 /* Command input styles */
 .command-input {
-  background: rgba(255, 255, 255, 0.03);
-  border: 1px solid rgba(255, 255, 255, 0.05);
-  border-radius: 12px;
-  backdrop-filter: blur(10px);
+  position: relative;
+  transition: all 0.3s ease;
+  animation: commandPulse 4s infinite;
+  border-radius: 16px;
 }
 
 .command-input:focus-within {
-  border-color: rgba(60, 223, 212, 0.4);
-  box-shadow: 0 0 30px rgba(60, 223, 212, 0.2);
+  animation: none;
+  transform: scale(1.02);
+  box-shadow: 0 0 35px rgba(60, 223, 255, 0.7), 0 0 20px rgba(74, 255, 212, 0.6);
+  border-radius: 18px;
+}
+
+@keyframes commandPulse {
+  0%, 100% {
+    box-shadow: 0 0 20px rgba(60, 223, 255, 0.5), 0 0 10px rgba(74, 255, 212, 0.4);
+    border-color: rgba(60, 223, 255, 0.5);
+  }
+  50% {
+    box-shadow: 0 0 35px rgba(60, 223, 255, 0.8), 0 0 25px rgba(74, 255, 212, 0.7);
+    border-color: rgba(60, 223, 255, 0.8);
+  }
 }
 
 /* User menu styles */

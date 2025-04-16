@@ -97,7 +97,7 @@ export default function FlowDashboard({ orchestratorId, flowId }: FlowDashboardP
     };
 
     initializeAgent();
-  }, []);
+  }, [connectedApps]);
 
   useEffect(() => {
     // In a real implementation, this would fetch the flow data from your backend API
@@ -143,8 +143,9 @@ export default function FlowDashboard({ orchestratorId, flowId }: FlowDashboardP
                 <Image
                   src={flowData.icon}
                   alt={flowData.name}
-                  layout="fill"
-                  objectFit="contain"
+                  width={64}
+                  height={64}
+                  style={{ objectFit: 'contain' }}
                   className="rounded-lg"
                 />
               </div>
@@ -187,7 +188,9 @@ export default function FlowDashboard({ orchestratorId, flowId }: FlowDashboardP
                     <Image
                       src={app.icon}
                       alt={app.name}
-                      layout="fill"
+                      width={48}
+                      height={48}
+                      style={{ objectFit: 'cover' }}
                       className="rounded-lg"
                     />
                   </div>

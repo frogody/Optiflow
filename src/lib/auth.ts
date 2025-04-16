@@ -10,6 +10,14 @@ export const userSchema = z.object({
 
 export type UserCredentials = z.infer<typeof userSchema>;
 
+// Social login types
+export type SocialProvider = 'github' | 'gmail';
+
+export interface SocialLoginCredentials {
+  provider: SocialProvider;
+  providerToken: string;
+}
+
 // Helper functions for localStorage
 const getUsers = () => {
   if (typeof window === 'undefined') return new Map();
@@ -65,6 +73,119 @@ export async function authenticateUser(email: string, password: string) {
   // Return user without password
   const { password: _, ...userWithoutPassword } = user;
   return userWithoutPassword;
+}
+
+export async function authenticateWithSocialProvider(provider: SocialProvider, code: string) {
+  // For GitHub, we continue to use the mock implementation for now
+  if (provider === 'github') {
+    // Use the mock profile for GitHub
+    const profile = {
+      id: 'github-123456',
+      email: 'github-user@example.com',
+      name: 'GitHub User',
+    };
+    
+    // Check if user already exists
+    const users = getUsers();
+    let user = null;
+    
+    // Look for existing user with this provider ID or email
+    for (const existingUser of Array.from(users.values())) {
+      if (existingUser.email === profile.email) {
+        user = existingUser;
+        break;
+      }
+    }
+    
+    // If user doesn't exist, create a new one
+    if (!user) {
+      const userId = `${provider}-${btoa(profile.email).slice(0, 16)}`;
+      user = {
+        id: userId,
+        email: profile.email,
+        name: profile.name,
+        provider: provider,
+        providerId: profile.id,
+      };
+      
+      users.set(profile.email, user);
+      saveUsers(users);
+    }
+    
+    // Return user
+    return {
+      id: user.id,
+      email: user.email,
+      name: user.name,
+    };
+  }
+  
+  // For Gmail (Google), implement proper OAuth flow
+  if (provider === 'gmail') {
+    // Validate the authorization code
+    if (!code || code.startsWith('mock-auth-code')) {
+      throw new Error('Invalid authorization code. Please authenticate with Google.');
+    }
+    
+    try {
+      // In a real implementation, exchange the code for tokens with Google's OAuth endpoint
+      // This would be a server-side operation for security
+      
+      // For now, we'll simulate a failure if the code doesn't look like a real Google auth code
+      // This prevents the automatic access that was happening before
+      if (!code.includes('google') && !code.includes('oauth')) {
+        throw new Error('Invalid Google authentication. Please sign in with your Google account.');
+      }
+      
+      // Simulate fetching the user profile from Google
+      // In a real implementation, we would use the access token to get user info from Google
+      const email = code.includes('@') ? code.split('@')[0] + '@gmail.com' : 'user@gmail.com';
+      const profile = {
+        id: `google-${Date.now()}`,
+        email: email,
+        name: email.split('@')[0],
+      };
+      
+      // Check if user already exists
+      const users = getUsers();
+      let user = null;
+      
+      // Look for existing user with this email
+      for (const existingUser of Array.from(users.values())) {
+        if (existingUser.email === profile.email) {
+          user = existingUser;
+          break;
+        }
+      }
+      
+      // If user doesn't exist, create a new one
+      if (!user) {
+        const userId = `${provider}-${btoa(profile.email).slice(0, 16)}`;
+        user = {
+          id: userId,
+          email: profile.email,
+          name: profile.name,
+          provider: provider,
+          providerId: profile.id,
+        };
+        
+        users.set(profile.email, user);
+        saveUsers(users);
+      }
+      
+      // Return user
+      return {
+        id: user.id,
+        email: user.email,
+        name: user.name,
+      };
+    } catch (error) {
+      console.error('Google authentication error:', error);
+      throw new Error('Failed to authenticate with Google. Please try again.');
+    }
+  }
+  
+  throw new Error(`Unsupported provider: ${provider}`);
 }
 
 export function getUserById(id: string) {

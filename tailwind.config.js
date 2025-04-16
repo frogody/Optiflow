@@ -39,6 +39,8 @@ module.exports = {
         'neon': '0 0 20px rgba(60, 223, 255, 0.3)',
         'neon-strong': '0 0 30px rgba(60, 223, 255, 0.5)',
         'neon-secondary': '0 0 20px rgba(74, 255, 212, 0.3)',
+        'glow': '0 0 15px rgba(60, 223, 255, 0.4), 0 0 5px rgba(74, 255, 212, 0.3)',
+        'glow-intense': '0 0 25px rgba(60, 223, 255, 0.6), 0 0 10px rgba(74, 255, 212, 0.5)',
       },
       animation: {
         'pulse-slow': 'pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite',

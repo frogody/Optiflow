@@ -2,9 +2,12 @@
 
 import { motion } from 'framer-motion';
 import MCPConnectionsBrowser from '@/components/MCPConnectionsBrowser';
-import Link from 'next/link';
 
 export default function ConnectionsBrowserPage() {
+  const handleBackToDashboard = () => {
+    window.location.href = '/dashboard';
+  };
+
   return (
     <div className="min-h-screen">
       {/* Neural Network Background */}
@@ -16,9 +19,12 @@ export default function ConnectionsBrowserPage() {
           <h1 className="text-3xl font-bold gradient-text">
             Connections (Browser Version)
           </h1>
-          <Link href="/dashboard" className="action-button px-4 py-2 rounded-lg">
+          <button 
+            onClick={handleBackToDashboard}
+            className="action-button px-4 py-2 rounded-lg"
+          >
             Back to Dashboard
-          </Link>
+          </button>
         </div>
 
         <motion.div

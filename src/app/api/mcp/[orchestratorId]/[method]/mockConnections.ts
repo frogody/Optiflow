@@ -1,5 +1,5 @@
 // In-memory storage for mock connections
-let mockConnections: {
+const mockConnections: {
   [userId: string]: {
     [orchestratorId: string]: {
       tools: {

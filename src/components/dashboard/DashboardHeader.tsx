@@ -3,6 +3,7 @@
 import { useRouter } from 'next/navigation';
 import { useUserStore } from '@/lib/userStore';
 import Cookies from 'js-cookie';
+import Image from 'next/image';
 
 export default function DashboardHeader() {
   const router = useRouter();
@@ -21,9 +22,11 @@ export default function DashboardHeader() {
         <div className="flex items-center justify-between h-16">
           {/* Logo and Navigation */}
           <div className="flex items-center space-x-8">
-            <img
+            <Image
               src="/logo.png"
               alt="ISYNCSO"
+              width={120}
+              height={32}
               className="h-8 w-auto opacity-90 hover:opacity-100 transition-opacity"
             />
             <nav className="hidden md:flex space-x-6">

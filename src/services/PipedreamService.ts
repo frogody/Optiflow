@@ -1,4 +1,5 @@
-import { createBackendClient } from '@pipedream/sdk';
+// PipedreamService.ts
+// MOCK VERSION for development - replace with actual implementation
 
 interface PipedreamConfig {
   clientId: string;
@@ -14,23 +15,32 @@ interface ConnectionStatus {
 }
 
 export class PipedreamService {
-  private client: ReturnType<typeof createBackendClient>;
   private connections: Map<string, ConnectionStatus>;
+  private static instance: PipedreamService | null = null;
+  private config: PipedreamConfig;
 
-  constructor(config: PipedreamConfig) {
-    const clientOpts = {
-      environment: config.environment || 'development',
-      projectId: config.projectId,
-      credentials: {
-        clientId: config.clientId,
-        clientSecret: config.clientSecret
-      }
-    };
-    this.client = createBackendClient(clientOpts);
+  // Singleton pattern
+  public static getInstance(config: PipedreamConfig): PipedreamService {
+    if (!PipedreamService.instance) {
+      PipedreamService.instance = new PipedreamService(config);
+    }
+    return PipedreamService.instance;
+  }
+
+  private constructor(config: PipedreamConfig) {
+    this.config = config;
+    // Mock client setup would happen here in a real implementation
     this.connections = new Map();
   }
 
   async getConnectionStatus(appId: string, userId: string): Promise<ConnectionStatus> {
+    if (!appId || !userId) {
+      return {
+        status: 'error',
+        error: 'Missing required parameters: appId and userId'
+      };
+    }
+    
     try {
       const key = `${appId}:${userId}`;
       const status = this.connections.get(key) || {
@@ -47,21 +57,29 @@ export class PipedreamService {
   }
 
   async connectToApp(appId: string, userId: string): Promise<ConnectionStatus> {
+    if (!appId || !userId) {
+      const errorStatus: ConnectionStatus = {
+        status: 'error',
+        error: 'Missing required parameters: appId and userId'
+      };
+      return errorStatus;
+    }
+    
     try {
       const key = `${appId}:${userId}`;
       
-      // Attempt to establish connection
-      await this.client.getAccounts({
-        app: appId,
-        external_user_id: userId
+      // Mock connection - in a real implementation, this would use the SDK
+      // Simulate a successful connection after a delay
+      return new Promise((resolve) => {
+        setTimeout(() => {
+          const status: ConnectionStatus = {
+            status: 'connected',
+            lastConnected: new Date()
+          };
+          this.connections.set(key, status);
+          resolve(status);
+        }, 1500);
       });
-
-      const status: ConnectionStatus = {
-        status: 'connected',
-        lastConnected: new Date()
-      };
-      this.connections.set(key, status);
-      return status;
     } catch (error) {
       console.error('Error connecting to app:', error);
       const errorStatus: ConnectionStatus = {
@@ -80,6 +98,10 @@ export class PipedreamService {
     method: 'GET' | 'POST' | 'PUT' | 'DELETE' = 'GET',
     data?: unknown
   ): Promise<T> {
+    if (!appId || !userId) {
+      throw new Error('Missing required parameters: appId and userId');
+    }
+    
     try {
       // Check connection status first
       const status = await this.getConnectionStatus(appId, userId);
@@ -90,16 +112,24 @@ export class PipedreamService {
         await this.connectToApp(appId, userId);
       }
 
-      // Make the API request
-      const response = await this.client.runAction({
-        actionId: {
-          key: endpoint
-        },
-        configuredProps: data as Record<string, any>,
-        externalUserId: userId
+      // Mock API request
+      return new Promise((resolve) => {
+        setTimeout(() => {
+          // Return mock data appropriate for the endpoint
+          if (endpoint === '/connections') {
+            resolve({
+              success: true,
+              status: 'connected',
+              data: [
+                { id: 'conn1', name: 'Connection 1', status: 'active' },
+                { id: 'conn2', name: 'Connection 2', status: 'active' }
+              ]
+            } as unknown as T);
+          } else {
+            resolve({ success: true, status: 'ok' } as unknown as T);
+          }
+        }, 800);
       });
-
-      return response as T;
     } catch (error) {
       console.error('API request failed:', error);
       throw error instanceof Error ? error : new Error('API request failed');
@@ -107,9 +137,13 @@ export class PipedreamService {
   }
 
   async disconnectApp(appId: string, userId: string): Promise<void> {
+    if (!appId || !userId) {
+      throw new Error('Missing required parameters: appId and userId');
+    }
+    
     try {
       const key = `${appId}:${userId}`;
-      await this.client.deleteAccount(appId);
+      // Mock disconnection - in a real implementation, this would use the SDK
       this.connections.delete(key);
     } catch (error) {
       console.error('Error disconnecting:', error);
@@ -118,8 +152,12 @@ export class PipedreamService {
   }
 
   async disconnectAllApps(appId: string): Promise<void> {
+    if (!appId) {
+      throw new Error('Missing required parameter: appId');
+    }
+    
     try {
-      await this.client.deleteAccountsByApp(appId);
+      // Mock disconnection - in a real implementation, this would use the SDK
       // Clear all connections for this app
       Array.from(this.connections.entries()).forEach(([key]) => {
         if (key.startsWith(`${appId}:`)) {

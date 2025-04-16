@@ -5,14 +5,18 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { useRouter, usePathname } from 'next/navigation';
 import { useUserStore } from '@/lib/userStore';
+import { useThemeStore } from '@/lib/themeStore';
 import { AnimatePresence, motion } from 'framer-motion';
 import { Transition } from '@headlessui/react';
-import { ChevronLeftIcon, ChevronRightIcon, HomeIcon } from '@heroicons/react/24/outline';
+import Cookies from 'js-cookie';
+import LanguageSwitcher from './LanguageSwitcher';
+import TranslatedText from './TranslatedText';
 
 interface NavigationItem {
   name: string;
   href: string;
   current: boolean;
+  requiresAuth: boolean;
 }
 
 interface UserNavItem {
@@ -20,28 +24,76 @@ interface UserNavItem {
   href: string;
   description?: string;
   icon?: string;
+  onClick?: () => void;
 }
+
+// Helper function to get user settings
+const getUserSettings = () => {
+  try {
+    const settings = localStorage.getItem('user-settings');
+    return settings ? JSON.parse(settings) : { compactMode: false, showAdvancedOptions: false };
+  } catch (e) {
+    return { compactMode: false, showAdvancedOptions: false };
+  }
+};
 
 export default function Navigation() {
   const router = useRouter();
   const pathname = usePathname();
-  const { currentUser, isLoading: userLoading } = useUserStore();
+  const { currentUser, isLoading: userLoading, setCurrentUser } = useUserStore();
+  const { theme } = useThemeStore();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isNotifying, setIsNotifying] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [compactMode, setCompactMode] = useState(false);
+
+  // Load user settings on mount
+  useEffect(() => {
+    const settings = getUserSettings();
+    setCompactMode(settings.compactMode);
+  }, []);
+
+  // Update compact mode when localStorage changes
+  useEffect(() => {
+    const handleStorageChange = () => {
+      const settings = getUserSettings();
+      setCompactMode(settings.compactMode);
+    };
+    
+    window.addEventListener('storage', handleStorageChange);
+    return () => window.removeEventListener('storage', handleStorageChange);
+  }, []);
+
+  // Handle logout
+  const handleLogout = () => {
+    // Clear user from store
+    setCurrentUser(null);
+    
+    // Remove authentication cookie
+    Cookies.remove('user-token', { path: '/' });
+    
+    // Close mobile menu if open
+    setIsMobileMenuOpen(false);
+    
+    // Redirect to home page
+    router.push('/');
+  };
 
   // Navigation items based on auth state
   const navigationItems: NavigationItem[] = [
-    { name: 'Flows', href: '/flows', current: pathname === '/flows' },
-    { name: 'Connections', href: '/connections', current: pathname === '/connections' },
-    { name: 'Pricing', href: '/pricing', current: pathname === '/pricing' },
-    { name: 'FAQ', href: '/faq', current: pathname === '/faq' },
+    { name: 'Flows', href: '/workflows', current: pathname === '/workflows', requiresAuth: true },
+    { name: 'Connections', href: '/connections', current: pathname === '/connections', requiresAuth: true },
+    { name: 'Features', href: '/features', current: pathname === '/features', requiresAuth: false },
+    { name: 'Integrations', href: '/integrations', current: pathname === '/integrations', requiresAuth: false },
+    { name: 'Enterprise', href: '/enterprise', current: pathname === '/enterprise', requiresAuth: false },
+    { name: 'Pricing', href: '/pricing', current: pathname === '/pricing', requiresAuth: false },
+    { name: 'FAQ', href: '/faq', current: pathname === '/faq', requiresAuth: false },
   ];
 
   const userNavigation: UserNavItem[] = [
     { 
       name: 'My Account',
-      href: '/account',
+      href: '/profile',
       description: 'Manage your account settings',
       icon: '👤'
     },
@@ -52,16 +104,16 @@ export default function Navigation() {
       icon: '🔌'
     },
     {
-      name: 'My Subscriptions',
-      href: '/subscriptions',
-      description: 'View and manage your subscriptions',
-      icon: '📊'
+      name: 'Connect to Pipedream',
+      href: '/connections/pipedream',
+      description: 'Set up Pipedream integration',
+      icon: '🔗'
     },
     {
-      name: 'My Wallet',
-      href: '/wallet',
-      description: 'Manage your billing and payments',
-      icon: '💳'
+      name: 'Connect to Oneflow',
+      href: '/connections/oneflow',
+      description: 'Set up Oneflow API integration',
+      icon: '📄'
     },
     {
       name: 'Onboarding AORA1.5',
@@ -71,9 +123,10 @@ export default function Navigation() {
     },
     {
       name: 'Log Out',
-      href: '/logout',
+      href: '#',
       description: 'Sign out of your account',
-      icon: '👋'
+      icon: '👋',
+      onClick: handleLogout
     }
   ];
 
@@ -108,10 +161,21 @@ export default function Navigation() {
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, []);
 
+  // Filter navigation items based on auth status
+  const filteredNavigationItems = navigationItems.filter(item => 
+    !item.requiresAuth || currentUser
+  );
+
+  // Determine navigation styles based on compact mode
+  const navPadding = compactMode ? 'py-1.5' : 'py-3';
+  const buttonPadding = compactMode ? 'py-1 px-3' : 'py-1.5 px-4';
+  const logoSize = compactMode ? 'w-6 h-6' : 'w-7 h-7';
+  const logoTextSize = compactMode ? 'text-sm' : 'text-base';
+
   return (
     <>
       <header 
-        className="bg-black/20 backdrop-blur-sm sticky top-0 z-50"
+        className={`bg-black/20 backdrop-blur-sm sticky top-0 z-50 dark:bg-black/20 light:bg-white/80 transition-all duration-300`}
         role="banner"
         aria-label="Main navigation"
       >
@@ -131,57 +195,63 @@ export default function Navigation() {
           )}
         </AnimatePresence>
 
-        <div className="max-w-7xl mx-auto px-4 py-3">
-          <nav className="flex items-center justify-between">
+        <div className="max-w-7xl mx-auto px-4">
+          <nav className={`flex items-center justify-between ${navPadding}`}>
             {/* Logo */}
             <Link 
               href="/" 
               className="flex items-center space-x-3"
               aria-label="ISYNCSO Home"
             >
-              <div className="w-7 h-7 relative">
+              <div className={`relative ${logoSize}`}>
                 <Image
                   src="/ISYNCSO_LOGO.png"
                   alt=""
-                  layout="fill"
+                  width={28}
+                  height={28}
                   className="rounded"
                   priority
                 />
               </div>
-              <span className="text-base font-medium text-white">ISYNCSO</span>
+              <span className={`${logoTextSize} font-medium dark:text-white light:text-gray-800`}>ISYNCSO</span>
             </Link>
 
             {/* Desktop Navigation */}
-            <div className="hidden md:flex items-center space-x-6">
-              {navigationItems.map((item) => (
+            <div className="hidden md:flex items-center space-x-3">
+              {filteredNavigationItems.map((item) => (
                 <div key={item.name} className="relative group">
                   <Link
                     href={item.href}
-                    className={`px-4 py-1.5 text-sm rounded-full border border-transparent
+                    className={`${buttonPadding} text-sm rounded-full border border-transparent
                       ${item.current 
-                        ? 'text-white bg-white/5 border-white/10' 
-                        : 'text-white/90 hover:text-white hover:bg-white/5 hover:border-white/10'
+                        ? 'dark:text-white dark:bg-white/5 dark:border-white/10 light:text-gray-800 light:bg-black/5 light:border-black/10' 
+                        : 'dark:text-white/90 dark:hover:text-white dark:hover:bg-white/5 dark:hover:border-white/10 light:text-gray-700 light:hover:text-gray-900 light:hover:bg-black/5 light:hover:border-black/10'
                       } transition-all duration-200`}
                     aria-current={item.current ? 'page' : undefined}
                   >
-                    {item.name}
+                    <TranslatedText textKey={`navigation.${item.name.toLowerCase()}`} fallback={item.name} />
                   </Link>
                 </div>
               ))}
+              {currentUser && (
+                <Link
+                  href="/dashboard"
+                  className={`${buttonPadding} text-sm rounded-full border border-transparent
+                    ${pathname === '/dashboard' 
+                      ? 'dark:text-white dark:bg-white/5 dark:border-white/10 light:text-gray-800 light:bg-black/5 light:border-black/10' 
+                      : 'dark:text-white/90 dark:hover:text-white dark:hover:bg-white/5 dark:hover:border-white/10 light:text-gray-700 light:hover:text-gray-900 light:hover:bg-black/5 light:hover:border-black/10'
+                    } transition-all duration-200`}
+                  aria-current={pathname === '/dashboard' ? 'page' : undefined}
+                >
+                  <TranslatedText textKey="navigation.dashboard" fallback="Dashboard" />
+                </Link>
+              )}
             </div>
 
             {/* Right Side Navigation */}
             <div className="flex items-center space-x-3">
               {/* Language Selector */}
-              <div className="relative group">
-                <button 
-                  className="flex items-center space-x-2 px-4 py-1.5 text-sm text-white/90 hover:text-white rounded-full border border-transparent hover:border-white/10 hover:bg-white/5 transition-all duration-200"
-                  aria-label="Select language"
-                >
-                  <span aria-hidden="true">🌐</span>
-                  <span>EN</span>
-                </button>
-              </div>
+              <LanguageSwitcher />
 
               {userLoading ? (
                 // Loading skeleton
@@ -190,7 +260,7 @@ export default function Navigation() {
                 // User menu
                 <div className="relative group">
                   <button 
-                    className="flex items-center space-x-2 px-4 py-1.5 text-sm text-white/90 hover:text-white rounded-full border border-transparent hover:border-white/10 hover:bg-white/5 transition-all duration-200"
+                    className={`flex items-center space-x-2 ${buttonPadding} text-sm dark:text-white/90 dark:hover:text-white light:text-gray-700 light:hover:text-gray-900 rounded-full border border-transparent hover:border-white/10 hover:bg-white/5 transition-all duration-200`}
                     aria-label="User menu"
                     aria-expanded="false"
                   >
@@ -199,23 +269,41 @@ export default function Navigation() {
                   
                   {/* Dropdown menu */}
                   <div className="absolute right-0 top-full mt-1 w-64 invisible group-hover:visible opacity-0 group-hover:opacity-100 transition-all duration-200">
-                    <div className="py-1 bg-black/90 backdrop-blur-md rounded-lg border border-white/10 shadow-lg">
+                    <div className="py-1 bg-black/90 backdrop-blur-md rounded-lg border border-white/10 shadow-lg dark:bg-black/90 light:bg-white/90 dark:border-white/10 light:border-black/10">
                       {userNavigation.map((item) => (
-                        <Link
-                          key={item.name}
-                          href={item.href}
-                          className="block px-4 py-2 text-sm text-white/80 hover:text-white hover:bg-white/5"
-                        >
-                          <div className="flex items-center">
-                            <span className="w-5">{item.icon}</span>
-                            <div className="ml-3">
-                              <p className="text-sm font-medium text-white">{item.name}</p>
-                              {item.description && (
-                                <p className="text-xs text-white/60">{item.description}</p>
-                              )}
-                            </div>
-                          </div>
-                        </Link>
+                        <div key={item.name}>
+                          {item.onClick ? (
+                            <button
+                              onClick={item.onClick}
+                              className="w-full text-left block px-4 py-2 text-sm dark:text-white/80 dark:hover:text-white dark:hover:bg-white/5 light:text-gray-700 light:hover:text-gray-900 light:hover:bg-black/5"
+                            >
+                              <div className="flex items-center">
+                                <span className="w-5">{item.icon}</span>
+                                <div className="ml-3">
+                                  <p className="text-sm font-medium dark:text-white light:text-gray-800">{item.name}</p>
+                                  {item.description && (
+                                    <p className="text-xs dark:text-white/60 light:text-gray-500">{item.description}</p>
+                                  )}
+                                </div>
+                              </div>
+                            </button>
+                          ) : (
+                            <Link
+                              href={item.href}
+                              className="block px-4 py-2 text-sm dark:text-white/80 dark:hover:text-white dark:hover:bg-white/5 light:text-gray-700 light:hover:text-gray-900 light:hover:bg-black/5"
+                            >
+                              <div className="flex items-center">
+                                <span className="w-5">{item.icon}</span>
+                                <div className="ml-3">
+                                  <p className="text-sm font-medium dark:text-white light:text-gray-800">{item.name}</p>
+                                  {item.description && (
+                                    <p className="text-xs dark:text-white/60 light:text-gray-500">{item.description}</p>
+                                  )}
+                                </div>
+                              </div>
+                            </Link>
+                          )}
+                        </div>
                       ))}
                     </div>
                   </div>
@@ -225,15 +313,15 @@ export default function Navigation() {
                 <div className="flex items-center space-x-3">
                   <Link
                     href="/login"
-                    className="px-4 py-1.5 text-sm text-white/90 hover:text-white rounded-full border border-transparent hover:border-white/10 hover:bg-white/5 transition-all duration-200"
+                    className={`${buttonPadding} text-sm dark:text-white/90 dark:hover:text-white light:text-gray-700 light:hover:text-gray-900 rounded-full border border-transparent dark:hover:border-white/10 dark:hover:bg-white/5 light:hover:border-black/10 light:hover:bg-black/5 transition-all duration-200`}
                   >
-                    Log in
+                    <TranslatedText textKey="navigation.login" fallback="Log in" />
                   </Link>
                   <Link
-                    href="/waitlist"
-                    className="px-4 py-1.5 text-sm font-medium text-white rounded-full border border-white/10 hover:bg-white/5 transition-all duration-200"
+                    href="/signup"
+                    className={`${buttonPadding} text-sm font-medium text-black rounded-full bg-gradient-to-r from-[#3CDFFF] to-[#4AFFD4] hover:opacity-90 transition-all duration-200`}
                   >
-                    JOIN WAITLIST
+                    <TranslatedText textKey="navigation.signup" fallback="Sign Up" />
                   </Link>
                 </div>
               )}
@@ -241,7 +329,7 @@ export default function Navigation() {
               {/* Mobile menu button */}
               <button
                 type="button"
-                className="md:hidden inline-flex items-center justify-center p-2 rounded-md text-white/80 hover:text-white hover:bg-white/5"
+                className="md:hidden inline-flex items-center justify-center p-3 rounded-md dark:text-white/80 dark:hover:text-white light:text-gray-700 light:hover:text-gray-900 dark:hover:bg-white/5 light:hover:bg-black/5 touch-manipulation"
                 onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
                 aria-controls="mobile-menu"
                 aria-expanded={isMobileMenuOpen}
@@ -281,41 +369,93 @@ export default function Navigation() {
         {/* Mobile menu */}
         <Transition
           show={isMobileMenuOpen}
-          enter="transition ease-out duration-100 transform"
-          enterFrom="opacity-0 scale-95"
-          enterTo="opacity-100 scale-100"
-          leave="transition ease-in duration-75 transform"
-          leaveFrom="opacity-100 scale-100"
-          leaveTo="opacity-0 scale-95"
+          enter="transition ease-out duration-200 transform"
+          enterFrom="opacity-0 -translate-y-2"
+          enterTo="opacity-100 translate-y-0"
+          leave="transition ease-in duration-150 transform"
+          leaveFrom="opacity-100 translate-y-0"
+          leaveTo="opacity-0 -translate-y-2"
         >
           <div className="md:hidden" id="mobile-menu">
-            <div className="px-2 pt-2 pb-3 space-y-1 bg-black/90 backdrop-blur-md border-t border-white/10">
-              {navigationItems.map((item) => (
+            <div className="px-2 pt-2 pb-3 space-y-1 dark:bg-black/90 light:bg-white/90 backdrop-blur-md dark:border-t dark:border-white/10 light:border-t light:border-black/10">
+              {filteredNavigationItems.map((item) => (
                 <Link
                   key={item.name}
                   href={item.href}
-                  className={`block px-3 py-2 rounded-md text-base font-medium ${
+                  className={`block px-4 py-3 rounded-md text-base font-medium ${
                     item.current
-                      ? 'text-white bg-white/10'
-                      : 'text-white/80 hover:text-white hover:bg-white/5'
-                  }`}
+                      ? 'dark:text-white dark:bg-white/10 light:text-gray-900 light:bg-black/10'
+                      : 'dark:text-white/80 dark:hover:text-white dark:hover:bg-white/5 light:text-gray-700 light:hover:text-gray-900 light:hover:bg-black/5'
+                  } touch-manipulation`}
+                  onClick={() => setIsMobileMenuOpen(false)}
                   aria-current={item.current ? 'page' : undefined}
                 >
-                  {item.name}
+                  <TranslatedText textKey={`navigation.${item.name.toLowerCase()}`} fallback={item.name} />
                 </Link>
               ))}
-              {currentUser && userNavigation.map((item) => (
+              {currentUser && (
                 <Link
-                  key={item.name}
-                  href={item.href}
-                  className="block px-3 py-2 rounded-md text-base font-medium text-white/80 hover:text-white hover:bg-white/5"
+                  href="/dashboard"
+                  className={`block px-4 py-3 rounded-md text-base font-medium ${
+                    pathname === '/dashboard'
+                      ? 'dark:text-white dark:bg-white/10 light:text-gray-900 light:bg-black/10'
+                      : 'dark:text-white/80 dark:hover:text-white dark:hover:bg-white/5 light:text-gray-700 light:hover:text-gray-900 light:hover:bg-black/5'
+                  } touch-manipulation`}
+                  onClick={() => setIsMobileMenuOpen(false)}
+                  aria-current={pathname === '/dashboard' ? 'page' : undefined}
                 >
-                  <div className="flex items-center">
-                    <span className="w-5">{item.icon}</span>
-                    <span className="ml-3">{item.name}</span>
-                  </div>
+                  <TranslatedText textKey="navigation.dashboard" fallback="Dashboard" />
                 </Link>
+              )}
+              {currentUser && userNavigation.map((item) => (
+                <div key={item.name}>
+                  {item.onClick ? (
+                    <button
+                      onClick={() => {
+                        item.onClick?.();
+                        setIsMobileMenuOpen(false);
+                      }}
+                      className="w-full text-left block px-4 py-3 rounded-md text-base font-medium dark:text-white/80 dark:hover:text-white dark:hover:bg-white/5 light:text-gray-700 light:hover:text-gray-900 light:hover:bg-black/5 touch-manipulation"
+                    >
+                      <div className="flex items-center">
+                        <span className="w-5">{item.icon}</span>
+                        <span className="ml-3">{item.name}</span>
+                      </div>
+                    </button>
+                  ) : (
+                    <Link
+                      href={item.href}
+                      className="block px-4 py-3 rounded-md text-base font-medium dark:text-white/80 dark:hover:text-white dark:hover:bg-white/5 light:text-gray-700 light:hover:text-gray-900 light:hover:bg-black/5 touch-manipulation"
+                      onClick={() => setIsMobileMenuOpen(false)}
+                    >
+                      <div className="flex items-center">
+                        <span className="w-5">{item.icon}</span>
+                        <span className="ml-3">{item.name}</span>
+                      </div>
+                    </Link>
+                  )}
+                </div>
               ))}
+              
+              {/* Auth buttons for mobile menu */}
+              {!currentUser && (
+                <div className="mt-4 pt-4 grid grid-cols-2 gap-2 border-t border-white/10">
+                  <Link
+                    href="/login"
+                    className="text-center px-4 py-3 rounded-md text-base font-medium border border-white/10 dark:text-white/90 dark:hover:text-white dark:hover:bg-white/5 light:text-gray-700 light:hover:text-gray-900 light:hover:bg-black/5 touch-manipulation"
+                    onClick={() => setIsMobileMenuOpen(false)}
+                  >
+                    <TranslatedText textKey="navigation.login" fallback="Log in" />
+                  </Link>
+                  <Link
+                    href="/signup"
+                    className="text-center px-4 py-3 rounded-md text-base font-medium text-black bg-gradient-to-r from-[#3CDFFF] to-[#4AFFD4] hover:opacity-90 transition-all duration-200 touch-manipulation"
+                    onClick={() => setIsMobileMenuOpen(false)}
+                  >
+                    <TranslatedText textKey="navigation.signup" fallback="Sign Up" />
+                  </Link>
+                </div>
+              )}
             </div>
           </div>
         </Transition>
@@ -333,16 +473,16 @@ export default function Navigation() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: 20 }}
-              className="bg-black/90 backdrop-blur-md border border-white/10 rounded-lg shadow-lg p-4"
+              className="dark:bg-black/90 light:bg-white/90 backdrop-blur-md dark:border-white/10 light:border-black/10 border rounded-lg shadow-lg p-4"
             >
               <div className="flex items-center">
                 <div className="flex-shrink-0">
-                  <span className="text-white" aria-hidden="true">
+                  <span className="dark:text-white light:text-gray-800" aria-hidden="true">
                     🔔
                   </span>
                 </div>
                 <div className="ml-3">
-                  <p className="text-sm font-medium text-white">
+                  <p className="text-sm font-medium dark:text-white light:text-gray-800">
                     New notification
                   </p>
                 </div>

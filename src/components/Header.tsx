@@ -1,6 +1,7 @@
 'use client';
 
 import React from 'react';
+import Image from 'next/image';
 
 interface HeaderProps {
   isAdvancedMode: boolean;
@@ -13,9 +14,11 @@ const Header: React.FC<HeaderProps> = ({ isAdvancedMode, onToggleMode }) => {
       <div className="flex items-center justify-between max-w-[1920px] mx-auto">
         <div className="flex items-center space-x-4">
           <div className="flex items-center">
-            <img 
+            <Image 
               src="/logo.png" 
               alt="ISYNCSO" 
+              width={180}
+              height={48}
               className="h-12 w-auto opacity-90 hover:opacity-100 transition-opacity"
               style={{ maxWidth: '180px' }}
             />
