@@ -28,6 +28,18 @@ export function middleware(request: NextRequest) {
 
   // Check if user is authenticated (we'll use a cookie in production)
   const isAuthenticated = request.cookies.has('user-token');
+  
+  // Log authentication status for debugging (only in development)
+  if (process.env.NODE_ENV !== 'production') {
+    console.log(`[Middleware] Path: ${path}, RequiresAuth: ${requiresAuth}, IsAuthenticated: ${isAuthenticated}`);
+    if (isAuthenticated) {
+      const tokenValue = request.cookies.get('user-token')?.value;
+      console.log(`[Middleware] Token exists: ${tokenValue ? tokenValue.substring(0, 8) + '...' : 'null'}`);
+    } else {
+      console.log('[Middleware] No authentication token found');
+      console.log('[Middleware] Available cookies:', Array.from(request.cookies.getAll()).map(c => c.name).join(', '));
+    }
+  }
 
   // Redirect authenticated users away from login page
   if ((path === '/login' || path === '/signup') && isAuthenticated) {

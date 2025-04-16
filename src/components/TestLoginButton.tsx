@@ -18,7 +18,9 @@ export default function TestLoginButton() {
 
     try {
       // Force test user creation first
+      console.log('Creating test user...');
       await createTestUser();
+      console.log('Test user created or verified');
       
       const email = 'demo@example.com';
       const password = 'password123';
@@ -29,12 +31,14 @@ export default function TestLoginButton() {
       const user = await authenticateUser(email, password);
       
       if (!user || !user.id) {
+        console.error('Authentication returned invalid user data:', user);
         throw new Error('Failed to authenticate test user - invalid user data returned');
       }
       
-      console.log('Authentication successful for user:', user.email);
+      console.log('Authentication successful for user:', user.email, 'with ID:', user.id);
       
       // Set user in store
+      console.log('Setting user in store');
       setCurrentUser({
         id: user.id,
         email: user.email,
@@ -42,6 +46,7 @@ export default function TestLoginButton() {
       });
       
       // Set authentication cookie with secure settings
+      console.log('Setting authentication cookie');
       Cookies.set('user-token', user.id, { 
         expires: 7, 
         path: '/',
@@ -51,7 +56,12 @@ export default function TestLoginButton() {
       toast.dismiss(loadingToast);
       toast.success('Logged in as test user');
       
+      // Check if cookie was set successfully
+      const cookie = Cookies.get('user-token');
+      console.log('Cookie set?', !!cookie, 'Value:', cookie);
+      
       // Redirect to dashboard after a short delay
+      console.log('Redirecting to dashboard...');
       setTimeout(() => {
         router.push('/dashboard');
       }, 500);

@@ -111,22 +111,39 @@ export async function registerUser(credentials: UserCredentials) {
 }
 
 export async function authenticateUser(email: string, password: string) {
-  const users = getUsers();
-  const user = users.get(email);
+  console.log('Starting authentication for email:', email);
   
-  if (!user) {
-    throw new Error('Invalid credentials');
-  }
+  try {
+    const users = getUsers();
+    console.log('getUsers returned:', users.size, 'users');
+    
+    const user = users.get(email);
+    console.log('Found user?', !!user);
+    
+    if (!user) {
+      console.log('User not found in localStorage');
+      throw new Error('Invalid credentials');
+    }
 
-  const isValid = await compare(password, user.password);
-  
-  if (!isValid) {
-    throw new Error('Invalid credentials');
-  }
+    // Log user data without sensitive information
+    console.log('User found:', { email: user.email, id: user.id });
+    
+    const isValid = await compare(password, user.password);
+    console.log('Password comparison result:', isValid);
+    
+    if (!isValid) {
+      console.log('Invalid password');
+      throw new Error('Invalid credentials');
+    }
 
-  // Return user without password
-  const { password: _, ...userWithoutPassword } = user;
-  return userWithoutPassword;
+    // Return user without password
+    const { password: _, ...userWithoutPassword } = user;
+    console.log('Authentication successful for user:', userWithoutPassword.email);
+    return userWithoutPassword;
+  } catch (error) {
+    console.error('Error in authenticateUser:', error);
+    throw error;
+  }
 }
 
 export async function authenticateWithSocialProvider(provider: SocialProvider, code: string) {
