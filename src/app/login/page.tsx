@@ -10,6 +10,7 @@ import Image from 'next/image';
 import GoogleLoginButton from '@/components/GoogleLoginButton';
 import { signIn } from 'next-auth/react';
 import TestLoginButton from '@/components/TestLoginButton';
+import { toast } from 'react-hot-toast';
 
 function LoginForm() {
   const router = useRouter();
@@ -23,6 +24,8 @@ function LoginForm() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
   const setCurrentUser = useUserStore((state) => state.setCurrentUser);
+  const [apiLoading, setApiLoading] = useState(false);
+  const [showConfigError, setShowConfigError] = useState(false);
 
   // Check if already logged in
   useEffect(() => {
@@ -31,6 +34,15 @@ function LoginForm() {
       router.push(callbackUrl);
     }
   }, [callbackUrl, router]);
+
+  // Check if there's an error query parameter
+  useEffect(() => {
+    const error = searchParams.get('error');
+    if (error === 'Configuration') {
+      setShowConfigError(true);
+      toast.error('OAuth configuration error. Try using email login instead.');
+    }
+  }, [searchParams]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -105,6 +117,46 @@ function LoginForm() {
       setError(error instanceof Error ? error.message : `Authentication with ${provider} failed`);
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  const handleApiLogin = async () => {
+    setApiLoading(true);
+    setError('');
+    
+    try {
+      // Use the custom API endpoint
+      const response = await fetch('/api/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          email: formData.email,
+          password: formData.password,
+        }),
+      });
+      
+      const data = await response.json();
+      
+      if (!data.success) {
+        throw new Error(data.error || 'Authentication failed');
+      }
+      
+      // Set user in store
+      setCurrentUser({
+        id: data.user.id,
+        email: data.user.email,
+        name: data.user.name,
+      });
+      
+      // Redirect to dashboard
+      router.push(callbackUrl);
+    } catch (error) {
+      console.error('API login error:', error);
+      setError(error instanceof Error ? error.message : 'Authentication failed');
+    } finally {
+      setApiLoading(false);
     }
   };
 
@@ -231,6 +283,20 @@ function LoginForm() {
               )}
             </button>
           </form>
+          {showConfigError && (
+            <div className="mt-4 p-3 bg-blue-900/30 border border-blue-500/20 rounded-md text-blue-300 text-sm">
+              <p className="font-bold">OAuth Configuration Error</p>
+              <p className="mt-1">The OAuth login is not properly configured. You can:</p>
+              <ul className="list-disc pl-5 mt-2">
+                <li>Try using email/password login above</li>
+                <li>
+                  <Link href="/admin-login" className="text-primary underline">
+                    Use the admin login page
+                  </Link>
+                </li>
+              </ul>
+            </div>
+          )}
           <div className="mt-6 text-center text-sm text-white/60">
             Don't have an account?{' '}
             <Link
