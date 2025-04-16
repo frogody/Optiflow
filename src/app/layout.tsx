@@ -27,19 +27,39 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html>
-      <body className={`${inter.className} flex flex-col min-h-screen`}>
+    <html lang="en" suppressHydrationWarning>
+      <body 
+        className={`
+          ${inter.className} 
+          flex flex-col min-h-screen
+          bg-gray-50 dark:bg-dark
+          text-gray-900 dark:text-gray-100
+          transition-colors duration-200
+        `}
+      >
         <SessionInitializer />
         <Providers>
           <ThemeProvider>
-            <Navigation />
-            <div className="flex-grow">
-              {children}
+            <div className="relative">
+              <div className="fixed inset-0 bg-gradient-glow opacity-20 pointer-events-none" />
+              <Navigation />
+              <main className="relative flex-grow">
+                {children}
+              </main>
+              <Footer />
             </div>
-            <Footer />
           </ThemeProvider>
         </Providers>
-        <Toaster position="top-right" />
+        <Toaster 
+          position="top-right"
+          toastOptions={{
+            className: 'dark:bg-dark-50 dark:text-white',
+            style: {
+              background: 'var(--toast-bg)',
+              color: 'var(--toast-color)',
+            },
+          }} 
+        />
       </body>
     </html>
   );

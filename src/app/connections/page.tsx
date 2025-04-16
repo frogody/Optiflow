@@ -53,41 +53,62 @@ export default function ConnectionsPage() {
   };
 
   return (
-    <div className="container mx-auto py-8 px-4">
-      <h1 className="text-2xl font-bold mb-6">Connect Your Services</h1>
+    <div className="container mx-auto py-8 px-4 min-h-screen">
+      <h1 className="text-3xl font-bold mb-8 text-dark-50 dark:text-white">
+        Connect Your Services
+      </h1>
       
       {isLoading ? (
-        <div className="flex justify-center my-8">
-          <div className="animate-spin h-8 w-8 border-4 border-blue-500 rounded-full border-t-transparent"></div>
+        <div className="flex justify-center my-12">
+          <div className="animate-spin h-10 w-10 border-4 border-primary rounded-full border-t-transparent" />
         </div>
       ) : (
         <>
-          <div className="bg-white shadow rounded-lg p-6 mb-8">
-            <h2 className="text-xl font-semibold mb-4">Your Connected Accounts</h2>
+          <div className="bg-white dark:bg-dark-50 shadow-lg dark:shadow-neon rounded-xl p-8 mb-8">
+            <h2 className="text-2xl font-semibold mb-6 text-dark-50 dark:text-white">
+              Your Connected Accounts
+            </h2>
             {connections.length > 0 ? (
-              <ul className="space-y-2">
+              <ul className="space-y-4">
                 {connections.map((connection) => (
-                  <li key={connection.id} className="flex items-center p-3 bg-gray-50 rounded">
-                    <span className="font-medium">{connection.app_name || connection.app}</span>
-                    <span className="ml-2 px-2 py-1 text-xs bg-green-100 text-green-800 rounded">Connected</span>
+                  <li 
+                    key={connection.id} 
+                    className="flex items-center justify-between p-4 bg-gray-50 dark:bg-dark-100 rounded-lg border border-gray-100 dark:border-dark-200"
+                  >
+                    <div className="flex items-center">
+                      <span className="font-medium text-dark-50 dark:text-white">
+                        {connection.app_name || connection.app}
+                      </span>
+                    </div>
+                    <span className="px-3 py-1 text-sm bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-100 rounded-full font-medium">
+                      Connected
+                    </span>
                   </li>
                 ))}
               </ul>
             ) : (
-              <p className="text-gray-500">No connected accounts yet. Connect your first service below.</p>
+              <p className="text-gray-500 dark:text-gray-400 text-center py-8">
+                No connected accounts yet. Connect your first service below.
+              </p>
             )}
           </div>
 
-          <div className="bg-white shadow rounded-lg p-6">
-            <h2 className="text-xl font-semibold mb-4">Available Services</h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          <div className="bg-white dark:bg-dark-50 shadow-lg dark:shadow-neon rounded-xl p-8">
+            <h2 className="text-2xl font-semibold mb-6 text-dark-50 dark:text-white">
+              Available Services
+            </h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {commonApps.map((app) => (
-                <div key={app.slug} className="border p-4 rounded-lg flex flex-col items-center">
-                  <h3 className="font-medium mb-2">{app.name}</h3>
+                <div 
+                  key={app.slug} 
+                  className="border dark:border-dark-200 p-6 rounded-xl bg-gray-50 dark:bg-dark-100 flex flex-col items-center hover:shadow-lg dark:hover:shadow-neon transition-all duration-200"
+                >
+                  <h3 className="text-lg font-semibold mb-4 text-dark-50 dark:text-white">
+                    {app.name}
+                  </h3>
                   <PipedreamConnectButton
                     appSlug={app.slug}
                     buttonText={`Connect ${app.name}`}
-                    className="mt-2 w-full"
                     onSuccess={handleConnectionSuccess}
                   />
                 </div>

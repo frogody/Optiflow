@@ -42,9 +42,30 @@ export default function PipedreamConnectButton({
     <button
       onClick={handleConnect}
       disabled={isConnecting || isInitializing || !isReady}
-      className={`px-4 py-2 bg-primary text-white rounded-md hover:bg-primary/90 transition-colors disabled:opacity-50 ${className}`}
+      className={`
+        w-full px-4 py-2 rounded-lg font-medium
+        bg-gradient-to-r from-primary to-secondary
+        hover:from-primary/90 hover:to-secondary/90
+        text-dark-50 dark:text-white
+        disabled:opacity-50 disabled:cursor-not-allowed
+        transition-all duration-200 ease-in-out
+        shadow-neon hover:shadow-neon-strong
+        ${className}
+      `}
     >
-      {isConnecting ? 'Connecting...' : isInitializing ? 'Initializing...' : displayText}
+      {isConnecting ? (
+        <div className="flex items-center justify-center">
+          <div className="animate-spin h-5 w-5 mr-2 border-2 border-white border-t-transparent rounded-full" />
+          Connecting...
+        </div>
+      ) : isInitializing ? (
+        <div className="flex items-center justify-center">
+          <div className="animate-pulse h-5 w-5 mr-2 bg-white rounded-full opacity-75" />
+          Initializing...
+        </div>
+      ) : (
+        displayText
+      )}
     </button>
   );
 } 
