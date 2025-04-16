@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "next build",
+    "build": "prisma generate && next build",
     "start": "next start",
     "lint": "next lint",
     "mcp:servers": "ts-node src/services/mcp/server/startServers.ts",
@@ -16,7 +16,8 @@
     "deploy": "sh deploy.sh",
     "check-env": "node scripts/check-env.js",
     "generate-secret": "node scripts/generate-secret.js",
-    "vercel-build": "npm run build"
+    "vercel-build": "prisma generate && next build",
+    "postinstall": "prisma generate"
   },
   "dependencies": {
     "@auth/core": "0.34.2",
