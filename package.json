@@ -16,7 +16,7 @@
     "deploy": "sh deploy.sh",
     "check-env": "node scripts/check-env.js",
     "generate-secret": "node scripts/generate-secret.js",
-    "vercel-build": "prisma generate --schema=./prisma/schema.prisma && next build",
+    "vercel-build": "echo 'Starting vercel-build...' && NODE_ENV=production prisma generate --schema=./prisma/schema.prisma && echo 'Prisma generate completed' && NODE_ENV=production next build",
     "postinstall": "prisma generate",
     "db:migrate": "ts-node scripts/migrate-db.ts",
     "db:backup": "ts-node scripts/backup-db.ts",
