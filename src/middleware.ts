@@ -61,7 +61,14 @@ export async function middleware(request: NextRequest) {
     // Redirect to login if no token and trying to access protected route
     if (!token) {
       const loginUrl = new URL('/login', request.url);
-      loginUrl.searchParams.set('callbackUrl', request.url);
+      
+      // Prevent infinite redirect loops by not setting callbackUrl if already on login page
+      // or if the callbackUrl would be the login page
+      const currentUrl = request.url;
+      if (!currentUrl.includes('/login') && !pathname.includes('/login')) {
+        loginUrl.searchParams.set('callbackUrl', request.url);
+      }
+      
       return NextResponse.redirect(loginUrl);
     }
 

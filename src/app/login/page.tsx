@@ -10,7 +10,14 @@ import { toast } from 'react-hot-toast';
 export default function LoginPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const callbackUrl = searchParams.get('callbackUrl') || '/dashboard';
+  
+  // Get the callbackUrl from the search params, but ensure it's not the login page itself
+  let callbackUrl = searchParams.get('callbackUrl') || '/dashboard';
+  
+  // Prevent infinite redirects by checking if the callbackUrl is the login page
+  if (callbackUrl.includes('/login')) {
+    callbackUrl = '/dashboard';
+  }
   
   const [formData, setFormData] = useState({
     email: '',
