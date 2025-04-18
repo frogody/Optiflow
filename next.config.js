@@ -29,10 +29,6 @@ const nextConfig = {
   },
   // Configure static generation
   staticPageGenerationTimeout: 120,
-  generateStaticParams: async () => {
-    // Return an empty array to skip static generation for dynamic routes
-    return [];
-  },
 }
 
 module.exports = nextConfig 

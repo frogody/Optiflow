@@ -16,8 +16,10 @@ export function SessionInitializer() {
     // Only run on client side
     if (typeof window === 'undefined') return;
 
+    // Set loading state
     setLoading(status === 'loading');
 
+    // Handle session state
     if (status === 'authenticated' && session?.user) {
       // Ensure we have valid values before updating the store
       const user = {
@@ -26,8 +28,8 @@ export function SessionInitializer() {
         name: session.user.name || null,    // Explicitly set to null if undefined
       };
       setUser(user);
-    } else if (status === 'unauthenticated') {
-      // Clear the user when session is explicitly unauthenticated
+    } else if (status === 'unauthenticated' || !session) {
+      // Clear the user when session is explicitly unauthenticated or missing
       setUser(null);
     }
   }, [session, status, setUser, setLoading]);
