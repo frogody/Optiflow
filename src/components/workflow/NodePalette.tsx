@@ -161,6 +161,14 @@ const nodeTypes = [
     icon: ServerIcon,
     category: 'Integration',
   },
+  {
+    id: 'pipedream-app',
+    type: 'pipedreamApp',
+    label: 'Connect App',
+    description: 'Connect and use any app from Pipedream',
+    icon: ServerIcon,
+    category: 'Pipedream Apps',
+  },
 ];
 
 interface NodePaletteProps {

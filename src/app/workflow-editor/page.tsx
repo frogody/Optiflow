@@ -27,6 +27,9 @@ import { DefaultNodeData } from '@/components/workflow/DefaultNodeConfig';
 import CustomEdge from '@/components/workflow/CustomEdge';
 import WorkflowSettingsPanel, { WorkflowSettings } from '@/components/workflow/WorkflowSettings';
 import { Cog6ToothIcon } from '@heroicons/react/24/outline';
+import PipedreamAppNode from '@/components/workflow/PipedreamAppNode';
+import DefaultNode from '@/components/workflow/DefaultNode';
+import AIAgentNode from '@/components/workflow/AIAgentNode';
 
 // Define a union type for node data
 type NodeDataType = {
@@ -216,6 +219,14 @@ const initialEdges: Edge<EdgeDataType>[] = [
     }
   },
 ];
+
+// Define node types
+const nodeTypes = {
+  default: DefaultNode,
+  aiAgent: AIAgentNode,
+  pipedreamApp: PipedreamAppNode,
+  // ... other node types ...
+};
 
 // A wrapper component that provides the ReactFlow context
 function WorkflowEditorContent() {

@@ -21,6 +21,7 @@ import WaitNode from './nodes/WaitNode';
 import ConditionalNode from './nodes/ConditionalNode';
 import PipedreamConnector from '@/components/PipedreamConnector';
 import { toast } from 'react-hot-toast';
+import { CustomEdge, AnimatedEdge, DashedEdge, DottedEdge } from './edges/CustomEdge';
 
 // Register custom node types
 const nodeTypes = {
@@ -29,6 +30,57 @@ const nodeTypes = {
   wait: WaitNode,
   conditional: ConditionalNode
 };
+
+// Add new edge types
+const edgeTypes = {
+  default: CustomEdge,
+  animated: AnimatedEdge,
+  dashed: DashedEdge,
+  dotted: DottedEdge
+};
+
+interface ConnectionRules {
+  [key: string]: {
+    allowedTargets: string[];
+    maxConnections: number;
+  };
+}
+
+const connectionRules: ConnectionRules = {
+  'extract-webpage': {
+    allowedTargets: ['process-data', 'api', 'database', 'send-email'],
+    maxConnections: 1,
+  },
+  'process-data': {
+    allowedTargets: ['api', 'database', 'send-email', 'social-post'],
+    maxConnections: 3,
+  },
+  'api': {
+    allowedTargets: ['process-data', 'database', 'send-email', 'conditional'],
+    maxConnections: 2
+  },
+  'database': {
+    allowedTargets: ['process-data', 'api', 'send-email', 'conditional'],
+    maxConnections: 2
+  },
+  'send-email': {
+    allowedTargets: ['process-data', 'api', 'database'],
+    maxConnections: 1
+  },
+  'conditional': {
+    allowedTargets: ['*'],
+    maxConnections: 2
+  }
+};
+
+// Add edge customization options
+interface EdgeCustomization {
+  type: 'default' | 'animated' | 'dashed' | 'dotted';
+  color: string;
+  width: number;
+  label?: string;
+  animated?: boolean;
+}
 
 interface FlowEditorProps {
   initialFlow?: {
@@ -126,6 +178,12 @@ export default function FlowEditor({ initialFlow, onSave }: FlowEditorProps) {
   const [showSidebar, setShowSidebar] = useState(true);
   const reactFlowWrapper = useRef<HTMLDivElement>(null);
   const [reactFlowInstance, setReactFlowInstance] = useState<any>(null);
+  const [edgeCustomization, setEdgeCustomization] = useState<EdgeCustomization>({
+    type: 'default',
+    color: '#6366f1',
+    width: 2,
+    animated: false
+  });
 
   // Load connected apps on mount
   useEffect(() => {
@@ -154,17 +212,49 @@ export default function FlowEditor({ initialFlow, onSave }: FlowEditorProps) {
     loadConnectedApps();
   }, []);
 
-  // Handle node connection
-  const onConnect = useCallback(
-    (params: Connection) => {
-      setEdges((eds) => addEdge({
-        ...params,
-        animated: true,
-        style: { stroke: 'var(--primary-color)', strokeWidth: 2 }
-      }, eds));
-    },
-    [setEdges]
-  );
+  // Enhanced connection validation
+  const onConnect = (connection: Connection) => {
+    if (!connection.source || !connection.target) return;
+
+    const sourceNode = nodes.find((node) => node.id === connection.source);
+    const targetNode = nodes.find((node) => node.id === connection.target);
+
+    if (!sourceNode?.type || !targetNode?.type) return;
+
+    const sourceType = sourceNode.type as keyof typeof connectionRules;
+    const rules = connectionRules[sourceType];
+    if (!rules) return;
+
+    // Validate connection
+    if (!rules.allowedTargets.includes(targetNode.type)) {
+      console.warn(`Connection not allowed: ${sourceType} -> ${targetNode.type}`);
+      return;
+    }
+
+    const existingConnections = edges.filter(
+      (edge) => edge.source === connection.source
+    );
+
+    if (existingConnections.length >= rules.maxConnections) {
+      console.warn(`Maximum connections reached for ${sourceType}`);
+      return;
+    }
+
+    // Create new edge with customization
+    const newEdge: Edge = {
+      id: `${connection.source}-${connection.target}`,
+      source: connection.source,
+      target: connection.target,
+      type: 'default',
+      data: {
+        label: '',
+        color: '#b1b1b7',
+        width: 2,
+      },
+    };
+
+    setEdges((eds: Edge[]) => [...eds, newEdge]);
+  };
 
   // Handle connecting an app
   const handleConnectApp = (appId: string) => {
@@ -274,6 +364,55 @@ export default function FlowEditor({ initialFlow, onSave }: FlowEditorProps) {
     event.dataTransfer.effectAllowed = 'move';
   };
 
+  // Add edge customization controls
+  const EdgeCustomizationPanel = () => (
+    <div className="absolute bottom-4 right-4 bg-dark-100 p-4 rounded-lg shadow-lg">
+      <h3 className="text-white text-sm font-medium mb-2">Edge Style</h3>
+      <div className="space-y-2">
+        <select
+          value={edgeCustomization.type}
+          onChange={(e) => setEdgeCustomization(prev => ({ ...prev, type: e.target.value as any }))}
+          className="w-full px-2 py-1 bg-dark-200 text-white rounded"
+        >
+          <option value="default">Default</option>
+          <option value="animated">Animated</option>
+          <option value="dashed">Dashed</option>
+          <option value="dotted">Dotted</option>
+        </select>
+        <input
+          type="color"
+          value={edgeCustomization.color}
+          onChange={(e) => setEdgeCustomization(prev => ({ ...prev, color: e.target.value }))}
+          className="w-full"
+        />
+        <input
+          type="number"
+          value={edgeCustomization.width}
+          onChange={(e) => setEdgeCustomization(prev => ({ ...prev, width: parseInt(e.target.value) }))}
+          min="1"
+          max="5"
+          className="w-full px-2 py-1 bg-dark-200 text-white rounded"
+        />
+        <input
+          type="text"
+          value={edgeCustomization.label || ''}
+          onChange={(e) => setEdgeCustomization(prev => ({ ...prev, label: e.target.value }))}
+          placeholder="Edge label"
+          className="w-full px-2 py-1 bg-dark-200 text-white rounded"
+        />
+        <label className="flex items-center text-white">
+          <input
+            type="checkbox"
+            checked={edgeCustomization.animated}
+            onChange={(e) => setEdgeCustomization(prev => ({ ...prev, animated: e.target.checked }))}
+            className="mr-2"
+          />
+          Animate
+        </label>
+      </div>
+    </div>
+  );
+
   return (
     <div className="flex h-[calc(100vh-64px)]">
       {/* Sidebar with node templates and connected apps */}
@@ -364,6 +503,7 @@ export default function FlowEditor({ initialFlow, onSave }: FlowEditorProps) {
               onDragOver={onDragOver}
               onNodeClick={onNodeClick}
               nodeTypes={nodeTypes}
+              edgeTypes={edgeTypes}
               fitView
             >
               <Controls className="bg-dark-100 text-white border-dark-200" />
@@ -386,6 +526,7 @@ export default function FlowEditor({ initialFlow, onSave }: FlowEditorProps) {
                 className="bg-dark-100 border-dark-200"
               />
               <Background color="#334155" gap={16} />
+              <EdgeCustomizationPanel />
             </ReactFlow>
           </ReactFlowProvider>
         </div>

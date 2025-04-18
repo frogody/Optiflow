@@ -49,16 +49,16 @@ const nodeTypeIcons: Record<string, any> = {
 // Field type definitions
 export type FieldType = 'text' | 'textarea' | 'number' | 'email' | 'url' | 'select' | 'checkbox' | 'date' | 'time' | 'json' | 'code' | 'color';
 
-export interface FieldConfig {
+export type FieldConfig = {
   type: FieldType;
   label: string;
   description?: string;
   placeholder?: string;
   required?: boolean;
-  options?: { label: string; value: any }[];
   defaultValue?: any;
-  language?: string; // For code editor
-}
+  options?: Array<{ label: string; value: any }>;
+  visibleWhen?: Record<string, any>;
+};
 
 // Map of node types to their field configurations
 const nodeConfigs: Record<string, Record<string, FieldConfig>> = {
@@ -86,9 +86,169 @@ const nodeConfigs: Record<string, Record<string, FieldConfig>> = {
       label: 'Max Depth',
       description: 'Maximum crawl depth for linked pages',
       defaultValue: 1
+    },
+    // Authentication
+    authType: {
+      type: 'select',
+      label: 'Authentication Type',
+      description: 'How to authenticate with the website',
+      options: [
+        { label: 'None', value: 'none' },
+        { label: 'Basic Auth', value: 'basic' },
+        { label: 'Cookie', value: 'cookie' },
+        { label: 'OAuth', value: 'oauth' }
+      ],
+      defaultValue: 'none'
+    },
+    authConfig: {
+      type: 'json',
+      label: 'Authentication Configuration',
+      description: 'Authentication configuration based on selected type',
+      placeholder: '{"username": "user", "password": "pass"}',
+      visibleWhen: { authType: ['basic', 'cookie', 'oauth'] }
+    },
+    // Browser Settings
+    browserType: {
+      type: 'select',
+      label: 'Browser Type',
+      description: 'Browser engine to use for rendering',
+      options: [
+        { label: 'Chrome', value: 'chrome' },
+        { label: 'Firefox', value: 'firefox' },
+        { label: 'Safari', value: 'safari' }
+      ],
+      defaultValue: 'chrome'
+    },
+    headless: {
+      type: 'checkbox',
+      label: 'Headless Mode',
+      description: 'Run browser in headless mode',
+      defaultValue: true
+    },
+    viewport: {
+      type: 'json',
+      label: 'Viewport Settings',
+      description: 'Browser viewport configuration',
+      placeholder: '{"width": 1920, "height": 1080}',
+      defaultValue: '{"width": 1920, "height": 1080}'
+    },
+    // JavaScript Settings
+    waitForSelector: {
+      type: 'text',
+      label: 'Wait For Selector',
+      description: 'CSS selector to wait for before extracting',
+      placeholder: '.dynamic-content'
+    },
+    waitForTimeout: {
+      type: 'number',
+      label: 'Wait Timeout',
+      description: 'Maximum time to wait for selector in milliseconds',
+      defaultValue: 5000
+    },
+    executeScript: {
+      type: 'textarea',
+      label: 'Execute Script',
+      description: 'JavaScript to execute before extraction',
+      placeholder: 'document.querySelector(".cookie-banner").remove();'
+    },
+    // Rate Limiting
+    rateLimit: {
+      type: 'number',
+      label: 'Rate Limit',
+      description: 'Maximum requests per minute',
+      defaultValue: 60
+    },
+    rateLimitStrategy: {
+      type: 'select',
+      label: 'Rate Limit Strategy',
+      description: 'How to handle rate limiting',
+      options: [
+        { label: 'Fail Fast', value: 'fail' },
+        { label: 'Queue', value: 'queue' },
+        { label: 'Throttle', value: 'throttle' }
+      ],
+      defaultValue: 'throttle'
+    },
+    // Proxy Settings
+    useProxy: {
+      type: 'checkbox',
+      label: 'Use Proxy',
+      description: 'Use a proxy for requests',
+      defaultValue: false
+    },
+    proxyConfig: {
+      type: 'json',
+      label: 'Proxy Configuration',
+      description: 'Proxy server configuration',
+      placeholder: '{"host": "proxy.example.com", "port": 8080}',
+      visibleWhen: { useProxy: true }
+    },
+    // Advanced Settings
+    timeout: {
+      type: 'number',
+      label: 'Timeout',
+      description: 'Request timeout in seconds',
+      defaultValue: 30
+    },
+    retryCount: {
+      type: 'number',
+      label: 'Retry Count',
+      description: 'Number of retries on failure',
+      defaultValue: 3
+    },
+    retryDelay: {
+      type: 'number',
+      label: 'Retry Delay',
+      description: 'Delay between retries in seconds',
+      defaultValue: 1
+    },
+    // Content Processing
+    extractText: {
+      type: 'checkbox',
+      label: 'Extract Text',
+      description: 'Extract text content from elements',
+      defaultValue: true
+    },
+    extractLinks: {
+      type: 'checkbox',
+      label: 'Extract Links',
+      description: 'Extract links from elements',
+      defaultValue: false
+    },
+    extractMetadata: {
+      type: 'checkbox',
+      label: 'Extract Metadata',
+      description: 'Extract meta tags and other metadata',
+      defaultValue: false
+    },
+    // Output Format
+    outputFormat: {
+      type: 'select',
+      label: 'Output Format',
+      description: 'Format of the extracted data',
+      options: [
+        { label: 'JSON', value: 'json' },
+        { label: 'HTML', value: 'html' },
+        { label: 'Text', value: 'text' },
+        { label: 'Markdown', value: 'markdown' }
+      ],
+      defaultValue: 'json'
     }
   },
   'send-email': {
+    provider: {
+      type: 'select',
+      label: 'Email Provider',
+      description: 'Select your email provider',
+      options: [
+        { label: 'Gmail', value: 'gmail' },
+        { label: 'Outlook', value: 'outlook' },
+        { label: 'SMTP', value: 'smtp' },
+        { label: 'SendGrid', value: 'sendgrid' },
+        { label: 'Mailgun', value: 'mailgun' }
+      ],
+      required: true
+    },
     to: {
       type: 'email',
       label: 'To Email',
@@ -118,6 +278,28 @@ const nodeConfigs: Record<string, Record<string, FieldConfig>> = {
       type: 'date',
       label: 'Send At',
       description: 'Schedule email for later delivery'
+    },
+    // Provider-specific settings
+    gmailSettings: {
+      type: 'json',
+      label: 'Gmail Settings',
+      description: 'Gmail-specific settings (only shown when Gmail is selected)',
+      placeholder: '{"labels": ["Important"], "threadId": "optional-thread-id"}',
+      visibleWhen: { provider: 'gmail' }
+    },
+    outlookSettings: {
+      type: 'json',
+      label: 'Outlook Settings',
+      description: 'Outlook-specific settings (only shown when Outlook is selected)',
+      placeholder: '{"importance": "high", "categories": ["Work"]}',
+      visibleWhen: { provider: 'outlook' }
+    },
+    smtpSettings: {
+      type: 'json',
+      label: 'SMTP Settings',
+      description: 'SMTP server configuration (only shown when SMTP is selected)',
+      placeholder: '{"host": "smtp.example.com", "port": 587, "secure": true}',
+      visibleWhen: { provider: 'smtp' }
     }
   },
   'wait': {
@@ -141,56 +323,165 @@ const nodeConfigs: Record<string, Record<string, FieldConfig>> = {
     }
   },
   'api': {
-    endpoint: {
-      type: 'url',
-      label: 'API Endpoint',
-      description: 'The API endpoint URL',
+    url: {
+      type: 'text',
+      label: 'API URL',
+      description: 'The URL of the API endpoint',
       placeholder: 'https://api.example.com/data',
       required: true
     },
     method: {
       type: 'select',
-      label: 'Method',
-      description: 'HTTP method to use',
+      label: 'HTTP Method',
+      description: 'The HTTP method to use',
       options: [
         { label: 'GET', value: 'GET' },
         { label: 'POST', value: 'POST' },
         { label: 'PUT', value: 'PUT' },
+        { label: 'PATCH', value: 'PATCH' },
         { label: 'DELETE', value: 'DELETE' },
-        { label: 'PATCH', value: 'PATCH' }
+        { label: 'HEAD', value: 'HEAD' },
+        { label: 'OPTIONS', value: 'OPTIONS' }
       ],
       defaultValue: 'GET'
     },
     headers: {
       type: 'textarea',
       label: 'Headers',
-      description: 'HTTP headers as JSON',
-      placeholder: '{"Content-Type": "application/json"}'
+      description: 'HTTP headers as JSON object',
+      placeholder: '{"Content-Type": "application/json", "Authorization": "Bearer token"}'
     },
     body: {
       type: 'textarea',
-      label: 'Body',
-      description: 'Request body as JSON',
-      placeholder: '{"key": "value"}'
+      label: 'Request Body',
+      description: 'Request body as JSON object',
+      placeholder: '{"key": "value"}',
+      visibleWhen: { method: ['POST', 'PUT', 'PATCH'] }
     },
-    authentication: {
+    // Authentication
+    authType: {
       type: 'select',
-      label: 'Authentication',
-      description: 'Authentication method',
+      label: 'Authentication Type',
+      description: 'How to authenticate with the API',
       options: [
         { label: 'None', value: 'none' },
         { label: 'Basic Auth', value: 'basic' },
         { label: 'Bearer Token', value: 'bearer' },
-        { label: 'API Key', value: 'apikey' },
-        { label: 'OAuth 2.0', value: 'oauth2' }
+        { label: 'API Key', value: 'apiKey' },
+        { label: 'OAuth 2.0', value: 'oauth2' },
+        { label: 'AWS Signature', value: 'aws' }
       ],
       defaultValue: 'none'
     },
+    authConfig: {
+      type: 'json',
+      label: 'Authentication Configuration',
+      description: 'Authentication configuration based on selected type',
+      placeholder: '{"username": "user", "password": "pass"}',
+      visibleWhen: { authType: ['basic', 'bearer', 'apiKey', 'oauth2', 'aws'] }
+    },
+    // Rate Limiting
+    rateLimit: {
+      type: 'number',
+      label: 'Rate Limit',
+      description: 'Maximum requests per minute',
+      defaultValue: 60
+    },
+    rateLimitStrategy: {
+      type: 'select',
+      label: 'Rate Limit Strategy',
+      description: 'How to handle rate limiting',
+      options: [
+        { label: 'Fail Fast', value: 'fail' },
+        { label: 'Queue', value: 'queue' },
+        { label: 'Throttle', value: 'throttle' }
+      ],
+      defaultValue: 'throttle'
+    },
+    // Caching
+    cacheEnabled: {
+      type: 'checkbox',
+      label: 'Enable Caching',
+      description: 'Cache API responses',
+      defaultValue: false
+    },
+    cacheTTL: {
+      type: 'number',
+      label: 'Cache TTL',
+      description: 'Time to live for cached responses in seconds',
+      defaultValue: 300,
+      visibleWhen: { cacheEnabled: true }
+    },
+    cacheStrategy: {
+      type: 'select',
+      label: 'Cache Strategy',
+      description: 'How to handle caching',
+      options: [
+        { label: 'Memory', value: 'memory' },
+        { label: 'Redis', value: 'redis' },
+        { label: 'File System', value: 'filesystem' }
+      ],
+      defaultValue: 'memory',
+      visibleWhen: { cacheEnabled: true }
+    },
+    // Response Handling
+    responseFormat: {
+      type: 'select',
+      label: 'Response Format',
+      description: 'Expected response format',
+      options: [
+        { label: 'JSON', value: 'json' },
+        { label: 'XML', value: 'xml' },
+        { label: 'Text', value: 'text' },
+        { label: 'Binary', value: 'binary' }
+      ],
+      defaultValue: 'json'
+    },
+    responseTransform: {
+      type: 'textarea',
+      label: 'Response Transform',
+      description: 'JavaScript code to transform the response',
+      placeholder: 'return response.data.map(item => ({ id: item.id, name: item.name }));'
+    },
+    // Error Handling
     retryCount: {
       type: 'number',
       label: 'Retry Count',
       description: 'Number of retries on failure',
       defaultValue: 3
+    },
+    retryDelay: {
+      type: 'number',
+      label: 'Retry Delay',
+      description: 'Delay between retries in seconds',
+      defaultValue: 1
+    },
+    errorHandler: {
+      type: 'textarea',
+      label: 'Error Handler',
+      description: 'JavaScript code to handle errors',
+      placeholder: 'if (error.response.status === 429) { /* handle rate limit */ }'
+    },
+    // Timeouts
+    timeout: {
+      type: 'number',
+      label: 'Timeout',
+      description: 'Request timeout in seconds',
+      defaultValue: 30
+    },
+    // Proxy
+    useProxy: {
+      type: 'checkbox',
+      label: 'Use Proxy',
+      description: 'Use a proxy for the request',
+      defaultValue: false
+    },
+    proxyConfig: {
+      type: 'json',
+      label: 'Proxy Configuration',
+      description: 'Proxy server configuration',
+      placeholder: '{"host": "proxy.example.com", "port": 8080}',
+      visibleWhen: { useProxy: true }
     }
   },
   'process-data': {
@@ -202,7 +493,9 @@ const nodeConfigs: Record<string, Record<string, FieldConfig>> = {
         { label: 'JSON', value: 'json' },
         { label: 'CSV', value: 'csv' },
         { label: 'XML', value: 'xml' },
-        { label: 'Text', value: 'text' }
+        { label: 'Text', value: 'text' },
+        { label: 'YAML', value: 'yaml' },
+        { label: 'Binary', value: 'binary' }
       ],
       defaultValue: 'json'
     },
@@ -214,306 +507,384 @@ const nodeConfigs: Record<string, Record<string, FieldConfig>> = {
         { label: 'JSON', value: 'json' },
         { label: 'CSV', value: 'csv' },
         { label: 'XML', value: 'xml' },
-        { label: 'Text', value: 'text' }
+        { label: 'Text', value: 'text' },
+        { label: 'YAML', value: 'yaml' },
+        { label: 'Binary', value: 'binary' }
       ],
       defaultValue: 'json'
     },
-    transformation: {
+    // Schema Validation
+    validateSchema: {
+      type: 'checkbox',
+      label: 'Validate Schema',
+      description: 'Validate input data against a schema',
+      defaultValue: false
+    },
+    inputSchema: {
       type: 'textarea',
-      label: 'Transformation',
-      description: 'Transformation expression or mapping',
-      placeholder: '{ "newField": data.oldField }'
+      label: 'Input Schema',
+      description: 'JSON Schema for input validation',
+      placeholder: '{"type": "object", "properties": {...}}',
+      visibleWhen: { validateSchema: true }
+    },
+    outputSchema: {
+      type: 'textarea',
+      label: 'Output Schema',
+      description: 'JSON Schema for output validation',
+      placeholder: '{"type": "object", "properties": {...}}',
+      visibleWhen: { validateSchema: true }
+    },
+    // Data Transformation
+    transformationType: {
+      type: 'select',
+      label: 'Transformation Type',
+      description: 'Type of transformation to apply',
+      options: [
+        { label: 'Mapping', value: 'mapping' },
+        { label: 'Filter', value: 'filter' },
+        { label: 'Aggregate', value: 'aggregate' },
+        { label: 'Custom', value: 'custom' }
+      ],
+      defaultValue: 'mapping'
+    },
+    fieldMapping: {
+      type: 'textarea',
+      label: 'Field Mapping',
+      description: 'Map input fields to output fields',
+      placeholder: '{"output.field1": "input.field1", "output.field2": "input.field2"}',
+      visibleWhen: { transformationType: 'mapping' }
     },
     filterCondition: {
       type: 'text',
       label: 'Filter Condition',
       description: 'Filter data based on this condition',
-      placeholder: 'data.age > 30'
+      placeholder: 'data.age > 30 && data.status === "active"',
+      visibleWhen: { transformationType: 'filter' }
+    },
+    aggregationConfig: {
+      type: 'json',
+      label: 'Aggregation Config',
+      description: 'Configuration for data aggregation',
+      placeholder: '{"groupBy": ["category"], "aggregations": {"count": "count", "sum": "sum(amount)"}}',
+      visibleWhen: { transformationType: 'aggregate' }
+    },
+    customTransform: {
+      type: 'textarea',
+      label: 'Custom Transform',
+      description: 'Custom JavaScript transformation function',
+      placeholder: 'return data.map(item => ({ ...item, processed: true }));',
+      visibleWhen: { transformationType: 'custom' }
+    },
+    // Data Cleaning
+    cleanData: {
+      type: 'checkbox',
+      label: 'Clean Data',
+      description: 'Apply data cleaning operations',
+      defaultValue: false
+    },
+    cleaningOperations: {
+      type: 'json',
+      label: 'Cleaning Operations',
+      description: 'Data cleaning operations to apply',
+      placeholder: '{"removeNulls": true, "trimStrings": true, "normalizeCase": "lower"}',
+      visibleWhen: { cleanData: true }
+    },
+    // Error Handling
+    errorStrategy: {
+      type: 'select',
+      label: 'Error Strategy',
+      description: 'How to handle transformation errors',
+      options: [
+        { label: 'Fail', value: 'fail' },
+        { label: 'Skip', value: 'skip' },
+        { label: 'Default Value', value: 'default' }
+      ],
+      defaultValue: 'fail'
+    },
+    defaultValues: {
+      type: 'json',
+      label: 'Default Values',
+      description: 'Default values for error cases',
+      placeholder: '{"field1": null, "field2": ""}',
+      visibleWhen: { errorStrategy: 'default' }
+    },
+    // Performance
+    batchSize: {
+      type: 'number',
+      label: 'Batch Size',
+      description: 'Number of items to process in each batch',
+      defaultValue: 1000
+    },
+    parallelProcessing: {
+      type: 'checkbox',
+      label: 'Parallel Processing',
+      description: 'Enable parallel processing of data',
+      defaultValue: false
+    },
+    maxWorkers: {
+      type: 'number',
+      label: 'Max Workers',
+      description: 'Maximum number of parallel workers',
+      defaultValue: 4,
+      visibleWhen: { parallelProcessing: true }
     }
   },
   'database': {
+    provider: {
+      type: 'select',
+      label: 'Database Provider',
+      description: 'Select your database provider',
+      options: [
+        { label: 'PostgreSQL', value: 'postgresql' },
+        { label: 'MySQL', value: 'mysql' },
+        { label: 'MongoDB', value: 'mongodb' },
+        { label: 'Redis', value: 'redis' },
+        { label: 'DynamoDB', value: 'dynamodb' }
+      ],
+      required: true
+    },
+    connectionType: {
+      type: 'select',
+      label: 'Connection Type',
+      description: 'How to connect to the database',
+      options: [
+        { label: 'Connection String', value: 'string' },
+        { label: 'Individual Parameters', value: 'params' }
+      ],
+      defaultValue: 'string'
+    },
     connectionString: {
       type: 'text',
       label: 'Connection String',
       description: 'Database connection string',
-      placeholder: 'postgresql://user:password@localhost:5432/mydb',
-      required: true
+      placeholder: 'postgresql://user:password@localhost:5432/dbname',
+      visibleWhen: { connectionType: 'string' }
+    },
+    host: {
+      type: 'text',
+      label: 'Host',
+      description: 'Database host',
+      placeholder: 'localhost',
+      visibleWhen: { connectionType: 'params' }
+    },
+    port: {
+      type: 'number',
+      label: 'Port',
+      description: 'Database port',
+      placeholder: '5432',
+      visibleWhen: { connectionType: 'params' }
+    },
+    username: {
+      type: 'text',
+      label: 'Username',
+      description: 'Database username',
+      visibleWhen: { connectionType: 'params' }
+    },
+    password: {
+      type: 'text',
+      label: 'Password',
+      description: 'Database password',
+      visibleWhen: { connectionType: 'params' }
+    },
+    database: {
+      type: 'text',
+      label: 'Database Name',
+      description: 'Name of the database',
+      visibleWhen: { connectionType: 'params' }
     },
     query: {
       type: 'textarea',
-      label: 'SQL Query',
-      description: 'SQL query to execute',
-      placeholder: 'SELECT * FROM users WHERE active = true',
+      label: 'Query',
+      description: 'SQL query or database operation to execute',
+      placeholder: 'SELECT * FROM users WHERE status = $1',
       required: true
-    },
-    queryType: {
-      type: 'select',
-      label: 'Query Type',
-      description: 'Type of SQL operation',
-      options: [
-        { label: 'Select', value: 'select' },
-        { label: 'Insert', value: 'insert' },
-        { label: 'Update', value: 'update' },
-        { label: 'Delete', value: 'delete' }
-      ],
-      defaultValue: 'select'
     },
     parameters: {
-      type: 'textarea',
+      type: 'json',
       label: 'Query Parameters',
-      description: 'Parameters as JSON object',
-      placeholder: '{"id": 123, "status": "active"}'
-    }
-  },
-  'conditional': {
-    condition: {
-      type: 'text',
-      label: 'Condition',
-      description: 'Condition to evaluate',
-      placeholder: '{{variable}} == "value"',
-      required: true
+      description: 'Parameters for the query',
+      placeholder: '["active"]'
     },
-    trueLabel: {
-      type: 'text',
-      label: 'True Path Label',
-      description: 'Label for the true condition path',
-      defaultValue: 'True'
+    postgresqlSettings: {
+      type: 'json',
+      label: 'PostgreSQL Settings',
+      description: 'PostgreSQL-specific settings',
+      placeholder: '{"ssl": true, "poolSize": 10}',
+      visibleWhen: { provider: 'postgresql' }
     },
-    falseLabel: {
-      type: 'text',
-      label: 'False Path Label',
-      description: 'Label for the false condition path',
-      defaultValue: 'False'
-    }
-  },
-  'chatbot': {
-    initialMessage: {
-      type: 'text',
-      label: 'Initial Message',
-      description: 'First message to send to the user',
-      placeholder: 'Hello! How can I help you today?'
+    mongodbSettings: {
+      type: 'json',
+      label: 'MongoDB Settings',
+      description: 'MongoDB-specific settings',
+      placeholder: '{"collection": "users", "options": {"useNewUrlParser": true}}',
+      visibleWhen: { provider: 'mongodb' }
     },
-    model: {
-      type: 'select',
-      label: 'AI Model',
-      description: 'AI model to use for responses',
-      options: [
-        { label: 'GPT-4o', value: 'gpt-4o' },
-        { label: 'Claude 3', value: 'claude-3' },
-        { label: 'Llama 3', value: 'llama-3' }
-      ],
-      defaultValue: 'gpt-4o'
+    redisSettings: {
+      type: 'json',
+      label: 'Redis Settings',
+      description: 'Redis-specific settings',
+      placeholder: '{"db": 0, "keyPrefix": "app:"}',
+      visibleWhen: { provider: 'redis' }
     },
-    systemPrompt: {
-      type: 'textarea',
-      label: 'System Prompt',
-      description: 'Instructions for the AI',
-      placeholder: 'You are a helpful assistant that helps customers with product inquiries.'
-    },
-    maxTurns: {
-      type: 'number',
-      label: 'Max Turns',
-      description: 'Maximum conversation turns before escalation',
-      defaultValue: 5
-    },
-    fallbackMessage: {
-      type: 'text',
-      label: 'Fallback Message',
-      description: 'Message when the bot cannot help',
-      placeholder: "I'm sorry, I'll connect you with a human agent."
-    }
-  },
-  'social-post': {
-    platform: {
-      type: 'select',
-      label: 'Platform',
-      description: 'Social media platform',
-      options: [
-        { label: 'Twitter/X', value: 'twitter' },
-        { label: 'LinkedIn', value: 'linkedin' },
-        { label: 'Facebook', value: 'facebook' },
-        { label: 'Instagram', value: 'instagram' }
-      ],
-      required: true
-    },
-    content: {
-      type: 'textarea',
-      label: 'Content',
-      description: 'Post content',
-      placeholder: 'Check out our latest product launch!',
-      required: true
-    },
-    media: {
-      type: 'text',
-      label: 'Media URLs',
-      description: 'Comma-separated list of media URLs',
-      placeholder: 'https://example.com/image1.jpg, https://example.com/image2.jpg'
-    },
-    scheduledTime: {
-      type: 'date',
-      label: 'Scheduled Time',
-      description: 'When to publish the post'
-    }
-  },
-  'code': {
-    language: {
-      type: 'select',
-      label: 'Language',
-      description: 'Programming language',
-      options: [
-        { label: 'JavaScript', value: 'javascript' },
-        { label: 'Python', value: 'python' },
-        { label: 'PHP', value: 'php' },
-        { label: 'Ruby', value: 'ruby' },
-        { label: 'Shell', value: 'shell' }
-      ],
-      defaultValue: 'javascript'
-    },
-    code: {
-      type: 'textarea',
-      label: 'Code',
-      description: 'Code to execute',
-      placeholder: 'console.log("Hello World");',
-      required: true
+    dynamodbSettings: {
+      type: 'json',
+      label: 'DynamoDB Settings',
+      description: 'DynamoDB-specific settings',
+      placeholder: '{"region": "us-east-1", "tableName": "users"}',
+      visibleWhen: { provider: 'dynamodb' }
     },
     timeout: {
       type: 'number',
       label: 'Timeout',
-      description: 'Max execution time in seconds',
+      description: 'Query timeout in seconds',
       defaultValue: 30
     },
-    environmentVariables: {
-      type: 'textarea',
-      label: 'Environment Variables',
-      description: 'Environment variables as JSON',
-      placeholder: '{"API_KEY": "abc123", "DEBUG": "true"}'
-    }
-  },
-  'ml-model': {
-    modelType: {
-      type: 'select',
-      label: 'Model Type',
-      description: 'Type of machine learning model',
-      options: [
-        { label: 'Classification', value: 'classification' },
-        { label: 'Regression', value: 'regression' },
-        { label: 'Clustering', value: 'clustering' },
-        { label: 'Image Recognition', value: 'image' },
-        { label: 'Natural Language', value: 'nlp' }
-      ],
-      required: true
-    },
-    modelURL: {
-      type: 'url',
-      label: 'Model URL',
-      description: 'URL for the model endpoint or file',
-      placeholder: 'https://api.example.com/models/sentiment',
-      required: true
-    },
-    inputMapping: {
-      type: 'textarea',
-      label: 'Input Mapping',
-      description: 'Map workflow data to model inputs',
-      placeholder: '{"text": "{{data.content}}", "language": "en"}'
-    },
-    outputMapping: {
-      type: 'textarea',
-      label: 'Output Mapping',
-      description: 'Map model outputs to workflow data',
-      placeholder: '{"sentiment": "result.label", "confidence": "result.score"}'
-    }
-  },
-  'analytics': {
-    trackingId: {
-      type: 'text',
-      label: 'Tracking ID',
-      description: 'Analytics tracking identifier',
-      placeholder: 'UA-XXXXXXXX-X',
-      required: true
-    },
-    eventType: {
-      type: 'select',
-      label: 'Event Type',
-      description: 'Type of analytics event',
-      options: [
-        { label: 'Page View', value: 'pageview' },
-        { label: 'Event', value: 'event' },
-        { label: 'Transaction', value: 'transaction' },
-        { label: 'Social', value: 'social' },
-        { label: 'Timing', value: 'timing' }
-      ],
-      defaultValue: 'event'
-    },
-    eventCategory: {
-      type: 'text',
-      label: 'Event Category',
-      description: 'Category of the event',
-      placeholder: 'Workflow'
-    },
-    eventAction: {
-      type: 'text',
-      label: 'Event Action',
-      description: 'Action performed',
-      placeholder: 'Node Execution'
-    },
-    eventLabel: {
-      type: 'text',
-      label: 'Event Label',
-      description: 'Label for the event',
-      placeholder: '{{nodeId}}'
-    },
-    eventValue: {
+    maxRows: {
       type: 'number',
-      label: 'Event Value',
-      description: 'Numeric value for the event',
-      placeholder: '1'
+      label: 'Max Rows',
+      description: 'Maximum number of rows to return',
+      defaultValue: 1000
+    },
+    retryCount: {
+      type: 'number',
+      label: 'Retry Count',
+      description: 'Number of retries on failure',
+      defaultValue: 3
+    },
+    transaction: {
+      type: 'checkbox',
+      label: 'Use Transaction',
+      description: 'Whether to wrap the query in a transaction',
+      defaultValue: false
     }
   },
   'file-manager': {
-    operation: {
+    operationType: {
       type: 'select',
-      label: 'Operation',
-      description: 'File operation to perform',
+      label: 'Operation Type',
+      description: 'Type of file operation to perform',
       options: [
         { label: 'Read', value: 'read' },
         { label: 'Write', value: 'write' },
-        { label: 'Append', value: 'append' },
-        { label: 'Delete', value: 'delete' },
         { label: 'Copy', value: 'copy' },
         { label: 'Move', value: 'move' },
-        { label: 'Rename', value: 'rename' }
+        { label: 'Delete', value: 'delete' },
+        { label: 'List', value: 'list' },
+        { label: 'Upload', value: 'upload' },
+        { label: 'Download', value: 'download' }
       ],
       required: true
+    },
+    storageType: {
+      type: 'select',
+      label: 'Storage Type',
+      description: 'Type of storage to use',
+      options: [
+        { label: 'Local', value: 'local' },
+        { label: 'S3', value: 's3' },
+        { label: 'Google Cloud Storage', value: 'gcs' },
+        { label: 'Azure Blob', value: 'azure' },
+        { label: 'Dropbox', value: 'dropbox' },
+        { label: 'Google Drive', value: 'gdrive' }
+      ],
+      defaultValue: 'local'
+    },
+    filePath: {
+      type: 'text',
+      label: 'File Path',
+      description: 'Path to the file',
+      placeholder: '/path/to/file.txt',
+      visibleWhen: { operationType: ['read', 'write', 'delete'] }
     },
     sourcePath: {
       type: 'text',
       label: 'Source Path',
       description: 'Path to the source file',
       placeholder: '/path/to/source.txt',
-      required: true
+      visibleWhen: { operationType: ['copy', 'move'] }
     },
     destinationPath: {
       type: 'text',
       label: 'Destination Path',
-      description: 'Path to the destination file',
-      placeholder: '/path/to/destination.txt'
+      description: 'Path to the destination',
+      placeholder: '/path/to/destination.txt',
+      visibleWhen: { operationType: ['copy', 'move', 'write'] }
+    },
+    cloudConfig: {
+      type: 'json',
+      label: 'Cloud Config',
+      description: 'Configuration for cloud storage',
+      placeholder: '{"bucket": "my-bucket", "region": "us-east-1"}',
+      visibleWhen: { storageType: ['s3', 'gcs', 'azure'] }
     },
     content: {
       type: 'textarea',
       label: 'Content',
       description: 'Content to write to the file',
-      placeholder: 'File content goes here'
+      placeholder: 'File content here...',
+      visibleWhen: { operationType: 'write' }
     },
     encoding: {
       type: 'select',
       label: 'Encoding',
-      description: 'File encoding',
+      description: 'File encoding to use',
       options: [
         { label: 'UTF-8', value: 'utf8' },
         { label: 'ASCII', value: 'ascii' },
         { label: 'Binary', value: 'binary' }
       ],
-      defaultValue: 'utf8'
+      defaultValue: 'utf8',
+      visibleWhen: { operationType: ['read', 'write'] }
+    },
+    compression: {
+      type: 'select',
+      label: 'Compression',
+      description: 'Compression format to use',
+      options: [
+        { label: 'None', value: 'none' },
+        { label: 'Gzip', value: 'gzip' },
+        { label: 'Zip', value: 'zip' }
+      ],
+      defaultValue: 'none'
+    },
+    uploadConfig: {
+      type: 'json',
+      label: 'Upload Config',
+      description: 'Configuration for file upload',
+      placeholder: '{"maxSize": 10485760, "allowedTypes": ["image/*", "application/pdf"]}',
+      visibleWhen: { operationType: 'upload' }
+    },
+    downloadConfig: {
+      type: 'json',
+      label: 'Download Config',
+      description: 'Configuration for file download',
+      placeholder: '{"timeout": 30000, "retries": 3}',
+      visibleWhen: { operationType: 'download' }
+    },
+    listConfig: {
+      type: 'json',
+      label: 'List Config',
+      description: 'Configuration for listing files',
+      placeholder: '{"recursive": true, "filter": "*.txt"}',
+      visibleWhen: { operationType: 'list' }
+    },
+    errorHandling: {
+      type: 'select',
+      label: 'Error Handling',
+      description: 'How to handle errors',
+      options: [
+        { label: 'Throw', value: 'throw' },
+        { label: 'Ignore', value: 'ignore' },
+        { label: 'Log', value: 'log' }
+      ],
+      defaultValue: 'throw'
+    },
+    permissions: {
+      type: 'json',
+      label: 'Permissions',
+      description: 'File permissions to set',
+      placeholder: '{"mode": "0644", "owner": "user", "group": "group"}',
+      visibleWhen: { operationType: ['write', 'copy', 'move'] }
     }
   },
   'scheduler': {
@@ -537,12 +908,14 @@ const nodeConfigs: Record<string, Record<string, FieldConfig>> = {
       type: 'text',
       label: 'Cron Expression',
       description: 'Cron expression for recurring schedules',
-      placeholder: '0 9 * * 1-5'
+      placeholder: '0 9 * * 1-5',
+      visibleWhen: { scheduleType: 'recurring' }
     },
     endDate: {
       type: 'date',
       label: 'End Date',
-      description: 'When to end the schedule (optional)'
+      description: 'When to end the schedule (optional)',
+      visibleWhen: { scheduleType: 'recurring' }
     },
     timezone: {
       type: 'text',
@@ -551,55 +924,79 @@ const nodeConfigs: Record<string, Record<string, FieldConfig>> = {
       placeholder: 'America/New_York',
       defaultValue: 'UTC'
     }
+  },
+  'contact': {
+    provider: {
+      type: 'select',
+      label: 'CRM Provider',
+      description: 'Select your CRM provider',
+      options: [
+        { label: 'HubSpot', value: 'hubspot' },
+        { label: 'Salesforce', value: 'salesforce' },
+        { label: 'Clay', value: 'clay' },
+        { label: 'Pipedrive', value: 'pipedrive' },
+        { label: 'Zoho CRM', value: 'zoho' }
+      ],
+      required: true
+    },
+    action: {
+      type: 'select',
+      label: 'Action',
+      description: 'Action to perform on the contact',
+      options: [
+        { label: 'Create', value: 'create' },
+        { label: 'Update', value: 'update' },
+        { label: 'Enrich', value: 'enrich' },
+        { label: 'Delete', value: 'delete' }
+      ],
+      required: true
+    },
+    contactDetails: {
+      type: 'json',
+      label: 'Contact Details',
+      description: 'Contact information to create or update',
+      placeholder: '{"email": "contact@example.com", "firstName": "John", "lastName": "Doe"}',
+      required: true
+    },
+    hubspotSettings: {
+      type: 'json',
+      label: 'HubSpot Settings',
+      description: 'HubSpot-specific settings',
+      placeholder: '{"properties": {"company": "Example Corp", "lifecyclestage": "lead"}}',
+      visibleWhen: { provider: 'hubspot' }
+    },
+    salesforceSettings: {
+      type: 'json',
+      label: 'Salesforce Settings',
+      description: 'Salesforce-specific settings',
+      placeholder: '{"objectType": "Lead", "recordType": "New Lead"}',
+      visibleWhen: { provider: 'salesforce' }
+    },
+    claySettings: {
+      type: 'json',
+      label: 'Clay Settings',
+      description: 'Clay-specific settings',
+      placeholder: '{"enrichmentFields": ["company", "title", "linkedin"]}',
+      visibleWhen: { provider: 'clay' }
+    }
   }
 };
 
 // Get field configuration for a node type and field key
 const getFieldConfig = (nodeType: string, fieldKey: string): FieldConfig => {
-  // First check if there's a specific config for this node type and field
-  if (nodeConfigs[nodeType]?.[fieldKey]) {
-    return nodeConfigs[nodeType][fieldKey];
+  const config = nodeConfigs[nodeType];
+  if (!config || !config[fieldKey]) {
+    throw new Error(`No configuration found for node type ${nodeType} and field ${fieldKey}`);
   }
-  
-  // Otherwise infer from field key
-  if (fieldKey.includes('email') || fieldKey === 'to' || fieldKey === 'from') {
-    return { type: 'email', label: formatFieldName(fieldKey) };
-  } else if (fieldKey.includes('url') || fieldKey.includes('endpoint') || fieldKey.includes('link')) {
-    return { type: 'url', label: formatFieldName(fieldKey) };
-  } else if (fieldKey.includes('duration') || fieldKey.includes('count') || fieldKey.includes('amount')) {
-    return { type: 'number', label: formatFieldName(fieldKey) };
-  } else if (fieldKey.includes('description') || fieldKey.includes('body') || fieldKey.includes('content') || fieldKey.includes('code') || fieldKey.includes('query')) {
-    return { type: 'textarea', label: formatFieldName(fieldKey) };
-  } else if (fieldKey.includes('enabled') || fieldKey.includes('active') || fieldKey.startsWith('is') || fieldKey.startsWith('has')) {
-    return { type: 'checkbox', label: formatFieldName(fieldKey) };
-  } else if (fieldKey.includes('date')) {
-    return { type: 'date', label: formatFieldName(fieldKey) };
-  } else if (fieldKey.includes('time')) {
-    return { type: 'time', label: formatFieldName(fieldKey) };
-  } else if (fieldKey.includes('color')) {
-    return { type: 'color', label: formatFieldName(fieldKey) };
-  } else if (fieldKey.includes('json') || fieldKey.includes('config')) {
-    return { type: 'textarea', label: formatFieldName(fieldKey) };
-  }
-  
-  // Default to text
-  return { type: 'text', label: formatFieldName(fieldKey) };
+  return config[fieldKey];
 };
 
 // Format field name for display (camelCase to Title Case)
-const formatFieldName = (fieldName: string): string => {
-  return fieldName
-    // Insert a space before capital letters and uppercase the first letter
-    .replace(/([A-Z])/g, ' $1')
-    .replace(/^./, str => str.toUpperCase())
-    // Handle special cases
-    .replace(/Url/g, 'URL')
-    .replace(/Api/g, 'API')
-    .replace(/Sql/g, 'SQL')
-    .replace(/Json/g, 'JSON')
-    .replace(/Xml/g, 'XML')
-    .replace(/Csv/g, 'CSV')
-    .replace(/Id/g, 'ID');
+const formatFieldName = (name: string): string => {
+  return name
+    .split(/(?=[A-Z])/)
+    .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+    .join(' ');
 };
 
 export interface DefaultNodeData {

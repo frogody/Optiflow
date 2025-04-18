@@ -1,0 +1,88 @@
+import { http, HttpResponse } from 'msw';
+import { server } from '../../../mocks/server';
+
+// Example of a service that might call Anthropic API
+class AnthropicService {
+  private apiKey: string;
+  private baseUrl = 'https://api.anthropic.com/v1';
+  
+  constructor(apiKey: string) {
+    this.apiKey = apiKey;
+  }
+  
+  async generateResponse(prompt: string): Promise<string> {
+    try {
+      const response = await fetch(`${this.baseUrl}/messages`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'x-api-key': this.apiKey,
+          'anthropic-version': '2023-06-01'
+        },
+        body: JSON.stringify({
+          model: 'claude-3-opus-20240229',
+          max_tokens: 1000,
+          messages: [
+            { role: 'user', content: prompt }
+          ]
+        })
+      });
+      
+      if (!response.ok) {
+        throw new Error(`API error: ${response.status}`);
+      }
+      
+      const data = await response.json();
+      return data.content[0].text;
+    } catch (error) {
+      console.error('Error calling Anthropic API:', error);
+      throw error;
+    }
+  }
+}
+
+describe('AnthropicService', () => {
+  const mockApiKey = 'test-api-key';
+  let anthropicService: AnthropicService;
+  
+  beforeEach(() => {
+    anthropicService = new AnthropicService(mockApiKey);
+    
+    // Override the default Anthropic API handler for this test
+    server.use(
+      http.post('https://api.anthropic.com/v1/messages', () => {
+        return HttpResponse.json({
+          id: 'test-message-id',
+          type: 'message',
+          role: 'assistant',
+          content: [
+            {
+              type: 'text',
+              text: 'This is a mocked response from the Anthropic API'
+            }
+          ],
+          model: 'claude-3-opus-20240229'
+        });
+      })
+    );
+  });
+  
+  test('should return the response from Anthropic API', async () => {
+    const result = await anthropicService.generateResponse('Hello, world!');
+    expect(result).toBe('This is a mocked response from the Anthropic API');
+  });
+  
+  test('should handle API errors', async () => {
+    // Override handler for this specific test to simulate an error
+    server.use(
+      http.post('https://api.anthropic.com/v1/messages', () => {
+        return new HttpResponse(null, {
+          status: 500,
+          statusText: 'Internal Server Error'
+        });
+      })
+    );
+    
+    await expect(anthropicService.generateResponse('Hello')).rejects.toThrow('API error: 500');
+  });
+}); 
