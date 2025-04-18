@@ -1,12 +1,5 @@
 .git
-.env*
 node_modules
-.next
-backups/
-*.sql
-*.dump
-coverage/
-test-results/
-playwright-report/
 README.md
 *.log
+.next

@@ -61,11 +61,22 @@ export const authOptions: AuthOptions = {
     }),
   ],
   callbacks: {
-    async session({ session, user }) {
+    async session({ session, user, token }) {
+      console.log('Session callback:', { session, user, token });
       if (session.user) {
         session.user.id = user.id;
+        // Add any additional user data you want in the session
+        session.user.email = user.email;
+        session.user.name = user.name;
       }
       return session;
+    },
+    async jwt({ token, user, account, profile }) {
+      console.log('JWT callback:', { token, user, account, profile });
+      if (user) {
+        token.id = user.id;
+      }
+      return token;
     },
     async redirect({ url, baseUrl }) {
       // Only allow internal redirects
@@ -97,7 +108,7 @@ export const authOptions: AuthOptions = {
       }
     }
   },
-  debug: false
+  debug: true
 };
 
 const handler = NextAuth(authOptions);

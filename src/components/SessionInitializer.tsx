@@ -13,15 +13,21 @@ export default function SessionInitializer() {
   const { setCurrentUser, clearUser } = useUserStore();
 
   useEffect(() => {
+    console.log('Session status:', status);
+    console.log('Session data:', session);
+
     if (status === 'authenticated' && session?.user) {
       // Convert session user to FrontendUser type
       const user: FrontendUser = {
-        id: session.user.id,
+        // Use a fallback ID if not present
+        id: (session.user as any).id || 'temp-id',
         email: session.user.email || '',
         name: session.user.name || null
       };
+      console.log('Setting user in store:', user);
       setCurrentUser(user);
     } else if (status === 'unauthenticated') {
+      console.log('Clearing user from store');
       clearUser();
     }
   }, [session, status, setCurrentUser, clearUser]);
