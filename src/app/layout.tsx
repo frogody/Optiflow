@@ -4,7 +4,7 @@ import './globals.css';
 import Navigation from '@/components/Navigation';
 import Footer from '@/components/Footer';
 import { Toaster } from 'react-hot-toast';
-import SessionInitializer from '@/components/SessionInitializer';
+import { SessionInitializer } from '@/components/SessionInitializer';
 import ThemeProvider from '@/components/ThemeProvider';
 import { Providers } from './providers';
 
@@ -20,6 +20,8 @@ export const metadata: Metadata = {
     title: 'Optiflow',
   },
 };
+
+export const dynamic = 'force-dynamic';
 
 export default function RootLayout({
   children,

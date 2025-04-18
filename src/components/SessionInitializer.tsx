@@ -3,7 +3,6 @@
 import { useEffect } from 'react';
 import { useSession } from 'next-auth/react';
 import { useUserStore } from '@/lib/userStore';
-import type { Session } from 'next-auth';
 
 /**
  * SessionInitializer component checks for an existing session
@@ -14,6 +13,9 @@ export function SessionInitializer() {
   const { setUser, setLoading } = useUserStore();
 
   useEffect(() => {
+    // Only run on client side
+    if (typeof window === 'undefined') return;
+
     setLoading(status === 'loading');
 
     if (status === 'authenticated' && session?.user) {
