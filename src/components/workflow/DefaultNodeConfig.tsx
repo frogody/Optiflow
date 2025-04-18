@@ -979,6 +979,133 @@ const nodeConfigs: Record<string, Record<string, FieldConfig>> = {
       placeholder: '{"enrichmentFields": ["company", "title", "linkedin"]}',
       visibleWhen: { provider: 'clay' }
     }
+  },
+  'chatbot': {
+    model: {
+      type: 'select',
+      label: 'AI Model',
+      description: 'Select the AI model to use',
+      options: [
+        { label: 'GPT-4', value: 'gpt4' },
+        { label: 'GPT-3.5', value: 'gpt35' },
+        { label: 'Claude 2', value: 'claude2' },
+        { label: 'Claude 3', value: 'claude3' }
+      ],
+      required: true,
+      defaultValue: 'gpt4'
+    },
+    systemPrompt: {
+      type: 'textarea',
+      label: 'System Instructions',
+      description: 'Instructions that define the chatbot\'s behavior and role',
+      placeholder: 'You are a helpful assistant that...',
+      required: true
+    },
+    temperature: {
+      type: 'number',
+      label: 'Temperature',
+      description: 'Controls randomness in responses (0.0 to 1.0)',
+      defaultValue: 0.7,
+      required: true
+    },
+    maxTokens: {
+      type: 'number',
+      label: 'Max Response Length',
+      description: 'Maximum number of tokens in the response',
+      defaultValue: 1000,
+      required: true
+    },
+    contextWindow: {
+      type: 'number',
+      label: 'Context Window',
+      description: 'Number of previous messages to include as context',
+      defaultValue: 10
+    },
+    responseFormat: {
+      type: 'select',
+      label: 'Response Format',
+      description: 'Format of the chatbot\'s responses',
+      options: [
+        { label: 'Text', value: 'text' },
+        { label: 'JSON', value: 'json' },
+        { label: 'Markdown', value: 'markdown' },
+        { label: 'HTML', value: 'html' }
+      ],
+      defaultValue: 'text'
+    },
+    apiKey: {
+      type: 'text',
+      label: 'API Key',
+      description: 'API key for the selected model (if not using global settings)',
+      placeholder: 'sk-...'
+    },
+    fallbackBehavior: {
+      type: 'select',
+      label: 'Fallback Behavior',
+      description: 'What to do if primary model fails',
+      options: [
+        { label: 'Use Backup Model', value: 'backup' },
+        { label: 'Retry', value: 'retry' },
+        { label: 'Skip', value: 'skip' },
+        { label: 'Error', value: 'error' }
+      ],
+      defaultValue: 'retry'
+    },
+    backupModel: {
+      type: 'select',
+      label: 'Backup Model',
+      description: 'Model to use as fallback',
+      options: [
+        { label: 'GPT-3.5', value: 'gpt35' },
+        { label: 'Claude 2', value: 'claude2' }
+      ],
+      visibleWhen: { fallbackBehavior: 'backup' }
+    },
+    retryAttempts: {
+      type: 'number',
+      label: 'Retry Attempts',
+      description: 'Number of retry attempts on failure',
+      defaultValue: 3,
+      visibleWhen: { fallbackBehavior: 'retry' }
+    },
+    retryDelay: {
+      type: 'number',
+      label: 'Retry Delay',
+      description: 'Delay between retries in seconds',
+      defaultValue: 1,
+      visibleWhen: { fallbackBehavior: 'retry' }
+    },
+    rateLimit: {
+      type: 'number',
+      label: 'Rate Limit',
+      description: 'Maximum requests per minute',
+      defaultValue: 60
+    },
+    caching: {
+      type: 'checkbox',
+      label: 'Enable Response Caching',
+      description: 'Cache identical requests to reduce API usage',
+      defaultValue: false
+    },
+    cacheTTL: {
+      type: 'number',
+      label: 'Cache Duration',
+      description: 'How long to cache responses (in seconds)',
+      defaultValue: 3600,
+      visibleWhen: { caching: true }
+    },
+    preprocessor: {
+      type: 'textarea',
+      label: 'Input Preprocessor',
+      description: 'JavaScript code to preprocess input before sending to model',
+      placeholder: 'return input.trim();'
+    },
+    postprocessor: {
+      type: 'textarea',
+      label: 'Output Postprocessor',
+      description: 'JavaScript code to process model output',
+      placeholder: 'return output.replace(/\\n+/g, "\\n");'
+    }
   }
 };
 

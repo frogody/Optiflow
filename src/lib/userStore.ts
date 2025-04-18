@@ -2,6 +2,14 @@
 
 import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
+import { User } from '@prisma/client';
+
+// Frontend user type with only the fields we need
+export interface FrontendUser {
+  id: string;
+  email: string;
+  name: string | null;
+}
 
 export interface ToolConnection {
   connected: boolean;
@@ -27,26 +35,20 @@ export interface UserEnvironment {
   };
 }
 
-export interface User {
-  id: string;
-  email: string;
-  name?: string;
-  image?: string;
-}
-
 export interface UserState {
-  currentUser: User | null;
+  currentUser: FrontendUser | null;
   isLoading: boolean;
   environments: {
     [userId: string]: UserEnvironment;
   };
-  setCurrentUser: (user: User | null) => void;
+  setCurrentUser: (user: FrontendUser | null) => void;
   setLoading: (loading: boolean) => void;
   updateToolConnection: (userId: string, toolName: string, connection: ToolConnection) => void;
   updateMcpConnection: (userId: string, orchestratorId: string, connection: OrchestratorConnection) => void;
   getEnvironment: (userId: string) => UserEnvironment | null;
-  setUser: (user: User | null) => void;
+  setUser: (user: FrontendUser | null) => void;
   logoutUser: () => void;
+  clearUser: () => void;
 }
 
 // Custom storage with safety checks
@@ -79,18 +81,10 @@ const customStorage = {
   }
 };
 
-// For development and testing purposes, we'll create a mock user
-const createMockUser = (): User => ({
-  id: 'mock-user-1',
-  name: 'Demo User',
-  email: 'demo@example.com',
-  image: 'https://avatars.githubusercontent.com/u/12345678',
-});
-
 export const useUserStore = create<UserState>()(
   persist(
     (set, get) => ({
-      currentUser: null, // Set to null initially
+      currentUser: null,
       isLoading: true,
       environments: {},
       setCurrentUser: (user) => {
@@ -138,6 +132,7 @@ export const useUserStore = create<UserState>()(
         console.log('Logging out user');
         set({ currentUser: null });
       },
+      clearUser: () => set({ currentUser: null }),
     }),
     {
       name: 'user_store',

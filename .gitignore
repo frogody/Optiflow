@@ -6,6 +6,8 @@
 
 # testing
 /coverage
+/playwright-report/
+/test-results/
 
 # next.js
 /.next/
@@ -13,10 +15,13 @@
 
 # production
 /build
+/dist
+/.vercel
 
 # misc
 .DS_Store
 *.pem
+.env*.local
 
 # debug
 npm-debug.log*
@@ -24,8 +29,24 @@ yarn-debug.log*
 yarn-error.log*
 
 # local env files
-.env*.local
+.env
+.env.local
+.env.development
+.env.test
 .env.production
+.env.production.bak
+
+# database
+*.db
+*.db-journal
+/prisma/migrations/*
+!/prisma/migrations/*/
+/prisma/dev.db*
+
+# backups
+/backups
+*.sql
+*.dump
 
 # vercel
 .vercel
@@ -33,5 +54,29 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
-/.next
-.next/cache
+
+# IDE
+.idea
+.vscode
+*.swp
+*.swo
+
+# logs
+*.log
+logs/
+npm-debug.log*
+
+# runtime data
+pids
+*.pid
+*.seed
+*.pid.lock
+
+# docker
+docker-compose.override.yml
+
+# Temporary files
+*.tmp
+*.temp
+.DS_Store
+Thumbs.db

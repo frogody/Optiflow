@@ -37,8 +37,8 @@ export default function RootLayout({
           transition-colors duration-200
         `}
       >
-        <SessionInitializer />
         <Providers>
+          <SessionInitializer />
           <ThemeProvider>
             <div className="relative">
               <div className="fixed inset-0 bg-gradient-glow opacity-20 pointer-events-none" />

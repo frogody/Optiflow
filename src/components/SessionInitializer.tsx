@@ -1,76 +1,30 @@
 'use client';
 
-import { useEffect, useState } from 'react';
-import { useUserStore } from '@/lib/userStore';
-import Cookies from 'js-cookie';
-import { getUserById, createTestUser } from '@/lib/auth';
-import { toast } from 'react-hot-toast';
+import { useEffect } from 'react';
+import { useSession } from 'next-auth/react';
+import { useUserStore, FrontendUser } from '@/lib/userStore';
 
 /**
- * SessionInitializer component checks for an existing user token in cookies
- * and restores the user session when the application starts.
+ * SessionInitializer component checks for an existing session
+ * and syncs it with the user store.
  */
 export default function SessionInitializer() {
-  const { currentUser, setCurrentUser, setLoading, isLoading } = useUserStore();
-  const [sessionInitialized, setSessionInitialized] = useState(false);
+  const { data: session, status } = useSession();
+  const { setCurrentUser, clearUser } = useUserStore();
 
   useEffect(() => {
-    const initializeSession = async () => {
-      try {
-        setLoading(true);
-        
-        // Create a test user for development
-        if (process.env.NODE_ENV !== 'production') {
-          await createTestUser();
-        }
-        
-        // Only attempt to restore if no current user is set
-        if (!currentUser) {
-          // Check for existing token
-          const token = Cookies.get('user-token');
-          
-          if (token) {
-            // Attempt to get user by ID
-            const user = getUserById(token);
-            
-            if (user) {
-              console.log('Session restored for user:', user.email);
-              // Restore user session
-              setCurrentUser({
-                id: user.id,
-                email: user.email,
-                name: user.name
-              });
-            } else {
-              // Invalid token, clean up
-              console.warn('Invalid session token found, clearing session');
-              Cookies.remove('user-token');
-              setCurrentUser(null);
-            }
-          } else {
-            // No token found
-            setCurrentUser(null);
-          }
-        }
-      } catch (error) {
-        console.error('Error restoring session:', error);
-        // Clean up in case of error
-        Cookies.remove('user-token');
-        setCurrentUser(null);
-        
-        // Show error to user
-        toast.error('Session expired. Please log in again.');
-      } finally {
-        // Mark loading as complete
-        setLoading(false);
-        setSessionInitialized(true);
-      }
-    };
-
-    if (!sessionInitialized) {
-      initializeSession();
+    if (status === 'authenticated' && session?.user) {
+      // Convert session user to FrontendUser type
+      const user: FrontendUser = {
+        id: session.user.id,
+        email: session.user.email || '',
+        name: session.user.name || null
+      };
+      setCurrentUser(user);
+    } else if (status === 'unauthenticated') {
+      clearUser();
     }
-  }, [currentUser, setCurrentUser, setLoading, sessionInitialized]);
+  }, [session, status, setCurrentUser, clearUser]);
 
   // This component doesn't render anything visible
   return null;

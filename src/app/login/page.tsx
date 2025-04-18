@@ -3,13 +3,12 @@
 import { useState, useEffect, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
-import { useUserStore } from '@/lib/userStore';
+import { useUserStore, FrontendUser } from '@/lib/userStore';
 import { authenticateUser, authenticateWithSocialProvider, SocialProvider } from '@/lib/auth';
 import Cookies from 'js-cookie';
 import Image from 'next/image';
 import GoogleLoginButton from '@/components/GoogleLoginButton';
 import { signIn } from 'next-auth/react';
-import TestLoginButton from '@/components/TestLoginButton';
 import { toast } from 'react-hot-toast';
 
 function LoginForm() {
@@ -53,11 +52,12 @@ function LoginForm() {
       const user = await authenticateUser(formData.email, formData.password);
       
       // Set user in store
-      setCurrentUser({
+      const frontendUser: FrontendUser = {
         id: user.id,
         email: user.email,
-        name: user.name,
-      });
+        name: user.name
+      };
+      setCurrentUser(frontendUser);
       
       // Set authentication cookie with secure settings
       Cookies.set('user-token', user.id, { 
@@ -97,11 +97,12 @@ function LoginForm() {
       const user = await authenticateWithSocialProvider(provider.toLowerCase() as SocialProvider, mockAuthCode);
       
       // Set user in store
-      setCurrentUser({
+      const frontendUser: FrontendUser = {
         id: user.id,
         email: user.email,
-        name: user.name,
-      });
+        name: user.name
+      };
+      setCurrentUser(frontendUser);
       
       // Set authentication cookie with secure settings
       Cookies.set('user-token', user.id, { 
@@ -144,11 +145,12 @@ function LoginForm() {
       }
       
       // Set user in store
-      setCurrentUser({
+      const frontendUser: FrontendUser = {
         id: data.user.id,
         email: data.user.email,
-        name: data.user.name,
-      });
+        name: data.user.name
+      };
+      setCurrentUser(frontendUser);
       
       // Redirect to dashboard
       router.push(callbackUrl);
@@ -198,11 +200,6 @@ function LoginForm() {
               Continue with GitHub
             </button>
             <GoogleLoginButton className="w-full" />
-            
-            {/* Add Test Login Button */}
-            {process.env.NODE_ENV !== 'production' && (
-              <TestLoginButton />
-            )}
           </div>
           
           <div className="relative mb-6">

@@ -1,33 +1,62 @@
 import NextAuth from "next-auth";
 import { AuthOptions } from "next-auth";
 import GoogleProvider from "next-auth/providers/google";
+import CredentialsProvider from "next-auth/providers/credentials";
 import { PrismaAdapter } from "@auth/prisma-adapter";
 import { PrismaClient } from "@prisma/client";
 
 const prisma = new PrismaClient();
 
-// Determine the base URL from environment or from request
-const getBaseUrl = () => {
-  // For deployment environments, use the NEXTAUTH_URL environment variable
-  if (process.env.NEXTAUTH_URL) {
-    return process.env.NEXTAUTH_URL;
+// Ensure required environment variables are set
+const requiredEnvVars = [
+  'NEXTAUTH_URL',
+  'NEXTAUTH_SECRET',
+  'GOOGLE_CLIENT_ID',
+  'GOOGLE_CLIENT_SECRET'
+];
+
+for (const envVar of requiredEnvVars) {
+  if (!process.env[envVar]) {
+    throw new Error(`Missing required environment variable: ${envVar}`);
   }
-  // Fallback to localhost for development
-  return `http://localhost:3000`;
-};
+}
 
 export const authOptions: AuthOptions = {
   adapter: PrismaAdapter(prisma),
   providers: [
     GoogleProvider({
-      clientId: process.env.GOOGLE_CLIENT_ID || "",
-      clientSecret: process.env.GOOGLE_CLIENT_SECRET || "",
+      clientId: process.env.GOOGLE_CLIENT_ID!,
+      clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
       authorization: {
         params: {
-          prompt: "consent",
+          prompt: "select_account",
           access_type: "offline",
           response_type: "code"
         }
+      }
+    }),
+    CredentialsProvider({
+      name: "Admin Credentials",
+      credentials: {
+        email: { label: "Email", type: "email" },
+        password: { label: "Password", type: "password" }
+      },
+      async authorize(credentials) {
+        if (!credentials?.email || !credentials?.password) {
+          throw new Error("Missing credentials");
+        }
+
+        // Check for hardcoded admin credentials
+        if (credentials.email === "demo@example.com" && credentials.password === "password123") {
+          // Return a mock user object
+          return {
+            id: "admin-user",
+            email: credentials.email,
+            name: "Demo Admin",
+          };
+        }
+
+        throw new Error("Invalid credentials");
       }
     }),
   ],
@@ -39,17 +68,36 @@ export const authOptions: AuthOptions = {
       return session;
     },
     async redirect({ url, baseUrl }) {
-      // Allows relative callback URLs
+      // Only allow internal redirects
+      if (url.startsWith(baseUrl)) return url;
+      // Allow relative URLs
       if (url.startsWith("/")) return `${baseUrl}${url}`;
-      // Allows callback URLs on the same origin
-      else if (new URL(url).origin === baseUrl) return url;
       return baseUrl;
     }
   },
   pages: {
     signIn: '/login',
-    error: '/login', // Error code passed in query string as ?error=
+    error: '/login',
+    signOut: '/login'
   },
+  secret: process.env.NEXTAUTH_SECRET,
+  session: {
+    strategy: 'database',
+    maxAge: 30 * 24 * 60 * 60, // 30 days
+    updateAge: 24 * 60 * 60, // 24 hours
+  },
+  cookies: {
+    sessionToken: {
+      name: process.env.NODE_ENV === 'production' ? '__Secure-next-auth.session-token' : 'next-auth.session-token',
+      options: {
+        httpOnly: true,
+        sameSite: 'lax',
+        path: '/',
+        secure: process.env.NODE_ENV === 'production'
+      }
+    }
+  },
+  debug: false
 };
 
 const handler = NextAuth(authOptions);

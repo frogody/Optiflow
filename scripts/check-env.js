@@ -8,43 +8,120 @@
 const fs = require('fs');
 const path = require('path');
 
-// Required environment variables
-const requiredVars = [
-  'NEXT_PUBLIC_PIPEDREAM_API_KEY',
-  'NEXT_PUBLIC_PIPEDREAM_API_SECRET',
-  'NEXT_PUBLIC_PIPEDREAM_CLIENT_ID',
-  'NEXT_PUBLIC_PIPEDREAM_TOKEN',
-  'DATABASE_URL',
+const requiredEnvVars = [
+  'NODE_ENV',
   'NEXTAUTH_URL',
   'NEXTAUTH_SECRET',
+  'DATABASE_URL',
   'GOOGLE_CLIENT_ID',
-  'GOOGLE_CLIENT_SECRET'
+  'GOOGLE_CLIENT_SECRET',
+  'ENCRYPTION_KEY',
+  'JWT_SECRET',
 ];
 
-// Check .env.production file
-const envFile = path.join(process.cwd(), '.env.production');
+const optionalEnvVars = [
+  'NEXT_PUBLIC_PIPEDREAM_CLIENT_ID',
+  'PIPEDREAM_CLIENT_SECRET',
+  'NEXT_PUBLIC_PIPEDREAM_PROJECT_ID',
+  'NEXT_PUBLIC_PIPEDREAM_TOKEN',
+  'MCP_SERVICE_URL',
+  'ANALYTICS_SERVICE_URL',
+  'OPENAI_API_KEY',
+  'AWS_ACCESS_KEY_ID',
+  'AWS_SECRET_ACCESS_KEY',
+  'AWS_BUCKET_NAME',
+  'AWS_REGION',
+];
 
-if (!fs.existsSync(envFile)) {
-  console.error('\n❌ .env.production file not found!');
-  process.exit(1);
-}
-
-const envContent = fs.readFileSync(envFile, 'utf8');
-const missingVars = [];
-
-for (const varName of requiredVars) {
-  // Check if the variable is set and not empty
-  if (!envContent.includes(`${varName}=`) || envContent.includes(`${varName}=''`) || envContent.includes(`${varName}=""`)) {
-    missingVars.push(varName);
+function loadEnvFile(filename) {
+  try {
+    const envPath = path.resolve(process.cwd(), filename);
+    if (fs.existsSync(envPath)) {
+      const envContent = fs.readFileSync(envPath, 'utf8');
+      const envVars = {};
+      
+      envContent.split('\n').forEach(line => {
+        const match = line.match(/^([^=]+)=(.*)$/);
+        if (match) {
+          const [, key, value] = match;
+          envVars[key.trim()] = value.trim();
+        }
+      });
+      
+      return envVars;
+    }
+  } catch (error) {
+    console.error(`Error loading ${filename}:`, error);
   }
+  return {};
 }
 
-if (missingVars.length > 0) {
-  console.error('\n❌ The following required environment variables are missing or empty:');
-  missingVars.forEach(varName => console.error(`   - ${varName}`));
-  console.error('\nPlease set these variables in your .env.production file before deploying.');
-  process.exit(1);
-} else {
-  console.log('\n✅ All required environment variables are set!');
-  console.log('🚀 Ready for deployment.');
-} 
+function checkEnvVars() {
+  const nodeEnv = process.env.NODE_ENV || 'development';
+  const envFile = nodeEnv === 'production' ? '.env.production' : '.env';
+  const envVars = {
+    ...loadEnvFile('.env'),
+    ...loadEnvFile(envFile),
+    ...process.env
+  };
+
+  console.log(`Checking environment variables for ${nodeEnv} environment...`);
+
+  const missingRequired = [];
+  const missingOptional = [];
+
+  // Check required variables
+  requiredEnvVars.forEach(varName => {
+    if (!envVars[varName]) {
+      missingRequired.push(varName);
+    }
+  });
+
+  // Check optional variables
+  optionalEnvVars.forEach(varName => {
+    if (!envVars[varName]) {
+      missingOptional.push(varName);
+    }
+  });
+
+  // Report results
+  if (missingRequired.length > 0) {
+    console.error('\n❌ Missing required environment variables:');
+    missingRequired.forEach(varName => {
+      console.error(`   - ${varName}`);
+    });
+    process.exit(1);
+  }
+
+  if (missingOptional.length > 0) {
+    console.warn('\n⚠️  Missing optional environment variables:');
+    missingOptional.forEach(varName => {
+      console.warn(`   - ${varName}`);
+    });
+  }
+
+  // Validate URL format
+  const urlVars = ['NEXTAUTH_URL', 'MCP_SERVICE_URL', 'ANALYTICS_SERVICE_URL'];
+  urlVars.forEach(varName => {
+    if (envVars[varName]) {
+      try {
+        new URL(envVars[varName]);
+      } catch (error) {
+        console.error(`\n❌ Invalid URL format for ${varName}: ${envVars[varName]}`);
+        process.exit(1);
+      }
+    }
+  });
+
+  // Validate secrets length
+  const secretVars = ['NEXTAUTH_SECRET', 'JWT_SECRET', 'ENCRYPTION_KEY'];
+  secretVars.forEach(varName => {
+    if (envVars[varName] && envVars[varName].length < 32) {
+      console.warn(`\n⚠️  Warning: ${varName} should be at least 32 characters long`);
+    }
+  });
+
+  console.log('\n✅ Environment validation completed successfully');
+}
+
+checkEnvVars(); 

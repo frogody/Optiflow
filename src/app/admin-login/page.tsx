@@ -2,75 +2,37 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { useUserStore } from '@/lib/userStore';
-import Cookies from 'js-cookie';
 import Image from 'next/image';
 import Link from 'next/link';
-import { authenticateUser, createTestUser } from '@/lib/auth';
+import { signIn } from 'next-auth/react';
 import { toast } from 'react-hot-toast';
 
 export default function AdminLoginPage() {
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
-  const setCurrentUser = useUserStore((state) => state.setCurrentUser);
-
-  useEffect(() => {
-    // Create the test user on page load
-    const initUser = async () => {
-      try {
-        await createTestUser();
-        console.log('Admin page: Test user created or verified');
-      } catch (err) {
-        console.error('Failed to create test user:', err);
-      }
-    };
-    
-    initUser();
-  }, []);
 
   const handleDirectLogin = async () => {
     setIsLoading(true);
     setError('');
     
     try {
-      // Force test user creation again to be sure
-      await createTestUser();
-      
-      // Login with hardcoded test credentials
       const email = 'demo@example.com';
       const password = 'password123';
       
       console.log('Admin login: Authenticating with test credentials...');
-      const user = await authenticateUser(email, password);
+      const result = await signIn('credentials', {
+        email,
+        password,
+        redirect: false,
+      });
       
-      if (!user || !user.id) {
-        throw new Error('Failed to authenticate - invalid user data');
+      if (result?.error) {
+        throw new Error(result.error);
       }
       
-      console.log('Admin login: Authentication successful for user:', user.email);
-      
-      // Set user in store
-      setCurrentUser({
-        id: user.id,
-        email: user.email,
-        name: user.name || 'Demo User',
-      });
-      
-      // Set authentication cookie
-      Cookies.set('user-token', user.id, { 
-        expires: 7, 
-        path: '/',
-        sameSite: 'lax' // Changed to lax for better compatibility
-      });
-      
+      console.log('Admin login: Authentication successful');
       toast.success('Logged in as admin user');
-      
-      // Check if cookie was set
-      const cookie = Cookies.get('user-token');
-      console.log('Admin login: Cookie set?', !!cookie);
-      
-      // Redirect to dashboard
       router.push('/dashboard');
     } catch (error) {
       console.error('Admin login error:', error);

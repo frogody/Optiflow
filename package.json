@@ -16,12 +16,18 @@
     "deploy": "sh deploy.sh",
     "check-env": "node scripts/check-env.js",
     "generate-secret": "node scripts/generate-secret.js",
-    "vercel-build": "prisma generate && next build",
-    "postinstall": "prisma generate"
+    "vercel-build": "prisma generate && prisma migrate deploy && next build",
+    "postinstall": "prisma generate",
+    "db:migrate": "ts-node scripts/migrate-db.ts",
+    "db:backup": "ts-node scripts/backup-db.ts",
+    "prod:start": "NODE_ENV=production next start",
+    "prod:build": "NODE_ENV=production next build",
+    "prod:deploy": "npm run check-env && npm run db:migrate && npm run prod:build"
   },
   "dependencies": {
     "@auth/core": "0.34.2",
     "@auth/prisma-adapter": "^2.8.0",
+    "@aws-sdk/client-s3": "^3.787.0",
     "@headlessui/react": "^2.2.1",
     "@heroicons/react": "^2.2.0",
     "@pipedream/sdk": "^1.5.1",
@@ -30,6 +36,7 @@
     "@types/js-cookie": "^3.0.6",
     "axios": "^1.6.7",
     "bcryptjs": "^3.0.2",
+    "dotenv": "^16.5.0",
     "express": "^4.18.2",
     "framer-motion": "^12.7.2",
     "googleapis": "^148.0.0",
