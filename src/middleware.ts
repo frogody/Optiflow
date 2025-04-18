@@ -33,28 +33,31 @@ function matchesPath(path: string, patterns: string[]): boolean {
   });
 }
 
-// Helper function to sanitize URL for safe redirection
-function getSafeRedirectUrl(url: string): string {
+// Helper function to validate and sanitize URLs
+function isValidRedirectUrl(url: string): boolean {
   try {
     const urlObj = new URL(url);
-    // Only allow redirects to our own domain
-    if (urlObj.hostname !== 'app.isyncso.com' && urlObj.hostname !== 'localhost') {
-      return '/dashboard';
+    const hostname = urlObj.hostname;
+    
+    // Only allow our domains and localhost
+    const allowedDomains = ['app.isyncso.com', 'localhost'];
+    if (!allowedDomains.includes(hostname)) {
+      return false;
     }
-    // Don't allow redirects to login or auth pages
-    if (urlObj.pathname.includes('/login') || urlObj.pathname.includes('/auth')) {
-      return '/dashboard';
-    }
-    return url;
-  } catch (e) {
-    return '/dashboard';
+
+    // Don't allow auth-related paths
+    const blockedPaths = ['/login', '/auth', '/signin', '/signout'];
+    return !blockedPaths.some(path => urlObj.pathname.includes(path));
+  } catch {
+    // For relative URLs, just check the path
+    return !url.includes('/login') && !url.includes('/auth');
   }
 }
 
 export async function middleware(request: NextRequest) {
-  const { pathname } = request.nextUrl;
+  const { pathname, search } = request.nextUrl;
   
-  // Skip middleware for Next.js internal routes, static files, and auth endpoints
+  // Skip middleware for static assets and API routes
   if (
     pathname.startsWith('/_next') ||
     pathname.startsWith('/static') ||
@@ -65,8 +68,16 @@ export async function middleware(request: NextRequest) {
     return NextResponse.next();
   }
 
-  // Allow public paths without token check
+  // Allow public paths without authentication
   if (matchesPath(pathname, publicPaths)) {
+    // Prevent redirect loops on public paths
+    if (pathname === '/login' || pathname === '/signup') {
+      const token = await getToken({ req: request, secret: process.env.NEXTAUTH_SECRET });
+      if (token) {
+        // If already authenticated, redirect to dashboard
+        return NextResponse.redirect(new URL('/dashboard', request.url));
+      }
+    }
     return NextResponse.next();
   }
 
@@ -75,23 +86,33 @@ export async function middleware(request: NextRequest) {
       req: request,
       secret: process.env.NEXTAUTH_SECRET
     });
-    
-    // Redirect to login if no token and trying to access protected route
+
     if (!token) {
       const loginUrl = new URL('/login', request.url);
       
-      // Only set callbackUrl for safe URLs that aren't login/auth related
-      if (!pathname.startsWith('/login') && !pathname.startsWith('/auth')) {
-        const safeRedirectUrl = getSafeRedirectUrl(request.url);
-        if (safeRedirectUrl !== '/dashboard') {
-          loginUrl.searchParams.set('callbackUrl', safeRedirectUrl);
-        }
+      // Only set callbackUrl for valid redirect URLs
+      const currentUrl = `${pathname}${search}`;
+      if (isValidRedirectUrl(currentUrl)) {
+        loginUrl.searchParams.set('callbackUrl', currentUrl);
+      }
+
+      // Set a session cookie to track redirect attempts
+      const response = NextResponse.redirect(loginUrl);
+      const redirectCount = parseInt(request.cookies.get('redirectCount')?.value || '0');
+      
+      if (redirectCount > 5) {
+        // Too many redirects, reset and go to dashboard
+        response.cookies.set('redirectCount', '0');
+        return NextResponse.redirect(new URL('/dashboard', request.url));
       }
       
-      return NextResponse.redirect(loginUrl);
+      response.cookies.set('redirectCount', (redirectCount + 1).toString());
+      return response;
     }
 
+    // Reset redirect count on successful auth
     const response = NextResponse.next();
+    response.cookies.set('redirectCount', '0');
 
     // Security headers
     response.headers.set('X-DNS-Prefetch-Control', 'on');
@@ -119,6 +140,7 @@ export async function middleware(request: NextRequest) {
     return response;
   } catch (error) {
     console.error('Middleware error:', error);
+    // On error, redirect to login without any callback URL
     return NextResponse.redirect(new URL('/login', request.url));
   }
 }

@@ -1,42 +1,44 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import Image from 'next/image';
-import { signIn } from 'next-auth/react';
+import { signIn, useSession } from 'next-auth/react';
 import { toast } from 'react-hot-toast';
 
 // Helper function to validate and sanitize callback URL
-function getSafeCallbackUrl(url: string | null): string {
-  if (!url) return '/dashboard';
+function isValidRedirectUrl(url: string | null): boolean {
+  if (!url) return false;
   
   try {
-    const urlObj = new URL(url);
-    // Only allow redirects to our own domain
-    if (urlObj.hostname !== 'app.isyncso.com' && urlObj.hostname !== 'localhost') {
-      return '/dashboard';
+    const urlObj = new URL(url.startsWith('http') ? url : `https://app.isyncso.com${url}`);
+    const hostname = urlObj.hostname;
+    
+    // Only allow our domains and localhost
+    const allowedDomains = ['app.isyncso.com', 'localhost'];
+    if (!allowedDomains.includes(hostname)) {
+      return false;
     }
-    // Don't allow redirects to login or auth pages
-    if (urlObj.pathname.includes('/login') || urlObj.pathname.includes('/auth')) {
-      return '/dashboard';
-    }
-    return url;
-  } catch (e) {
-    // If URL is invalid or relative, check if it's safe
-    const relativeUrl = url.toString();
-    if (relativeUrl.includes('/login') || relativeUrl.includes('/auth')) {
-      return '/dashboard';
-    }
-    // Make sure the URL starts with a slash
-    return relativeUrl.startsWith('/') ? relativeUrl : `/${relativeUrl}`;
+
+    // Don't allow auth-related paths
+    const blockedPaths = ['/login', '/auth', '/signin', '/signout'];
+    return !blockedPaths.some(path => urlObj.pathname.includes(path));
+  } catch {
+    // For relative URLs, just check the path
+    const path = url.toString();
+    return !path.includes('/login') && !path.includes('/auth');
   }
 }
 
 export default function LoginPage() {
   const router = useRouter();
+  const { data: session, status } = useSession();
   const searchParams = useSearchParams();
-  const callbackUrl = getSafeCallbackUrl(searchParams.get('callbackUrl'));
+  
+  // Get and validate the callback URL
+  const rawCallbackUrl = searchParams.get('callbackUrl');
+  const callbackUrl = isValidRedirectUrl(rawCallbackUrl) ? rawCallbackUrl || '/dashboard' : '/dashboard';
   
   const [formData, setFormData] = useState({
     email: '',
@@ -45,8 +47,17 @@ export default function LoginPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
 
+  // Redirect if already authenticated
+  useEffect(() => {
+    if (status === 'authenticated' && session) {
+      router.push(callbackUrl);
+    }
+  }, [status, session, router, callbackUrl]);
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (isLoading) return;
+    
     setIsLoading(true);
     setError('');
 
@@ -61,8 +72,11 @@ export default function LoginPage() {
         throw new Error(result.error);
       }
 
-      toast.success('Successfully logged in!');
-      router.push(callbackUrl);
+      if (result?.ok) {
+        toast.success('Successfully logged in!');
+        router.push(callbackUrl);
+        router.refresh(); // Refresh to update session
+      }
     } catch (error) {
       console.error('Login error:', error);
       setError(error instanceof Error ? error.message : 'Authentication failed');
@@ -73,11 +87,13 @@ export default function LoginPage() {
   };
 
   const handleGoogleLogin = async () => {
+    if (isLoading) return;
     setIsLoading(true);
+    
     try {
-      await signIn('google', { 
-        callbackUrl,
-        redirect: true 
+      await signIn('google', {
+        callbackUrl: callbackUrl || '/dashboard',
+        redirect: true,
       });
     } catch (error) {
       console.error('Google login error:', error);
@@ -85,6 +101,24 @@ export default function LoginPage() {
       setIsLoading(false);
     }
   };
+
+  // If loading session, show loading state
+  if (status === 'loading') {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-primary"></div>
+      </div>
+    );
+  }
+
+  // If already authenticated, show loading while redirecting
+  if (status === 'authenticated') {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-white">Redirecting...</div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen flex items-center justify-center">
@@ -165,6 +199,7 @@ export default function LoginPage() {
                 onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                 className="w-full bg-dark-100/50 text-white placeholder-white/50 rounded-md border border-primary/20 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary/40"
                 placeholder="Enter your email"
+                disabled={isLoading}
               />
             </div>
             <div>
@@ -182,6 +217,7 @@ export default function LoginPage() {
                 onChange={(e) => setFormData({ ...formData, password: e.target.value })}
                 className="w-full bg-dark-100/50 text-white placeholder-white/50 rounded-md border border-primary/20 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary/40"
                 placeholder="Enter your password"
+                disabled={isLoading}
               />
             </div>
             <button
