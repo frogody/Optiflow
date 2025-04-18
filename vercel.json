@@ -19,7 +19,24 @@
   },
   "env": {
     "NODE_ENV": "production",
-    "VERCEL_ENV": "production"
+    "VERCEL_ENV": "production",
+    "NEXTAUTH_URL": "https://app.isyncso.com",
+    "DATABASE_URL": "postgres://neondb_owner:npg_5sX2JprvCDRb@ep-noisy-cell-a2y3ohah-pooler.eu-central-1.aws.neon.tech/neondb",
+    "POSTGRES_URL": "postgres://neondb_owner:npg_5sX2JprvCDRb@ep-noisy-cell-a2y3ohah-pooler.eu-central-1.aws.neon.tech/neondb",
+    "POSTGRES_PRISMA_URL": "postgres://neondb_owner:npg_5sX2JprvCDRb@ep-noisy-cell-a2y3ohah-pooler.eu-central-1.aws.neon.tech/neondb",
+    "POSTGRES_URL_NON_POOLING": "postgres://neondb_owner:npg_5sX2JprvCDRb@ep-noisy-cell-a2y3ohah-pooler.eu-central-1.aws.neon.tech/neondb",
+    "POSTGRES_URL_NO_SSL": "postgres://neondb_owner:npg_5sX2JprvCDRb@ep-noisy-cell-a2y3ohah-pooler.eu-central-1.aws.neon.tech/neondb",
+    "DATABASE_URL_UNPOOLED": "postgres://neondb_owner:npg_5sX2JprvCDRb@ep-noisy-cell-a2y3ohah-pooler.eu-central-1.aws.neon.tech/neondb",
+    "POSTGRES_HOST": "ep-noisy-cell-a2y3ohah-pooler.eu-central-1.aws.neon.tech",
+    "POSTGRES_USER": "neondb_owner",
+    "PGHOST": "ep-noisy-cell-a2y3ohah-pooler.eu-central-1.aws.neon.tech",
+    "PGUSER": "neondb_owner",
+    "NEXTAUTH_SECRET": "CNW3DLCK2w8RSSHKzbAkw/R5dRA9YetF1aDydsOM/tZTRFb+pM50FCn/WAxvOhqm6hpw49MIy9+SeDm7QC2mZw==",
+    "GOOGLE_CLIENT_ID": "1037760022342-rnh5mq0jua9njg7p4g2kv7gkppch8irj.apps.googleusercontent.com",
+    "GOOGLE_CLIENT_SECRET": "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",
+    "PIPEDREAM_CLIENT_SECRET": "ayINomSnhCcHGR6Xf1_4PElM25mqsEFsrvTHKQ7ink0",
+    "JWT_SECRET": "SM28VcRf7ai9leccOZ+K/Nl4yns78Y5xiLtZP2qumHuka3JdUOMtQscia6pTwE3W24IjPUET2GNjTSHVol3kCA==",
+    "ENCRYPTION_KEY": "a10452af9d0243cb56cae6ad8545d65b810faf3ce41e2243a9efbc77fab53279"
   },
   "git": {
     "deploymentEnabled": {

@@ -1,12 +1,99 @@
-import { hash, compare } from 'bcryptjs';
-import { z } from 'zod';
+import { PrismaAdapter } from "@next-auth/prisma-adapter";
+import { NextAuthOptions } from "next-auth";
+import GoogleProvider from "next-auth/providers/google";
+import CredentialsProvider from "next-auth/providers/credentials";
+import bcrypt from "bcryptjs";
+import { prisma } from "./prisma";
+import { z } from "zod";
 
 // User schema for validation
-export const userSchema = z.object({
-  email: z.string().email('Invalid email address'),
-  password: z.string().min(8, 'Password must be at least 8 characters'),
-  name: z.string().min(2, 'Name must be at least 2 characters').optional(),
+const userSchema = z.object({
+  email: z.string().email(),
+  password: z.string().min(8),
+  name: z.string().optional(),
 });
+
+export const authOptions: NextAuthOptions = {
+  adapter: PrismaAdapter(prisma),
+  session: {
+    strategy: "jwt",
+  },
+  pages: {
+    signIn: "/login",
+  },
+  providers: [
+    GoogleProvider({
+      clientId: process.env.GOOGLE_CLIENT_ID!,
+      clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
+    }),
+    CredentialsProvider({
+      name: "credentials",
+      credentials: {
+        email: { label: "Email", type: "email" },
+        password: { label: "Password", type: "password" },
+      },
+      async authorize(credentials) {
+        if (!credentials?.email || !credentials?.password) {
+          throw new Error("Invalid credentials");
+        }
+
+        const { email, password } = credentials;
+
+        try {
+          const validatedFields = userSchema.parse({
+            email,
+            password,
+          });
+
+          const user = await prisma.user.findUnique({
+            where: { email: validatedFields.email },
+          });
+
+          if (!user || !user.password) {
+            throw new Error("Invalid credentials");
+          }
+
+          const isValid = await bcrypt.compare(
+            validatedFields.password,
+            user.password
+          );
+
+          if (!isValid) {
+            throw new Error("Invalid credentials");
+          }
+
+          return {
+            id: user.id,
+            email: user.email,
+            name: user.name,
+          };
+        } catch (error) {
+          if (error instanceof z.ZodError) {
+            throw new Error("Invalid credentials format");
+          }
+          throw error;
+        }
+      },
+    }),
+  ],
+  callbacks: {
+    async session({ token, session }) {
+      if (token) {
+        session.user.id = token.id as string;
+        session.user.name = token.name;
+        session.user.email = token.email;
+      }
+
+      return session;
+    },
+    async jwt({ token, user }) {
+      if (user) {
+        token.id = user.id;
+      }
+      return token;
+    },
+  },
+};
 
 export type UserCredentials = z.infer<typeof userSchema>;
 
@@ -65,7 +152,7 @@ export async function createTestUser() {
     // Only create test user if it doesn't exist
     if (!users.has(email)) {
       console.log('Creating test user for development');
-      const hashedPassword = await hash(password, 10);
+      const hashedPassword = await bcrypt.hash(password, 10);
       const userId = btoa(email).slice(0, 24);
       
       const user = {
@@ -92,7 +179,7 @@ export async function registerUser(credentials: UserCredentials) {
     throw new Error('User already exists');
   }
 
-  const hashedPassword = await hash(validated.password, 10);
+  const hashedPassword = await bcrypt.hash(validated.password, 10);
   const userId = btoa(validated.email).slice(0, 24);
 
   const user = {
@@ -128,7 +215,7 @@ export async function authenticateUser(email: string, password: string) {
     // Log user data without sensitive information
     console.log('User found:', { email: user.email, id: user.id });
     
-    const isValid = await compare(password, user.password);
+    const isValid = await bcrypt.compare(password, user.password);
     console.log('Password comparison result:', isValid);
     
     if (!isValid) {
