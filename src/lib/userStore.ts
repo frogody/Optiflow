@@ -126,13 +126,13 @@ export const useUserStore = create<UserState>()(
       },
       setUser: (user) => {
         console.log('Setting user with setUser method:', user ? user.email : 'null');
-        set({ currentUser: user });
+        set({ currentUser: user, isLoading: false });
       },
       logoutUser: () => {
         console.log('Logging out user');
-        set({ currentUser: null });
+        set({ currentUser: null, isLoading: false });
       },
-      clearUser: () => set({ currentUser: null }),
+      clearUser: () => set({ currentUser: null, isLoading: false }),
     }),
     {
       name: 'user_store',
@@ -143,6 +143,10 @@ export const useUserStore = create<UserState>()(
       }),
       onRehydrateStorage: () => (state) => {
         console.log('Rehydrated user state from storage:', state ? (state.currentUser ? state.currentUser.email : 'no user') : 'null state');
+        // Set loading to false after rehydration
+        if (state) {
+          useUserStore.setState({ isLoading: false });
+        }
       }
     }
   )

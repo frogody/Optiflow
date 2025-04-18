@@ -255,7 +255,7 @@ export default function Navigation() {
 
               {userLoading ? (
                 // Loading skeleton
-                <div className="h-8 w-24 bg-white/5 rounded-full animate-pulse" />
+                <div className="h-8 w-24 bg-white/5 animate-pulse rounded-full" />
               ) : currentUser ? (
                 // User menu
                 <div className="relative group">
