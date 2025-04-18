@@ -7,17 +7,36 @@ import Image from 'next/image';
 import { signIn } from 'next-auth/react';
 import { toast } from 'react-hot-toast';
 
+// Helper function to validate and sanitize callback URL
+function getSafeCallbackUrl(url: string | null): string {
+  if (!url) return '/dashboard';
+  
+  try {
+    const urlObj = new URL(url);
+    // Only allow redirects to our own domain
+    if (urlObj.hostname !== 'app.isyncso.com' && urlObj.hostname !== 'localhost') {
+      return '/dashboard';
+    }
+    // Don't allow redirects to login or auth pages
+    if (urlObj.pathname.includes('/login') || urlObj.pathname.includes('/auth')) {
+      return '/dashboard';
+    }
+    return url;
+  } catch (e) {
+    // If URL is invalid or relative, check if it's safe
+    const relativeUrl = url.toString();
+    if (relativeUrl.includes('/login') || relativeUrl.includes('/auth')) {
+      return '/dashboard';
+    }
+    // Make sure the URL starts with a slash
+    return relativeUrl.startsWith('/') ? relativeUrl : `/${relativeUrl}`;
+  }
+}
+
 export default function LoginPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  
-  // Get the callbackUrl from the search params, but ensure it's not the login page itself
-  let callbackUrl = searchParams.get('callbackUrl') || '/dashboard';
-  
-  // Prevent infinite redirects by checking if the callbackUrl is the login page
-  if (callbackUrl.includes('/login')) {
-    callbackUrl = '/dashboard';
-  }
+  const callbackUrl = getSafeCallbackUrl(searchParams.get('callbackUrl'));
   
   const [formData, setFormData] = useState({
     email: '',
@@ -56,11 +75,13 @@ export default function LoginPage() {
   const handleGoogleLogin = async () => {
     setIsLoading(true);
     try {
-      await signIn('google', { callbackUrl });
+      await signIn('google', { 
+        callbackUrl,
+        redirect: true 
+      });
     } catch (error) {
       console.error('Google login error:', error);
       toast.error('Google login failed. Please try again.');
-    } finally {
       setIsLoading(false);
     }
   };

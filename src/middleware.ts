@@ -33,6 +33,24 @@ function matchesPath(path: string, patterns: string[]): boolean {
   });
 }
 
+// Helper function to sanitize URL for safe redirection
+function getSafeRedirectUrl(url: string): string {
+  try {
+    const urlObj = new URL(url);
+    // Only allow redirects to our own domain
+    if (urlObj.hostname !== 'app.isyncso.com' && urlObj.hostname !== 'localhost') {
+      return '/dashboard';
+    }
+    // Don't allow redirects to login or auth pages
+    if (urlObj.pathname.includes('/login') || urlObj.pathname.includes('/auth')) {
+      return '/dashboard';
+    }
+    return url;
+  } catch (e) {
+    return '/dashboard';
+  }
+}
+
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
   
@@ -62,11 +80,12 @@ export async function middleware(request: NextRequest) {
     if (!token) {
       const loginUrl = new URL('/login', request.url);
       
-      // Prevent infinite redirect loops by not setting callbackUrl if already on login page
-      // or if the callbackUrl would be the login page
-      const currentUrl = request.url;
-      if (!currentUrl.includes('/login') && !pathname.includes('/login')) {
-        loginUrl.searchParams.set('callbackUrl', request.url);
+      // Only set callbackUrl for safe URLs that aren't login/auth related
+      if (!pathname.startsWith('/login') && !pathname.startsWith('/auth')) {
+        const safeRedirectUrl = getSafeRedirectUrl(request.url);
+        if (safeRedirectUrl !== '/dashboard') {
+          loginUrl.searchParams.set('callbackUrl', safeRedirectUrl);
+        }
       }
       
       return NextResponse.redirect(loginUrl);
@@ -100,11 +119,7 @@ export async function middleware(request: NextRequest) {
     return response;
   } catch (error) {
     console.error('Middleware error:', error);
-    // Return a more graceful response instead of continuing
-    return NextResponse.json(
-      { error: 'Authentication error' },
-      { status: 401 }
-    );
+    return NextResponse.redirect(new URL('/login', request.url));
   }
 }
 
