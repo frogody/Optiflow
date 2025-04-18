@@ -21,16 +21,25 @@ export function SessionInitializer() {
 
     // Handle session state
     if (status === 'authenticated' && session?.user) {
-      // Ensure we have valid values before updating the store
-      const user = {
-        id: session.user.id || '',  // Fallback to empty string if undefined
-        email: session.user.email || null,  // Explicitly set to null if undefined
-        name: session.user.name || null,    // Explicitly set to null if undefined
-      };
-      setUser(user);
+      try {
+        // Ensure we have valid values before updating the store
+        const user = {
+          id: session.user.id || '',  // Fallback to empty string if undefined
+          email: session.user.email || null,  // Explicitly set to null if undefined
+          name: session.user.name || null,    // Explicitly set to null if undefined
+        };
+        console.log('Setting authenticated user:', user);
+        setUser(user);
+      } catch (error) {
+        console.error('Error setting user from session:', error);
+        setUser(null);
+      }
     } else if (status === 'unauthenticated' || !session) {
       // Clear the user when session is explicitly unauthenticated or missing
+      console.log('Session is unauthenticated or missing, clearing user');
       setUser(null);
+    } else {
+      console.warn('Unexpected session status:', status);
     }
   }, [session, status, setUser, setLoading]);
 

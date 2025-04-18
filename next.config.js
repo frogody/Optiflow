@@ -27,7 +27,7 @@ const nextConfig = {
   env: {
     NEXT_PUBLIC_DEPLOYMENT_ENV: process.env.NODE_ENV || 'development',
   },
-  // Configure static generation
+  // Configure static generation timeout
   staticPageGenerationTimeout: 120,
 }
 

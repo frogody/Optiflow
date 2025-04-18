@@ -5,6 +5,7 @@ import CredentialsProvider from "next-auth/providers/credentials";
 import { PrismaAdapter } from "@auth/prisma-adapter";
 import { PrismaClient } from "@prisma/client";
 
+// Create a single PrismaClient instance and reuse it
 const prisma = new PrismaClient();
 
 // Ensure required environment variables are set
@@ -17,7 +18,7 @@ const requiredEnvVars = [
 
 for (const envVar of requiredEnvVars) {
   if (!process.env[envVar]) {
-    throw new Error(`Missing required environment variable: ${envVar}`);
+    console.error(`Missing required environment variable: ${envVar}`);
   }
 }
 

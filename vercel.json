@@ -1,11 +1,15 @@
 {
   "version": 2,
-  "buildCommand": "npm run build",
+  "buildCommand": "npm run vercel-build",
   "outputDirectory": ".next",
   "framework": "nextjs",
   "images": {
     "sizes": [64, 96, 128, 256, 384],
-    "domains": ["localhost"],
+    "domains": [
+      "lh3.googleusercontent.com",
+      "avatars.githubusercontent.com",
+      "app.isyncso.com"
+    ],
     "remotePatterns": [
       {
         "protocol": "https",
@@ -14,7 +18,8 @@
     ]
   },
   "env": {
-    "NODE_ENV": "production"
+    "NODE_ENV": "production",
+    "VERCEL_ENV": "production"
   },
   "git": {
     "deploymentEnabled": {
@@ -36,6 +41,14 @@
         {
           "key": "X-XSS-Protection",
           "value": "1; mode=block"
+        },
+        {
+          "key": "Referrer-Policy",
+          "value": "strict-origin-when-cross-origin"
+        },
+        {
+          "key": "Permissions-Policy",
+          "value": "camera=(), microphone=(), geolocation=()"
         }
       ]
     },
@@ -48,13 +61,15 @@
         },
         {
           "key": "Access-Control-Allow-Methods",
-          "value": "GET,OPTIONS"
+          "value": "GET, POST, PUT, DELETE, OPTIONS"
         },
         {
           "key": "Access-Control-Allow-Headers",
-          "value": "X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version"
+          "value": "X-Requested-With, Content-Type, Accept"
         }
       ]
     }
-  ]
+  ],
+  "regions": ["sfo1"],
+  "public": true
 } 

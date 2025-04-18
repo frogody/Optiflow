@@ -6,9 +6,15 @@ const prisma = new PrismaClient();
 export async function GET() {
   try {
     // Check database connection
-    await prisma.$connect();
-    await prisma.user.count();
-    await prisma.$disconnect();
+    let dbStatus = 'connected';
+    try {
+      await prisma.$connect();
+      await prisma.user.count();
+      await prisma.$disconnect();
+    } catch (dbError) {
+      console.error('Database connection error:', dbError);
+      dbStatus = 'error';
+    }
 
     // Check environment variables
     const requiredEnvVars = [
@@ -21,18 +27,24 @@ export async function GET() {
 
     const missingVars = requiredEnvVars.filter(varName => !process.env[varName]);
 
-    if (missingVars.length > 0) {
-      throw new Error(`Missing environment variables: ${missingVars.join(', ')}`);
-    }
-
     // Return health status
     return NextResponse.json({
-      status: 'healthy',
+      status: missingVars.length > 0 || dbStatus === 'error' ? 'unhealthy' : 'healthy',
       timestamp: new Date().toISOString(),
       version: process.env.NEXT_PUBLIC_APP_VERSION || '1.0.0',
       environment: process.env.NODE_ENV,
-      database: 'connected',
-      uptime: process.uptime()
+      uptime: process.uptime(),
+      auth: {
+        nextAuthUrl: process.env.NEXTAUTH_URL,
+        googleClientId: process.env.GOOGLE_CLIENT_ID ? 'configured' : 'missing',
+        googleClientSecret: process.env.GOOGLE_CLIENT_SECRET ? 'configured' : 'missing',
+      },
+      database: {
+        status: dbStatus,
+        url: process.env.DATABASE_URL ? 'configured' : 'missing',
+        type: process.env.DATABASE_URL?.includes('postgresql') ? 'postgresql' : 'sqlite',
+        missingVars: missingVars.length > 0 ? missingVars : undefined
+      }
     });
   } catch (error) {
     console.error('Health check failed:', error);

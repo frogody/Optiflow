@@ -18,6 +18,8 @@ const publicPaths = [
   '/api/auth/signout',
   '/api/auth/providers',
   '/api/auth/csrf',
+  '/api/health',
+  '/api/health/',
 ];
 
 // Helper function to check if a path matches any of the public paths
@@ -39,7 +41,8 @@ export async function middleware(request: NextRequest) {
     pathname.startsWith('/_next') ||
     pathname.startsWith('/static') ||
     pathname.includes('.') ||
-    pathname.startsWith('/api/auth')
+    pathname.startsWith('/api/auth') ||
+    pathname.startsWith('/api/health')
   ) {
     return NextResponse.next();
   }
@@ -90,7 +93,11 @@ export async function middleware(request: NextRequest) {
     return response;
   } catch (error) {
     console.error('Middleware error:', error);
-    return NextResponse.next();
+    // Return a more graceful response instead of continuing
+    return NextResponse.json(
+      { error: 'Authentication error' },
+      { status: 401 }
+    );
   }
 }
 

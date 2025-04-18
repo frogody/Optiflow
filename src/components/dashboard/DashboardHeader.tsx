@@ -16,34 +16,51 @@ export default function DashboardHeader() {
     router.push('/login');
   };
 
+  // Handle navigation with error handling
+  const handleNavigation = (href: string) => {
+    try {
+      console.log(`Navigating to: ${href}`);
+      router.push(href);
+    } catch (error) {
+      console.error(`Navigation error to ${href}:`, error);
+      // Fallback to window.location if router.push fails
+      window.location.href = href;
+    }
+  };
+
   return (
     <header className="bg-dark-100/50 border-b border-primary/20 backdrop-blur-md">
       <div className="container mx-auto px-4">
         <div className="flex items-center justify-between h-16">
           {/* Logo and Navigation */}
           <div className="flex items-center space-x-8">
-            <Image
-              src="/logo.png"
-              alt="ISYNCSO"
-              width={120}
-              height={32}
-              className="h-8 w-auto opacity-90 hover:opacity-100 transition-opacity"
-            />
+            <button
+              onClick={() => handleNavigation('/')}
+              className="flex items-center"
+            >
+              <Image
+                src="/logo.png"
+                alt="ISYNCSO"
+                width={120}
+                height={32}
+                className="h-8 w-auto opacity-90 hover:opacity-100 transition-opacity"
+              />
+            </button>
             <nav className="hidden md:flex space-x-6">
               <button
-                onClick={() => router.push('/dashboard')}
+                onClick={() => handleNavigation('/dashboard')}
                 className="text-white/80 hover:text-white transition-colors"
               >
                 Dashboard
               </button>
               <button
-                onClick={() => router.push('/workflows')}
+                onClick={() => handleNavigation('/workflows')}
                 className="text-white/80 hover:text-white transition-colors"
               >
                 Workflows
               </button>
               <button
-                onClick={() => router.push('/tools')}
+                onClick={() => handleNavigation('/tools')}
                 className="text-white/80 hover:text-white transition-colors"
               >
                 Tools
@@ -53,15 +70,17 @@ export default function DashboardHeader() {
 
           {/* User Menu */}
           <div className="flex items-center space-x-4">
-            <div className="text-white/80">
-              {currentUser?.name || currentUser?.email}
-            </div>
-            <button
-              onClick={handleLogout}
-              className="px-4 py-2 text-sm font-medium text-white/80 hover:text-white bg-dark-100/50 rounded-md border border-primary/20 hover:border-primary/40 transition-all duration-200"
-            >
-              Sign Out
-            </button>
+            {currentUser && (
+              <div className="flex items-center space-x-2">
+                <span className="text-white/80">{currentUser.email}</span>
+                <button
+                  onClick={handleLogout}
+                  className="px-3 py-1 text-sm text-white/80 hover:text-white bg-white/5 rounded-md transition-colors"
+                >
+                  Logout
+                </button>
+              </div>
+            )}
           </div>
         </div>
       </div>
