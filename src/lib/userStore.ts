@@ -4,11 +4,12 @@ import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
 import { User } from '@prisma/client';
 
-// Frontend user type with only the fields we need
+// Frontend user type matching our session types
 export interface FrontendUser {
   id: string;
-  email: string;
+  email: string | null;
   name: string | null;
+  // Add any additional fields from your session type here
 }
 
 export interface ToolConnection {

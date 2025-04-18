@@ -4,54 +4,48 @@ import { getToken } from 'next-auth/jwt';
 
 // Public paths that don't require authentication
 const publicPaths = [
+  '/',
   '/login',
   '/signup',
-  '/api/auth',
-  '/api/health',
-  '/api/pipedream/callback',
-  '/api/oauth/callback',
-  '/',
   '/features',
-  '/pricing',
+  '/integrations',
   '/enterprise',
-  '/faq'
+  '/pricing',
+  '/faq',
+  '/api/auth/callback',
+  '/api/auth/session',
+  '/api/auth/signin',
+  '/api/auth/signout',
+  '/api/auth/providers',
+  '/api/auth/csrf',
 ];
 
-// Helper to check if path matches any of the patterns
-const matchesPath = (path: string, patterns: string[]) => {
+// Helper function to check if a path matches any of the public paths
+function matchesPath(path: string, patterns: string[]): boolean {
   return patterns.some(pattern => {
-    if (pattern.endsWith('*')) {
-      return path.startsWith(pattern.slice(0, -1));
-    }
-    return path === pattern;
+    // Exact match
+    if (pattern === path) return true;
+    // Pattern ends with wildcard
+    if (pattern.endsWith('*') && path.startsWith(pattern.slice(0, -1))) return true;
+    return false;
   });
-};
+}
 
 export async function middleware(request: NextRequest) {
-  const path = request.nextUrl.pathname;
+  const { pathname } = request.nextUrl;
   
   // Skip middleware for Next.js internal routes and static files
   if (
-    path.startsWith('/_next') ||
-    path.startsWith('/static') ||
-    path.includes('favicon.ico')
+    pathname.startsWith('/_next') ||
+    pathname.startsWith('/static') ||
+    pathname.includes('.') ||
+    pathname.startsWith('/api/auth')  // Allow all auth-related endpoints without token check
   ) {
     return NextResponse.next();
   }
 
-  // Allow all auth-related endpoints without token check
-  if (path.startsWith('/api/auth')) {
-    const response = NextResponse.next();
-    // Add CORS headers for auth endpoints
-    response.headers.set('Access-Control-Allow-Credentials', 'true');
-    response.headers.set('Access-Control-Allow-Origin', '*');
-    response.headers.set('Access-Control-Allow-Methods', 'GET,POST,OPTIONS');
-    response.headers.set('Access-Control-Allow-Headers', 'X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version');
-    return response;
-  }
-
   // Allow public paths
-  if (matchesPath(path, publicPaths)) {
+  if (matchesPath(pathname, publicPaths)) {
     return NextResponse.next();
   }
 

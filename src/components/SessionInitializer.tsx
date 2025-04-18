@@ -2,41 +2,33 @@
 
 import { useEffect } from 'react';
 import { useSession } from 'next-auth/react';
-import { useUserStore, FrontendUser } from '@/lib/userStore';
+import { useUserStore } from '@/lib/userStore';
+import type { Session } from 'next-auth';
 
 /**
  * SessionInitializer component checks for an existing session
  * and syncs it with the user store.
  */
-export default function SessionInitializer() {
+export function SessionInitializer() {
   const { data: session, status } = useSession();
-  const { setCurrentUser, clearUser, setLoading } = useUserStore();
+  const { setUser, setLoading } = useUserStore();
 
   useEffect(() => {
-    console.log('Session status:', status);
-    console.log('Session data:', session);
-
-    // Set loading state based on session status
-    if (status === 'loading') {
-      setLoading(true);
-      return;
-    }
+    setLoading(status === 'loading');
 
     if (status === 'authenticated' && session?.user) {
-      // Convert session user to FrontendUser type
-      const user: FrontendUser = {
-        // Use a fallback ID if not present
-        id: (session.user as any).id || 'temp-id',
-        email: session.user.email || '',
-        name: session.user.name || null
+      // Ensure we have valid values before updating the store
+      const user = {
+        id: session.user.id || '',  // Fallback to empty string if undefined
+        email: session.user.email || null,  // Explicitly set to null if undefined
+        name: session.user.name || null,    // Explicitly set to null if undefined
       };
-      console.log('Setting user in store:', user);
-      setCurrentUser(user);
+      setUser(user);
     } else if (status === 'unauthenticated') {
-      console.log('Clearing user from store');
-      clearUser();
+      // Clear the user when session is explicitly unauthenticated
+      setUser(null);
     }
-  }, [session, status, setCurrentUser, clearUser, setLoading]);
+  }, [session, status, setUser, setLoading]);
 
   // This component doesn't render anything visible
   return null;

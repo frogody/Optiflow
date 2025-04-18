@@ -62,19 +62,22 @@ export const authOptions: AuthOptions = {
   ],
   callbacks: {
     async session({ session, user, token }) {
-      console.log('Session callback:', { session, user, token });
-      if (session.user) {
-        session.user.id = user.id;
-        // Add any additional user data you want in the session
-        session.user.email = user.email;
-        session.user.name = user.name;
-      }
-      return session;
+      // Ensure we always return a properly structured session
+      return {
+        ...session,
+        user: {
+          id: token?.sub || user?.id || 'unknown',
+          email: token?.email || user?.email || null,
+          name: token?.name || user?.name || null,
+        }
+      };
     },
-    async jwt({ token, user, account, profile }) {
-      console.log('JWT callback:', { token, user, account, profile });
+    async jwt({ token, user }) {
       if (user) {
-        token.id = user.id;
+        // Update token with user data
+        token.sub = user.id;
+        token.email = user.email;
+        token.name = user.name;
       }
       return token;
     },
@@ -91,24 +94,12 @@ export const authOptions: AuthOptions = {
     error: '/login',
     signOut: '/login'
   },
-  secret: process.env.NEXTAUTH_SECRET,
   session: {
-    strategy: 'database',
+    strategy: 'jwt',
     maxAge: 30 * 24 * 60 * 60, // 30 days
     updateAge: 24 * 60 * 60, // 24 hours
   },
-  cookies: {
-    sessionToken: {
-      name: process.env.NODE_ENV === 'production' ? '__Secure-next-auth.session-token' : 'next-auth.session-token',
-      options: {
-        httpOnly: true,
-        sameSite: 'lax',
-        path: '/',
-        secure: process.env.NODE_ENV === 'production'
-      }
-    }
-  },
-  debug: true
+  debug: process.env.NODE_ENV === 'development',
 };
 
 const handler = NextAuth(authOptions);
