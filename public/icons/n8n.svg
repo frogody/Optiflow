@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="48" height="48" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="48" height="48" rx="12" fill="#1A1A2E"/>
+  <!-- Infinity symbol -->
+  <path d="M14 24C14 20.6863 16.6863 18 20 18C23.3137 18 26 20.6863 26 24C26 27.3137 23.3137 30 20 30C16.6863 30 14 27.3137 14 24Z" 
+        stroke="#6B46FF" stroke-width="2"/>
+  <path d="M22 24C22 20.6863 24.6863 18 28 18C31.3137 18 34 20.6863 34 24C34 27.3137 31.3137 30 28 30C24.6863 30 22 27.3137 22 24Z" 
+        stroke="#6B46FF" stroke-width="2"/>
+  <!-- Dots -->
+  <circle cx="20" cy="24" r="2" fill="#6B46FF"/>
+  <circle cx="28" cy="24" r="2" fill="#6B46FF"/>
+</svg> 

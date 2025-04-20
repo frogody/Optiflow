@@ -1,0 +1,137 @@
+/* AIcademy Styles */
+
+.text-gradient {
+  background-clip: text;
+  -webkit-background-clip: text;
+  color: transparent;
+  background-image: linear-gradient(to right, #3CDFFF, #4AFFD4);
+}
+
+/* Animation for sections */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.5s ease-out forwards;
+}
+
+/* Card hover effects */
+.hover-card-effect {
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.hover-card-effect:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.25), 0 10px 10px -5px rgba(0, 0, 0, 0.1);
+}
+
+/* Grid pattern background */
+.grid-pattern {
+  background-image: 
+    linear-gradient(rgba(15, 23, 42, 0.95), rgba(15, 23, 42, 0.95)),
+    linear-gradient(90deg, rgba(60, 223, 255, 0.1) 1px, transparent 1px),
+    linear-gradient(rgba(74, 255, 212, 0.1) 1px, transparent 1px);
+  background-size: 100% 100%, 40px 40px, 40px 40px;
+}
+
+/* Glow effects */
+.neon-glow {
+  position: relative;
+  z-index: 1;
+  border: 1px solid rgba(60, 223, 255, 0.2);
+}
+
+.neon-glow::after {
+  content: "";
+  position: absolute;
+  top: -15px;
+  left: -15px;
+  right: -15px;
+  bottom: -15px;
+  background: linear-gradient(90deg, #3CDFFF, #4AFFD4);
+  filter: blur(25px);
+  z-index: -1;
+  opacity: 0.2;
+  transition: opacity 0.3s ease;
+}
+
+.neon-glow:hover::after {
+  opacity: 0.3;
+}
+
+/* Testimonial quote styling */
+.quote-mark::before {
+  content: "\201C"; /* Unicode for left double quotation mark */
+  font-size: 4rem;
+  line-height: 0;
+  position: absolute;
+  top: 30px;
+  left: -15px;
+  color: rgba(74, 255, 212, 0.2);
+}
+
+/* Animated background effects */
+@keyframes pulse {
+  0% {
+    opacity: 0.4;
+  }
+  50% {
+    opacity: 0.6;
+  }
+  100% {
+    opacity: 0.4;
+  }
+}
+
+.pulse-bg {
+  animation: pulse 4s ease-in-out infinite;
+}
+
+/* Button hover effects */
+@keyframes gradientFlow {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+.gradient-btn {
+  background-size: 200% auto;
+  transition: all 0.3s ease;
+}
+
+.gradient-btn:hover {
+  background-size: 200% auto;
+  animation: gradientFlow 2s ease infinite;
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 12px;
+}
+
+::-webkit-scrollbar-track {
+  background: #1e293b;
+}
+
+::-webkit-scrollbar-thumb {
+  background: linear-gradient(to bottom, #3CDFFF, #4AFFD4);
+  border-radius: 6px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(to bottom, #4AFFD4, #3CDFFF);
+} 

@@ -1,0 +1,358 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id            String    @id @default(uuid())
+  email         String    @unique
+  name          String?
+  passwordHash  String?   @map("password_hash")
+  createdAt     DateTime  @default(now()) @map("created_at")
+  updatedAt     DateTime  @updatedAt @map("updated_at")
+  lastLogin     DateTime? @map("last_login")
+  isActive      Boolean   @default(true) @map("is_active")
+  role          String    @default("user")
+  avatar        String?   // Add avatar field for user profile images
+
+  // Relations
+  organizations OrganizationMember[]
+  workflows     Workflow[]
+  apiKeys       ApiKey[]
+  auditLogs     AuditLog[]
+  comments      Comment[]  // Add relation to comments
+  notifications Notification[] // Add relation to notifications
+  aiPrompts      AIPrompt[]
+  aiTrainingData AITrainingData[]
+  sharedWorkflows WorkflowShare[] @relation("SharedWith")
+
+  @@map("users")
+}
+
+model Organization {
+  id        String   @id @default(uuid())
+  name      String
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+  logo      String?  // Add logo field for organization branding
+  plan      String   @default("free") // Add plan field for subscription tiers
+
+  // Relations
+  members   OrganizationMember[]
+  workflows Workflow[]
+  teams     Team[] // Add relation to teams
+  aiPrompts      AIPrompt[]
+  aiTrainingData AITrainingData[]
+
+  @@map("organizations")
+}
+
+model OrganizationMember {
+  id             String       @id @default(uuid())
+  organizationId String       @map("organization_id")
+  userId         String       @map("user_id")
+  role           String       @default("member")
+  createdAt      DateTime     @default(now()) @map("created_at")
+  permissions    Json?        // Add permissions field for fine-grained access control
+
+  // Relations
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  user           User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  teams          TeamMember[] // Add relation to teams
+
+  @@unique([organizationId, userId])
+  @@map("organization_members")
+}
+
+model Workflow {
+  id             String   @id @default(uuid())
+  name           String
+  description    String?
+  organizationId String   @map("organization_id")
+  createdById    String   @map("created_by")
+  createdAt      DateTime @default(now()) @map("created_at")
+  updatedAt      DateTime @updatedAt @map("updated_at")
+  isActive       Boolean  @default(true) @map("is_active")
+  version        Int      @default(1)
+  isPublic       Boolean  @default(false) @map("is_public") // Add public/private flag
+  tags           String[] // Add tags for categorization
+  teamId         String?  @map("team_id") // Add team relation
+
+  // Relations
+  organization   Organization     @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  createdBy      User            @relation(fields: [createdById], references: [id])
+  team           Team?           @relation(fields: [teamId], references: [id])
+  nodes          WorkflowNode[]
+  edges          WorkflowEdge[]
+  executions     WorkflowExecution[]
+  comments       Comment[] // Add relation to comments
+  shares         WorkflowShare[] // Add relation to shares
+
+  @@map("workflows")
+}
+
+model WorkflowNode {
+  id          String   @id @default(uuid())
+  workflowId  String   @map("workflow_id")
+  type        String
+  positionX   Int      @map("position_x")
+  positionY   Int      @map("position_y")
+  config      Json?
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  // Relations
+  workflow    Workflow         @relation(fields: [workflowId], references: [id], onDelete: Cascade)
+  sourceEdges WorkflowEdge[]   @relation("SourceNode")
+  targetEdges WorkflowEdge[]   @relation("TargetNode")
+  executions  NodeExecution[]
+
+  @@map("workflow_nodes")
+}
+
+model WorkflowEdge {
+  id             String   @id @default(uuid())
+  workflowId     String   @map("workflow_id")
+  sourceNodeId   String   @map("source_node_id")
+  targetNodeId   String   @map("target_node_id")
+  createdAt      DateTime @default(now()) @map("created_at")
+
+  // Relations
+  workflow       Workflow     @relation(fields: [workflowId], references: [id], onDelete: Cascade)
+  sourceNode     WorkflowNode @relation("SourceNode", fields: [sourceNodeId], references: [id], onDelete: Cascade)
+  targetNode     WorkflowNode @relation("TargetNode", fields: [targetNodeId], references: [id], onDelete: Cascade)
+
+  @@map("workflow_edges")
+}
+
+model WorkflowExecution {
+  id          String   @id @default(uuid())
+  workflowId  String   @map("workflow_id")
+  status      String
+  startedAt   DateTime @default(now()) @map("started_at")
+  completedAt DateTime? @map("completed_at")
+  error       String?
+  inputData   Json?    @map("input_data")
+  outputData  Json?    @map("output_data")
+
+  // Relations
+  workflow    Workflow       @relation(fields: [workflowId], references: [id], onDelete: Cascade)
+  nodes       NodeExecution[]
+
+  @@map("workflow_executions")
+}
+
+model NodeExecution {
+  id                  String   @id @default(uuid())
+  workflowExecutionId String   @map("workflow_execution_id")
+  nodeId             String   @map("node_id")
+  status             String
+  startedAt          DateTime @default(now()) @map("started_at")
+  completedAt        DateTime? @map("completed_at")
+  error              String?
+  inputData          Json?    @map("input_data")
+  outputData         Json?    @map("output_data")
+
+  // Relations
+  workflowExecution  WorkflowExecution @relation(fields: [workflowExecutionId], references: [id], onDelete: Cascade)
+  node               WorkflowNode      @relation(fields: [nodeId], references: [id], onDelete: Cascade)
+
+  @@map("node_executions")
+}
+
+model ApiKey {
+  id         String    @id @default(uuid())
+  userId     String    @map("user_id")
+  keyHash    String    @map("key_hash")
+  name       String?
+  createdAt  DateTime  @default(now()) @map("created_at")
+  lastUsedAt DateTime? @map("last_used_at")
+  expiresAt  DateTime? @map("expires_at")
+  isActive   Boolean   @default(true) @map("is_active")
+
+  // Relations
+  user       User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("api_keys")
+}
+
+model AuditLog {
+  id         String   @id @default(uuid())
+  userId     String?  @map("user_id")
+  action     String
+  entityType String   @map("entity_type")
+  entityId   String   @map("entity_id")
+  details    Json?
+  createdAt  DateTime @default(now()) @map("created_at")
+
+  // Relations
+  user       User?    @relation(fields: [userId], references: [id])
+
+  @@map("audit_logs")
+}
+
+// Add new models for enhanced collaboration
+
+model Team {
+  id             String   @id @default(uuid())
+  name           String
+  organizationId String   @map("organization_id")
+  createdAt      DateTime @default(now()) @map("created_at")
+  updatedAt      DateTime @updatedAt @map("updated_at")
+  description    String?
+
+  // Relations
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  members        TeamMember[]
+  workflows      Workflow[]
+
+  @@map("teams")
+}
+
+model TeamMember {
+  id             String   @id @default(uuid())
+  teamId         String   @map("team_id")
+  organizationMemberId String @map("organization_member_id")
+  role           String   @default("member")
+  createdAt      DateTime @default(now()) @map("created_at")
+
+  // Relations
+  team           Team             @relation(fields: [teamId], references: [id], onDelete: Cascade)
+  organizationMember OrganizationMember @relation(fields: [organizationMemberId], references: [id], onDelete: Cascade)
+
+  @@unique([teamId, organizationMemberId])
+  @@map("team_members")
+}
+
+model Comment {
+  id             String   @id @default(uuid())
+  content        String
+  userId         String   @map("user_id")
+  workflowId     String   @map("workflow_id")
+  parentId       String?  @map("parent_id")
+  createdAt      DateTime @default(now()) @map("created_at")
+  updatedAt      DateTime @updatedAt @map("updated_at")
+
+  // Relations
+  user           User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  workflow       Workflow @relation(fields: [workflowId], references: [id], onDelete: Cascade)
+  parent         Comment? @relation("CommentReplies", fields: [parentId], references: [id])
+  replies        Comment[] @relation("CommentReplies")
+
+  @@map("comments")
+}
+
+model WorkflowShare {
+  id             String   @id @default(uuid())
+  workflowId     String   @map("workflow_id")
+  sharedWithId   String   @map("shared_with_id")
+  permissions    String   @default("view") // view, edit, admin
+  createdAt      DateTime @default(now()) @map("created_at")
+  expiresAt      DateTime? @map("expires_at")
+
+  // Relations
+  workflow       Workflow @relation(fields: [workflowId], references: [id], onDelete: Cascade)
+  sharedWith     User     @relation("SharedWith", fields: [sharedWithId], references: [id], onDelete: Cascade)
+
+  @@unique([workflowId, sharedWithId])
+  @@map("workflow_shares")
+}
+
+model Notification {
+  id             String   @id @default(uuid())
+  userId         String   @map("user_id")
+  type           String   // comment, mention, share, execution, etc.
+  title          String
+  message        String
+  isRead         Boolean  @default(false) @map("is_read")
+  createdAt      DateTime @default(now()) @map("created_at")
+  entityType     String?  @map("entity_type")
+  entityId       String?  @map("entity_id")
+  data           Json?
+
+  // Relations
+  user           User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("notifications")
+}
+
+// Add new models for AI features
+
+model AIModel {
+  id             String   @id @default(uuid())
+  name           String
+  provider       String   // OpenAI, Anthropic, etc.
+  modelId        String   @map("model_id")
+  capabilities   String[]
+  maxTokens      Int      @default(4096) @map("max_tokens")
+  createdAt      DateTime @default(now()) @map("created_at")
+  updatedAt      DateTime @updatedAt @map("updated_at")
+  isActive       Boolean  @default(true) @map("is_active")
+  configuration  Json?    // Store model-specific configuration
+  
+  // Relations
+  prompts        AIPrompt[]
+  trainingData   AITrainingData[]
+
+  @@index([provider, modelId])
+  @@map("ai_models")
+}
+
+model AIPrompt {
+  id             String   @id @default(cuid())
+  name           String
+  description    String
+  prompt         String   @db.Text
+  version        Int      @default(1)
+  isPublic       Boolean  @default(false) @map("is_public")
+  createdAt      DateTime @default(now()) @map("created_at")
+  updatedAt      DateTime @updatedAt @map("updated_at")
+  metadata       Json?    // Store additional metadata
+  
+  // Relations
+  userId         String   @map("user_id")
+  user           User     @relation(fields: [userId], references: [id])
+  organizationId String   @map("organization_id")
+  organization   Organization @relation(fields: [organizationId], references: [id])
+  model          AIModel? @relation(fields: [modelId], references: [id])
+  modelId        String?  @map("model_id")
+
+  @@index([userId])
+  @@index([organizationId])
+  @@index([modelId])
+  @@map("ai_prompts")
+}
+
+model AITrainingData {
+  id             String   @id @default(cuid())
+  name           String
+  description    String
+  data           Json
+  version        Int      @default(1)
+  status         String   @default("pending") // pending, processing, completed, failed
+  createdAt      DateTime @default(now()) @map("created_at")
+  updatedAt      DateTime @updatedAt @map("updated_at")
+  processedAt    DateTime? @map("processed_at")
+  metadata       Json?    // Store additional metadata
+  
+  // Relations
+  userId         String   @map("user_id")
+  user           User     @relation(fields: [userId], references: [id])
+  organizationId String   @map("organization_id")
+  organization   Organization @relation(fields: [organizationId], references: [id])
+  model          AIModel? @relation(fields: [modelId], references: [id])
+  modelId        String?  @map("model_id")
+
+  @@index([userId])
+  @@index([organizationId])
+  @@index([modelId])
+  @@index([status])
+  @@map("ai_training_data")
+}
