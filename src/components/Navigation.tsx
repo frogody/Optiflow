@@ -17,6 +17,7 @@ interface NavigationItem {
   href: string;
   current: boolean;
   requiresAuth: boolean;
+  children?: NavigationItem[];
 }
 
 interface UserNavItem {
@@ -81,17 +82,25 @@ export default function Navigation() {
 
   // Navigation items based on auth state
   const navigationItems: NavigationItem[] = [
+    { 
+      name: 'Optiflow',
+      href: '#',
+      current: ['/pricing', '/faq', '/features', '/conversational-test', '/voice-test'].includes(pathname),
+      requiresAuth: false,
+      children: [
+        { name: 'Features', href: '/features', current: pathname === '/features', requiresAuth: false },
+        { name: 'Voice Workflows', href: '/voice-test', current: pathname === '/voice-test', requiresAuth: false },
+        { name: 'Conversational', href: '/conversational-test', current: pathname === '/conversational-test', requiresAuth: false },
+        { name: 'Pricing', href: '/pricing', current: pathname === '/pricing', requiresAuth: false },
+        { name: 'FAQ', href: '/faq', current: pathname === '/faq', requiresAuth: false },
+      ]
+    },
     { name: 'Flows', href: '/workflows', current: pathname === '/workflows', requiresAuth: true },
     { name: 'Connections', href: '/connections', current: pathname === '/connections', requiresAuth: true },
     { name: 'AI Factory', href: '/ai-factory', current: pathname === '/ai-factory', requiresAuth: false },
     { name: 'AIcademy', href: '/aicademy', current: pathname === '/aicademy', requiresAuth: false },
-    { name: 'Features', href: '/features', current: pathname === '/features', requiresAuth: false },
     { name: 'Integrations', href: '/integrations', current: pathname === '/integrations', requiresAuth: false },
     { name: 'Enterprise', href: '/enterprise', current: pathname === '/enterprise', requiresAuth: false },
-    { name: 'Voice Workflows', href: '/voice-test', current: pathname === '/voice-test', requiresAuth: false },
-    { name: 'Conversational', href: '/conversational-test', current: pathname === '/conversational-test', requiresAuth: false },
-    { name: 'Pricing', href: '/pricing', current: pathname === '/pricing', requiresAuth: false },
-    { name: 'FAQ', href: '/faq', current: pathname === '/faq', requiresAuth: false },
   ];
 
   const userNavigation: UserNavItem[] = [
@@ -236,17 +245,62 @@ export default function Navigation() {
             <div className="hidden md:flex items-center space-x-3">
               {filteredNavigationItems.map((item) => (
                 <div key={item.name} className="relative group">
-                  <button
-                    onClick={() => handleNavigation(item.href)}
-                    className={`${buttonPadding} text-sm rounded-full border border-transparent
-                      ${item.current 
-                        ? 'dark:text-white dark:bg-white/5 dark:border-white/10 light:text-gray-800 light:bg-black/5 light:border-black/10' 
-                        : 'dark:text-white/90 dark:hover:text-white dark:hover:bg-white/5 dark:hover:border-white/10 light:text-gray-700 light:hover:text-gray-900 light:hover:bg-black/5 light:hover:border-black/10'
-                      } transition-all duration-200`}
-                    aria-current={item.current ? 'page' : undefined}
-                  >
-                    <TranslatedText textKey={`navigation.${item.name.toLowerCase()}`} fallback={item.name} />
-                  </button>
+                  {item.children ? (
+                    <>
+                      <button
+                        className={`${buttonPadding} text-sm rounded-full border border-transparent flex items-center space-x-1
+                          ${item.current 
+                            ? 'dark:text-white dark:bg-white/5 dark:border-white/10 light:text-gray-800 light:bg-black/5 light:border-black/10' 
+                            : 'dark:text-white/90 dark:hover:text-white dark:hover:bg-white/5 dark:hover:border-white/10 light:text-gray-700 light:hover:text-gray-900 light:hover:bg-black/5 light:hover:border-black/10'
+                          } transition-all duration-200`}
+                      >
+                        <TranslatedText 
+                          textKey={`navigation.${typeof item.name === 'string' ? item.name.toLowerCase() : ''}`}
+                          fallback={typeof item.name === 'string' ? item.name : 'Menu'}
+                        />
+                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                        </svg>
+                      </button>
+                      
+                      {/* Dropdown menu */}
+                      <div className="absolute left-0 top-full mt-1 w-48 invisible group-hover:visible opacity-0 group-hover:opacity-100 transition-all duration-200">
+                        <div className="py-1 bg-black/90 backdrop-blur-md rounded-lg border border-white/10 shadow-lg dark:bg-black/90 light:bg-white/90 dark:border-white/10 light:border-black/10">
+                          {item.children?.map((child) => (
+                            <button
+                              key={child.name}
+                              onClick={() => handleNavigation(child.href)}
+                              className={`w-full text-left block px-4 py-2 text-sm
+                                ${child.current
+                                  ? 'dark:text-white dark:bg-white/10 light:text-gray-900 light:bg-black/10'
+                                  : 'dark:text-white/80 dark:hover:text-white dark:hover:bg-white/5 light:text-gray-700 light:hover:text-gray-900 light:hover:bg-black/5'
+                                }`}
+                            >
+                              <TranslatedText 
+                                textKey={`navigation.${typeof child.name === 'string' ? child.name.toLowerCase() : ''}`}
+                                fallback={typeof child.name === 'string' ? child.name : ''}
+                              />
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+                    </>
+                  ) : (
+                    <button
+                      onClick={() => handleNavigation(item.href)}
+                      className={`${buttonPadding} text-sm rounded-full border border-transparent
+                        ${item.current 
+                          ? 'dark:text-white dark:bg-white/5 dark:border-white/10 light:text-gray-800 light:bg-black/5 light:border-black/10' 
+                          : 'dark:text-white/90 dark:hover:text-white dark:hover:bg-white/5 dark:hover:border-white/10 light:text-gray-700 light:hover:text-gray-900 light:hover:bg-black/5 light:hover:border-black/10'
+                        } transition-all duration-200`}
+                      aria-current={item.current ? 'page' : undefined}
+                    >
+                      <TranslatedText 
+                        textKey={`navigation.${typeof item.name === 'string' ? item.name.toLowerCase() : ''}`}
+                        fallback={typeof item.name === 'string' ? item.name : 'Menu'}
+                      />
+                    </button>
+                  )}
                 </div>
               ))}
               {currentUser && (
@@ -411,21 +465,68 @@ export default function Navigation() {
           <div className="md:hidden" id="mobile-menu">
             <div className="px-2 pt-2 pb-3 space-y-1 dark:bg-black/90 light:bg-white/90 backdrop-blur-md dark:border-t dark:border-white/10 light:border-t light:border-black/10">
               {filteredNavigationItems.map((item) => (
-                <button
-                  key={item.name}
-                  onClick={() => {
-                    handleNavigation(item.href);
-                    setIsMobileMenuOpen(false);
-                  }}
-                  className={`block w-full text-left px-4 py-3 rounded-md text-base font-medium ${
-                    item.current
-                      ? 'dark:text-white dark:bg-white/10 light:text-gray-900 light:bg-black/10'
-                      : 'dark:text-white/80 dark:hover:text-white dark:hover:bg-white/5 light:text-gray-700 light:hover:text-gray-900 light:hover:bg-black/5'
-                  } touch-manipulation`}
-                  aria-current={item.current ? 'page' : undefined}
-                >
-                  <TranslatedText textKey={`navigation.${item.name.toLowerCase()}`} fallback={item.name} />
-                </button>
+                <div key={item.name}>
+                  {item.children ? (
+                    <div className="space-y-1">
+                      <button
+                        className={`block w-full text-left px-4 py-3 rounded-md text-base font-medium
+                          ${item.current
+                            ? 'dark:text-white dark:bg-white/10 light:text-gray-900 light:bg-black/10'
+                            : 'dark:text-white/80 dark:hover:text-white dark:hover:bg-white/5 light:text-gray-700 light:hover:text-gray-900 light:hover:bg-black/5'
+                          } touch-manipulation`}
+                      >
+                        <div className="flex items-center justify-between">
+                          <TranslatedText 
+                            textKey={`navigation.${typeof item.name === 'string' ? item.name.toLowerCase() : ''}`}
+                            fallback={typeof item.name === 'string' ? item.name : 'Menu'}
+                          />
+                          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                          </svg>
+                        </div>
+                      </button>
+                      <div className="pl-4">
+                        {item.children.map((child) => (
+                          <button
+                            key={child.name}
+                            onClick={() => {
+                              handleNavigation(child.href);
+                              setIsMobileMenuOpen(false);
+                            }}
+                            className={`block w-full text-left px-4 py-2 rounded-md text-sm font-medium
+                              ${child.current
+                                ? 'dark:text-white dark:bg-white/10 light:text-gray-900 light:bg-black/10'
+                                : 'dark:text-white/80 dark:hover:text-white dark:hover:bg-white/5 light:text-gray-700 light:hover:text-gray-900 light:hover:bg-black/5'
+                              } touch-manipulation`}
+                          >
+                            <TranslatedText 
+                              textKey={`navigation.${typeof child.name === 'string' ? child.name.toLowerCase() : ''}`}
+                              fallback={typeof child.name === 'string' ? child.name : ''}
+                            />
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  ) : (
+                    <button
+                      onClick={() => {
+                        handleNavigation(item.href);
+                        setIsMobileMenuOpen(false);
+                      }}
+                      className={`block w-full text-left px-4 py-3 rounded-md text-base font-medium ${
+                        item.current
+                          ? 'dark:text-white dark:bg-white/10 light:text-gray-900 light:bg-black/10'
+                          : 'dark:text-white/80 dark:hover:text-white dark:hover:bg-white/5 light:text-gray-700 light:hover:text-gray-900 light:hover:bg-black/5'
+                      } touch-manipulation`}
+                      aria-current={item.current ? 'page' : undefined}
+                    >
+                      <TranslatedText 
+                        textKey={`navigation.${typeof item.name === 'string' ? item.name.toLowerCase() : ''}`}
+                        fallback={typeof item.name === 'string' ? item.name : 'Menu'}
+                      />
+                    </button>
+                  )}
+                </div>
               ))}
               {currentUser && (
                 <button
