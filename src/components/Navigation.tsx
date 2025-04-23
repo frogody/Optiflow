@@ -254,10 +254,7 @@ export default function Navigation() {
                             : 'dark:text-white/90 dark:hover:text-white dark:hover:bg-white/5 dark:hover:border-white/10 light:text-gray-700 light:hover:text-gray-900 light:hover:bg-black/5 light:hover:border-black/10'
                           } transition-all duration-200`}
                       >
-                        <TranslatedText 
-                          textKey={`navigation.${typeof item.name === 'string' ? item.name.toLowerCase() : ''}`}
-                          fallback={typeof item.name === 'string' ? item.name : 'Menu'}
-                        />
+                        <TranslatedText textKey={`navigation.${item.name.toLowerCase()}`} fallback={item.name} />
                         <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
                         </svg>
@@ -266,7 +263,7 @@ export default function Navigation() {
                       {/* Dropdown menu */}
                       <div className="absolute left-0 top-full mt-1 w-48 invisible group-hover:visible opacity-0 group-hover:opacity-100 transition-all duration-200">
                         <div className="py-1 bg-black/90 backdrop-blur-md rounded-lg border border-white/10 shadow-lg dark:bg-black/90 light:bg-white/90 dark:border-white/10 light:border-black/10">
-                          {item.children?.map((child) => (
+                          {item.children.map((child) => (
                             <button
                               key={child.name}
                               onClick={() => handleNavigation(child.href)}
@@ -276,10 +273,7 @@ export default function Navigation() {
                                   : 'dark:text-white/80 dark:hover:text-white dark:hover:bg-white/5 light:text-gray-700 light:hover:text-gray-900 light:hover:bg-black/5'
                                 }`}
                             >
-                              <TranslatedText 
-                                textKey={`navigation.${typeof child.name === 'string' ? child.name.toLowerCase() : ''}`}
-                                fallback={typeof child.name === 'string' ? child.name : ''}
-                              />
+                              <TranslatedText textKey={`navigation.${child.name.toLowerCase()}`} fallback={child.name} />
                             </button>
                           ))}
                         </div>
@@ -295,10 +289,7 @@ export default function Navigation() {
                         } transition-all duration-200`}
                       aria-current={item.current ? 'page' : undefined}
                     >
-                      <TranslatedText 
-                        textKey={`navigation.${typeof item.name === 'string' ? item.name.toLowerCase() : ''}`}
-                        fallback={typeof item.name === 'string' ? item.name : 'Menu'}
-                      />
+                      <TranslatedText textKey={`navigation.${item.name.toLowerCase()}`} fallback={item.name} />
                     </button>
                   )}
                 </div>
@@ -315,22 +306,6 @@ export default function Navigation() {
                 >
                   <TranslatedText textKey="navigation.dashboard" fallback="Dashboard" />
                 </button>
-              )}
-              {!currentUser && !userLoading && (
-                <>
-                  <button
-                    onClick={() => handleNavigation('/login')}
-                    className={`${buttonPadding} text-sm rounded-full border border-transparent dark:text-white/90 dark:hover:text-white dark:hover:bg-white/5 dark:hover:border-white/10 light:text-gray-700 light:hover:text-gray-900 light:hover:bg-black/5 light:hover:border-black/10 transition-all duration-200`}
-                  >
-                    Sign In
-                  </button>
-                  <button
-                    onClick={() => handleNavigation('/signup')}
-                    className={`${buttonPadding} text-sm rounded-full bg-gradient-to-r from-blue-500 to-purple-500 text-white hover:shadow-glow transition-all duration-200`}
-                  >
-                    Sign Up
-                  </button>
-                </>
               )}
             </div>
 
@@ -476,10 +451,7 @@ export default function Navigation() {
                           } touch-manipulation`}
                       >
                         <div className="flex items-center justify-between">
-                          <TranslatedText 
-                            textKey={`navigation.${typeof item.name === 'string' ? item.name.toLowerCase() : ''}`}
-                            fallback={typeof item.name === 'string' ? item.name : 'Menu'}
-                          />
+                          <TranslatedText textKey={`navigation.${item.name.toLowerCase()}`} fallback={item.name} />
                           <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
                           </svg>
@@ -499,10 +471,7 @@ export default function Navigation() {
                                 : 'dark:text-white/80 dark:hover:text-white dark:hover:bg-white/5 light:text-gray-700 light:hover:text-gray-900 light:hover:bg-black/5'
                               } touch-manipulation`}
                           >
-                            <TranslatedText 
-                              textKey={`navigation.${typeof child.name === 'string' ? child.name.toLowerCase() : ''}`}
-                              fallback={typeof child.name === 'string' ? child.name : ''}
-                            />
+                            <TranslatedText textKey={`navigation.${child.name.toLowerCase()}`} fallback={child.name} />
                           </button>
                         ))}
                       </div>
@@ -520,10 +489,7 @@ export default function Navigation() {
                       } touch-manipulation`}
                       aria-current={item.current ? 'page' : undefined}
                     >
-                      <TranslatedText 
-                        textKey={`navigation.${typeof item.name === 'string' ? item.name.toLowerCase() : ''}`}
-                        fallback={typeof item.name === 'string' ? item.name : 'Menu'}
-                      />
+                      <TranslatedText textKey={`navigation.${item.name.toLowerCase()}`} fallback={item.name} />
                     </button>
                   )}
                 </div>
