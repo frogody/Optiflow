@@ -1,37 +1,3 @@
-import { Metadata } from 'next';
-import { Inter } from 'next/font/google';
-import { RootProviders } from '@/components/providers/RootProviders';
-
-const inter = Inter({ subsets: ['latin'] });
-
-export const metadata: Metadata = {
-  title: 'Optiflow - Streamline Your Workflow Automation',
-  description: 'Connect your apps and automate workflows with a powerful, easy-to-use integration platform.',
-  manifest: '/manifest.json',
-  appleWebApp: {
-    capable: true,
-    statusBarStyle: 'default',
-    title: 'Optiflow',
-  },
-};
-
-export default function RootLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
-  return (
-    <html lang="en" suppressHydrationWarning>
-      <head />
-      <body className={inter.className}>
-        <RootProviders>
-          <main>{children}</main>
-        </RootProviders>
-      </body>
-    </html>
-  );
-}
-
 'use client';
 
 import '@/styles/globals.css';
@@ -43,7 +9,7 @@ import { SessionProvider } from 'next-auth/react';
 import { Analytics } from '@vercel/analytics/react';
 import { Toaster } from 'react-hot-toast';
 
-function ClientProviders({ children }: { children: React.ReactNode }) {
+export function RootProviders({ children }: { children: React.ReactNode }) {
   return (
     <SessionProvider>
       <TanstackProvider>
