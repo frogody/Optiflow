@@ -262,6 +262,22 @@ export default function Navigation() {
                   <TranslatedText textKey="navigation.dashboard" fallback="Dashboard" />
                 </button>
               )}
+              {!currentUser && !userLoading && (
+                <>
+                  <button
+                    onClick={() => handleNavigation('/login')}
+                    className={`${buttonPadding} text-sm rounded-full border border-transparent dark:text-white/90 dark:hover:text-white dark:hover:bg-white/5 dark:hover:border-white/10 light:text-gray-700 light:hover:text-gray-900 light:hover:bg-black/5 light:hover:border-black/10 transition-all duration-200`}
+                  >
+                    Sign In
+                  </button>
+                  <button
+                    onClick={() => handleNavigation('/signup')}
+                    className={`${buttonPadding} text-sm rounded-full bg-gradient-to-r from-blue-500 to-purple-500 text-white hover:shadow-glow transition-all duration-200`}
+                  >
+                    Sign Up
+                  </button>
+                </>
+              )}
             </div>
 
             {/* Right Side Navigation */}
