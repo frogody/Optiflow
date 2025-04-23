@@ -16,7 +16,7 @@
     "deploy": "sh deploy.sh",
     "check-env": "ts-node scripts/check-env.ts",
     "generate-secret": "node scripts/generate-secret.js",
-    "vercel-build": "prisma generate && next build",
+    "vercel-build": "SKIP_ENV_VALIDATION=1 NEXT_PUBLIC_NEXTAUTH_URL=$VERCEL_URL NODE_ENV=production prisma generate && next build",
     "vercel-deploy": "vercel deploy --prod",
     "postinstall": "prisma generate",
     "db:migrate": "ts-node scripts/migrate.ts",
