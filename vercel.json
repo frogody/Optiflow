@@ -1,93 +1,18 @@
 {
   "version": 2,
-  "buildCommand": "npm run build",
-  "outputDirectory": ".next",
-  "framework": "nextjs",
-  "images": {
-    "sizes": [64, 96, 128, 256, 384],
-    "domains": [
-      "lh3.googleusercontent.com",
-      "avatars.githubusercontent.com",
-      "app.isyncso.com"
-    ],
-    "remotePatterns": [
-      {
-        "protocol": "https",
-        "hostname": "**"
-      }
-    ]
-  },
-  "env": {
-    "NODE_ENV": "production",
-    "VERCEL_ENV": "production",
-    "NEXTAUTH_URL": "https://app.isyncso.com",
-    "DATABASE_URL": "postgres://neondb_owner:npg_5sX2JprvCDRb@ep-noisy-cell-a2y3ohah-pooler.eu-central-1.aws.neon.tech/neondb?sslmode=require",
-    "POSTGRES_URL": "postgres://neondb_owner:npg_5sX2JprvCDRb@ep-noisy-cell-a2y3ohah-pooler.eu-central-1.aws.neon.tech/neondb?sslmode=require",
-    "POSTGRES_PRISMA_URL": "postgres://neondb_owner:npg_5sX2JprvCDRb@ep-noisy-cell-a2y3ohah-pooler.eu-central-1.aws.neon.tech/neondb?connect_timeout=15&sslmode=require",
-    "POSTGRES_URL_NON_POOLING": "postgres://neondb_owner:npg_5sX2JprvCDRb@ep-noisy-cell-a2y3ohah.eu-central-1.aws.neon.tech/neondb?sslmode=require",
-    "POSTGRES_URL_NO_SSL": "postgres://neondb_owner:npg_5sX2JprvCDRb@ep-noisy-cell-a2y3ohah-pooler.eu-central-1.aws.neon.tech/neondb",
-    "DATABASE_URL_UNPOOLED": "postgresql://neondb_owner:npg_5sX2JprvCDRb@ep-noisy-cell-a2y3ohah.eu-central-1.aws.neon.tech/neondb?sslmode=require",
-    "POSTGRES_HOST": "ep-noisy-cell-a2y3ohah-pooler.eu-central-1.aws.neon.tech",
-    "POSTGRES_USER": "neondb_owner",
-    "PGHOST": "ep-noisy-cell-a2y3ohah-pooler.eu-central-1.aws.neon.tech",
-    "PGUSER": "neondb_owner",
-    "NEXTAUTH_SECRET": "CNW3DLCK2w8RSSHKzbAkw/R5dRA9YetF1aDydsOM/tZTRFb+pM50FCn/WAxvOhqm6hpw49MIy9+SeDm7QC2mZw==",
-    "GOOGLE_CLIENT_ID": "1037760022342-rnh5mq0jua9njg7p4g2kv7gkppch8irj.apps.googleusercontent.com",
-    "GOOGLE_CLIENT_SECRET": "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",
-    "PIPEDREAM_API_KEY": "a352e48c056c20edff221e17871a7f67",
-    "PIPEDREAM_CLIENT_SECRET": "ayINomSnhCcHGR6Xf1_4PElM25mqsEFsrvTHKQ7ink0",
-    "JWT_SECRET": "SM28VcRf7ai9leccOZ+K/Nl4yns78Y5xiLtZP2qumHuka3JdUOMtQscia6pTwE3W24IjPUET2GNjTSHVol3kCA==",
-    "ENCRYPTION_KEY": "a10452af9d0243cb56cae6ad8545d65b810faf3ce41e2243a9efbc77fab53279"
-  },
-  "git": {
-    "deploymentEnabled": {
-      "main": true
-    }
-  },
-  "headers": [
+  "builds": [
     {
-      "source": "/(.*)",
-      "headers": [
-        {
-          "key": "X-Content-Type-Options",
-          "value": "nosniff"
-        },
-        {
-          "key": "X-Frame-Options",
-          "value": "DENY"
-        },
-        {
-          "key": "X-XSS-Protection",
-          "value": "1; mode=block"
-        },
-        {
-          "key": "Referrer-Policy",
-          "value": "strict-origin-when-cross-origin"
-        },
-        {
-          "key": "Permissions-Policy",
-          "value": "camera=(), microphone=(), geolocation=()"
-        }
-      ]
-    },
-    {
-      "source": "/api/pipedream/(.*)",
-      "headers": [
-        {
-          "key": "Access-Control-Allow-Origin",
-          "value": "*"
-        },
-        {
-          "key": "Access-Control-Allow-Methods",
-          "value": "GET, POST, PUT, DELETE, OPTIONS"
-        },
-        {
-          "key": "Access-Control-Allow-Headers",
-          "value": "X-Requested-With, Content-Type, Accept, Authorization"
-        }
-      ]
+      "src": "package.json",
+      "use": "@vercel/next"
     }
   ],
-  "regions": ["sfo1"],
-  "public": true
+  "env": {
+    "NEXT_PUBLIC_DEPLOYMENT_ENV": "production"
+  },
+  "routes": [
+    {
+      "src": "/(.*)",
+      "dest": "/$1"
+    }
+  ]
 } 

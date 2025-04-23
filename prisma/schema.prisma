@@ -32,6 +32,10 @@ model User {
   aiPrompts      AIPrompt[]
   aiTrainingData AITrainingData[]
   sharedWorkflows WorkflowShare[] @relation("SharedWith")
+  voiceInteractions VoiceInteraction[]
+  voiceCommands VoiceCommand[]
+  voiceAnalytics    VoiceAnalytics[]
+  voiceMetrics      UserVoiceMetrics[]
 
   @@map("users")
 }
@@ -94,6 +98,8 @@ model Workflow {
   executions     WorkflowExecution[]
   comments       Comment[] // Add relation to comments
   shares         WorkflowShare[] // Add relation to shares
+  voiceInteractions VoiceInteraction[]
+  voiceAnalytics    VoiceAnalytics[]
 
   @@map("workflows")
 }
@@ -355,4 +361,108 @@ model AITrainingData {
   @@index([modelId])
   @@index([status])
   @@map("ai_training_data")
+}
+
+model VoiceInteraction {
+  id              String   @id @default(uuid())
+  userId          String   @map("user_id")
+  workflowId      String?  @map("workflow_id")
+  transcript      String
+  intent          String?
+  entities        Json?
+  status          String   @default("pending")
+  createdAt       DateTime @default(now()) @map("created_at")
+  updatedAt       DateTime @updatedAt @map("updated_at")
+
+  // Relations
+  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  workflow        Workflow? @relation(fields: [workflowId], references: [id], onDelete: Cascade)
+  conversation    ConversationMessage[]
+
+  @@map("voice_interactions")
+}
+
+model ConversationMessage {
+  id                String   @id @default(uuid())
+  voiceInteractionId String  @map("voice_interaction_id")
+  role              String   // user, assistant, system
+  content           String
+  metadata          Json?
+  createdAt         DateTime @default(now()) @map("created_at")
+
+  // Relations
+  voiceInteraction  VoiceInteraction @relation(fields: [voiceInteractionId], references: [id], onDelete: Cascade)
+
+  @@map("conversation_messages")
+}
+
+model VoiceCommand {
+  id              String   @id @default(uuid())
+  userId          String   @map("user_id")
+  command         String
+  intent          String
+  entities        Json?
+  status          String   @default("pending")
+  createdAt       DateTime @default(now()) @map("created_at")
+  updatedAt       DateTime @updatedAt @map("updated_at")
+
+  // Relations
+  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("voice_commands")
+}
+
+model VoiceAnalytics {
+  id             String   @id @default(uuid())
+  interactionId  String   @map("interaction_id")
+  userId         String   @map("user_id")
+  workflowId     String?  @map("workflow_id")
+  transcript     String
+  intent         String
+  success        Boolean
+  processingTime Int      @map("processing_time")
+  errorMessage   String?  @map("error_message")
+  metadata       Json?
+  createdAt      DateTime @default(now()) @map("created_at")
+
+  // Relations
+  user           User     @relation(fields: [userId], references: [id])
+  workflow       Workflow? @relation(fields: [workflowId], references: [id])
+
+  @@index([userId])
+  @@index([workflowId])
+  @@index([intent])
+  @@index([success])
+  @@map("voice_analytics")
+}
+
+model UserVoiceMetrics {
+  id                 String   @id @default(uuid())
+  userId             String   @map("user_id")
+  date               DateTime @db.Date
+  totalCommands      Int      @default(0) @map("total_commands")
+  successfulCommands Int      @default(0) @map("successful_commands")
+  failedCommands     Int      @default(0) @map("failed_commands")
+  createdAt          DateTime @default(now()) @map("created_at")
+  updatedAt          DateTime @updatedAt @map("updated_at")
+
+  // Relations
+  user               User     @relation(fields: [userId], references: [id])
+
+  @@unique([userId, date])
+  @@index([userId])
+  @@index([date])
+  @@map("user_voice_metrics")
+}
+
+model VoiceRecognitionAccuracy {
+  id            String   @id @default(uuid())
+  transcript    String
+  confidence    Float
+  correctedText String?  @map("corrected_text")
+  wasCorrect    Boolean  @map("was_correct")
+  createdAt     DateTime @default(now()) @map("created_at")
+
+  @@index([wasCorrect])
+  @@map("voice_recognition_accuracy")
 }

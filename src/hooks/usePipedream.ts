@@ -1,162 +1,110 @@
-import { useEffect, useState, useCallback } from 'react';
-import { PipedreamService } from '@/services/PipedreamService';
-import { pipedreamConfig } from '@/config/pipedream';
-import { useUserStore } from '@/lib/userStore';
+import { useState, useCallback } from 'react';
+import { useSession } from 'next-auth/react';
 import { toast } from 'react-hot-toast';
+import { PipedreamService } from '@/services/PipedreamService';
 
 interface UsePipedreamOptions {
-  appName: string;
+  appName?: string;
   autoConnect?: boolean;
 }
 
-export function usePipedream({ appName, autoConnect = false }: UsePipedreamOptions) {
-  const [isConnecting, setIsConnecting] = useState(false);
-  const [isDisconnecting, setIsDisconnecting] = useState(false);
-  const [error, setError] = useState<Error | null>(null);
-  const [connectionStatus, setConnectionStatus] = useState<'connected' | 'disconnected' | 'error'>('disconnected');
-  const { currentUser } = useUserStore();
-  
-  // Ensure environment is typed correctly
-  const config = {
-    ...pipedreamConfig,
-    environment: pipedreamConfig.environment as 'development' | 'production' | undefined
-  };
-  
-  // Get singleton instance
-  const pipedreamService = PipedreamService.getInstance(config);
+interface ConnectionStatus {
+  status: 'connected' | 'disconnected' | 'connecting' | 'error';
+  error?: string;
+}
 
-  // Define connectToApp function using useCallback to avoid dependency cycles
+export function usePipedream(options: UsePipedreamOptions = {}) {
+  const { data: session } = useSession();
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [connectionStatus, setConnectionStatus] = useState<ConnectionStatus>({ status: 'disconnected' });
+
+  const pipedreamService = PipedreamService.getInstance({
+    environment: process.env.NODE_ENV,
+    apiKey: process.env.PIPEDREAM_API_KEY,
+  });
+
+  const checkAuth = useCallback(() => {
+    if (!session?.user?.id) {
+      throw new Error('User must be logged in');
+    }
+    if (!options.appName) {
+      throw new Error('App name is required');
+    }
+    return session.user.id;
+  }, [session, options.appName]);
+
   const connectToApp = useCallback(async () => {
-    if (!currentUser) {
-      const error = new Error('User must be logged in to connect to app');
-      setError(error);
-      toast.error(error.message);
-      return;
-    }
-
-    if (!appName) {
-      const error = new Error('App name is required');
-      setError(error);
-      toast.error(error.message);
-      return;
-    }
-
     try {
-      setIsConnecting(true);
+      setIsLoading(true);
       setError(null);
-      
-      const status = await pipedreamService.connectToApp(appName, currentUser.id);
-      setConnectionStatus(status.status);
-      
-      if (status.status === 'error' && status.error) {
-        const error = new Error(status.error);
-        setError(error);
-        toast.error(`Connection error: ${status.error}`);
-      } else if (status.status === 'connected') {
-        toast.success(`Connected to ${appName} successfully!`);
-      }
+      setConnectionStatus({ status: 'connecting' });
+
+      const userId = checkAuth();
+      const result = await pipedreamService.connectToApp(options.appName!, userId);
+
+      setConnectionStatus({ status: result.status });
+      toast.success(`Successfully connected to ${options.appName}`);
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Failed to connect to app';
-      setError(new Error(errorMessage));
+      setError(errorMessage);
+      setConnectionStatus({ status: 'error', error: errorMessage });
       toast.error(errorMessage);
     } finally {
-      setIsConnecting(false);
+      setIsLoading(false);
     }
-  }, [currentUser, appName, pipedreamService]);
+  }, [options.appName, checkAuth]);
 
-  // Initialize connection status
-  useEffect(() => {
-    const checkConnectionStatus = async () => {
-      if (!currentUser || !appName) return;
-      
-      try {
-        const status = await pipedreamService.getConnectionStatus(appName, currentUser.id);
-        setConnectionStatus(status.status);
-        if (status.error) {
-          setError(new Error(status.error));
-        } else {
-          setError(null);
-        }
-      } catch (err) {
-        console.error('Failed to check connection status:', err);
-        setError(err instanceof Error ? err : new Error('Failed to check connection status'));
-      }
-    };
-    
-    checkConnectionStatus();
-  }, [currentUser, appName, pipedreamService]);
-
-  // Auto-connect if needed
-  useEffect(() => {
-    if (autoConnect && currentUser && appName && connectionStatus === 'disconnected' && !isConnecting) {
-      connectToApp();
-    }
-  }, [autoConnect, currentUser, appName, connectionStatus, isConnecting, connectToApp]);
-
-  const makeRequest = async <T,>(endpoint: string, method: string, data?: any): Promise<T> => {
-    if (!currentUser) {
-      const error = new Error('User must be logged in to make requests');
-      toast.error(error.message);
-      throw error;
-    }
-
-    if (!appName) {
-      const error = new Error('App name is required');
-      toast.error(error.message);
-      throw error;
-    }
-
+  const makeRequest = useCallback(async <T,>(endpoint: string, method: string, data?: any): Promise<T> => {
     try {
-      return await pipedreamService.makeApiRequest<T>(
-        appName, 
-        currentUser.id, 
-        endpoint, 
-        method as any, 
+      setIsLoading(true);
+      setError(null);
+      const userId = checkAuth();
+      
+      const response = await pipedreamService.makeApiRequest<T>(
+        options.appName!,
+        userId,
+        endpoint,
+        method,
         data
       );
+
+      return response;
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'API request failed';
+      setError(errorMessage);
       toast.error(errorMessage);
-      throw new Error(errorMessage);
+      throw err;
+    } finally {
+      setIsLoading(false);
     }
-  };
+  }, [options.appName, checkAuth]);
 
-  const disconnect = async () => {
-    if (!currentUser) {
-      const error = new Error('User must be logged in to disconnect app');
-      setError(error);
-      toast.error(error.message);
-      return;
-    }
-
-    if (!appName) {
-      const error = new Error('App name is required');
-      setError(error);
-      toast.error(error.message);
-      return;
-    }
-
+  const disconnect = useCallback(async () => {
     try {
-      setIsDisconnecting(true);
-      await pipedreamService.disconnectApp(appName, currentUser.id);
-      setConnectionStatus('disconnected');
-      toast.success(`Disconnected from ${appName} successfully`);
+      setIsLoading(true);
+      setError(null);
+      const userId = checkAuth();
+      
+      const result = await pipedreamService.disconnectApp(options.appName!, userId);
+      setConnectionStatus({ status: result.status });
+      toast.success(`Successfully disconnected from ${options.appName}`);
     } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : 'Failed to disconnect app';
-      setError(new Error(errorMessage));
+      const errorMessage = err instanceof Error ? err.message : 'Failed to disconnect from app';
+      setError(errorMessage);
+      setConnectionStatus({ status: 'error', error: errorMessage });
       toast.error(errorMessage);
     } finally {
-      setIsDisconnecting(false);
+      setIsLoading(false);
     }
-  };
+  }, [options.appName, checkAuth]);
 
   return {
-    connect: connectToApp,
+    isLoading,
+    error,
+    connectionStatus,
+    connectToApp,
     makeRequest,
     disconnect,
-    isConnecting,
-    isDisconnecting,
-    connectionStatus,
-    error
   };
 } 

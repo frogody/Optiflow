@@ -1,11 +1,12 @@
 // PipedreamService.ts
 // MOCK VERSION for development - replace with actual implementation
 
-interface PipedreamConfig {
-  clientId: string;
-  clientSecret: string;
-  projectId: string;
+import { Workflow, WorkflowNode, WorkflowEdge } from '@prisma/client';
+
+export interface PipedreamConfig {
   environment?: 'development' | 'production';
+  apiKey?: string;
+  projectId?: string;
 }
 
 interface ConnectionStatus {
@@ -14,222 +15,236 @@ interface ConnectionStatus {
   error?: string;
 }
 
+export interface PipedreamIntegration {
+  id: string;
+  name: string;
+  description?: string;
+  version: string;
+  type: string;
+}
+
 export class PipedreamService {
-  private connections: Map<string, ConnectionStatus>;
-  private static instance: PipedreamService | null = null;
+  private static instance: PipedreamService;
+  private mockWorkflows: Map<string, any> = new Map();
+  private mockNodes: Map<string, any> = new Map();
+  private mockEdges: Map<string, any> = new Map();
   private config: PipedreamConfig;
-  private apiKey: string;
-  private baseUrl: string = 'https://api.pipedream.com/v1';
 
-  constructor() {
-    // Use only PIPEDREAM_API_KEY for authentication
-    this.apiKey = process.env.PIPEDREAM_API_KEY || '';
-                  
-    if (!this.apiKey) {
-      console.error('PIPEDREAM_API_KEY environment variable is not set');
-    }
-
-    // Initialize config
-    this.config = {
-      clientId: process.env.NEXT_PUBLIC_PIPEDREAM_CLIENT_ID || '',
-      clientSecret: this.apiKey,
-      projectId: process.env.PIPEDREAM_PROJECT_ID || '',
-      environment: (process.env.NODE_ENV === 'production' ? 'production' : 'development')
-    };
-
-    // Initialize connections map
-    this.connections = new Map();
+  private constructor(config?: PipedreamConfig) {
+    this.config = config || {};
   }
 
-  // Get singleton instance with optional config override
-  public static getInstance(config?: Partial<PipedreamConfig>): PipedreamService {
+  public static getInstance(config?: PipedreamConfig): PipedreamService {
     if (!PipedreamService.instance) {
-      PipedreamService.instance = new PipedreamService();
+      PipedreamService.instance = new PipedreamService(config);
+    } else if (config) {
+      // Update config if provided
+      PipedreamService.instance.config = { ...PipedreamService.instance.config, ...config };
     }
-    
-    // Update config if provided
-    if (config) {
-      PipedreamService.instance.config = {
-        ...PipedreamService.instance.config,
-        ...config
-      };
-    }
-    
     return PipedreamService.instance;
   }
 
-  async getConnectionStatus(appId: string, userId: string): Promise<ConnectionStatus> {
-    if (!appId || !userId) {
-      return {
-        status: 'error',
-        error: 'Missing required parameters: appId and userId'
-      };
-    }
-    
+  async getApps(): Promise<any[]> {
     try {
-      const key = `${appId}:${userId}`;
-      const status = this.connections.get(key) || {
-        status: 'disconnected'
-      };
-      return status;
-    } catch (error) {
-      console.error('Error getting connection status:', error);
-      return {
-        status: 'error',
-        error: error instanceof Error ? error.message : 'Unknown error'
-      };
-    }
-  }
-
-  async connectToApp(appId: string, userId: string): Promise<ConnectionStatus> {
-    if (!appId || !userId) {
-      const errorStatus: ConnectionStatus = {
-        status: 'error',
-        error: 'Missing required parameters: appId and userId'
-      };
-      return errorStatus;
-    }
-    
-    try {
-      const key = `${appId}:${userId}`;
-      
-      // Mock connection - in a real implementation, this would use the SDK
-      // Simulate a successful connection after a delay
-      return new Promise((resolve) => {
-        setTimeout(() => {
-          const status: ConnectionStatus = {
-            status: 'connected',
-            lastConnected: new Date()
-          };
-          this.connections.set(key, status);
-          resolve(status);
-        }, 1500);
+      const response = await fetch('https://api.pipedream.com/v1/apps', {
+        headers: {
+          'Authorization': `Bearer ${process.env.PIPEDREAM_API_KEY}`,
+          'Content-Type': 'application/json',
+        },
       });
-    } catch (error) {
-      console.error('Error connecting to app:', error);
-      const errorStatus: ConnectionStatus = {
-        status: 'error',
-        error: error instanceof Error ? error.message : 'Unknown error'
-      };
-      this.connections.set(`${appId}:${userId}`, errorStatus);
-      return errorStatus;
-    }
-  }
-
-  async makeApiRequest<T>(
-    appId: string, 
-    userId: string,
-    endpoint: string,
-    method: 'GET' | 'POST' | 'PUT' | 'DELETE' = 'GET',
-    data?: unknown
-  ): Promise<T> {
-    if (!appId || !userId) {
-      throw new Error('Missing required parameters: appId and userId');
-    }
-    
-    try {
-      // Check connection status first
-      const status = await this.getConnectionStatus(appId, userId);
-      if (status.status === 'error') {
-        throw new Error(`Connection error: ${status.error}`);
-      }
-      if (status.status === 'disconnected') {
-        await this.connectToApp(appId, userId);
-      }
-
-      // Mock API request
-      return new Promise((resolve) => {
-        setTimeout(() => {
-          // Return mock data appropriate for the endpoint
-          if (endpoint === '/connections') {
-            resolve({
-              success: true,
-              status: 'connected',
-              data: [
-                { id: 'conn1', name: 'Connection 1', status: 'active' },
-                { id: 'conn2', name: 'Connection 2', status: 'active' }
-              ]
-            } as unknown as T);
-          } else {
-            resolve({ success: true, status: 'ok' } as unknown as T);
-          }
-        }, 800);
-      });
-    } catch (error) {
-      console.error('API request failed:', error);
-      throw error instanceof Error ? error : new Error('API request failed');
-    }
-  }
-
-  async disconnectApp(appId: string, userId: string): Promise<void> {
-    if (!appId || !userId) {
-      throw new Error('Missing required parameters: appId and userId');
-    }
-    
-    try {
-      const key = `${appId}:${userId}`;
-      // Mock disconnection - in a real implementation, this would use the SDK
-      this.connections.delete(key);
-    } catch (error) {
-      console.error('Error disconnecting:', error);
-      throw error instanceof Error ? error : new Error('Failed to disconnect');
-    }
-  }
-
-  async disconnectAllApps(appId: string): Promise<void> {
-    if (!appId) {
-      throw new Error('Missing required parameter: appId');
-    }
-    
-    try {
-      // Mock disconnection - in a real implementation, this would use the SDK
-      // Clear all connections for this app
-      Array.from(this.connections.entries()).forEach(([key]) => {
-        if (key.startsWith(`${appId}:`)) {
-          this.connections.delete(key);
-        }
-      });
-    } catch (error) {
-      console.error('Error disconnecting all:', error);
-      throw error instanceof Error ? error : new Error('Failed to disconnect all');
-    }
-  }
-
-  async getApps() {
-    try {
-      if (!this.apiKey) {
-        throw new Error('PIPEDREAM_API_KEY environment variable is not set');
-      }
-
-      const headers = {
-        'Authorization': `Bearer ${this.apiKey}`,
-        'Content-Type': 'application/json',
-      };
-
-      console.log('Fetching Pipedream apps...');
-
-      const response = await fetch(`${this.baseUrl}/apps`, { headers });
 
       if (!response.ok) {
-        const errorText = await response.text();
-        console.error('Pipedream API error:', {
-          status: response.status,
-          statusText: response.statusText,
-          error: errorText
-        });
-        throw new Error(`Failed to fetch apps: ${response.status} ${response.statusText} - ${errorText}`);
+        throw new Error(`Failed to fetch apps: ${response.statusText}`);
       }
 
-      const apps = await response.json();
-      return apps.map((app: any) => ({
-        slug: app.slug,
-        name: app.name,
-        description: app.description,
-        logo: app.logo,
-      }));
+      const data = await response.json();
+      return data.data || [];
     } catch (error) {
-      console.error('Error in getApps:', error);
-      throw error; // Re-throw the error instead of returning empty array
+      console.error('Error fetching Pipedream apps:', error);
+      return []; // Return empty array in case of error
     }
+  }
+
+  async createWorkflow(workflow: Workflow): Promise<string> {
+    try {
+      if (process.env.NODE_ENV === 'development') {
+        const mockWorkflow = {
+          id: `mock-${Date.now()}`,
+          name: workflow.name,
+          description: workflow.description || '',
+          organization_id: workflow.organizationId,
+          status: 'active',
+        };
+        this.mockWorkflows.set(mockWorkflow.id, mockWorkflow);
+        return mockWorkflow.id;
+      }
+
+      const response = await fetch('https://api.pipedream.com/v1/workflows', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${process.env.PIPEDREAM_API_KEY}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          name: workflow.name,
+          description: workflow.description,
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error(`Failed to create workflow: ${response.statusText}`);
+      }
+
+      const data = await response.json();
+      return data.id;
+    } catch (error) {
+      console.error('Error creating workflow:', error);
+      throw error;
+    }
+  }
+
+  async getWorkflows(): Promise<any[]> {
+    try {
+      if (process.env.NODE_ENV === 'development') {
+        return Array.from(this.mockWorkflows.values());
+      }
+
+      const response = await fetch('https://api.pipedream.com/v1/workflows', {
+        headers: {
+          'Authorization': `Bearer ${process.env.PIPEDREAM_API_KEY}`,
+          'Content-Type': 'application/json',
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error(`Failed to fetch workflows: ${response.statusText}`);
+      }
+
+      const data = await response.json();
+      return data.workflows || [];
+    } catch (error) {
+      console.error('Error fetching workflows:', error);
+      return []; // Return empty array in case of error
+    }
+  }
+
+  // Mock methods for development
+  async addNode(workflowId: string, node: WorkflowNode): Promise<string> {
+    const nodeId = `node-${Date.now()}`;
+    this.mockNodes.set(nodeId, { ...node, id: nodeId });
+    return nodeId;
+  }
+
+  async connectNodes(workflowId: string, edge: WorkflowEdge): Promise<string> {
+    const edgeId = `edge-${Date.now()}`;
+    this.mockEdges.set(edgeId, { ...edge, id: edgeId });
+    return edgeId;
+  }
+
+  async configureNode(workflowId: string, nodeId: string, config: any): Promise<void> {
+    const node = this.mockNodes.get(nodeId);
+    if (node) {
+      this.mockNodes.set(nodeId, { ...node, config });
+    }
+  }
+
+  async startWorkflow(workflowId: string): Promise<void> {
+    const workflow = this.mockWorkflows.get(workflowId);
+    if (workflow) {
+      this.mockWorkflows.set(workflowId, { ...workflow, status: 'running' });
+    }
+  }
+
+  async stopWorkflow(workflowId: string): Promise<void> {
+    const workflow = this.mockWorkflows.get(workflowId);
+    if (workflow) {
+      this.mockWorkflows.set(workflowId, { ...workflow, status: 'stopped' });
+    }
+  }
+
+  async getWorkflowStatus(workflowId: string): Promise<string> {
+    const workflow = this.mockWorkflows.get(workflowId);
+    return workflow?.status || 'unknown';
+  }
+
+  async getNodeStatus(workflowId: string, nodeId: string): Promise<string> {
+    try {
+      const node = this.mockNodes.get(nodeId);
+      if (node) {
+        return node.status;
+      }
+      throw new Error('Node not found');
+    } catch (error) {
+      console.error('Error getting mock node status:', error);
+      throw new Error('Failed to get mock node status');
+    }
+  }
+
+  async getAvailableIntegrations(): Promise<Array<{ id: string; name: string }>> {
+    try {
+      // Mock integrations
+      return [
+        { id: 'hubspot', name: 'HubSpot' },
+        { id: 'gmail', name: 'Gmail' },
+        { id: 'slack', name: 'Slack' },
+        { id: 'github', name: 'GitHub' },
+        { id: 'n8n', name: 'n8n' },
+      ];
+    } catch (error) {
+      console.error('Error getting mock integrations:', error);
+      throw new Error('Failed to get mock integrations');
+    }
+  }
+
+  async getIntegrationConfig(integrationId: string): Promise<Record<string, any>> {
+    try {
+      // Mock integration configs
+      const configs: Record<string, Record<string, any>> = {
+        hubspot: {
+          apiKey: 'required',
+          baseUrl: 'optional',
+        },
+        gmail: {
+          clientId: 'required',
+          clientSecret: 'required',
+          redirectUri: 'required',
+        },
+        slack: {
+          botToken: 'required',
+          signingSecret: 'required',
+        },
+        github: {
+          accessToken: 'required',
+          webhookSecret: 'optional',
+        },
+        n8n: {
+          apiKey: 'required',
+          baseUrl: 'required',
+        },
+      };
+
+      return configs[integrationId] || {};
+    } catch (error) {
+      console.error('Error getting mock integration config:', error);
+      throw new Error('Failed to get mock integration config');
+    }
+  }
+
+  // Add methods for app connection status
+  async connectToApp(appName: string, userId: string) {
+    return { status: 'connected' as const };
+  }
+
+  async getConnectionStatus(appName: string, userId: string) {
+    return { status: 'connected' as const };
+  }
+
+  async disconnectApp(appName: string, userId: string) {
+    return { status: 'disconnected' as const };
+  }
+
+  async makeApiRequest<T>(appName: string, userId: string, endpoint: string, method: string, data?: any): Promise<T> {
+    // Mock implementation
+    return {} as T;
   }
 } 

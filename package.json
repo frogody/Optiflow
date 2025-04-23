@@ -14,9 +14,10 @@
     "docker:start": "docker-compose up -d",
     "docker:stop": "docker-compose down",
     "deploy": "sh deploy.sh",
-    "check-env": "node scripts/check-env.js",
+    "check-env": "ts-node scripts/check-env.ts",
     "generate-secret": "node scripts/generate-secret.js",
-    "vercel-build": "echo 'Starting vercel-build...' && NODE_ENV=production prisma generate --schema=./prisma/schema.prisma && echo 'Prisma generate completed' && NODE_ENV=production next build",
+    "vercel-build": "prisma generate && next build",
+    "vercel-deploy": "vercel deploy --prod",
     "postinstall": "prisma generate",
     "db:migrate": "ts-node scripts/migrate.ts",
     "db:generate": "prisma generate",
@@ -25,9 +26,13 @@
     "db:reset": "prisma migrate reset",
     "prod:start": "NODE_ENV=production next start",
     "prod:build": "NODE_ENV=production next build",
-    "prod:deploy": "npm run check-env && npm run db:migrate && npm run prod:build",
+    "prod:deploy": "next build && vercel deploy --prod",
     "db:seed": "ts-node prisma/seed.ts",
-    "db:backup": "ts-node scripts/backup-db.ts"
+    "db:backup": "ts-node scripts/backup-db.ts",
+    "test": "vitest",
+    "test:ui": "vitest --ui",
+    "test:coverage": "vitest run --coverage",
+    "test:watch": "vitest watch"
   },
   "dependencies": {
     "@11labs/client": "^0.1.3",
@@ -96,10 +101,15 @@
     "prisma": "^5.22.0",
     "tailwindcss": "^3.4.1",
     "ts-node": "^10.9.2",
-    "typescript": "^5.3.3"
+    "typescript": "^5.3.3",
+    "@testing-library/jest-dom": "^6.4.2",
+    "@testing-library/react": "^14.2.1",
+    "@vitejs/plugin-react": "^4.2.1",
+    "jsdom": "^24.0.0",
+    "vitest": "^1.3.1"
   },
   "engines": {
-    "node": "18.x"
+    "node": "18.17.0"
   },
   "prisma": {
     "seed": "ts-node prisma/seed.ts"
