@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "PORT=3000 next dev",
-    "build": "prisma generate && next build",
+    "build": "npx prisma generate && next build",
     "start": "PORT=3000 next start",
     "lint": "next lint",
     "mcp:servers": "ts-node src/services/mcp/server/startServers.ts",
@@ -16,9 +16,9 @@
     "deploy": "sh deploy.sh",
     "check-env": "ts-node scripts/check-env.ts",
     "generate-secret": "node scripts/generate-secret.js",
-    "vercel-build": "SKIP_ENV_VALIDATION=1 NEXT_PUBLIC_NEXTAUTH_URL=$VERCEL_URL NODE_ENV=production prisma generate && next build",
+    "vercel-build": "SKIP_ENV_VALIDATION=1 NEXT_PUBLIC_NEXTAUTH_URL=$VERCEL_URL NODE_ENV=production npx prisma generate && next build",
     "vercel-deploy": "vercel deploy --prod",
-    "postinstall": "prisma generate",
+    "postinstall": "npx prisma generate",
     "db:migrate": "ts-node scripts/migrate.ts",
     "db:generate": "prisma generate",
     "db:studio": "prisma studio",
@@ -82,7 +82,8 @@
     "utf-8-validate": "^6.0.5",
     "ws": "^8.18.1",
     "zod": "^3.22.2",
-    "zustand": "^4.4.1"
+    "zustand": "^4.4.1",
+    "prisma": "^5.22.0"
   },
   "devDependencies": {
     "@types/express": "^4.17.21",
@@ -98,7 +99,6 @@
     "eslint-config-next": "^14.1.0",
     "json-loader": "^0.5.7",
     "postcss": "^8.4.35",
-    "prisma": "^5.22.0",
     "tailwindcss": "^3.4.1",
     "ts-node": "^10.9.2",
     "typescript": "^5.3.3",

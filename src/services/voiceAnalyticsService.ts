@@ -1,5 +1,5 @@
 import { VoiceCommand, VoiceInteraction, VoiceCommandResponse } from '@/types/voice';
-import prisma from '@/lib/prisma';
+import { prisma } from '@/lib/prisma';
 
 interface VoiceMetrics {
   totalCommands: number;

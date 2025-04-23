@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
-import db from '@/lib/db';
+import { prisma } from '@/lib/db';
 import { validateRequestBody } from '@/lib/inputValidation';
 
 // Connection input validation schema
@@ -26,7 +26,10 @@ export async function GET(req: NextRequest) {
     }
     
     // Get connections for the user
-    const connections = await db.getUserConnections(user.id);
+    const connections = await prisma.connection.findMany({
+      where: { userId: user.id },
+      include: { app: true }
+    });
     
     return NextResponse.json({ connections });
   } catch (error) {
@@ -60,7 +63,10 @@ export async function POST(req: NextRequest) {
     );
     
     // Create connection
-    const connection = await db.createConnection(connectionData);
+    const connection = await prisma.connection.create({
+      data: connectionData,
+      include: { app: true }
+    });
     
     return NextResponse.json(
       { connection },
@@ -108,20 +114,23 @@ export async function PUT(req: NextRequest) {
     }
     
     // Update connection
-    const connection = await db.updateConnection(
-      body.id,
-      user.id,
-      {
+    const connection = await prisma.connection.update({
+      where: {
+        id: body.id,
+        userId: user.id
+      },
+      data: {
         status: body.status,
         connectionUrl: body.connectionUrl,
-      }
-    );
+      },
+      include: { app: true }
+    });
     
     return NextResponse.json({ connection });
   } catch (error: any) {
     console.error('Error updating connection:', error);
     
-    if (error.message.includes('not found or access denied')) {
+    if (error.code === 'P2025') {
       return NextResponse.json(
         { error: 'Connection not found or access denied' },
         { status: 403 }

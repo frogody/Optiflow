@@ -1,8 +1,9 @@
 import { NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
-import prisma from '@/lib/prisma';
+import { prisma } from '@/lib/prisma';
 import { processVoiceCommand } from '@/services/voiceService';
+import { VoiceCommand } from '@/types/voice';
 
 export async function POST(req: Request) {
   try {
