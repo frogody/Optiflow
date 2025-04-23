@@ -85,12 +85,13 @@ export default function Navigation() {
     { 
       name: 'Optiflow',
       href: '#',
-      current: ['/pricing', '/faq', '/features', '/conversational-test', '/voice-test'].includes(pathname),
+      current: ['/pricing', '/faq', '/features', '/conversational-test', '/voice-test', '/integrations'].includes(pathname),
       requiresAuth: false,
       children: [
         { name: 'Features', href: '/features', current: pathname === '/features', requiresAuth: false },
         { name: 'Voice Workflows', href: '/voice-test', current: pathname === '/voice-test', requiresAuth: false },
         { name: 'Conversational', href: '/conversational-test', current: pathname === '/conversational-test', requiresAuth: false },
+        { name: 'Integrations', href: '/integrations', current: pathname === '/integrations', requiresAuth: false },
         { name: 'Pricing', href: '/pricing', current: pathname === '/pricing', requiresAuth: false },
         { name: 'FAQ', href: '/faq', current: pathname === '/faq', requiresAuth: false },
       ]
@@ -98,8 +99,7 @@ export default function Navigation() {
     { name: 'Flows', href: '/workflows', current: pathname === '/workflows', requiresAuth: true },
     { name: 'Connections', href: '/connections', current: pathname === '/connections', requiresAuth: true },
     { name: 'AI Factory', href: '/ai-factory', current: pathname === '/ai-factory', requiresAuth: false },
-    { name: 'AIcademy', href: '/aicademy', current: pathname === '/aicademy', requiresAuth: false },
-    { name: 'Integrations', href: '/integrations', current: pathname === '/integrations', requiresAuth: false },
+    { name: 'AI Cademy', href: '/aicademy', current: pathname === '/aicademy', requiresAuth: false },
     { name: 'Enterprise', href: '/enterprise', current: pathname === '/enterprise', requiresAuth: false },
   ];
 
