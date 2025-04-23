@@ -70,6 +70,11 @@ function isAuthRelatedPath(path: string): boolean {
 export async function middleware(request: NextRequest) {
   const { pathname, search } = request.nextUrl;
   
+  // Redirect /register to /signup
+  if (pathname === '/register') {
+    return NextResponse.redirect(new URL('/signup', request.url));
+  }
+
   // Skip middleware for static assets, API routes and health checks
   if (
     pathname.startsWith('/_next') ||
