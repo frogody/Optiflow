@@ -2,7 +2,7 @@
 
 import { motion } from 'framer-motion';
 import Image from 'next/image';
-import { HiOutlineChatAlt2 } from 'react-icons/hi';
+import { HiOutlineQuote } from 'react-icons/hi2';
 
 const testimonials = [
   {
@@ -62,7 +62,7 @@ function TestimonialsSection() {
               className="bg-white/5 backdrop-blur-sm rounded-2xl p-8 border border-white/10 hover:border-[#3CDFFF]/30 transition-all duration-300 group hover:shadow-[0_0_30px_rgba(60,223,255,0.2)]"
             >
               <div className="text-[#3CDFFF] mb-6">
-                <HiOutlineChatAlt2 className="w-6 h-6 text-[#3CDFFF]" />
+                <HiOutlineQuote className="w-6 h-6 text-[#3CDFFF]" />
               </div>
               <blockquote className="text-gray-300 leading-relaxed mb-8 group-hover:text-white transition-colors duration-300">
                 "{testimonial.quote}"

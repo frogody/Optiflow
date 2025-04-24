@@ -4,7 +4,7 @@ import { useState, useRef } from 'react';
 import { motion, useScroll, useTransform } from 'framer-motion';
 import Link from 'next/link';
 import { useUserStore } from '@/lib/userStore';
-import { HiOutlineCube, HiOutlineLightningBolt, HiOutlineSparkles } from 'react-icons/hi';
+import { HiOutlineLightningBolt, HiOutlineCube, HiOutlineSparkles } from 'react-icons/hi';
 import { cn } from '@/lib/utils';
 
 interface PricingTier {
@@ -102,17 +102,13 @@ export default function PricingPage() {
       price: isAnnual ? '$29/mo' : '$39/mo',
       description: 'Perfect for individuals and small teams getting started with automation',
       icon: HiOutlineSparkles,
-      products: [
-        'AI Factory',
-        'Basic Support',
-        'Community Access'
-      ],
+      products: ['AI Factory'],
       features: [
-        '5,000 API calls/month',
-        'Up to 3 team members',
-        'Basic integrations',
-        'Standard response time',
-        'Community support'
+        'Up to 5 active workflows',
+        'Basic workflow templates',
+        'Community support',
+        'Standard integrations',
+        'Basic analytics'
       ],
       cta: 'Get Started',
       popular: false
