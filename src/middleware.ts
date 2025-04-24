@@ -54,20 +54,15 @@ function isValidRedirectUrl(url: string): boolean {
 }
 
 export async function middleware(request: NextRequest) {
-  const { pathname, search } = request.nextUrl;
+  const { pathname } = request.nextUrl;
   
-  // Skip middleware for static files and API routes
+  // Skip middleware for static files, API routes, and public paths
   if (
     pathname.startsWith('/_next') ||
     pathname.startsWith('/static') ||
     pathname.includes('.') ||
-    matchesPath(pathname, authPaths)
+    matchesPath(pathname, [...authPaths, ...publicPaths])
   ) {
-    return NextResponse.next();
-  }
-
-  // Skip middleware for public paths
-  if (matchesPath(pathname, publicPaths)) {
     return NextResponse.next();
   }
 
@@ -79,27 +74,12 @@ export async function middleware(request: NextRequest) {
 
     // If user is authenticated and trying to access login/signup pages
     if (token && (pathname === '/login' || pathname === '/signup')) {
-      const response = NextResponse.redirect(new URL('/dashboard', request.url));
-      if (token.raw && typeof token.raw === 'string') {
-        response.cookies.set('next-auth.session-token', token.raw, {
-          httpOnly: true,
-          secure: process.env.NODE_ENV === 'production',
-          sameSite: 'lax',
-          path: '/'
-        });
-      }
-      return response;
+      return NextResponse.redirect(new URL('/dashboard', request.url));
     }
 
     // If user is not authenticated and trying to access protected routes
-    if (!token && !matchesPath(pathname, publicPaths)) {
+    if (!token) {
       const loginUrl = new URL('/login', request.url);
-      if (!pathname.startsWith('/login')) {
-        const callbackUrl = `${pathname}${search}`;
-        if (isValidRedirectUrl(callbackUrl)) {
-          loginUrl.searchParams.set('callbackUrl', callbackUrl);
-        }
-      }
       return NextResponse.redirect(loginUrl);
     }
 
@@ -111,16 +91,6 @@ export async function middleware(request: NextRequest) {
     response.headers.set('X-Content-Type-Options', 'nosniff');
     response.headers.set('Referrer-Policy', 'origin-when-cross-origin');
     
-    // Set session cookie if token exists
-    if (token?.raw && typeof token.raw === 'string') {
-      response.cookies.set('next-auth.session-token', token.raw, {
-        httpOnly: true,
-        secure: process.env.NODE_ENV === 'production',
-        sameSite: 'lax',
-        path: '/'
-      });
-    }
-    
     return response;
   } catch (error) {
     console.error('Middleware error:', error);
@@ -130,5 +100,5 @@ export async function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ['/((?!api/auth|_next/static|_next/image|favicon.ico|public/).*)'],
+  matcher: ['/((?!_next/static|_next/image|favicon.ico|public/).*)'],
 }; 
