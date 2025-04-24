@@ -1,7 +1,8 @@
 'use client';
 
-import React, { useState, useEffect, useRef } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import React, { useState, useRef, useEffect } from 'react';
+import { HiOutlineMicrophone, HiOutlineStop } from 'react-icons/hi';
+import MicrophonePermission from '@/components/MicrophonePermission';
 
 interface InteractiveVoiceAgentProps {
   onWorkflowGenerated: (workflow: any) => void;
@@ -18,18 +19,9 @@ const WaveformAnimation = () => {
   return (
     <div className="flex items-center justify-center gap-1 h-8">
       {[...Array(5)].map((_, i) => (
-        <motion.div
+        <div
           key={i}
           className="w-1 bg-white rounded-full"
-          animate={{
-            height: ["15%", "100%", "15%"],
-          }}
-          transition={{
-            duration: 1,
-            repeat: Infinity,
-            delay: i * 0.1,
-            ease: "easeInOut"
-          }}
         />
       ))}
     </div>
@@ -39,30 +31,11 @@ const WaveformAnimation = () => {
 const PulsingCircle = () => {
   return (
     <div className="relative">
-      <motion.div
+      <div
         className="absolute inset-0 rounded-full bg-white/20"
-        animate={{
-          scale: [1, 1.5, 1],
-          opacity: [0.5, 0, 0.5],
-        }}
-        transition={{
-          duration: 2,
-          repeat: Infinity,
-          ease: "easeInOut"
-        }}
       />
-      <motion.div
+      <div
         className="absolute inset-0 rounded-full bg-white/40"
-        animate={{
-          scale: [1, 1.25, 1],
-          opacity: [0.7, 0.2, 0.7],
-        }}
-        transition={{
-          duration: 2,
-          repeat: Infinity,
-          ease: "easeInOut",
-          delay: 0.5
-        }}
       />
     </div>
   );
@@ -73,114 +46,124 @@ export const InteractiveVoiceAgent: React.FC<InteractiveVoiceAgentProps> = ({ on
   const [transcript, setTranscript] = useState('');
   const [processing, setProcessing] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [feedback, setFeedback] = useState<string | null>(null);
+  const [showPermissionDialog, setShowPermissionDialog] = useState(false);
   const [audioSrc, setAudioSrc] = useState<string | null>(null);
   const [isExpanded, setIsExpanded] = useState(false);
   
   const recognitionRef = useRef<any>(null);
+  const mediaRecorderRef = useRef<MediaRecorder | null>(null);
+  const chunksRef = useRef<Blob[]>([]);
   const audioRef = useRef<HTMLAudioElement>(null);
-  
+
   useEffect(() => {
+    // Initialize speech recognition
     const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
     if (!SpeechRecognition) {
-      setError('Speech recognition is not supported in this browser.');
+      setError('Speech recognition is not supported in this browser');
       return;
     }
 
-    try {
-      recognitionRef.current = new SpeechRecognition();
-      recognitionRef.current.continuous = true;
-      recognitionRef.current.interimResults = true;
-      recognitionRef.current.lang = 'en-US';
-      
-      recognitionRef.current.onstart = () => {
-        setIsListening(true);
-        setError(null);
-        setIsExpanded(true);
-      };
-      
-      recognitionRef.current.onend = () => {
-        setIsListening(false);
-      };
-      
-      recognitionRef.current.onresult = (event: any) => {
-        const transcriptResult = Array.from(event.results)
-          .map((result: any) => result[0].transcript)
-          .join('');
-        setTranscript(transcriptResult);
-      };
-      
-      recognitionRef.current.onerror = (event: any) => {
-        setError(`Speech recognition error: ${event.error}`);
-        setIsListening(false);
-      };
-    } catch (err) {
-      setError('Failed to initialize speech recognition.');
-    }
-    
+    recognitionRef.current = new SpeechRecognition();
+    recognitionRef.current.continuous = true;
+    recognitionRef.current.interimResults = true;
+
+    recognitionRef.current.onresult = (event: any) => {
+      const transcript = Array.from(event.results)
+        .map((result: any) => result[0].transcript)
+        .join('');
+      setTranscript(transcript);
+    };
+
+    recognitionRef.current.onerror = (event: any) => {
+      console.error('Speech recognition error:', event.error);
+      setError(`Speech recognition error: ${event.error}`);
+      setIsListening(false);
+    };
+
     return () => {
       if (recognitionRef.current) {
         recognitionRef.current.stop();
       }
+      if (mediaRecorderRef.current) {
+        mediaRecorderRef.current.stop();
+      }
     };
   }, []);
 
-  const toggleListening = async () => {
-    if (!recognitionRef.current) {
-      setError('Speech recognition is not initialized.');
-      return;
-    }
+  const startListening = async () => {
+    setError(null);
+    setTranscript('');
+    setShowPermissionDialog(true);
+  };
 
+  const handlePermissionGranted = async () => {
+    setShowPermissionDialog(false);
     try {
-      if (isListening) {
-        recognitionRef.current.stop();
-        setIsListening(false);
-      } else {
-        setTranscript('');
-        setFeedback(null);
-        setAudioSrc(null);
-        setError(null);
-        
-        await navigator.mediaDevices.getUserMedia({ audio: true });
-        recognitionRef.current.start();
-      }
-    } catch (err: any) {
-      setError(err.message || 'Failed to toggle speech recognition');
-      setIsListening(false);
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      
+      // Initialize MediaRecorder
+      mediaRecorderRef.current = new MediaRecorder(stream);
+      chunksRef.current = [];
+
+      mediaRecorderRef.current.ondataavailable = (event) => {
+        if (event.data.size > 0) {
+          chunksRef.current.push(event.data);
+        }
+      };
+
+      mediaRecorderRef.current.onstop = async () => {
+        const audioBlob = new Blob(chunksRef.current, { type: 'audio/wav' });
+        await processAudioData(audioBlob);
+      };
+
+      // Start recording
+      mediaRecorderRef.current.start();
+      recognitionRef.current?.start();
+      setIsListening(true);
+    } catch (err) {
+      console.error('Error starting voice recording:', err);
+      setError('Failed to start voice recording. Please check your microphone settings.');
     }
   };
 
-  const processCommand = async () => {
-    if (!transcript || processing) return;
-    
+  const handlePermissionDenied = () => {
+    setShowPermissionDialog(false);
+    setError('Microphone access is required for voice commands. Please allow microphone access and try again.');
+  };
+
+  const stopListening = () => {
+    if (recognitionRef.current) {
+      recognitionRef.current.stop();
+    }
+    if (mediaRecorderRef.current && mediaRecorderRef.current.state === 'recording') {
+      mediaRecorderRef.current.stop();
+    }
+    setIsListening(false);
+  };
+
+  const processAudioData = async (audioBlob: Blob) => {
+    if (!audioBlob) return;
+
+    setProcessing(true);
     try {
-      setProcessing(true);
-      setFeedback('Processing your request...');
-      
-      console.log('InteractiveVoiceAgent: Starting voice command processing with text:', transcript);
-      
-      const response = await fetch('/api/elevenlabs', {
+      const formData = new FormData();
+      formData.append('audio', audioBlob);
+
+      const response = await fetch('/api/elevenlabs-convai', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          action: 'processVoiceCommand',
-          text: transcript
-        })
+        body: formData,
       });
-      
-      console.log('InteractiveVoiceAgent: Process command response status:', response.status, response.statusText);
-      
+
       if (!response.ok) {
-        const errorData = await response.json().catch(() => null);
-        console.error('Failed to process voice command:', errorData);
-        throw new Error('Failed to process voice command');
+        throw new Error('Failed to process audio');
       }
+
+      const data = await response.json();
+      console.log('Processed audio data:', data);
       
-      const workflow = await response.json();
-      console.log('InteractiveVoiceAgent: Received workflow data:', workflow);
-      
-      if (workflow) {
-        const confirmationText = `I've created a workflow based on your request: "${workflow.name}". ${workflow.description}`;
+      // Handle the response data as needed
+      if (data.workflow) {
+        const confirmationText = `I've created a workflow based on your request: "${data.workflow.name}". ${data.workflow.description}`;
         console.log('InteractiveVoiceAgent: Generating voice feedback:', confirmationText);
         
         const audioResponse = await fetch('/api/elevenlabs', {
@@ -203,17 +186,13 @@ export const InteractiveVoiceAgent: React.FC<InteractiveVoiceAgentProps> = ({ on
           console.error('Failed to generate speech:', errorData);
         }
         
-        setFeedback(confirmationText);
-        console.log('InteractiveVoiceAgent: Calling onWorkflowGenerated with workflow data');
-        onWorkflowGenerated(workflow);
+        onWorkflowGenerated(data.workflow);
       } else {
-        setFeedback('Sorry, I could not generate a workflow from your command.');
         console.warn('InteractiveVoiceAgent: No workflow data received');
       }
-    } catch (err: any) {
-      console.error('InteractiveVoiceAgent: Error processing command:', err);
-      setError(err.message || 'Failed to process your command');
-      setFeedback('Sorry, there was an error processing your request.');
+    } catch (err) {
+      console.error('Error processing audio:', err);
+      setError('Failed to process audio. Please try again.');
     } finally {
       setProcessing(false);
     }
@@ -226,125 +205,84 @@ export const InteractiveVoiceAgent: React.FC<InteractiveVoiceAgentProps> = ({ on
   }, [audioSrc]);
 
   return (
-    <motion.div 
-      className="fixed bottom-8 right-8 z-[9999]"
-      animate={{ scale: 1 }}
-      initial={{ scale: 0 }}
-      exit={{ scale: 0 }}
-    >
-      <motion.div
-        className={`flex items-center gap-4 ${isExpanded ? 'bg-slate-800/95 p-4 rounded-2xl shadow-xl backdrop-blur-lg voice-agent-panel' : ''}`}
-        animate={{ width: isExpanded ? 'auto' : 'auto' }}
-      >
-        <motion.button
-          onClick={toggleListening}
-          className={`relative flex items-center justify-center w-16 h-16 rounded-full shadow-lg transition-colors duration-300 ${
-            isListening 
-              ? 'bg-red-500 shadow-red-500/50 voice-agent-listening' 
-              : processing 
-                ? 'bg-amber-500 shadow-amber-500/50' 
-                : 'bg-gradient-to-r from-violet-500 to-fuchsia-500 shadow-violet-500/50 voice-agent-button'
-          }`}
-          whileHover={{ scale: 1.05 }}
-          whileTap={{ scale: 0.95 }}
+    <div className="relative">
+      {showPermissionDialog && (
+        <MicrophonePermission
+          onPermissionGranted={handlePermissionGranted}
+          onPermissionDenied={handlePermissionDenied}
+        />
+      )}
+      <div className="fixed bottom-8 right-8 z-[9999]">
+        <div
+          className={`flex items-center gap-4 ${isExpanded ? 'bg-slate-800/95 p-4 rounded-2xl shadow-xl backdrop-blur-lg voice-agent-panel' : ''}`}
         >
-          {isListening && <PulsingCircle />}
-          <motion.div
-            className="relative z-10"
-            animate={{
-              rotate: isListening ? [0, 360] : 0,
-            }}
-            transition={{
-              duration: 2,
-              repeat: isListening ? Infinity : 0,
-              ease: "linear"
-            }}
+          <button
+            onClick={isListening ? stopListening : startListening}
+            disabled={processing}
+            className={`relative flex items-center justify-center w-16 h-16 rounded-full shadow-lg transition-colors duration-300 ${
+              isListening
+                ? 'bg-red-500 shadow-red-500/50 voice-agent-listening'
+                : processing
+                  ? 'bg-amber-500 shadow-amber-500/50'
+                  : 'bg-gradient-to-r from-violet-500 to-fuchsia-500 shadow-violet-500/50 voice-agent-button'
+            } hover:scale-105 active:scale-95`}
           >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              className="h-8 w-8 text-white"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z"
-              />
-            </svg>
-          </motion.div>
-        </motion.button>
+            {isListening && <PulsingCircle />}
+            <div className="relative z-10">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                className="h-8 w-8 text-white"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z"
+                />
+              </svg>
+            </div>
+          </button>
 
-        <AnimatePresence>
           {isExpanded && (
-            <motion.div
-              initial={{ opacity: 0, width: 0 }}
-              animate={{ opacity: 1, width: 'auto' }}
-              exit={{ opacity: 0, width: 0 }}
-              className="text-white overflow-hidden"
-            >
+            <div className="text-white overflow-hidden">
               <div className="w-80">
                 {error && (
-                  <motion.div
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: -10 }}
-                    className="bg-red-500/20 p-3 rounded-lg mb-3 text-sm"
-                  >
+                  <div className="bg-red-500/20 p-3 rounded-lg mb-3 text-sm">
                     {error}
-                  </motion.div>
+                  </div>
                 )}
 
                 {isListening && (
-                  <motion.div
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    className="mb-4"
-                  >
+                  <div className="mb-4">
                     <WaveformAnimation />
                     <div className="text-sm text-center mt-2">Listening...</div>
-                  </motion.div>
+                  </div>
                 )}
 
                 {transcript && (
-                  <motion.div
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    className="mb-4"
-                  >
-                    <div className="text-xs text-slate-400 mb-1">Your command:</div>
+                  <div className="mb-4">
+                    <div className="text-xs text-slate-400 mb-1">Transcript:</div>
                     <div className="bg-white/10 p-3 rounded-lg text-sm">
                       {transcript}
                     </div>
-                  </motion.div>
-                )}
-
-                {feedback && (
-                  <motion.div
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    className="mb-4"
-                  >
-                    <div className="text-xs text-slate-400 mb-1">Response:</div>
-                    <div className="bg-white/10 p-3 rounded-lg text-sm">
-                      {feedback}
-                    </div>
-                  </motion.div>
+                  </div>
                 )}
 
                 {!isListening && transcript && (
-                  <motion.button
-                    onClick={processCommand}
+                  <button
+                    onClick={() => {
+                      const audioBlob = new Blob(chunksRef.current, { type: 'audio/wav' });
+                      processAudioData(audioBlob);
+                    }}
                     disabled={processing}
                     className={`w-full py-2 px-4 rounded-lg text-sm font-medium transition-colors ${
                       processing
-                        ? 'bg-amber-500/50 cursor-not-allowed'
-                        : 'bg-gradient-to-r from-violet-500 to-fuchsia-500 hover:from-fuchsia-500 hover:to-violet-500'
+                        ? 'bg-slate-500 cursor-not-allowed'
+                        : 'bg-gradient-to-r from-violet-500 to-fuchsia-500 hover:from-violet-600 hover:to-fuchsia-600'
                     }`}
-                    whileHover={{ scale: 1.02 }}
-                    whileTap={{ scale: 0.98 }}
                   >
                     {processing ? (
                       <div className="flex items-center justify-center gap-2">
@@ -354,17 +292,17 @@ export const InteractiveVoiceAgent: React.FC<InteractiveVoiceAgentProps> = ({ on
                     ) : (
                       'Create Workflow'
                     )}
-                  </motion.button>
+                  </button>
                 )}
               </div>
-            </motion.div>
+            </div>
           )}
-        </AnimatePresence>
-      </motion.div>
+        </div>
+      </div>
 
       {audioSrc && (
         <audio ref={audioRef} src={audioSrc} className="hidden" />
       )}
-    </motion.div>
+    </div>
   );
 }; 

@@ -48,7 +48,12 @@ const requestMicrophoneAccess = async (): Promise<boolean> => {
   }
 };
 
-export default function MicrophonePermission() {
+interface MicrophonePermissionProps {
+  onPermissionGranted?: () => void;
+  onPermissionDenied?: () => void;
+}
+
+export default function MicrophonePermission({ onPermissionGranted, onPermissionDenied }: MicrophonePermissionProps) {
   const [mounted, setMounted] = useState(false);
   const [permissionStatus, setPermissionStatus] = useState<PermissionState | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -58,14 +63,6 @@ export default function MicrophonePermission() {
     // Set mounted state only if we're in the browser
     if (typeof window !== 'undefined') {
       setMounted(true);
-      
-      // Check if we have a stored permission state
-      const storedPermission = localStorage.getItem('micPermissionGranted');
-      if (storedPermission === 'true') {
-        setPermissionStatus('granted');
-      } else if (storedPermission === 'false') {
-        setPermissionStatus('denied');
-      }
       
       // Detect browser for better error messages
       const userAgent = window.navigator.userAgent;
@@ -86,69 +83,67 @@ export default function MicrophonePermission() {
     };
   }, []);
 
-  useEffect(() => {
-    if (!mounted) return;
-
-    const checkPermission = async () => {
-      try {
-        // First check if browser supports the permissions API
-        if (!navigator.permissions) {
-          setError('Your browser does not fully support permissions API. We will try to request microphone access directly.');
-          
-          // Fallback for browsers without permissions API (like Safari)
-          const granted = await requestMicrophoneAccess();
-          setPermissionStatus(granted ? 'granted' : 'denied');
-          return;
-        }
-
-        // Check current permission status
-        const result = await navigator.permissions.query({ name: 'microphone' as PermissionName });
-        setPermissionStatus(result.state);
+  const checkPermission = async () => {
+    try {
+      // First check if browser supports the permissions API
+      if (!navigator.permissions) {
+        setError('Your browser does not fully support permissions API. We will try to request microphone access directly.');
         
-        // Update localStorage based on permission state
-        localStorage.setItem('micPermissionGranted', result.state === 'granted' ? 'true' : 'false');
-
-        // If it's 'prompt' or permission not confirmed, try to request access proactively
-        if (result.state === 'prompt' || !localStorage.getItem('micPermissionGranted')) {
-          try {
-            const granted = await requestMicrophoneAccess();
-            // Update permission status if we successfully got access
-            if (granted) {
-              setPermissionStatus('granted');
-              localStorage.setItem('micPermissionGranted', 'true');
-            }
-          } catch (err) {
-            console.error('Error in proactive permission request:', err);
-            // We'll let the normal flow continue
-          }
-        }
-
-        // Listen for permission changes
-        const handleChange = () => {
-          setPermissionStatus(result.state);
-          localStorage.setItem('micPermissionGranted', result.state === 'granted' ? 'true' : 'false');
-        };
-
-        result.addEventListener('change', handleChange);
-        return () => {
-          result.removeEventListener('change', handleChange);
-        };
-      } catch (error) {
-        console.error('Error checking microphone permission:', error);
-        setError('An error occurred while checking microphone permissions. Please ensure your browser allows microphone access.');
-        
-        // Try direct request as a fallback
-        try {
-          const granted = await requestMicrophoneAccess();
-          setPermissionStatus(granted ? 'granted' : 'denied');
-        } catch (directError) {
-          console.error('Direct permission request also failed:', directError);
-        }
+        // Fallback for browsers without permissions API (like Safari)
+        const granted = await requestMicrophoneAccess();
+        setPermissionStatus(granted ? 'granted' : 'denied');
+        granted ? onPermissionGranted?.() : onPermissionDenied?.();
+        return;
       }
-    };
 
-    checkPermission();
-  }, [mounted]);
+      // Check current permission status
+      const result = await navigator.permissions.query({ name: 'microphone' as PermissionName });
+      setPermissionStatus(result.state);
+      
+      // If permission is already granted, call the callback
+      if (result.state === 'granted') {
+        onPermissionGranted?.();
+        return;
+      }
+
+      // If permission is denied, call the callback
+      if (result.state === 'denied') {
+        onPermissionDenied?.();
+        return;
+      }
+
+      // If it's 'prompt', request access
+      if (result.state === 'prompt') {
+        const granted = await requestMicrophoneAccess();
+        setPermissionStatus(granted ? 'granted' : 'denied');
+        granted ? onPermissionGranted?.() : onPermissionDenied?.();
+      }
+
+      // Listen for permission changes
+      const handleChange = () => {
+        setPermissionStatus(result.state);
+        result.state === 'granted' ? onPermissionGranted?.() : onPermissionDenied?.();
+      };
+
+      result.addEventListener('change', handleChange);
+      return () => {
+        result.removeEventListener('change', handleChange);
+      };
+    } catch (error) {
+      console.error('Error checking microphone permission:', error);
+      setError('An error occurred while checking microphone permissions. Please ensure your browser allows microphone access.');
+      
+      // Try direct request as a fallback
+      try {
+        const granted = await requestMicrophoneAccess();
+        setPermissionStatus(granted ? 'granted' : 'denied');
+        granted ? onPermissionGranted?.() : onPermissionDenied?.();
+      } catch (directError) {
+        console.error('Direct permission request also failed:', directError);
+        onPermissionDenied?.();
+      }
+    }
+  };
 
   const handleRequestPermission = async () => {
     try {
@@ -159,6 +154,7 @@ export default function MicrophonePermission() {
         const result = await navigator.permissions.query({ name: 'microphone' as PermissionName });
         if (result.state === 'denied') {
           setError('Microphone access is blocked in your browser settings. Please enable it and reload the page.');
+          onPermissionDenied?.();
           return;
         }
       }
@@ -166,15 +162,16 @@ export default function MicrophonePermission() {
       const granted = await requestMicrophoneAccess();
       if (granted) {
         setPermissionStatus('granted');
-        localStorage.setItem('micPermissionGranted', 'true');
+        onPermissionGranted?.();
       } else {
         // If we couldn't get permission, show instructions
         setError('Could not get microphone permission. Please check your browser settings.');
-        localStorage.setItem('micPermissionGranted', 'false');
+        onPermissionDenied?.();
       }
     } catch (error) {
       console.error('Error requesting permission:', error);
       setError('Failed to request microphone permission');
+      onPermissionDenied?.();
     }
   };
 
@@ -197,48 +194,22 @@ export default function MicrophonePermission() {
           >
             Try Again
           </button>
-          <button
-            onClick={() => window.location.reload()}
-            className="mt-2 ml-2 px-3 py-1 text-sm bg-gray-500 text-white rounded hover:bg-gray-600 transition-colors"
-          >
-            Reload Page
-          </button>
         </div>
-      ) : permissionStatus === 'prompt' ? (
-        <div className="text-blue-500 dark:text-blue-400">
+      ) : (
+        <div>
           <p className="font-medium">Microphone Access Required</p>
-          <p className="text-sm">Please allow microphone access when prompted</p>
+          <p className="text-sm mt-1">To use voice features, we need access to your microphone.</p>
           <button
             onClick={handleRequestPermission}
             className="mt-2 px-3 py-1 text-sm bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors"
           >
-            Request Access
+            Allow Microphone
           </button>
         </div>
-      ) : permissionStatus === 'denied' ? (
-        <div className="text-yellow-500 dark:text-yellow-400">
-          <p className="font-medium">Microphone Access Denied</p>
-          <p className="text-sm">
-            Microphone access is required for voice commands. Please enable it in your browser settings.
-          </p>
-          {browserDetails === 'Chrome' && (
-            <p className="text-xs mt-1">
-              In Chrome: Click the padlock icon in the address bar → Site settings → Allow microphone
-            </p>
-          )}
-          {browserDetails === 'Safari' && (
-            <p className="text-xs mt-1">
-              In Safari: Preferences → Websites → Microphone → Allow for this website
-            </p>
-          )}
-          <button
-            onClick={() => window.location.reload()}
-            className="mt-2 px-3 py-1 text-sm bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors"
-          >
-            Try Again
-          </button>
-        </div>
-      ) : null}
+      )}
     </div>
   );
-} 
+}
+
+// Export the helper function for direct use
+export { requestMicrophoneAccess }; 

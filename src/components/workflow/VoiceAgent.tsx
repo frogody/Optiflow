@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect, useRef } from 'react';
 import { useFloating, offset, flip, shift, useHover, useInteractions } from '@floating-ui/react';
+import MicrophonePermission from '@/components/MicrophonePermission';
 
 interface VoiceAgentProps {
   onWorkflowGenerated: (workflow: any) => void;
@@ -21,6 +22,7 @@ export const VoiceAgent: React.FC<VoiceAgentProps> = ({ onWorkflowGenerated }) =
   const [error, setError] = useState<string | null>(null);
   const [feedback, setFeedback] = useState<string | null>(null);
   const [audioSrc, setAudioSrc] = useState<string | null>(null);
+  const [showPermissionDialog, setShowPermissionDialog] = useState(false);
   
   const recognitionRef = useRef<any>(null);
   const audioRef = useRef<HTMLAudioElement>(null);
@@ -106,54 +108,8 @@ export const VoiceAgent: React.FC<VoiceAgentProps> = ({ onWorkflowGenerated }) =
         setAudioSrc(null);
         setError(null);
         
-        // Ensure we create a new instance if needed
-        if (!recognitionRef.current) {
-          const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-          if (!SpeechRecognition) {
-            throw new Error('Speech recognition not supported in this browser');
-          }
-          recognitionRef.current = new SpeechRecognition();
-          recognitionRef.current.continuous = true;
-          recognitionRef.current.interimResults = true;
-          recognitionRef.current.lang = 'en-US';
-          
-          // Re-attach event handlers
-          recognitionRef.current.onstart = () => {
-            console.log('Speech recognition started');
-            setIsListening(true);
-            setError(null);
-          };
-          
-          recognitionRef.current.onend = () => {
-            console.log('Speech recognition ended');
-            setIsListening(false);
-          };
-          
-          recognitionRef.current.onresult = (event: any) => {
-            console.log('Speech recognition result received', event);
-            const transcriptResult = Array.from(event.results)
-              .map((result: any) => result[0].transcript)
-              .join('');
-            setTranscript(transcriptResult);
-          };
-          
-          recognitionRef.current.onerror = (event: any) => {
-            console.error('Speech recognition error:', event);
-            setError(`Speech recognition error: ${event.error}`);
-            setIsListening(false);
-          };
-        }
-        
-        // Request microphone permission explicitly
-        navigator.mediaDevices.getUserMedia({ audio: true })
-          .then(() => {
-            console.log('Microphone permission granted');
-            recognitionRef.current?.start();
-          })
-          .catch((err) => {
-            console.error('Microphone permission denied:', err);
-            setError('Please allow microphone access to use voice commands.');
-          });
+        // Show permission dialog when starting
+        setShowPermissionDialog(true);
       }
     } catch (err) {
       console.error('Error toggling speech recognition:', err);
@@ -161,7 +117,19 @@ export const VoiceAgent: React.FC<VoiceAgentProps> = ({ onWorkflowGenerated }) =
       setIsListening(false);
     }
   };
-  
+
+  const handlePermissionGranted = () => {
+    setShowPermissionDialog(false);
+    if (recognitionRef.current) {
+      recognitionRef.current.start();
+    }
+  };
+
+  const handlePermissionDenied = () => {
+    setShowPermissionDialog(false);
+    setError('Microphone access is required for voice commands. Please allow microphone access and try again.');
+  };
+
   const processCommand = async () => {
     if (!transcript || processing) return;
     
@@ -356,6 +324,12 @@ export const VoiceAgent: React.FC<VoiceAgentProps> = ({ onWorkflowGenerated }) =
       
       {audioSrc && (
         <audio ref={audioRef} src={audioSrc} className="hidden" />
+      )}
+      {showPermissionDialog && (
+        <MicrophonePermission
+          onPermissionGranted={handlePermissionGranted}
+          onPermissionDenied={handlePermissionDenied}
+        />
       )}
     </>
   );
