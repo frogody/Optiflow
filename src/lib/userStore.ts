@@ -1,6 +1,7 @@
 'use client';
 
 import { create } from 'zustand';
+import { persist } from 'zustand/middleware';
 import { User } from '@prisma/client';
 
 // Frontend user type matching our session types
@@ -41,6 +42,7 @@ export interface UserState {
   environments: {
     [userId: string]: UserEnvironment;
   };
+  lastCheck: number;
   setCurrentUser: (user: FrontendUser | null) => void;
   setLoading: (loading: boolean) => void;
   updateToolConnection: (userId: string, toolName: string, connection: ToolConnection) => void;
@@ -51,54 +53,74 @@ export interface UserState {
   clearUser: () => void;
 }
 
-export const useUserStore = create<UserState>()((set, get) => ({
-  currentUser: null,
-  isLoading: true,
-  environments: {},
-  setCurrentUser: (user) => {
-    console.log('Setting current user:', user ? user.email : 'null');
-    set({ currentUser: user, isLoading: false });
-  },
-  setLoading: (loading) => set({ isLoading: loading }),
-  updateToolConnection: (userId, toolName, connection) => 
-    set((state) => ({
-      environments: {
-        ...state.environments,
-        [userId]: {
-          ...state.environments[userId],
-          userId,
-          toolConnections: {
-            ...state.environments[userId]?.toolConnections,
-            [toolName]: connection
+export const useUserStore = create<UserState>()(
+  persist(
+    (set, get) => ({
+      currentUser: null,
+      isLoading: true,
+      environments: {},
+      lastCheck: 0,
+      setCurrentUser: (user) => {
+        console.log('Setting current user:', user ? user.email : 'null');
+        set({ 
+          currentUser: user, 
+          isLoading: false,
+          lastCheck: Date.now()
+        });
+      },
+      setLoading: (loading) => set({ isLoading: loading }),
+      updateToolConnection: (userId, toolName, connection) => 
+        set((state) => ({
+          environments: {
+            ...state.environments,
+            [userId]: {
+              ...state.environments[userId],
+              userId,
+              toolConnections: {
+                ...state.environments[userId]?.toolConnections,
+                [toolName]: connection
+              }
+            }
           }
-        }
-      }
-    })),
-  updateMcpConnection: (userId, orchestratorId, connection) =>
-    set((state) => ({
-      environments: {
-        ...state.environments,
-        [userId]: {
-          ...state.environments[userId],
-          userId,
-          mcpConnections: {
-            ...state.environments[userId]?.mcpConnections,
-            [orchestratorId]: connection
+        })),
+      updateMcpConnection: (userId, orchestratorId, connection) =>
+        set((state) => ({
+          environments: {
+            ...state.environments,
+            [userId]: {
+              ...state.environments[userId],
+              userId,
+              mcpConnections: {
+                ...state.environments[userId]?.mcpConnections,
+                [orchestratorId]: connection
+              }
+            }
           }
-        }
-      }
-    })),
-  getEnvironment: (userId) => {
-    const state = get();
-    return state.environments[userId] || null;
-  },
-  setUser: (user) => {
-    console.log('Setting user with setUser method:', user ? user.email : 'null');
-    set({ currentUser: user, isLoading: false });
-  },
-  logoutUser: () => {
-    console.log('Logging out user');
-    set({ currentUser: null, isLoading: false });
-  },
-  clearUser: () => set({ currentUser: null, isLoading: false }),
-})); 
+        })),
+      getEnvironment: (userId) => {
+        const state = get();
+        return state.environments[userId] || null;
+      },
+      setUser: (user) => {
+        console.log('Setting user with setUser method:', user ? user.email : 'null');
+        set({ 
+          currentUser: user, 
+          isLoading: false,
+          lastCheck: Date.now()
+        });
+      },
+      logoutUser: () => {
+        console.log('Logging out user');
+        set({ currentUser: null, isLoading: false });
+      },
+      clearUser: () => set({ currentUser: null, isLoading: false }),
+    }),
+    {
+      name: 'user-store',
+      partialize: (state) => ({ 
+        currentUser: state.currentUser,
+        lastCheck: state.lastCheck
+      }),
+    }
+  )
+); 

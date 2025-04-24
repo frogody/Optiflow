@@ -35,29 +35,50 @@ export default function Navigation() {
   const { currentUser, isLoading: userLoading, setCurrentUser } = useUserStore();
   const { theme } = useThemeStore();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
   const [isNotifying, setIsNotifying] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [compactMode, setCompactMode] = useState(false);
 
+  // Close menus when route changes
+  useEffect(() => {
+    setIsMobileMenuOpen(false);
+    setIsUserMenuOpen(false);
+  }, [pathname]);
+
   // Handle logout
   const handleLogout = async () => {
     try {
-      // Sign out from NextAuth
+      setIsUserMenuOpen(false); // Close menu before logout
       await signOut({ redirect: false });
-      
-      // Clear user from store
       setCurrentUser(null);
-      
-      // Close mobile menu if open
-      setIsMobileMenuOpen(false);
-      
-      // Redirect to home page
       router.push('/');
     } catch (error) {
       console.error('Error during logout:', error);
       setError('Failed to log out. Please try again.');
     }
   };
+
+  // Handle user menu click
+  const handleUserMenuClick = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsUserMenuOpen(!isUserMenuOpen);
+  };
+
+  // Close menus when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      const target = event.target as HTMLElement;
+      if (!target.closest('.user-menu') && !target.closest('.mobile-menu')) {
+        setIsUserMenuOpen(false);
+        setIsMobileMenuOpen(false);
+      }
+    };
+
+    document.addEventListener('click', handleClickOutside);
+    return () => document.removeEventListener('click', handleClickOutside);
+  }, []);
 
   // Navigation items based on auth state
   const navigationItems: NavigationItem[] = [
@@ -298,55 +319,54 @@ export default function Navigation() {
                 <div className="h-8 w-24 bg-white/5 animate-pulse rounded-full" />
               ) : currentUser ? (
                 // User menu
-                <div className="relative group">
-                  <button 
-                    className={`flex items-center space-x-2 ${buttonPadding} text-sm dark:text-white/90 dark:hover:text-white light:text-gray-700 light:hover:text-gray-900 rounded-full border border-transparent hover:border-white/10 hover:bg-white/5 transition-all duration-200`}
-                    aria-label="User menu"
-                    aria-expanded="false"
+                <div className="relative user-menu">
+                  <button
+                    onClick={handleUserMenuClick}
+                    className="flex items-center space-x-2 text-sm focus:outline-none"
                   >
                     <span>{currentUser.email}</span>
+                    <svg
+                      className={`w-4 h-4 transition-transform ${isUserMenuOpen ? 'rotate-180' : ''}`}
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                    </svg>
                   </button>
-                  
-                  {/* Dropdown menu */}
-                  <div className="absolute right-0 top-full mt-1 w-64 invisible group-hover:visible opacity-0 group-hover:opacity-100 transition-all duration-200">
-                    <div className="py-1 bg-black/90 backdrop-blur-md rounded-lg border border-white/10 shadow-lg dark:bg-black/90 light:bg-white/90 dark:border-white/10 light:border-black/10">
+
+                  {/* User Menu Dropdown */}
+                  <Transition
+                    show={isUserMenuOpen}
+                    enter="transition ease-out duration-100"
+                    enterFrom="transform opacity-0 scale-95"
+                    enterTo="transform opacity-100 scale-100"
+                    leave="transition ease-in duration-75"
+                    leaveFrom="transform opacity-100 scale-100"
+                    leaveTo="transform opacity-0 scale-95"
+                  >
+                    <div className="absolute right-0 mt-2 w-48 rounded-md shadow-lg py-1 bg-white dark:bg-gray-800 ring-1 ring-black ring-opacity-5">
                       {userNavigation.map((item) => (
-                        <div key={item.name}>
-                          {item.onClick ? (
-                            <button
-                              onClick={item.onClick}
-                              className="w-full text-left block px-4 py-2 text-sm dark:text-white/80 dark:hover:text-white dark:hover:bg-white/5 light:text-gray-700 light:hover:text-gray-900 light:hover:bg-black/5"
-                            >
-                              <div className="flex items-center">
-                                <span className="w-5">{item.icon}</span>
-                                <div className="ml-3">
-                                  <p className="text-sm font-medium dark:text-white light:text-gray-800">{item.name}</p>
-                                  {item.description && (
-                                    <p className="text-xs dark:text-white/60 light:text-gray-500">{item.description}</p>
-                                  )}
-                                </div>
-                              </div>
-                            </button>
-                          ) : (
-                            <Link
-                              href={item.href}
-                              className="block px-4 py-2 text-sm dark:text-white/80 dark:hover:text-white dark:hover:bg-white/5 light:text-gray-700 light:hover:text-gray-900 light:hover:bg-black/5"
-                            >
-                              <div className="flex items-center">
-                                <span className="w-5">{item.icon}</span>
-                                <div className="ml-3">
-                                  <p className="text-sm font-medium dark:text-white light:text-gray-800">{item.name}</p>
-                                  {item.description && (
-                                    <p className="text-xs dark:text-white/60 light:text-gray-500">{item.description}</p>
-                                  )}
-                                </div>
-                              </div>
-                            </Link>
-                          )}
-                        </div>
+                        <a
+                          key={item.name}
+                          href={item.href}
+                          onClick={(e) => {
+                            e.preventDefault();
+                            if (item.onClick) {
+                              item.onClick();
+                            } else {
+                              setIsUserMenuOpen(false);
+                              router.push(item.href);
+                            }
+                          }}
+                          className="block px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700"
+                        >
+                          {item.icon && <span className="mr-2">{item.icon}</span>}
+                          {item.name}
+                        </a>
                       ))}
                     </div>
-                  </div>
+                  </Transition>
                 </div>
               ) : (
                 // Auth buttons
