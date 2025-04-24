@@ -22,7 +22,7 @@ export async function POST(request: NextRequest) {
     console.log(`API login attempt for: ${email}`);
     
     // Ensure test user exists (for demo login)
-    if (email === 'demo@example.com') {
+    if (email === 'demo@optiflow.ai') {
       await createTestUser();
     }
     

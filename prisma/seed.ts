@@ -1,76 +1,43 @@
-import { PrismaClient } from '@prisma/client';
+import { prisma } from '@/lib/prisma';
 import bcrypt from 'bcryptjs';
 
-const prisma = new PrismaClient();
-
 async function main() {
-  console.log('Starting database seeding...');
+  try {
+    console.log('Seeding database...');
 
-  // Create default user
-  const hashedPassword = await bcrypt.hash('admin123', 10);
-  const user = await prisma.user.create({
-    data: {
-      email: 'admin@optiflow.ai',
-      name: 'Admin User',
-      passwordHash: hashedPassword,
-      role: 'admin',
-    },
-  });
+    // Create test user if it doesn't exist
+    const testUser = await prisma.user.upsert({
+      where: { email: 'test@example.com' },
+      update: {},
+      create: {
+        email: 'test@example.com',
+        passwordHash: await bcrypt.hash('password123', 10),
+        name: 'Test User',
+        organizations: {
+          create: {
+            organization: {
+              create: {
+                name: 'Test Organization',
+                plan: 'free'
+              }
+            },
+            role: 'OWNER'
+          }
+        }
+      }
+    });
 
-  console.log('Created default user:', user.email);
+    console.log('Created test user:', testUser.email);
 
-  // Create default organization
-  const organization = await prisma.organization.create({
-    data: {
-      name: 'Default Organization',
-      plan: 'free',
-      members: {
-        create: {
-          userId: user.id,
-          role: 'OWNER',
-        },
-      },
-    },
-  });
+    // Add more seed data here as needed
 
-  console.log('Created default organization:', organization.name);
-
-  // Create default AI models
-  const aiModels = await prisma.aIModel.createMany({
-    data: [
-      {
-        name: 'Claude-3 Opus',
-        provider: 'ANTHROPIC',
-        modelId: 'claude-3-opus-20240229',
-        capabilities: ['text-generation', 'code-generation', 'analysis'],
-        maxTokens: 4096,
-        configuration: {
-          costPer1kTokens: 0.015,
-          contextWindow: 200000,
-        },
-      },
-      {
-        name: 'Claude-3 Sonnet',
-        provider: 'ANTHROPIC',
-        modelId: 'claude-3-sonnet-20240229',
-        capabilities: ['text-generation', 'code-generation', 'analysis'],
-        maxTokens: 4096,
-        configuration: {
-          costPer1kTokens: 0.003,
-          contextWindow: 200000,
-        },
-      },
-    ],
-  });
-
-  console.log('Created AI models');
+    console.log('Database seeding completed');
+  } catch (error) {
+    console.error('Seeding error:', error);
+    process.exit(1);
+  } finally {
+    await prisma.$disconnect();
+  }
 }
 
-main()
-  .catch((e) => {
-    console.error('Error seeding database:', e);
-    process.exit(1);
-  })
-  .finally(async () => {
-    await prisma.$disconnect();
-  }); 
+main(); 

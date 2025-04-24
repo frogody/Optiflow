@@ -11,6 +11,7 @@ import { Transition } from '@headlessui/react';
 import Cookies from 'js-cookie';
 import LanguageSwitcher from './LanguageSwitcher';
 import TranslatedText from './TranslatedText';
+import { signOut } from 'next-auth/react';
 
 interface NavigationItem {
   name: string;
@@ -28,16 +29,6 @@ interface UserNavItem {
   onClick?: () => void;
 }
 
-// Helper function to get user settings
-const getUserSettings = () => {
-  try {
-    const settings = localStorage.getItem('user-settings');
-    return settings ? JSON.parse(settings) : { compactMode: false, showAdvancedOptions: false };
-  } catch (e) {
-    return { compactMode: false, showAdvancedOptions: false };
-  }
-};
-
 export default function Navigation() {
   const router = useRouter();
   const pathname = usePathname();
@@ -48,36 +39,24 @@ export default function Navigation() {
   const [error, setError] = useState<string | null>(null);
   const [compactMode, setCompactMode] = useState(false);
 
-  // Load user settings on mount
-  useEffect(() => {
-    const settings = getUserSettings();
-    setCompactMode(settings.compactMode);
-  }, []);
-
-  // Update compact mode when localStorage changes
-  useEffect(() => {
-    const handleStorageChange = () => {
-      const settings = getUserSettings();
-      setCompactMode(settings.compactMode);
-    };
-    
-    window.addEventListener('storage', handleStorageChange);
-    return () => window.removeEventListener('storage', handleStorageChange);
-  }, []);
-
   // Handle logout
-  const handleLogout = () => {
-    // Clear user from store
-    setCurrentUser(null);
-    
-    // Remove authentication cookie
-    Cookies.remove('user-token', { path: '/' });
-    
-    // Close mobile menu if open
-    setIsMobileMenuOpen(false);
-    
-    // Redirect to home page
-    router.push('/');
+  const handleLogout = async () => {
+    try {
+      // Sign out from NextAuth
+      await signOut({ redirect: false });
+      
+      // Clear user from store
+      setCurrentUser(null);
+      
+      // Close mobile menu if open
+      setIsMobileMenuOpen(false);
+      
+      // Redirect to home page
+      router.push('/');
+    } catch (error) {
+      console.error('Error during logout:', error);
+      setError('Failed to log out. Please try again.');
+    }
   };
 
   // Navigation items based on auth state
@@ -85,7 +64,7 @@ export default function Navigation() {
     { 
       name: 'Optiflow',
       href: '#',
-      current: ['/pricing', '/faq', '/features', '/conversational-test', '/voice-test', '/integrations'].includes(pathname),
+      current: pathname ? ['/pricing', '/faq', '/features', '/conversational-test', '/voice-test', '/integrations'].includes(pathname) : false,
       requiresAuth: false,
       children: [
         { name: 'Features', href: '/features', current: pathname === '/features', requiresAuth: false },
@@ -306,6 +285,24 @@ export default function Navigation() {
                 >
                   <TranslatedText textKey="navigation.dashboard" fallback="Dashboard" />
                 </button>
+              )}
+              
+              {/* Auth buttons */}
+              {!currentUser && !userLoading && (
+                <div className="flex items-center space-x-3">
+                  <Link
+                    href="/login"
+                    className="text-sm font-medium text-gray-300 hover:text-white"
+                  >
+                    <TranslatedText textKey="navigation.login" fallback="Sign in" />
+                  </Link>
+                  <Link
+                    href="/register"
+                    className="inline-flex items-center justify-center px-4 py-1.5 text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+                  >
+                    <TranslatedText textKey="navigation.signup" fallback="Sign up" />
+                  </Link>
+                </div>
               )}
             </div>
 

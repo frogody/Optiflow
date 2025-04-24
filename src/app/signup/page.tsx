@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { useUserStore } from '@/lib/userStore';
-import { registerUser, authenticateWithSocialProvider, SocialProvider } from '@/lib/auth';
+import { SocialProvider } from '@/lib/auth';
 import Cookies from 'js-cookie';
 import Image from 'next/image';
 
@@ -33,21 +33,33 @@ export default function Signup() {
     }
 
     try {
-      const user = await registerUser({
-        email: formData.email,
-        password: formData.password,
-        name: formData.name || undefined,
+      const response = await fetch('/api/auth/register', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          email: formData.email,
+          password: formData.password,
+          name: formData.name || undefined,
+        }),
       });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Registration failed');
+      }
 
       // Set user in store
       setCurrentUser({
-        id: user.id,
-        email: user.email,
-        name: user.name,
+        id: data.user.id,
+        email: data.user.email,
+        name: data.user.name,
       });
       
       // Set authentication cookie
-      Cookies.set('user-token', user.id, { 
+      Cookies.set('user-token', data.user.id, { 
         expires: 7, 
         path: '/',
         sameSite: 'strict'
@@ -63,39 +75,21 @@ export default function Signup() {
   };
   
   const handleSocialLogin = async (provider: string) => {
-    // In a real implementation, this would redirect to OAuth provider
     setIsLoading(true);
     setError('');
     console.log(`Signing up with ${provider}...`);
     
     try {
-      // For demo purposes, simulate a successful authentication
-      // In a real app, you would redirect to the provider's OAuth page and handle the callback
-      const mockAuthCode = 'mock-auth-code-' + Date.now();
-      
-      // Call the authenticateWithSocialProvider function with the provider and code
-      const user = await authenticateWithSocialProvider(provider.toLowerCase() as SocialProvider, mockAuthCode);
-      
-      // Set user in store
-      setCurrentUser({
-        id: user.id,
-        email: user.email,
-        name: user.name,
-      });
-      
-      // Set authentication cookie with secure settings
-      Cookies.set('user-token', user.id, { 
-        expires: 7, 
-        path: '/',
-        sameSite: 'strict'
-      });
-      
-      // Redirect to dashboard
-      router.push('/dashboard');
+      if (provider.toLowerCase() === 'github') {
+        window.location.href = '/api/auth/signin/github';
+        return;
+      } else if (provider.toLowerCase() === 'gmail') {
+        window.location.href = '/api/auth/signin/google';
+        return;
+      }
     } catch (error) {
       console.error(`${provider} signup error:`, error);
       setError(error instanceof Error ? error.message : `Registration with ${provider} failed`);
-    } finally {
       setIsLoading(false);
     }
   };

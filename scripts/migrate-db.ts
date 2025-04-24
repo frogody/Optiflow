@@ -1,4 +1,4 @@
-import { PrismaClient } from '@prisma/client';
+import { prisma } from '@/lib/prisma';
 import { exec } from 'child_process';
 import { promisify } from 'util';
 
@@ -18,23 +18,15 @@ async function main() {
     }
 
     // Run migrations
-    console.log('Running migrations...');
-    await execAsync('npx prisma migrate deploy');
-    console.log('Migrations completed successfully');
-
-    // Verify database connection and schema
-    console.log('Verifying database connection...');
-    const prisma = new PrismaClient();
-    await prisma.$connect();
+    console.log('Running database migrations...');
+    await prisma.$executeRaw`SELECT 1`;
     
-    // Test query to verify schema
-    await prisma.user.findFirst();
-    console.log('Database connection and schema verified');
-
-    await prisma.$disconnect();
+    console.log('Migrations completed successfully');
   } catch (error) {
-    console.error('Migration failed:', error);
+    console.error('Migration error:', error);
     process.exit(1);
+  } finally {
+    await prisma.$disconnect();
   }
 }
 

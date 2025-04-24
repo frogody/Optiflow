@@ -1,10 +1,10 @@
-import { PrismaClient, Prisma } from '@prisma/client';
+import { Prisma } from '@prisma/client';
+import { prisma } from '@/lib/prisma';
 import { z } from 'zod';
 import { Anthropic } from '@anthropic-ai/sdk';
 import { AIError } from '../errors/AIError';
 import { ClaudeWrapper, MODEL_MAP } from './ClaudeWrapper';
 
-const prisma = new PrismaClient();
 const claudeWrapper = new ClaudeWrapper();
 
 // Types for raw queries

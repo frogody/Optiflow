@@ -15,84 +15,81 @@ const userSchema = z.object({
 
 export const authOptions: NextAuthOptions = {
   adapter: PrismaAdapter(prisma),
-  session: {
-    strategy: "jwt",
-  },
-  pages: {
-    signIn: "/login",
-  },
   providers: [
-    GoogleProvider({
-      clientId: process.env.GOOGLE_CLIENT_ID!,
-      clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
-    }),
     CredentialsProvider({
-      name: "credentials",
+      name: 'credentials',
       credentials: {
-        email: { label: "Email", type: "email" },
-        password: { label: "Password", type: "password" },
+        email: { label: 'Email', type: 'email' },
+        password: { label: 'Password', type: 'password' }
       },
       async authorize(credentials) {
         if (!credentials?.email || !credentials?.password) {
-          throw new Error("Invalid credentials");
+          console.log('Missing credentials');
+          return null;
         }
 
-        const { email, password } = credentials;
-
         try {
-          const validatedFields = userSchema.parse({
-            email,
-            password,
-          });
-
           const user = await prisma.user.findUnique({
-            where: { email: validatedFields.email },
+            where: { email: credentials.email }
           });
 
-          if (!user || !user.password) {
-            throw new Error("Invalid credentials");
+          if (!user || !user.passwordHash) {
+            console.log('User not found or no password:', credentials.email);
+            return null;
           }
 
-          const isValid = await bcrypt.compare(
-            validatedFields.password,
-            user.password
-          );
-
+          const isValid = await bcrypt.compare(credentials.password, user.passwordHash);
+          
           if (!isValid) {
-            throw new Error("Invalid credentials");
+            console.log('Invalid password for user:', credentials.email);
+            return null;
           }
 
+          console.log('Auth success:', { email: user.email, id: user.id });
+          
           return {
             id: user.id,
             email: user.email,
-            name: user.name,
+            name: user.name
           };
         } catch (error) {
-          if (error instanceof z.ZodError) {
-            throw new Error("Invalid credentials format");
-          }
-          throw error;
+          console.error('Auth error:', error);
+          return null;
         }
-      },
-    }),
-  ],
-  callbacks: {
-    async session({ token, session }) {
-      if (token) {
-        session.user.id = token.id as string;
-        session.user.name = token.name;
-        session.user.email = token.email;
       }
-
-      return session;
-    },
+    }),
+    GoogleProvider({
+      clientId: process.env.GOOGLE_CLIENT_ID || '',
+      clientSecret: process.env.GOOGLE_CLIENT_SECRET || '',
+    })
+  ],
+  pages: {
+    signIn: '/login',
+    error: '/login',
+    signOut: '/'
+  },
+  session: {
+    strategy: 'jwt',
+    maxAge: 30 * 24 * 60 * 60 // 30 days
+  },
+  callbacks: {
     async jwt({ token, user }) {
       if (user) {
         token.id = user.id;
+        token.email = user.email;
+        token.name = user.name;
       }
       return token;
     },
-  },
+    async session({ session, token }) {
+      if (token && session.user) {
+        session.user.id = token.id as string;
+        session.user.email = token.email as string;
+        session.user.name = token.name as string;
+      }
+      return session;
+    }
+  }
 };
 
 export type UserCredentials = z.infer<typeof userSchema>;
@@ -105,132 +102,102 @@ export interface SocialLoginCredentials {
   providerToken: string;
 }
 
-// Helper functions for localStorage
-const getUsers = () => {
-  if (typeof window === 'undefined') return new Map();
-  
-  try {
-    const stored = localStorage.getItem('users');
-    if (!stored) {
-      console.log('No users found in localStorage, creating empty map');
-      return new Map();
-    }
-    
-    // Parse the stored JSON data
-    const parsed = JSON.parse(stored);
-    console.log('Found users in localStorage:', parsed ? parsed.length / 2 : 0, 'users');
-    return new Map(parsed);
-  } catch (error) {
-    console.error('Error getting users from localStorage:', error);
-    return new Map();
-  }
-};
-
-const saveUsers = (users: Map<string, any>) => {
-  if (typeof window === 'undefined') return;
-  
-  try {
-    const data = Array.from(users.entries());
-    console.log('Saving users to localStorage:', data.length, 'users');
-    localStorage.setItem('users', JSON.stringify(data));
-  } catch (error) {
-    console.error('Error saving users to localStorage:', error);
-  }
-};
-
-// Create a test user for development
-export async function createTestUser() {
-  if (typeof window === 'undefined') return;
-  
-  try {
-    const email = process.env.TEST_USER_EMAIL || 'demo@example.com';
-    const password = process.env.TEST_USER_PASSWORD || 'password123';
-    const name = 'Demo User';
-    
-    const users = getUsers();
-    
-    // Only create test user if it doesn't exist
-    if (!users.has(email)) {
-      console.log('Creating test user for development');
-      const hashedPassword = await bcrypt.hash(password, 10);
-      const userId = btoa(email).slice(0, 24);
-      
-      const user = {
-        id: userId,
-        email: email,
-        password: hashedPassword,
-        name: name,
-      };
-      
-      users.set(email, user);
-      saveUsers(users);
-      console.log('Test user created. You can login with:', email, 'and password from .env.local');
-    }
-  } catch (error) {
-    console.error('Error creating test user:', error);
-  }
+interface RegisterUserParams {
+  email: string;
+  password: string;
+  name?: string;
 }
 
-export async function registerUser(credentials: UserCredentials) {
-  const validated = userSchema.parse(credentials);
-  const users = getUsers();
-  
-  if (users.has(validated.email)) {
-    throw new Error('User already exists');
+export async function registerUser({ email, password, name }: RegisterUserParams) {
+  // Check if user already exists
+  const existingUser = await prisma.user.findUnique({
+    where: { email },
+  });
+
+  if (existingUser) {
+    throw new Error('User with this email already exists');
   }
 
-  const hashedPassword = await bcrypt.hash(validated.password, 10);
-  const userId = btoa(validated.email).slice(0, 24);
+  // Hash password
+  const hashedPassword = await bcrypt.hash(password, 10);
 
-  const user = {
-    id: userId,
-    email: validated.email,
-    password: hashedPassword,
-    name: validated.name,
-  };
+  // Create user
+  const user = await prisma.user.create({
+    data: {
+      email,
+      passwordHash: hashedPassword,
+      name,
+      // Create a default organization for the user
+      organizations: {
+        create: {
+          organization: {
+            create: {
+              name: `${name || email}'s Organization`,
+              plan: 'free',
+            }
+          },
+          role: 'OWNER',
+        }
+      }
+    },
+    select: {
+      id: true,
+      email: true,
+      name: true,
+    }
+  });
 
-  users.set(validated.email, user);
-  saveUsers(users);
+  return user;
+}
 
-  // Return user without password
-  const { password, ...userWithoutPassword } = user;
-  return userWithoutPassword;
+export async function verifyPassword(hashedPassword: string, password: string) {
+  return bcrypt.compare(password, hashedPassword);
 }
 
 export async function authenticateUser(email: string, password: string) {
   console.log('Starting authentication for email:', email);
   
   try {
-    const users = getUsers();
-    console.log('getUsers returned:', users.size, 'users');
+    const user = await prisma.user.findUnique({
+      where: { email }
+    });
     
-    const user = users.get(email);
-    console.log('Found user?', !!user);
-    
-    if (!user) {
-      console.log('User not found in localStorage');
+    if (!user || !user.passwordHash) {
+      console.log('User not found:', email);
       throw new Error('Invalid credentials');
     }
 
-    // Log user data without sensitive information
-    console.log('User found:', { email: user.email, id: user.id });
+    console.log('Found user:', { email: user.email, id: user.id });
     
-    const isValid = await bcrypt.compare(password, user.password);
-    console.log('Password comparison result:', isValid);
+    const isValid = await bcrypt.compare(password, user.passwordHash);
+    console.log('Password validation result:', isValid);
     
     if (!isValid) {
-      console.log('Invalid password');
+      console.log('Invalid password for user:', email);
       throw new Error('Invalid credentials');
     }
 
     // Return user without password
-    const { password: _, ...userWithoutPassword } = user;
-    console.log('Authentication successful for user:', userWithoutPassword.email);
+    const { passwordHash, ...userWithoutPassword } = user;
+    console.log('Authentication successful:', { email: userWithoutPassword.email, id: userWithoutPassword.id });
     return userWithoutPassword;
   } catch (error) {
-    console.error('Error in authenticateUser:', error);
+    console.error('Authentication error:', error);
     throw error;
   }
+}
+
+export async function getUserById(id: string) {
+  const user = await prisma.user.findUnique({
+    where: { id }
+  });
+
+  if (!user) {
+    return null;
+  }
+
+  const { passwordHash, ...userWithoutPassword } = user;
+  return userWithoutPassword;
 }
 
 export async function authenticateWithSocialProvider(provider: SocialProvider, code: string) {
@@ -346,13 +313,74 @@ export async function authenticateWithSocialProvider(provider: SocialProvider, c
   throw new Error(`Unsupported provider: ${provider}`);
 }
 
-export function getUserById(id: string) {
-  const users = getUsers();
-  for (const user of Array.from(users.values())) {
-    if (user.id === id) {
-      const { password, ...userWithoutPassword } = user;
-      return userWithoutPassword;
+// Helper functions for localStorage
+const getUsers = () => {
+  if (typeof window === 'undefined') return new Map();
+  
+  try {
+    const stored = localStorage.getItem('users');
+    if (!stored) {
+      console.log('No users found in localStorage, creating empty map');
+      return new Map();
     }
+    
+    // Parse the stored JSON data
+    const parsed = JSON.parse(stored);
+    console.log('Found users in localStorage:', parsed ? parsed.length / 2 : 0, 'users');
+    return new Map(parsed);
+  } catch (error) {
+    console.error('Error getting users from localStorage:', error);
+    return new Map();
   }
-  return null;
+};
+
+const saveUsers = (users: Map<string, any>) => {
+  if (typeof window === 'undefined') return;
+  
+  try {
+    const data = Array.from(users.entries());
+    console.log('Saving users to localStorage:', data.length, 'users');
+    localStorage.setItem('users', JSON.stringify(data));
+  } catch (error) {
+    console.error('Error saving users to localStorage:', error);
+  }
+};
+
+// Create a test user for development
+export async function createTestUser() {
+  const email = 'demo@optiflow.ai';
+  const password = 'Demo123!@#';
+
+  // Check if demo user already exists
+  const existingUser = await prisma.user.findUnique({
+    where: { email }
+  });
+
+  if (existingUser) {
+    return existingUser;
+  }
+
+  // Create demo user if it doesn't exist
+  const hashedPassword = await bcrypt.hash(password, 10);
+  
+  const user = await prisma.user.create({
+    data: {
+      email,
+      passwordHash: hashedPassword,
+      name: 'Demo User',
+      organizations: {
+        create: {
+          organization: {
+            create: {
+              name: 'Demo Organization',
+              plan: 'free'
+            }
+          },
+          role: 'OWNER'
+        }
+      }
+    }
+  });
+
+  return user;
 } 

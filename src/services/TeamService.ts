@@ -1,7 +1,6 @@
-import { PrismaClient, Team, TeamMember, OrganizationMember, User } from '@prisma/client';
+import { Team, TeamMember, OrganizationMember, User } from '@prisma/client';
+import { prisma } from '@/lib/prisma';
 import { z } from 'zod';
-
-const prisma = new PrismaClient();
 
 // Validation schemas
 const createTeamSchema = z.object({

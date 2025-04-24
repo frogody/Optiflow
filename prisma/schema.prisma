@@ -466,3 +466,16 @@ model VoiceRecognitionAccuracy {
   @@index([wasCorrect])
   @@map("voice_recognition_accuracy")
 }
+
+model ConsultationRequest {
+  id        String   @id @default(uuid())
+  name      String
+  email     String
+  company   String
+  message   String
+  status    String   @default("PENDING") // PENDING, CONTACTED, COMPLETED, REJECTED
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("consultation_requests")
+}
