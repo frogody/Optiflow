@@ -120,68 +120,189 @@ export default function EnterprisePage() {
   };
 
   return (
-    <div className="min-h-screen text-white" style={{ background: 'linear-gradient(to bottom, #000000, #0A0A0A)' }}>
+    <div className="min-h-screen text-white">
       {/* Hero Section */}
-      <section className="relative pt-24 pb-16 overflow-hidden">
-        {/* Glow Effects */}
-        <div className="absolute w-[300px] h-[300px] rounded-full left-1/4 top-1/4 bg-[#3CDFFF] opacity-10 blur-[100px]"></div>
-        <div className="absolute w-[300px] h-[300px] rounded-full right-1/4 bottom-1/3 bg-[#4AFFD4] opacity-10 blur-[100px]"></div>
+      <section className="relative overflow-hidden">
+        {/* Background Elements */}
+        <div className="absolute inset-0 bg-black" />
+        <div className="absolute inset-0 bg-[url('/grid.svg')] opacity-10" />
         
-        <div className="container mx-auto px-4">
-          <div className="grid lg:grid-cols-2 gap-12 items-center">
+        {/* Enhanced Pulsing Light Effects */}
+        <div className="absolute inset-0 z-0">
+          <motion.div 
+            className="absolute w-[1400px] h-[1400px] rounded-full left-1/4 -top-1/2 bg-gradient-to-r from-[#3CDFFF]/20 to-[#4AFFD4]/20 blur-[200px]"
+            animate={{
+              opacity: [0.2, 0.4, 0.2],
+              scale: [1, 1.2, 1],
+              x: [-50, 50, -50],
+              y: [-50, 50, -50],
+              rotate: [0, 45, 0],
+            }}
+            transition={{
+              duration: 10,
+              repeat: Infinity,
+              ease: "easeInOut"
+            }}
+          />
+          <motion.div 
+            className="absolute w-[1400px] h-[1400px] rounded-full right-1/4 -bottom-1/2 bg-gradient-to-r from-[#4AFFD4]/20 to-[#3CDFFF]/20 blur-[200px]"
+            animate={{
+              opacity: [0.2, 0.4, 0.2],
+              scale: [1, 1.2, 1],
+              x: [50, -50, 50],
+              y: [50, -50, 50],
+              rotate: [0, -45, 0],
+            }}
+            transition={{
+              duration: 10,
+              repeat: Infinity,
+              ease: "easeInOut",
+              delay: 2
+            }}
+          />
+          <motion.div 
+            className="absolute w-[1200px] h-[1200px] rounded-full left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 bg-gradient-to-r from-[#3CDFFF]/20 via-[#4AFFD4]/20 to-[#3CDFFF]/20 blur-[200px]"
+            animate={{
+              opacity: [0.15, 0.3, 0.15],
+              scale: [1, 1.3, 1],
+              rotate: [0, 180, 360],
+            }}
+            transition={{
+              duration: 12,
+              repeat: Infinity,
+              ease: "easeInOut",
+              delay: 1
+            }}
+          />
+          {/* Enhanced floating orbs with gradients */}
+          {[...Array(15)].map((_, i) => (
             <motion.div
-              initial={{ opacity: 0, y: 30 }}
+              key={i}
+              className={`absolute w-[${Math.random() * 600 + 400}px] h-[${Math.random() * 600 + 400}px] rounded-full blur-[150px] bg-gradient-to-r ${
+                i % 3 === 0 ? 'from-[#3CDFFF]/20 to-[#4AFFD4]/20' :
+                i % 3 === 1 ? 'from-[#4AFFD4]/20 to-[#3CDFFF]/20' :
+                'from-[#3CDFFF]/20 via-[#4AFFD4]/20 to-[#3CDFFF]/20'
+              }`}
+              style={{
+                left: `${Math.random() * 100}%`,
+                top: `${Math.random() * 100}%`,
+              }}
+              animate={{
+                opacity: [0.1, 0.2, 0.1],
+                scale: [1, 1.3, 1],
+                x: [0, Math.random() * 200 - 100, 0],
+                y: [0, Math.random() * 200 - 100, 0],
+                rotate: [0, Math.random() * 180 - 90, 0],
+              }}
+              transition={{
+                duration: Math.random() * 8 + 8,
+                repeat: Infinity,
+                ease: "easeInOut",
+                delay: Math.random() * 5,
+              }}
+            />
+          ))}
+        </div>
+        
+        <div className="container mx-auto max-w-7xl relative z-10">
+          <div className="min-h-[90vh] flex items-center py-24 px-6">
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.8 }}
+              transition={{ duration: 1 }}
+              className="max-w-4xl"
             >
-              <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-6">
-                Enterprise <span className="text-gradient">Solutions</span> for Global Teams
-              </h1>
+              <motion.div
+                initial={{ opacity: 0, scale: 0.8 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ duration: 0.7, delay: 0.3 }}
+                className="inline-block mb-8"
+              >
+                <span className="px-6 py-2 rounded-full bg-gradient-to-r from-[#3CDFFF]/10 to-[#4AFFD4]/10 border border-[#3CDFFF]/20 text-[#3CDFFF] text-sm font-medium backdrop-blur-sm">
+                  Enterprise-Grade Solutions
+                </span>
+              </motion.div>
               
-              <p className="text-lg text-gray-300 mb-8">
+              <motion.h1 
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 1, delay: 0.5 }}
+                className="text-6xl md:text-7xl lg:text-8xl font-bold mb-8 tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-white via-[#3CDFFF] to-white bg-300% animate-gradient"
+              >
+                Transform Your{" "}
+                <span className="bg-gradient-to-r from-[#3CDFFF] via-[#4AFFD4] to-[#3CDFFF] text-transparent bg-clip-text animate-gradient bg-300%">
+                  Enterprise
+                </span>
+              </motion.h1>
+              
+              <motion.p 
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 1, delay: 0.7 }}
+                className="text-xl md:text-2xl text-[#3CDFFF]/90 mb-12 max-w-3xl leading-relaxed"
+              >
                 Scale your workflow automation across your entire organization with our enterprise-grade platform. Security, compliance, and scalability built for global teams.
-              </p>
+              </motion.p>
               
-              <div className="flex flex-col sm:flex-row space-y-4 sm:space-y-0 sm:space-x-4">
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 1, delay: 0.9 }}
+                className="flex flex-col sm:flex-row gap-6"
+              >
                 <Link 
-                  href="#contact" 
-                  className="px-8 py-3 bg-gradient-to-r from-[#3CDFFF] to-[#4AFFD4] rounded-lg text-black font-medium hover:opacity-90 transition-opacity inline-block"
+                  href="#contact"
+                  className="group relative px-8 py-4 bg-gradient-to-r from-[#3CDFFF] to-[#4AFFD4] rounded-full font-semibold text-black hover:opacity-90 transition duration-300 transform hover:scale-105 hover:shadow-lg hover:shadow-[#3CDFFF]/25 flex items-center justify-center overflow-hidden"
                 >
-                  Request Demo
+                  <div className="absolute inset-0 bg-gradient-to-r from-[#3CDFFF] via-[#4AFFD4] to-[#3CDFFF] opacity-0 group-hover:opacity-100 transition-opacity duration-500 bg-300% animate-gradient"></div>
+                  <span className="relative flex items-center justify-center">
+                    Request Demo
+                    <motion.span
+                      className="ml-2"
+                      animate={{ x: [0, 5, 0] }}
+                      transition={{ duration: 1.5, repeat: Infinity }}
+                    >
+                      →
+                    </motion.span>
+                  </span>
                 </Link>
-                
                 <Link 
-                  href="/pricing" 
-                  className="px-8 py-3 border border-[#3CDFFF] text-[#3CDFFF] rounded-lg hover:bg-[#3CDFFF]/10 transition-all inline-block"
+                  href="/pricing"
+                  className="group relative px-8 py-4 border-2 border-[#3CDFFF]/20 text-white rounded-full font-semibold transition duration-300 backdrop-blur-sm flex items-center justify-center overflow-hidden"
                 >
-                  View Pricing
+                  <div className="absolute inset-0 bg-gradient-to-r from-[#3CDFFF]/10 via-[#4AFFD4]/10 to-[#3CDFFF]/10 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+                  <span className="relative">View Pricing</span>
                 </Link>
-              </div>
-            </motion.div>
-            
-            <motion.div
-              initial={{ opacity: 0, scale: 0.9 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ duration: 0.8 }}
-              className="relative"
-            >
-              <div className="absolute -inset-4 bg-gradient-to-r from-[#3CDFFF]/20 to-[#4AFFD4]/20 rounded-lg blur-lg"></div>
-              <div className="relative bg-black/40 border border-white/10 rounded-lg p-6 backdrop-blur-sm">
-                <div className="text-xl font-semibold mb-4">Trusted by Global Enterprises</div>
-                <div className="grid grid-cols-3 gap-6">
-                  {['Fortune 500', 'Tech Leaders', 'Financial'].map((category, i) => (
-                    <div key={i} className="flex flex-col items-center">
-                      <div className="w-16 h-16 rounded-full bg-white/10 flex items-center justify-center mb-2">
-                        <span className="text-[#3CDFFF]">{i + 1}</span>
-                      </div>
-                      <div className="text-sm text-center">{category}</div>
-                    </div>
-                  ))}
-                </div>
-                <div className="mt-6 text-sm text-gray-400 text-center">
-                  500+ enterprise customers worldwide
-                </div>
-              </div>
+              </motion.div>
+              
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ duration: 1, delay: 1.2 }}
+                className="mt-20 grid grid-cols-1 md:grid-cols-3 gap-8"
+              >
+                <motion.div 
+                  whileHover={{ scale: 1.05 }}
+                  className="p-8 rounded-2xl bg-gradient-to-br from-white/5 to-white/10 backdrop-blur-sm border border-white/10 hover:border-[#3CDFFF]/30 transition-all duration-300 group"
+                >
+                  <div className="text-5xl font-bold bg-gradient-to-r from-[#3CDFFF] to-[#4AFFD4] text-transparent bg-clip-text mb-3 group-hover:scale-110 transition-transform duration-300">99.9%</div>
+                  <div className="text-[#3CDFFF]/90 group-hover:text-white transition-colors duration-300">Uptime SLA</div>
+                </motion.div>
+                <motion.div 
+                  whileHover={{ scale: 1.05 }}
+                  className="p-8 rounded-2xl bg-gradient-to-br from-white/5 to-white/10 backdrop-blur-sm border border-white/10 hover:border-[#3CDFFF]/30 transition-all duration-300 group"
+                >
+                  <div className="text-5xl font-bold bg-gradient-to-r from-[#3CDFFF] to-[#4AFFD4] text-transparent bg-clip-text mb-3 group-hover:scale-110 transition-transform duration-300">24/7</div>
+                  <div className="text-[#3CDFFF]/90 group-hover:text-white transition-colors duration-300">Enterprise Support</div>
+                </motion.div>
+                <motion.div 
+                  whileHover={{ scale: 1.05 }}
+                  className="p-8 rounded-2xl bg-gradient-to-br from-white/5 to-white/10 backdrop-blur-sm border border-white/10 hover:border-[#3CDFFF]/30 transition-all duration-300 group"
+                >
+                  <div className="text-5xl font-bold bg-gradient-to-r from-[#3CDFFF] to-[#4AFFD4] text-transparent bg-clip-text mb-3 group-hover:scale-110 transition-transform duration-300">ISO</div>
+                  <div className="text-[#3CDFFF]/90 group-hover:text-white transition-colors duration-300">27001 Certified</div>
+                </motion.div>
+              </motion.div>
             </motion.div>
           </div>
         </div>

@@ -77,8 +77,8 @@ export default function Navigation() {
     },
     { name: 'Flows', href: '/workflows', current: pathname === '/workflows', requiresAuth: true },
     { name: 'Connections', href: '/connections', current: pathname === '/connections', requiresAuth: true },
-    { name: 'AI Factory', href: '/ai-factory', current: pathname === '/ai-factory', requiresAuth: false },
-    { name: 'AI Cademy', href: '/aicademy', current: pathname === '/aicademy', requiresAuth: false },
+    { name: 'AI Factory', href: '/products/ai-factory', current: pathname === '/products/ai-factory', requiresAuth: false },
+    { name: 'AI Cademy', href: '/products/aicademy', current: pathname === '/products/aicademy', requiresAuth: false },
     { name: 'Enterprise', href: '/enterprise', current: pathname === '/enterprise', requiresAuth: false },
   ];
 
@@ -204,20 +204,20 @@ export default function Navigation() {
             {/* Logo */}
             <button 
               onClick={() => handleNavigation('/')}
-              className="flex items-center space-x-3"
+              className="flex items-center space-x-2"
               aria-label="ISYNCSO Home"
             >
-              <div className={`relative ${logoSize}`}>
+              <div className="relative w-10 h-10">
                 <Image
                   src="/ISYNCSO_LOGO.png"
                   alt=""
-                  width={28}
-                  height={28}
+                  width={40}
+                  height={40}
                   className="rounded"
                   priority
                 />
               </div>
-              <span className={`${logoTextSize} font-medium dark:text-white light:text-gray-800`}>ISYNCSO</span>
+              <span className="text-lg font-medium dark:text-white light:text-gray-800 tracking-tight">ISYNCSO</span>
             </button>
 
             {/* Desktop Navigation */}
@@ -285,24 +285,6 @@ export default function Navigation() {
                 >
                   <TranslatedText textKey="navigation.dashboard" fallback="Dashboard" />
                 </button>
-              )}
-              
-              {/* Auth buttons */}
-              {!currentUser && !userLoading && (
-                <div className="flex items-center space-x-3">
-                  <Link
-                    href="/login"
-                    className="text-sm font-medium text-gray-300 hover:text-white"
-                  >
-                    <TranslatedText textKey="navigation.login" fallback="Sign in" />
-                  </Link>
-                  <Link
-                    href="/register"
-                    className="inline-flex items-center justify-center px-4 py-1.5 text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
-                  >
-                    <TranslatedText textKey="navigation.signup" fallback="Sign up" />
-                  </Link>
-                </div>
               )}
             </div>
 
@@ -538,30 +520,6 @@ export default function Navigation() {
                   )}
                 </div>
               ))}
-              
-              {/* Auth buttons for mobile menu */}
-              {!currentUser && (
-                <div className="mt-4 pt-4 grid grid-cols-2 gap-2 border-t border-white/10">
-                  <button
-                    onClick={() => {
-                      handleNavigation('/login');
-                      setIsMobileMenuOpen(false);
-                    }}
-                    className="text-center px-4 py-3 rounded-md text-base font-medium border border-white/10 dark:text-white/90 dark:hover:text-white dark:hover:bg-white/5 light:text-gray-700 light:hover:text-gray-900 light:hover:bg-black/5 touch-manipulation"
-                  >
-                    <TranslatedText textKey="navigation.login" fallback="Log in" />
-                  </button>
-                  <button
-                    onClick={() => {
-                      handleNavigation('/signup');
-                      setIsMobileMenuOpen(false);
-                    }}
-                    className="text-center px-4 py-3 rounded-md text-base font-medium text-black bg-gradient-to-r from-[#3CDFFF] to-[#4AFFD4] hover:opacity-90 transition-all duration-200 touch-manipulation"
-                  >
-                    <TranslatedText textKey="navigation.signup" fallback="Sign Up" />
-                  </button>
-                </div>
-              )}
             </div>
           </div>
         </Transition>

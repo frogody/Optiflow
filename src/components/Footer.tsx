@@ -19,7 +19,7 @@ export default function Footer() {
     {
       title: 'Learn',
       links: [
-        { name: 'AIcademy', href: '/aicademy' },
+        { name: 'AIcademy', href: '/products/aicademy' },
         { name: 'AI Factory', href: '/ai-factory' },
         { name: 'Documentation', href: '/docs' },
         { name: 'FAQ', href: '/faq' },

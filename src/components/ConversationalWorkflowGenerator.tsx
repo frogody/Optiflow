@@ -1,6 +1,9 @@
 'use client';
 
 import React, { useState, useRef, useEffect } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { FaMicrophone, FaStop } from 'react-icons/fa';
+import LiquidGlobe from './LiquidGlobe';
 
 // Global type for window.streamReference already declared in MicrophonePermission.tsx
 
@@ -36,6 +39,7 @@ export default function ConversationalWorkflowGenerator({
   const [workflow, setWorkflow] = useState<any>(null);
   const [agentResponses, setAgentResponses] = useState<string[]>([]);
   const [permissionGranted, setPermissionGranted] = useState(false);
+  const [isGlobeActive, setIsGlobeActive] = useState(false);
   
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const audioChunksRef = useRef<Blob[]>([]);
@@ -347,106 +351,124 @@ export default function ConversationalWorkflowGenerator({
   }, []);
   
   return (
-    <div className="bg-gray-800 p-6 rounded-lg shadow-lg">
-      <h2 className="text-xl font-semibold mb-4 text-white">Voice Workflow Generator</h2>
-      
-      {errorMessage && (
-        <div className="mb-4 p-3 bg-red-900 text-red-200 rounded-md">
-          {errorMessage}
-        </div>
-      )}
-      
-      <div className="flex flex-col mb-4">
-        <button
-          onClick={isRecording ? stopRecording : startRecording}
-          disabled={isProcessing || !permissionGranted}
-          className={`py-3 px-6 rounded-lg font-medium ${
-            isRecording 
-              ? 'bg-red-600 hover:bg-red-700'
-              : isProcessing
-                ? 'bg-gray-600 cursor-not-allowed' 
-                : 'bg-blue-600 hover:bg-blue-700'
-          } transition-colors`}
-        >
-          {isRecording 
-            ? 'Stop Recording' 
-            : isProcessing 
-              ? 'Processing...' 
-              : 'Start Recording'}
-        </button>
-        
-        {!permissionGranted && (
-          <p className="mt-2 text-sm text-yellow-400">
-            Microphone permission is required. Click the button to request access.
-          </p>
-        )}
-        
-        {isRecording && (
-          <div className="flex items-center mt-2">
-            <div className="w-3 h-3 bg-red-500 rounded-full animate-pulse mr-2"></div>
-            <span className="text-sm text-gray-300">Recording... (Max 10 seconds)</span>
+    <div className="relative min-h-screen bg-gradient-to-b from-black to-[#000B1E] text-white overflow-hidden">
+      {/* Background Effects */}
+      <motion.div 
+        className="absolute inset-0 z-0"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 1 }}
+      >
+        <div className="absolute inset-0 bg-[url('/grid.svg')] opacity-10" />
+        <motion.div
+          className="absolute inset-0"
+          animate={{
+            background: [
+              'radial-gradient(circle at 50% 50%, #000B1E, transparent)',
+              'radial-gradient(circle at 60% 40%, #000B1E, transparent)',
+              'radial-gradient(circle at 40% 60%, #000B1E, transparent)',
+              'radial-gradient(circle at 50% 50%, #000B1E, transparent)',
+            ],
+          }}
+          transition={{ duration: 10, repeat: Infinity, ease: 'linear' }}
+        />
+      </motion.div>
+
+      {/* Main Content */}
+      <div className="relative z-10 container mx-auto px-4 py-12">
+        <div className="max-w-4xl mx-auto">
+          {/* Globe Container */}
+          <div className="relative h-[500px] mb-8">
+            <LiquidGlobe 
+              isAgentSpeaking={isGlobeActive} 
+              color="#3CDFFF"
+              intensity={1.2}
+              scale={1.2}
+            />
           </div>
-        )}
-      </div>
-      
-      {transcript && (
-        <div className="mb-4">
-          <h3 className="text-md font-medium text-gray-300 mb-1">Your Request:</h3>
-          <div className="bg-gray-700 p-3 rounded-md text-white">
-            {transcript}
-          </div>
-        </div>
-      )}
-      
-      {agentResponses.length > 0 && (
-        <div className="mb-4">
-          <h3 className="text-md font-medium text-gray-300 mb-1">Agent Response:</h3>
-          <div className="bg-indigo-900 p-3 rounded-md text-white">
-            {agentResponses.map((response, idx) => (
-              <p key={idx} className={idx > 0 ? 'mt-2' : ''}>{response}</p>
-            ))}
-          </div>
-        </div>
-      )}
-      
-      {audioResponse && (
-        <div className="mb-4">
-          <h3 className="text-md font-medium text-gray-300 mb-1">Audio Response:</h3>
-          <audio ref={audioRef} controls className="w-full" src={audioResponse}></audio>
-        </div>
-      )}
-      
-      {workflow && (
-        <div className="mb-4">
-          <h3 className="text-md font-medium text-gray-300 mb-1">Generated Workflow:</h3>
-          <div className="bg-gray-700 p-3 rounded-md">
-            <p className="text-lg font-medium text-white">{workflow.name}</p>
-            <p className="text-sm text-gray-300 mt-1 mb-3">{workflow.description}</p>
-            
-            <div className="space-y-2 mt-4">
-              <h4 className="text-sm font-medium text-gray-300">Workflow Steps:</h4>
-              {workflow.nodes.map((node: any, index: number) => (
-                <div key={node.id} className="p-2 bg-gray-600 rounded-md">
-                  <span className="text-blue-300 font-medium">
-                    {index + 1}. {node.data.label}
-                  </span>
-                  {node.data.description && (
-                    <p className="text-sm text-gray-300 mt-1">{node.data.description}</p>
-                  )}
-                </div>
-              ))}
+
+          {/* Conversation Interface */}
+          <div className="space-y-8">
+            {/* Agent Responses */}
+            <div className="space-y-4">
+              <AnimatePresence>
+                {agentResponses.map((response, index) => (
+                  <motion.div
+                    key={index}
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -20 }}
+                    className="bg-white/5 backdrop-blur-xl rounded-2xl p-6 border border-[#3CDFFF]/20"
+                  >
+                    <p className="text-[#3CDFFF]/90">{response}</p>
+                  </motion.div>
+                ))}
+              </AnimatePresence>
+            </div>
+
+            {/* Controls */}
+            <div className="flex justify-center items-center space-x-4">
+              {errorMessage && (
+                <motion.div
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  className="absolute bottom-full mb-4 p-4 bg-red-500/10 border border-red-500/20 rounded-xl text-red-400 backdrop-blur-xl"
+                >
+                  {errorMessage}
+                </motion.div>
+              )}
+
+              <motion.button
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                onClick={isRecording ? stopRecording : startRecording}
+                disabled={isProcessing || !permissionGranted}
+                className={`relative group p-6 rounded-full ${
+                  isRecording 
+                    ? 'bg-red-500/20 border-red-500/40' 
+                    : 'bg-[#3CDFFF]/20 border-[#3CDFFF]/40'
+                } border-2 backdrop-blur-xl transition-all duration-300`}
+              >
+                {isRecording ? (
+                  <FaStop className="w-8 h-8 text-red-400" />
+                ) : (
+                  <FaMicrophone className="w-8 h-8 text-[#3CDFFF]" />
+                )}
+                <motion.div
+                  className="absolute inset-0 rounded-full opacity-0 group-hover:opacity-100"
+                  style={{
+                    background: 'radial-gradient(circle at center, rgba(60,223,255,0.2), transparent)',
+                    filter: 'blur(10px)',
+                  }}
+                />
+              </motion.button>
+
+              {isProcessing && (
+                <motion.div
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  className="absolute left-full ml-4 flex items-center space-x-2"
+                >
+                  <div className="w-2 h-2 bg-[#3CDFFF] rounded-full animate-pulse" />
+                  <div className="w-2 h-2 bg-[#3CDFFF] rounded-full animate-pulse delay-100" />
+                  <div className="w-2 h-2 bg-[#3CDFFF] rounded-full animate-pulse delay-200" />
+                </motion.div>
+              )}
             </div>
           </div>
-          
-          <div className="mt-4 flex space-x-2">
-            <button
-              onClick={resetState}
-              className="px-4 py-2 bg-gray-600 hover:bg-gray-700 rounded-md text-white"
-            >
-              Reset
-            </button>
-          </div>
         </div>
+      </div>
+
+      {/* Audio Player */}
+      {audioResponse && (
+        <audio
+          ref={audioRef}
+          src={audioResponse}
+          autoPlay
+          onPlay={() => setIsGlobeActive(true)}
+          onEnded={() => setIsGlobeActive(false)}
+          className="hidden"
+        />
       )}
     </div>
   );

@@ -1,147 +1,377 @@
 'use client';
 
-import { useState } from 'react';
-import { motion } from 'framer-motion';
+import { useState, useRef } from 'react';
+import { motion, useScroll, useTransform } from 'framer-motion';
 import Link from 'next/link';
 import { useUserStore } from '@/lib/userStore';
+import { HiOutlineSparkles, HiOutlineLightningBolt, HiOutlineCube } from 'react-icons/hi';
 
 interface PricingTier {
   name: string;
   price: string;
   description: string;
-  features: string[];
+  features: Array<{
+    text: string;
+    highlight?: boolean;
+  }>;
+  products: string[];
   cta: string;
   highlighted?: boolean;
+  icon: any;
 }
+
+// Enhanced aurora effect component
+const AuroraEffect = () => {
+  return (
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      className="absolute inset-0 overflow-hidden"
+    >
+      <motion.div
+        animate={{
+          rotate: 360,
+          scale: [1, 1.1, 1],
+        }}
+        transition={{
+          rotate: {
+            duration: 50,
+            repeat: Infinity,
+            ease: "linear"
+          },
+          scale: {
+            duration: 8,
+            repeat: Infinity,
+            ease: "easeInOut"
+          }
+        }}
+        className="absolute w-[200%] h-[200%] -top-1/2 -left-1/2"
+        style={{
+          background: 'conic-gradient(from 0deg at 50% 50%, transparent, rgba(60,223,255,0.1), rgba(74,255,212,0.1), transparent)',
+          filter: 'blur(100px)',
+        }}
+      />
+    </motion.div>
+  );
+};
+
+// Enhanced gradient orb component
+const GradientOrb = ({ delay = 0, size = 600, color = 'blue' }) => {
+  const gradients = {
+    blue: 'from-[#3CDFFF]/20 to-[#4AFFD4]/20',
+    purple: 'from-[#4AFFD4]/20 to-[#3CDFFF]/20',
+    mixed: 'from-[#3CDFFF]/20 via-[#4AFFD4]/20 to-[#3CDFFF]/20'
+  };
+
+  return (
+    <motion.div
+      className={`absolute w-[${size}px] h-[${size}px] rounded-full blur-[120px] bg-gradient-to-r ${gradients[color]}`}
+      style={{
+        left: `${Math.random() * 100}%`,
+        top: `${Math.random() * 100}%`,
+      }}
+      animate={{
+        opacity: [0.1, 0.2, 0.1],
+        scale: [1, 1.2, 1],
+        x: [0, Math.random() * 100 - 50, 0],
+        y: [0, Math.random() * 100 - 50, 0],
+        rotate: [0, Math.random() * 90 - 45, 0],
+      }}
+      transition={{
+        duration: Math.random() * 5 + 5,
+        repeat: Infinity,
+        ease: "easeInOut",
+        delay
+      }}
+    />
+  );
+};
 
 export default function PricingPage() {
   const [isAnnual, setIsAnnual] = useState(true);
   const { currentUser } = useUserStore();
+  const containerRef = useRef(null);
+  const { scrollYProgress } = useScroll({
+    target: containerRef,
+    offset: ["start start", "end end"]
+  });
+
+  const y = useTransform(scrollYProgress, [0, 1], [0, 200]);
 
   const pricingTiers: PricingTier[] = [
     {
       name: 'Starter',
       price: isAnnual ? '$29/mo' : '$39/mo',
       description: 'Perfect for individuals and small teams getting started with automation',
-      features: [
-        'Up to 1,000 workflow runs/month',
-        '2 team members',
-        'Basic integrations',
-        'Community support',
-        'Standard API rate limits',
-        'Basic analytics'
+      icon: HiOutlineSparkles,
+      products: [
+        'AI Factory',
+        'AI Academy'
       ],
-      cta: currentUser ? 'Upgrade to Starter' : 'Get Started'
+      features: [
+        { text: 'Up to 5 AI models deployment' },
+        { text: '2 concurrent AI Factory projects' },
+        { text: '3 team seats for AI Academy' },
+        { text: '10 integration connectors' },
+        { text: 'Basic workflow automation' },
+        { text: 'Community support' },
+        { text: '99.9% uptime SLA' },
+        { text: 'Standard security features' }
+      ],
+      cta: currentUser ? 'Upgrade to Growth' : 'Start Free Trial'
     },
     {
-      name: 'Professional',
-      price: isAnnual ? '$79/mo' : '$99/mo',
-      description: 'Ideal for growing businesses with advanced automation needs',
-      features: [
-        'Up to 10,000 workflow runs/month',
-        '5 team members',
-        'Advanced integrations',
-        'Priority email support',
-        'Higher API rate limits',
-        'Advanced analytics',
-        'Custom workflows',
-        'Workflow templates'
+      name: 'Growth',
+      price: isAnnual ? '$499/mo' : '$599/mo',
+      description: 'Perfect for startups and small teams exploring AI innovation',
+      icon: HiOutlineLightningBolt,
+      products: [
+        'AI Factory',
+        'AI Academy Basic',
+        'Integration Hub'
       ],
-      cta: currentUser ? 'Upgrade to Pro' : 'Start Free Trial',
+      features: [
+        { text: 'Up to 5 AI models deployment' },
+        { text: '2 concurrent AI Factory projects' },
+        { text: '3 team seats for AI Academy' },
+        { text: '10 integration connectors' },
+        { text: 'Basic workflow automation' },
+        { text: 'Community support' },
+        { text: '99.9% uptime SLA' },
+        { text: 'Standard security features' }
+      ],
+      cta: currentUser ? 'Upgrade to Growth' : 'Start Free Trial'
+    },
+    {
+      name: 'Scale',
+      price: isAnnual ? '$1,499/mo' : '$1,799/mo',
+      description: 'For businesses ready to scale their AI operations',
+      icon: HiOutlineLightningBolt,
+      products: [
+        'AI Factory Pro',
+        'AI Academy Enterprise',
+        'Integration Hub Pro',
+        'Premium Support'
+      ],
+      features: [
+        { text: 'Unlimited AI models deployment', highlight: true },
+        { text: '5 concurrent AI Factory projects', highlight: true },
+        { text: '10 team seats for AI Academy' },
+        { text: '50 integration connectors' },
+        { text: 'Advanced workflow automation' },
+        { text: 'Priority support' },
+        { text: '99.99% uptime SLA' },
+        { text: 'Enhanced security features' },
+        { text: 'Custom model training' },
+        { text: 'API access' }
+      ],
+      cta: currentUser ? 'Upgrade to Scale' : 'Start Free Trial',
       highlighted: true
     },
     {
       name: 'Enterprise',
       price: 'Custom',
-      description: 'For organizations requiring maximum scalability and support',
+      description: 'Custom solutions for large organizations',
+      icon: HiOutlineCube,
+      products: [
+        'AI Factory Enterprise',
+        'AI Academy Enterprise+',
+        'Integration Hub Enterprise',
+        'Dedicated Support',
+        'Custom Development'
+      ],
       features: [
-        'Unlimited workflow runs',
-        'Unlimited team members',
-        'Premium integrations',
-        '24/7 dedicated support',
-        'Unlimited API access',
-        'Custom analytics',
-        'Custom development',
-        'SLA guarantee',
-        'On-premise deployment',
-        'Custom security features'
+        { text: 'Unlimited everything', highlight: true },
+        { text: 'Custom AI model development' },
+        { text: 'Unlimited team seats' },
+        { text: 'Custom integrations' },
+        { text: 'Enterprise workflow automation' },
+        { text: '24/7 dedicated support' },
+        { text: '99.999% uptime SLA' },
+        { text: 'Advanced security features' },
+        { text: 'On-premise deployment option' },
+        { text: 'Custom compliance features' }
       ],
       cta: 'Contact Sales'
     }
   ];
 
   return (
-    <div className="min-h-screen pb-16">
-      {/* Neural Network Background */}
-      <div className="neural-bg"></div>
+    <div ref={containerRef} className="min-h-screen bg-black text-white relative overflow-hidden">
+      {/* Enhanced Dynamic Background */}
+      <motion.div 
+        className="fixed inset-0 z-0"
+        style={{ y }}
+      >
+        <div className="absolute inset-0 bg-gradient-to-b from-black via-[#000B1E] to-black" />
+        <div className="absolute inset-0 bg-[url('/grid.svg')] opacity-5" />
+        
+        {/* Aurora Effect */}
+        <AuroraEffect />
+        
+        {/* Gradient Orbs */}
+        {[...Array(12)].map((_, i) => (
+          <GradientOrb
+            key={i}
+            delay={i * 0.5}
+            size={Math.random() * 300 + 400}
+            color={i % 3 === 0 ? 'blue' : i % 3 === 1 ? 'purple' : 'mixed'}
+          />
+        ))}
+
+        {/* Tech Grid Lines */}
+        <div className="absolute inset-0">
+          {[...Array(5)].map((_, i) => (
+            <motion.div
+              key={i}
+              className="absolute h-px w-full"
+              style={{
+                top: `${(i + 1) * 20}%`,
+                background: 'linear-gradient(90deg, transparent, rgba(60,223,255,0.1), transparent)',
+                opacity: 0.3,
+              }}
+              animate={{
+                x: [-1000, 1000],
+                opacity: [0.1, 0.3, 0.1],
+              }}
+              transition={{
+                duration: 8,
+                repeat: Infinity,
+                ease: "linear",
+                delay: i * 1,
+              }}
+            />
+          ))}
+        </div>
+      </motion.div>
 
       {/* Main Content */}
-      <main className="max-w-7xl mx-auto px-4 py-16 relative z-10">
+      <main className="relative z-10 container mx-auto px-4 py-24">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5 }}
-          className="text-center mb-12"
+          transition={{ duration: 0.8 }}
+          className="text-center mb-16"
         >
-          <h1 className="text-4xl md:text-5xl font-bold gradient-text mb-6">
-            Simple, Transparent Pricing
+          <motion.div
+            initial={{ opacity: 0, scale: 0.8 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 0.7, delay: 0.3 }}
+            className="inline-block mb-8"
+          >
+            <span className="px-6 py-2 rounded-full bg-gradient-to-r from-[#3CDFFF]/10 to-[#4AFFD4]/10 border border-[#3CDFFF]/20 text-[#3CDFFF] text-sm font-medium backdrop-blur-sm">
+              Transform Your Business with AI
+            </span>
+          </motion.div>
+
+          <h1 className="text-5xl md:text-6xl lg:text-7xl font-bold mb-8">
+            <span className="bg-clip-text text-transparent bg-gradient-to-r from-[#3CDFFF] to-[#4AFFD4]">
+              Enterprise-Grade AI
+            </span>
+            <br />
+            <span className="bg-clip-text text-transparent bg-gradient-to-r from-white to-white/60">
+              Made Simple
+            </span>
           </h1>
-          <p className="text-xl text-white/80 max-w-2xl mx-auto mb-8">
-            Choose the perfect plan for your automation needs. All plans include our core features.
+
+          <p className="text-xl text-[#3CDFFF]/90 mb-12 max-w-3xl mx-auto">
+            Choose the perfect plan to bring your AI vision to life. All plans include access to our core AI Factory, Academy, and Integration capabilities.
           </p>
 
           {/* Billing Toggle */}
-          <div className="flex items-center justify-center gap-4 mb-12">
-            <span className={`text-sm ${!isAnnual ? 'text-white' : 'text-white/60'}`}>
+          <div className="flex items-center justify-center gap-4 mb-16">
+            <span className={`text-lg ${!isAnnual ? 'text-[#3CDFFF]' : 'text-white/60'}`}>
               Monthly
             </span>
-            <button
+            <motion.button
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
               onClick={() => setIsAnnual(!isAnnual)}
-              className="relative w-16 h-8 bg-white/10 rounded-full p-1 transition-colors duration-200 ease-in-out"
+              className="relative w-20 h-10 bg-gradient-to-r from-[#3CDFFF]/20 to-[#4AFFD4]/20 rounded-full p-1 transition-colors duration-200 ease-in-out backdrop-blur-xl border border-[#3CDFFF]/20"
             >
-              <div
-                className={`absolute w-6 h-6 bg-primary rounded-full transition-transform duration-200 ease-in-out ${
-                  isAnnual ? 'translate-x-8' : 'translate-x-0'
-                }`}
+              <motion.div
+                layout
+                className="absolute w-8 h-8 bg-gradient-to-r from-[#3CDFFF] to-[#4AFFD4] rounded-full"
+                animate={{
+                  x: isAnnual ? 40 : 0,
+                }}
+                transition={{
+                  type: "spring",
+                  stiffness: 700,
+                  damping: 30
+                }}
               />
-            </button>
-            <span className={`text-sm ${isAnnual ? 'text-white' : 'text-white/60'}`}>
+            </motion.button>
+            <span className={`text-lg ${isAnnual ? 'text-[#3CDFFF]' : 'text-white/60'}`}>
               Annual
-              <span className="ml-1 text-primary text-xs">Save 20%</span>
+              <span className="ml-2 text-[#4AFFD4] text-sm">Save 20%</span>
             </span>
           </div>
 
           {/* Pricing Tiers */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            {pricingTiers.map((tier) => (
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-24">
+            {pricingTiers.map((tier, index) => (
               <motion.div
                 key={tier.name}
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.5, delay: 0.2 }}
-                className={`relative p-8 rounded-xl backdrop-blur-md border ${
+                transition={{ duration: 0.5, delay: index * 0.1 }}
+                className={`relative p-8 rounded-2xl backdrop-blur-xl border group hover:scale-105 transition-transform duration-300 ${
                   tier.highlighted
-                    ? 'border-primary/50 bg-primary/5'
-                    : 'border-white/10 bg-white/5'
+                    ? 'border-[#3CDFFF] bg-gradient-to-b from-[#3CDFFF]/10 to-transparent'
+                    : 'border-white/10 bg-white/5 hover:border-[#3CDFFF]/50'
                 }`}
               >
                 {tier.highlighted && (
                   <div className="absolute -top-4 left-1/2 transform -translate-x-1/2">
-                    <span className="bg-primary text-white text-sm px-3 py-1 rounded-full">
+                    <span className="bg-gradient-to-r from-[#3CDFFF] to-[#4AFFD4] text-black text-sm px-4 py-1 rounded-full font-medium">
                       Most Popular
                     </span>
                   </div>
                 )}
 
-                <h3 className="text-2xl font-bold text-white mb-2">{tier.name}</h3>
-                <div className="text-3xl font-bold text-white mb-4">{tier.price}</div>
-                <p className="text-white/60 mb-6 h-12">{tier.description}</p>
+                <div className="flex items-center justify-center mb-6">
+                  <div className={`w-16 h-16 rounded-full flex items-center justify-center bg-gradient-to-r from-[#3CDFFF]/20 to-[#4AFFD4]/20 group-hover:from-[#3CDFFF]/30 group-hover:to-[#4AFFD4]/30 transition-colors duration-300`}>
+                    <tier.icon className="w-8 h-8 text-[#3CDFFF]" />
+                  </div>
+                </div>
 
-                <ul className="text-left space-y-4 mb-8">
+                <h3 className="text-2xl font-bold text-white mb-2 text-center">{tier.name}</h3>
+                <div className="text-4xl font-bold mb-4 text-center">
+                  <span className="bg-clip-text text-transparent bg-gradient-to-r from-[#3CDFFF] to-[#4AFFD4]">
+                    {tier.price}
+                  </span>
+                  {isAnnual && tier.price !== 'Custom' && (
+                    <span className="text-sm text-white/60 ml-2">per month, billed annually</span>
+                  )}
+                </div>
+                <p className="text-white/80 mb-8 text-center h-12">{tier.description}</p>
+
+                {/* Products Included */}
+                <div className="mb-8 p-4 rounded-xl bg-white/5 border border-white/10">
+                  <h4 className="text-sm text-white/60 mb-3">Included Products:</h4>
+                  <ul className="space-y-2">
+                    {tier.products.map((product) => (
+                      <li key={product} className="text-[#3CDFFF]">
+                        {product}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+
+                {/* Features */}
+                <ul className="space-y-4 mb-8">
                   {tier.features.map((feature) => (
-                    <li key={feature} className="flex items-center text-white/80">
+                    <li
+                      key={feature.text}
+                      className={`flex items-start ${
+                        feature.highlight ? 'text-[#4AFFD4]' : 'text-white/80'
+                      }`}
+                    >
                       <svg
-                        className="w-5 h-5 mr-3 text-primary"
+                        className={`w-5 h-5 mr-3 mt-1 ${
+                          feature.highlight ? 'text-[#4AFFD4]' : 'text-[#3CDFFF]'
+                        }`}
                         fill="none"
                         stroke="currentColor"
                         viewBox="0 0 24 24"
@@ -153,58 +383,105 @@ export default function PricingPage() {
                           d="M5 13l4 4L19 7"
                         />
                       </svg>
-                      {feature}
+                      {feature.text}
                     </li>
                   ))}
                 </ul>
 
-                <Link
-                  href={tier.cta === 'Contact Sales' ? '/contact' : '/signup'}
-                  className={`block w-full py-3 px-6 rounded-lg text-center font-medium transition-all duration-200 ${
-                    tier.highlighted
-                      ? 'bg-gradient-to-r from-primary to-secondary text-white hover:shadow-glow'
-                      : 'bg-white/10 text-white hover:bg-white/20'
-                  }`}
+                <motion.div
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
                 >
-                  {tier.cta}
-                </Link>
+                  <Link
+                    href={tier.cta === 'Contact Sales' ? '/contact' : '/signup'}
+                    className={`block w-full py-4 px-6 rounded-xl text-center font-medium transition-all duration-300 ${
+                      tier.highlighted
+                        ? 'bg-gradient-to-r from-[#3CDFFF] to-[#4AFFD4] text-black hover:shadow-lg hover:shadow-[#3CDFFF]/20'
+                        : 'bg-gradient-to-r from-[#3CDFFF]/20 to-[#4AFFD4]/20 text-white hover:from-[#3CDFFF]/30 hover:to-[#4AFFD4]/30'
+                    }`}
+                  >
+                    {tier.cta}
+                  </Link>
+                </motion.div>
               </motion.div>
             ))}
           </div>
 
-          {/* FAQ Section */}
-          <div className="mt-24 text-left">
-            <h2 className="text-3xl font-bold text-white mb-8">Frequently Asked Questions</h2>
+          {/* Enhanced FAQ Section */}
+          <motion.div
+            initial={{ opacity: 0 }}
+            whileInView={{ opacity: 1 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.8 }}
+            className="max-w-4xl mx-auto text-left"
+          >
+            <h2 className="text-3xl font-bold text-center mb-12">
+              <span className="bg-clip-text text-transparent bg-gradient-to-r from-[#3CDFFF] to-[#4AFFD4]">
+                Frequently Asked Questions
+              </span>
+            </h2>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-              <div>
-                <h3 className="text-xl font-semibold text-white mb-4">What's included in the free trial?</h3>
-                <p className="text-white/70">
-                  Our 14-day free trial includes all features from the Professional plan, allowing you to fully
-                  test our platform's capabilities before making a decision.
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.5 }}
+                className="p-6 rounded-xl bg-white/5 border border-white/10 backdrop-blur-xl"
+              >
+                <h3 className="text-xl font-semibold text-[#3CDFFF] mb-4">
+                  What's included in the free trial?
+                </h3>
+                <p className="text-white/80">
+                  Start with our Scale plan free for 14 days. Get full access to AI Factory Pro, AI Academy Enterprise, and Integration Hub Pro features to evaluate our platform's capabilities.
                 </p>
-              </div>
-              <div>
-                <h3 className="text-xl font-semibold text-white mb-4">Can I change plans later?</h3>
-                <p className="text-white/70">
-                  Yes, you can upgrade or downgrade your plan at any time. Changes will be reflected in your
-                  next billing cycle.
+              </motion.div>
+
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.5, delay: 0.1 }}
+                className="p-6 rounded-xl bg-white/5 border border-white/10 backdrop-blur-xl"
+              >
+                <h3 className="text-xl font-semibold text-[#3CDFFF] mb-4">
+                  Can I customize my plan?
+                </h3>
+                <p className="text-white/80">
+                  Yes! Our Enterprise plan offers full customization of features, integrations, and support levels. Contact our sales team to create a plan that perfectly fits your needs.
                 </p>
-              </div>
-              <div>
-                <h3 className="text-xl font-semibold text-white mb-4">What payment methods do you accept?</h3>
-                <p className="text-white/70">
-                  We accept all major credit cards, PayPal, and wire transfers for Enterprise plans.
+              </motion.div>
+
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.5, delay: 0.2 }}
+                className="p-6 rounded-xl bg-white/5 border border-white/10 backdrop-blur-xl"
+              >
+                <h3 className="text-xl font-semibold text-[#3CDFFF] mb-4">
+                  What kind of support do you offer?
+                </h3>
+                <p className="text-white/80">
+                  Each plan includes dedicated support levels, from community support in Growth to 24/7 dedicated support in Enterprise. Our team is here to ensure your success with our platform.
                 </p>
-              </div>
-              <div>
-                <h3 className="text-xl font-semibold text-white mb-4">Do you offer custom solutions?</h3>
-                <p className="text-white/70">
-                  Yes, our Enterprise plan can be customized to meet your specific needs. Contact our sales
-                  team to discuss your requirements.
+              </motion.div>
+
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.5, delay: 0.3 }}
+                className="p-6 rounded-xl bg-white/5 border border-white/10 backdrop-blur-xl"
+              >
+                <h3 className="text-xl font-semibold text-[#3CDFFF] mb-4">
+                  How does billing work?
+                </h3>
+                <p className="text-white/80">
+                  Choose between monthly or annual billing. Annual plans save 20%. We accept all major credit cards, PayPal, and wire transfers for Enterprise plans. Upgrade or downgrade anytime.
                 </p>
-              </div>
+              </motion.div>
             </div>
-          </div>
+          </motion.div>
         </motion.div>
       </main>
     </div>

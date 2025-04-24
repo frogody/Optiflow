@@ -8,7 +8,7 @@ const nextConfig = {
     remotePatterns: [
       {
         protocol: 'https',
-        hostname: '**',
+        hostname: 'placehold.co',
       },
     ],
     dangerouslyAllowSVG: true,
