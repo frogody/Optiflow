@@ -5,6 +5,7 @@ import { motion, useScroll, useTransform } from 'framer-motion';
 import Link from 'next/link';
 import { useUserStore } from '@/lib/userStore';
 import { HiOutlineSparkles, HiOutlineLightningBolt, HiOutlineCube } from 'react-icons/hi';
+import { cn } from '@/lib/utils';
 
 interface PricingTier {
   name: string;
@@ -98,101 +99,65 @@ export default function PricingPage() {
 
   const y = useTransform(scrollYProgress, [0, 1], [0, 200]);
 
-  const pricingTiers: PricingTier[] = [
+  const pricingTiers = [
     {
       name: 'Starter',
       price: isAnnual ? '$29/mo' : '$39/mo',
       description: 'Perfect for individuals and small teams getting started with automation',
-      icon: HiOutlineSparkles,
-      products: [
-        'AI Factory',
-        'AI Academy'
-      ],
+      icon: HiOutlineLightningBolt,
+      products: ['AI Factory'],
       features: [
-        { text: 'Up to 5 AI models deployment' },
-        { text: '2 concurrent AI Factory projects' },
-        { text: '3 team seats for AI Academy' },
-        { text: '10 integration connectors' },
-        { text: 'Basic workflow automation' },
-        { text: 'Community support' },
-        { text: '99.9% uptime SLA' },
-        { text: 'Standard security features' }
+        'Up to 5 users',
+        'Basic workflow automation',
+        'Standard integrations',
+        'Community support',
+        '5 GB storage',
+        'API access'
       ],
-      cta: currentUser ? 'Upgrade to Growth' : 'Start Free Trial'
+      cta: 'Get Started'
     },
     {
       name: 'Growth',
-      price: isAnnual ? '$499/mo' : '$599/mo',
-      description: 'Perfect for startups and small teams exploring AI innovation',
+      price: isAnnual ? '$79/mo' : '$99/mo',
+      description: 'Ideal for growing businesses with advanced automation needs',
       icon: HiOutlineLightningBolt,
       products: [
         'AI Factory',
-        'AI Academy Basic',
-        'Integration Hub'
+        'AI Academy',
       ],
       features: [
-        { text: 'Up to 5 AI models deployment' },
-        { text: '2 concurrent AI Factory projects' },
-        { text: '3 team seats for AI Academy' },
-        { text: '10 integration connectors' },
-        { text: 'Basic workflow automation' },
-        { text: 'Community support' },
-        { text: '99.9% uptime SLA' },
-        { text: 'Standard security features' }
-      ],
-      cta: currentUser ? 'Upgrade to Growth' : 'Start Free Trial'
+        'Up to 20 users',
+        'Advanced workflow automation',
+        'Premium integrations',
+        'Priority support',
+        '50 GB storage',
+        'Advanced API access',
+        'Custom workflows',
+        'Analytics dashboard'
+      ]
     },
     {
-      name: 'Scale',
-      price: isAnnual ? '$1,499/mo' : '$1,799/mo',
-      description: 'For businesses ready to scale their AI operations',
-      icon: HiOutlineLightningBolt,
-      products: [
-        'AI Factory Pro',
-        'AI Academy Enterprise',
-        'Integration Hub Pro',
-        'Premium Support'
-      ],
-      features: [
-        { text: 'Unlimited AI models deployment', highlight: true },
-        { text: '5 concurrent AI Factory projects', highlight: true },
-        { text: '10 team seats for AI Academy' },
-        { text: '50 integration connectors' },
-        { text: 'Advanced workflow automation' },
-        { text: 'Priority support' },
-        { text: '99.99% uptime SLA' },
-        { text: 'Enhanced security features' },
-        { text: 'Custom model training' },
-        { text: 'API access' }
-      ],
-      cta: currentUser ? 'Upgrade to Scale' : 'Start Free Trial',
-      highlighted: true
-    },
-    {
-      name: 'Enterprise',
-      price: 'Custom',
-      description: 'Custom solutions for large organizations',
+      name: 'Custom Solutions',
+      price: 'Contact us',
+      description: 'Enterprise-grade solutions for large organizations',
       icon: HiOutlineCube,
       products: [
-        'AI Factory Enterprise',
-        'AI Academy Enterprise+',
-        'Integration Hub Enterprise',
-        'Dedicated Support',
-        'Custom Development'
+        'AI Factory',
+        'AI Academy',
+        'Enterprise Suite'
       ],
       features: [
-        { text: 'Unlimited everything', highlight: true },
-        { text: 'Custom AI model development' },
-        { text: 'Unlimited team seats' },
-        { text: 'Custom integrations' },
-        { text: 'Enterprise workflow automation' },
-        { text: '24/7 dedicated support' },
-        { text: '99.999% uptime SLA' },
-        { text: 'Advanced security features' },
-        { text: 'On-premise deployment option' },
-        { text: 'Custom compliance features' }
-      ],
-      cta: 'Contact Sales'
+        'Unlimited users',
+        'Custom workflow development',
+        'Enterprise integrations',
+        'Dedicated support',
+        'Unlimited storage',
+        'Full API access',
+        'Custom development',
+        'Advanced security',
+        'SLA guarantee',
+        'Training & onboarding'
+      ]
     }
   ];
 

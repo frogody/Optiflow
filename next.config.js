@@ -4,12 +4,11 @@ const nextConfig = {
   swcMinify: true,
   output: 'standalone',
   images: {
-    domains: ['localhost', 'lh3.googleusercontent.com'],
     remotePatterns: [
       {
         protocol: 'https',
-        hostname: 'placehold.co',
-      },
+        hostname: '**',
+      }
     ],
     dangerouslyAllowSVG: true,
     unoptimized: false,
