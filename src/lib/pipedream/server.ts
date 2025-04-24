@@ -15,12 +15,18 @@ const {
   PIPEDREAM_PROJECT_ID,
   PIPEDREAM_CLIENT_ID,
   PIPEDREAM_CLIENT_SECRET,
-  PIPEDREAM_PROJECT_ENVIRONMENT,
   NEXT_PUBLIC_PIPEDREAM_API_KEY,
   NEXT_PUBLIC_PIPEDREAM_API_SECRET,
   NEXT_PUBLIC_PIPEDREAM_CLIENT_ID,
   NEXT_PUBLIC_PIPEDREAM_TOKEN
 } = process.env;
+
+// Set default environment and validate
+const PIPEDREAM_PROJECT_ENVIRONMENT = (process.env.PIPEDREAM_PROJECT_ENVIRONMENT || process.env.NODE_ENV || 'development') as ProjectEnvironment;
+
+if (!['development', 'production'].includes(PIPEDREAM_PROJECT_ENVIRONMENT)) {
+  console.warn(`Invalid PIPEDREAM_PROJECT_ENVIRONMENT: ${PIPEDREAM_PROJECT_ENVIRONMENT}, defaulting to 'development'`);
+}
 
 // Validate required environment variables
 if (!PIPEDREAM_CLIENT_ID && !NEXT_PUBLIC_PIPEDREAM_CLIENT_ID)
@@ -29,13 +35,11 @@ if (!PIPEDREAM_CLIENT_SECRET && !NEXT_PUBLIC_PIPEDREAM_API_SECRET)
   throw new Error("PIPEDREAM_CLIENT_SECRET or NEXT_PUBLIC_PIPEDREAM_API_SECRET must be set in environment");
 if (!PIPEDREAM_PROJECT_ID)
   throw new Error("PIPEDREAM_PROJECT_ID not set in environment");
-if (!PIPEDREAM_PROJECT_ENVIRONMENT || !["development", "production"].includes(PIPEDREAM_PROJECT_ENVIRONMENT))
-  console.warn("PIPEDREAM_PROJECT_ENVIRONMENT not properly set, using development as default");
 
 // Create Pipedream backend client
 const pd = createBackendClient({
   projectId: PIPEDREAM_PROJECT_ID || '',
-  environment: (PIPEDREAM_PROJECT_ENVIRONMENT || 'development') as ProjectEnvironment,
+  environment: PIPEDREAM_PROJECT_ENVIRONMENT,
   credentials: {
     clientId: PIPEDREAM_CLIENT_ID || NEXT_PUBLIC_PIPEDREAM_CLIENT_ID || '',
     clientSecret: PIPEDREAM_CLIENT_SECRET || NEXT_PUBLIC_PIPEDREAM_API_SECRET || '',

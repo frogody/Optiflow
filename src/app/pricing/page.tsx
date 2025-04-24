@@ -4,20 +4,17 @@ import { useState, useRef } from 'react';
 import { motion, useScroll, useTransform } from 'framer-motion';
 import Link from 'next/link';
 import { useUserStore } from '@/lib/userStore';
-import { HiOutlineSparkles, HiOutlineLightningBolt, HiOutlineCube } from 'react-icons/hi';
+import { HiOutlineCube, HiOutlineLightningBolt, HiOutlineSparkles } from 'react-icons/hi';
 import { cn } from '@/lib/utils';
 
 interface PricingTier {
   name: string;
   price: string;
   description: string;
-  features: Array<{
-    text: string;
-    highlight?: boolean;
-  }>;
+  features: string[];
   products: string[];
   cta: string;
-  highlighted?: boolean;
+  popular?: boolean;
   icon: any;
 }
 
@@ -104,17 +101,21 @@ export default function PricingPage() {
       name: 'Starter',
       price: isAnnual ? '$29/mo' : '$39/mo',
       description: 'Perfect for individuals and small teams getting started with automation',
-      icon: HiOutlineLightningBolt,
-      products: ['AI Factory'],
-      features: [
-        'Up to 5 users',
-        'Basic workflow automation',
-        'Standard integrations',
-        'Community support',
-        '5 GB storage',
-        'API access'
+      icon: HiOutlineSparkles,
+      products: [
+        'AI Factory',
+        'Basic Support',
+        'Community Access'
       ],
-      cta: 'Get Started'
+      features: [
+        '5,000 API calls/month',
+        'Up to 3 team members',
+        'Basic integrations',
+        'Standard response time',
+        'Community support'
+      ],
+      cta: 'Get Started',
+      popular: false
     },
     {
       name: 'Growth',
@@ -123,7 +124,7 @@ export default function PricingPage() {
       icon: HiOutlineLightningBolt,
       products: [
         'AI Factory',
-        'AI Academy',
+        'AI Academy'
       ],
       features: [
         'Up to 20 users',
@@ -135,7 +136,8 @@ export default function PricingPage() {
         'Custom workflows',
         'Analytics dashboard'
       ],
-      cta: 'Get Started'
+      cta: 'Get Started',
+      popular: true
     },
     {
       name: 'Custom Solutions',
@@ -159,7 +161,8 @@ export default function PricingPage() {
         'SLA guarantee',
         'Training & onboarding'
       ],
-      cta: 'Contact Sales'
+      cta: 'Contact Sales',
+      popular: false
     }
   ];
 
@@ -284,12 +287,12 @@ export default function PricingPage() {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.5, delay: index * 0.1 }}
                 className={`relative p-8 rounded-2xl backdrop-blur-xl border group hover:scale-105 transition-transform duration-300 ${
-                  tier.highlighted
+                  tier.popular
                     ? 'border-[#3CDFFF] bg-gradient-to-b from-[#3CDFFF]/10 to-transparent'
                     : 'border-white/10 bg-white/5 hover:border-[#3CDFFF]/50'
                 }`}
               >
-                {tier.highlighted && (
+                {tier.popular && (
                   <div className="absolute -top-4 left-1/2 transform -translate-x-1/2">
                     <span className="bg-gradient-to-r from-[#3CDFFF] to-[#4AFFD4] text-black text-sm px-4 py-1 rounded-full font-medium">
                       Most Popular
@@ -330,14 +333,14 @@ export default function PricingPage() {
                 <ul className="space-y-4 mb-8">
                   {tier.features.map((feature) => (
                     <li
-                      key={feature.text}
+                      key={feature}
                       className={`flex items-start ${
-                        feature.highlight ? 'text-[#4AFFD4]' : 'text-white/80'
+                        feature.includes('Advanced') ? 'text-[#4AFFD4]' : 'text-white/80'
                       }`}
                     >
                       <svg
                         className={`w-5 h-5 mr-3 mt-1 ${
-                          feature.highlight ? 'text-[#4AFFD4]' : 'text-[#3CDFFF]'
+                          feature.includes('Advanced') ? 'text-[#4AFFD4]' : 'text-[#3CDFFF]'
                         }`}
                         fill="none"
                         stroke="currentColor"
@@ -350,7 +353,7 @@ export default function PricingPage() {
                           d="M5 13l4 4L19 7"
                         />
                       </svg>
-                      {feature.text}
+                      {feature}
                     </li>
                   ))}
                 </ul>
@@ -362,7 +365,7 @@ export default function PricingPage() {
                   <Link
                     href={tier.cta === 'Contact Sales' ? '/contact' : '/signup'}
                     className={`block w-full py-4 px-6 rounded-xl text-center font-medium transition-all duration-300 ${
-                      tier.highlighted
+                      tier.popular
                         ? 'bg-gradient-to-r from-[#3CDFFF] to-[#4AFFD4] text-black hover:shadow-lg hover:shadow-[#3CDFFF]/20'
                         : 'bg-gradient-to-r from-[#3CDFFF]/20 to-[#4AFFD4]/20 text-white hover:from-[#3CDFFF]/30 hover:to-[#4AFFD4]/30'
                     }`}

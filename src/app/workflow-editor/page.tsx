@@ -31,6 +31,7 @@ import PipedreamAppNode from '@/components/workflow/PipedreamAppNode';
 import DefaultNode from '@/components/workflow/DefaultNode';
 import AIAgentNode from '@/components/workflow/AIAgentNode';
 import { ElevenLabsAgentWidget } from '@/components/workflow/ElevenLabsAgentWidget';
+import WorkflowHeader from '@/components/workflow/WorkflowHeader';
 
 // Define a union type for node data
 type NodeDataType = {
@@ -55,54 +56,35 @@ const customEdgeTypes: EdgeTypes = {
   custom: CustomEdge,
 };
 
-// Rename our local interface to avoid conflicts with imported type
-interface LocalWorkflowSettings {
-  name: string;
-  description: string;
-  version: string;
-  interval: string; // Changed to string to match imported type
-  tags: string[];
-  category: string;
-  memoryEnabled: boolean;
-  memoryType: "buffer" | "session" | "persistent";
-  memorySize: number;
-  contextWindowSize: number;
-  safeMode: boolean;
-  autoSave: boolean;
-  executionTimeout: number;
-  maxConcurrentNodes: number;
-  ragEnabled: boolean;
-  nodeExecutionStrategy: "parallel" | "sequential";
-  webhookEnabled: boolean;
-  webhookUrl: string;
-  notificationsEnabled: boolean;
-  debugMode: boolean;
-  logLevel: "debug" | "info" | "warn" | "error";
-}
-
-// Initial workflow settings 
-const initialWorkflowSettings: LocalWorkflowSettings = {
+// Initial workflow settings
+const initialWorkflowSettings: WorkflowSettings = {
   name: "New Workflow",
   description: "A workflow created with the Optiflow editor",
   version: "1.0.0",
-  interval: "60", // String now
-  tags: [],
-  category: "general",
+  interval: "1d",
+  maxConcurrency: 5,
+  isActive: true,
+  
   memoryEnabled: true,
   memoryType: "buffer",
   memorySize: 1024,
   contextWindowSize: 10,
+  
   safeMode: false,
   autoSave: true,
-  executionTimeout: 30000,
+  executionTimeout: 300,
   maxConcurrentNodes: 5,
+  
   ragEnabled: false,
-  nodeExecutionStrategy: "sequential",
-  webhookEnabled: false,
-  webhookUrl: "",
-  notificationsEnabled: false,
+  knowledgeBase: "",
+  similarityThreshold: 0.7,
+  maxDocuments: 5,
+  
+  notifyOnCompletion: true,
+  notifyOnError: true,
+  
   debugMode: false,
-  logLevel: "error",
+  logLevel: "error"
 };
 
 // Initial nodes for the workflow
@@ -297,8 +279,8 @@ function WorkflowEditorContent() {
   const [reactFlowInstance, setReactFlowInstance] = useState<any>(null);
   
   // Add state for workflow settings and modal
-  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
-  const [workflowSettings, setWorkflowSettings] = useState<LocalWorkflowSettings>(initialWorkflowSettings);
+  const [showSettings, setShowSettings] = useState(false);
+  const [settings, setSettings] = useState<WorkflowSettings>(initialWorkflowSettings);
 
   // State for tracking node being dragged from palette
   const [nodeDragType, setNodeDragType] = useState<string | null>(null);
@@ -392,7 +374,7 @@ function WorkflowEditorContent() {
           
           // Update workflow settings
           if (workflow.name || workflow.description) {
-            setWorkflowSettings(prev => ({
+            setSettings(prev => ({
               ...prev,
               name: workflow.name || prev.name,
               description: workflow.description || prev.description
@@ -414,7 +396,7 @@ function WorkflowEditorContent() {
         console.error('Error loading workflow from sessionStorage:', error);
       }
     }
-  }, [setNodes, setEdges, setWorkflowSettings]);
+  }, [setNodes, setEdges, setSettings]);
   
   // Handle connections between nodes
   const onConnect = useCallback(
@@ -573,8 +555,8 @@ function WorkflowEditorContent() {
   );
   
   // Handle saving workflow settings
-  const handleSaveSettings = (settings: LocalWorkflowSettings) => {
-    setWorkflowSettings(settings);
+  const handleSaveSettings = (settings: WorkflowSettings) => {
+    setSettings(settings);
     // Apply any settings that affect the workflow graph
     // For example, updating execution environment or context window
   };
@@ -606,7 +588,7 @@ function WorkflowEditorContent() {
     }));
     
     // Update workflow settings
-    setWorkflowSettings(prev => ({
+    setSettings(prev => ({
       ...prev,
       name: workflow.name || prev.name,
       description: workflow.description || prev.description,
@@ -619,47 +601,32 @@ function WorkflowEditorContent() {
     // Notify the user
     alert(`Workflow "${workflow.name}" created successfully from voice command!`);
   }, [setNodes, setEdges]);
-  
+
+  const handleSaveWorkflow = useCallback(() => {
+    // Save the current workflow state
+    const workflowState = {
+      nodes,
+      edges,
+      settings
+    };
+    
+    // Save to session storage
+    sessionStorage.setItem('savedWorkflow', JSON.stringify(workflowState));
+    
+    // TODO: Implement actual save to backend
+    console.log('Saving workflow:', workflowState);
+  }, [nodes, edges, settings]);
+
   return (
-    <div className="h-screen w-full flex flex-col">
-      {/* Header */}
-      <div className="bg-dark-50 border-b border-dark-200 p-3 flex items-center justify-between">
-        <div className="flex items-center">
-          <h1 className="text-xl font-semibold text-white ml-2">Workflow Editor</h1>
-        </div>
-        <div className="flex items-center space-x-2">
-          <button
-            className="p-2 rounded-md text-gray-300 hover:bg-dark-200 transition-colors"
-            onClick={() => setIsSettingsOpen(true)}
-            title="Workflow Settings"
-          >
-            <Cog6ToothIcon className="h-5 w-5" />
-          </button>
-          <button
-            className="px-4 py-2 text-sm font-medium text-dark-50 dark:text-white bg-gradient-to-r from-primary to-secondary rounded-md shadow"
-            onClick={() => {
-              // Export workflow logic
-              const workflow = {
-                nodes,
-                edges,
-                settings: workflowSettings,
-              };
-              console.log('Workflow saved:', workflow);
-              alert('Workflow saved!');
-            }}
-          >
-            Save Workflow
-          </button>
-        </div>
-      </div>
-      
-      {/* Content */}
-      <div className="flex flex-1 overflow-hidden">
-        {/* Node Palette */}
-        <NodePalette className="w-64" />
-        
-        {/* Flow Editor */}
-        <div className="flex-1" ref={reactFlowWrapper}>
+    <div className="h-screen flex flex-col">
+      <WorkflowHeader 
+        workflowName={settings.name}
+        onOpenSettings={() => setShowSettings(true)}
+        onSaveWorkflow={handleSaveWorkflow}
+      />
+      <div className="flex-1 flex">
+        <NodePalette />
+        <div className="flex-1 h-full">
           <ReactFlow
             nodes={updatedNodes}
             edges={updatedEdges}
@@ -703,54 +670,33 @@ function WorkflowEditorContent() {
             onDrop={onDrop}
             onDragOver={onDragOver}
           >
-            {/* Add a Panel component for workflow execution controls */}
+            <Controls />
+            <MiniMap />
+            <Background variant={BackgroundVariant.Dots} gap={12} size={1} />
             <Panel position="top-right" className="bg-dark-50 p-2 rounded-md border border-gray-700 shadow-lg m-2">
               <div className="flex items-center gap-2">
-                {workflowSettings.safeMode && (
+                {settings.safeMode && (
                   <div className="py-1 px-2 bg-yellow-600 text-xs text-white rounded-md flex items-center">
                     <span>Safe Mode</span>
                   </div>
                 )}
-                {workflowSettings.memoryEnabled && (
+                {settings.memoryEnabled && (
                   <div className="py-1 px-2 bg-blue-600 text-xs text-white rounded-md flex items-center">
-                    <span>Memory: {workflowSettings.memoryType}</span>
+                    <span>Memory: {settings.memoryType}</span>
                   </div>
                 )}
-                {workflowSettings.ragEnabled && (
+                {settings.ragEnabled && (
                   <div className="py-1 px-2 bg-green-600 text-xs text-white rounded-md flex items-center">
-                    <span>RAG: {workflowSettings.nodeExecutionStrategy === 'parallel' ? 'Parallel' : 'Sequential'}</span>
+                    <span>RAG Enabled</span>
                   </div>
                 )}
-                {workflowSettings.debugMode && (
+                {settings.debugMode && (
                   <div className="py-1 px-2 bg-purple-600 text-xs text-white rounded-md flex items-center">
                     <span>Debug</span>
                   </div>
                 )}
               </div>
             </Panel>
-            
-            <Controls 
-              className="bg-dark-50 border border-gray-700 rounded-md shadow-lg"
-            />
-            <MiniMap
-              nodeStrokeWidth={3}
-              className="bg-dark-50 border border-gray-700 rounded-md shadow-lg"
-              nodeBorderRadius={8}
-              nodeColor={(node) => {
-                switch (node.type) {
-                  case 'aiAgent':
-                    return '#6366f1';
-                  default:
-                    return '#334155';
-                }
-              }}
-            />
-            <Background
-              color="#333"
-              gap={16}
-              size={1}
-              variant={BackgroundVariant.Dots}
-            />
           </ReactFlow>
         </div>
       </div>
@@ -763,9 +709,9 @@ function WorkflowEditorContent() {
       
       {/* Settings Dialog */}
       <WorkflowSettingsPanel
-        isOpen={isSettingsOpen}
-        onClose={() => setIsSettingsOpen(false)}
-        initialSettings={workflowSettings}
+        isOpen={showSettings}
+        onClose={() => setShowSettings(false)}
+        initialSettings={settings}
         onSave={handleSaveSettings}
       />
     </div>

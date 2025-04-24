@@ -1,95 +1,75 @@
-import { AnimatePresence, motion } from 'framer-motion';
-import { useEffect, useState } from 'react';
-import { createPortal } from 'react-dom';
+import React, { useEffect, useState } from 'react';
+import { HiX } from 'react-icons/hi';
 
-export type ToastType = 'success' | 'error' | 'info' | 'warning';
-
-interface Toast {
-  id: string;
-  message: string;
-  type: ToastType;
+export interface ToastProps {
+  title: string;
+  description: string;
+  variant?: 'default' | 'destructive' | 'success';
+  duration?: number;
+  onClose: () => void;
 }
 
-interface ToastProps {
-  toast: Toast;
-  onDismiss: (id: string) => void;
-}
+export const Toast: React.FC<ToastProps> = ({
+  title,
+  description,
+  variant = 'default',
+  duration = 5000,
+  onClose
+}) => {
+  const [isVisible, setIsVisible] = useState(true);
 
-const toastIcons = {
-  success: '✓',
-  error: '✕',
-  info: 'ℹ',
-  warning: '⚠',
-};
-
-const toastStyles = {
-  success: 'border-green-500/20 bg-green-500/10 text-green-400',
-  error: 'border-red-500/20 bg-red-500/10 text-red-400',
-  info: 'border-blue-500/20 bg-blue-500/10 text-blue-400',
-  warning: 'border-yellow-500/20 bg-yellow-500/10 text-yellow-400',
-};
-
-function ToastItem({ toast, onDismiss }: ToastProps) {
   useEffect(() => {
     const timer = setTimeout(() => {
-      onDismiss(toast.id);
-    }, 5000);
+      setIsVisible(false);
+      onClose();
+    }, duration);
 
     return () => clearTimeout(timer);
-  }, [toast.id, onDismiss]);
+  }, [duration, onClose]);
+
+  if (!isVisible) return null;
+
+  const variantClasses = {
+    default: 'bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700',
+    destructive: 'bg-red-50 dark:bg-red-900/50 border-red-200 dark:border-red-800',
+    success: 'bg-green-50 dark:bg-green-900/50 border-green-200 dark:border-green-800'
+  };
+
+  const titleClasses = {
+    default: 'text-gray-900 dark:text-gray-100',
+    destructive: 'text-red-900 dark:text-red-100',
+    success: 'text-green-900 dark:text-green-100'
+  };
+
+  const descriptionClasses = {
+    default: 'text-gray-600 dark:text-gray-400',
+    destructive: 'text-red-700 dark:text-red-300',
+    success: 'text-green-700 dark:text-green-300'
+  };
 
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 20, scale: 0.95 }}
-      animate={{ opacity: 1, y: 0, scale: 1 }}
-      exit={{ opacity: 0, y: 20, scale: 0.95 }}
-      className={`flex items-center p-4 rounded-lg border backdrop-blur-md shadow-lg ${toastStyles[toast.type]}`}
-    >
-      <span className="text-lg mr-3" role="img" aria-hidden="true">
-        {toastIcons[toast.type]}
-      </span>
-      <p className="text-sm font-medium">{toast.message}</p>
-      <button
-        onClick={() => onDismiss(toast.id)}
-        className="ml-4 text-current opacity-50 hover:opacity-100 transition-opacity"
-        aria-label="Dismiss notification"
-      >
-        ✕
-      </button>
-    </motion.div>
+    <div className={`fixed bottom-4 right-4 z-50 max-w-md rounded-lg border p-4 shadow-lg ${variantClasses[variant]}`}>
+      <div className="flex items-start gap-3">
+        <div className="flex-1">
+          <h3 className={`font-medium ${titleClasses[variant]}`}>{title}</h3>
+          <p className={`mt-1 text-sm ${descriptionClasses[variant]}`}>{description}</p>
+        </div>
+        <button
+          onClick={() => {
+            setIsVisible(false);
+            onClose();
+          }}
+          className={`shrink-0 rounded-md p-1 ${
+            variant === 'destructive'
+              ? 'hover:bg-red-100 dark:hover:bg-red-800'
+              : variant === 'success'
+              ? 'hover:bg-green-100 dark:hover:bg-green-800'
+              : 'hover:bg-gray-100 dark:hover:bg-gray-700'
+          }`}
+        >
+          <HiX className="h-5 w-5" />
+        </button>
+      </div>
+    </div>
   );
-}
-
-export function ToastContainer() {
-  const [toasts, setToasts] = useState<Toast[]>([]);
-
-  const addToast = (message: string, type: ToastType = 'info') => {
-    const id = Math.random().toString(36).substr(2, 9);
-    setToasts((prev) => [...prev, { id, message, type }]);
-  };
-
-  const removeToast = (id: string) => {
-    setToasts((prev) => prev.filter((toast) => toast.id !== id));
-  };
-
-  // Expose the addToast function globally
-  useEffect(() => {
-    (window as any).showToast = addToast;
-    return () => {
-      delete (window as any).showToast;
-    };
-  }, []);
-
-  if (typeof window === 'undefined') return null;
-
-  return createPortal(
-    <div className="fixed bottom-4 right-4 z-50 flex flex-col gap-2">
-      <AnimatePresence>
-        {toasts.map((toast) => (
-          <ToastItem key={toast.id} toast={toast} onDismiss={removeToast} />
-        ))}
-      </AnimatePresence>
-    </div>,
-    document.body
-  );
-} 
+}; 

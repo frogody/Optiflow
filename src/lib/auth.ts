@@ -13,7 +13,7 @@ const userSchema = z.object({
   name: z.string().optional(),
 });
 
-export const authOptions: NextAuthOptions = {
+const authOptions: NextAuthOptions = {
   adapter: PrismaAdapter(prisma),
   providers: [
     CredentialsProvider({
@@ -90,7 +90,11 @@ export const authOptions: NextAuthOptions = {
       return session;
     }
   }
-};
+} as const;
+
+// Export authOptions as default and named export
+export { authOptions };
+export default authOptions;
 
 export type UserCredentials = z.infer<typeof userSchema>;
 

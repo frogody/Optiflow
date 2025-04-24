@@ -5,5 +5,5 @@ const handler = NextAuth(authOptions);
 
 export { handler as GET, handler as POST };
 
-// Re-export authOptions for use in other routes
+// Export authOptions for use in other routes
 export { authOptions }; 

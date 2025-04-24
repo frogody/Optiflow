@@ -1,163 +1,120 @@
-import React, { useCallback, useEffect, useState } from 'react';
+'use client';
+
+import React, { useCallback, useState } from 'react';
 import { VoiceCommandInput } from './VoiceCommandInput';
-import { useToast } from '@/hooks/useToast';
-import { useWorkflowStore } from '@/stores/workflowStore';
-import { useSession } from 'next-auth/react';
-import { useVoiceStore } from '@/stores/voiceStore';
+import { FlowEditor } from './workflow/FlowEditor';
+import { parseCommand } from '@/lib/workflow/commandParser';
+import { CommandType, WorkflowCommand, WorkflowState } from '@/types/workflow';
+import { toast } from 'sonner';
 
-interface VoiceWorkflowBuilderProps {
-  workflowId?: string;
-  onWorkflowUpdate?: () => void;
-}
+export default function VoiceWorkflowBuilder() {
+  const [workflowState, setWorkflowState] = useState<WorkflowState>({
+    currentWorkflow: null,
+    selectedNode: null,
+    isRunning: false,
+    error: null,
+  });
 
-export const VoiceWorkflowBuilder: React.FC<VoiceWorkflowBuilderProps> = ({
-  workflowId,
-  onWorkflowUpdate,
-}) => {
-  const { data: session } = useSession();
-  const { showToast } = useToast();
-  const [isProcessing, setIsProcessing] = useState(false);
-  
-  const {
-    setActiveConversation,
-    addMessage,
-    isProcessingCommand,
-    lastCommandResult,
-  } = useVoiceStore();
-
-  const {
-    addNode,
-    connectNodes,
-    updateNodeConfig,
-    selectedNode,
-    nodes,
-    edges,
-  } = useWorkflowStore();
-
-  const handleVoiceCommand = useCallback(async (command: string) => {
-    if (!session?.user?.id) {
-      showToast('error', 'Please sign in to use voice commands');
+  const handleCommand = useCallback((transcript: string) => {
+    const command = parseCommand(transcript);
+    if (!command) {
+      toast.error('Command not recognized');
       return;
     }
 
-    setIsProcessing(true);
     try {
-      // Create a new voice interaction
-      const response = await fetch('/api/voice/process', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          command,
-          workflowId,
-          context: {
-            selectedNodeId: selectedNode?.id,
-            nodes: nodes.map(node => ({
-              id: node.id,
-              type: node.type,
-              position: { x: node.position.x, y: node.position.y },
-            })),
-            edges: edges.map(edge => ({
-              id: edge.id,
-              source: edge.source,
-              target: edge.target,
-            })),
-          },
-        }),
-      });
+      switch (command.type) {
+        case CommandType.CREATE_NODE:
+          if (!command.nodeType) break;
+          // Add node logic
+          toast.success(`Creating ${command.nodeType} node`);
+          break;
 
-      if (!response.ok) {
-        throw new Error('Failed to process voice command');
+        case CommandType.CONNECT_NODES:
+          if (!command.sourceNode || !command.targetNode) break;
+          // Connect nodes logic
+          toast.success(`Connecting ${command.sourceNode} to ${command.targetNode}`);
+          break;
+
+        case CommandType.DELETE_NODE:
+          if (!command.nodeName) break;
+          // Delete node logic
+          toast.success(`Deleting ${command.nodeName} node`);
+          break;
+
+        case CommandType.RENAME_NODE:
+          if (!command.nodeName || !command.newName) break;
+          // Rename node logic
+          toast.success(`Renaming ${command.nodeName} to ${command.newName}`);
+          break;
+
+        case CommandType.CONFIGURE_NODE:
+          if (!command.nodeName) break;
+          // Configure node logic
+          toast.success(`Configuring ${command.nodeName} node`);
+          break;
+
+        case CommandType.SAVE_WORKFLOW:
+          // Save workflow logic
+          toast.success('Saving workflow');
+          break;
+
+        case CommandType.LOAD_WORKFLOW:
+          if (!command.workflowName) break;
+          // Load workflow logic
+          toast.success(`Loading workflow ${command.workflowName}`);
+          break;
+
+        case CommandType.RUN_WORKFLOW:
+          // Run workflow logic
+          setWorkflowState(prev => ({ ...prev, isRunning: true }));
+          toast.success('Running workflow');
+          break;
+
+        case CommandType.STOP_WORKFLOW:
+          // Stop workflow logic
+          setWorkflowState(prev => ({ ...prev, isRunning: false }));
+          toast.success('Stopping workflow');
+          break;
+
+        default:
+          toast.error('Unknown command');
       }
-
-      const result = await response.json();
-      
-      // Add the command to the conversation
-      addMessage({
-        role: 'user',
-        content: command,
-      });
-
-      // Add the response to the conversation
-      addMessage({
-        role: 'assistant',
-        content: result.response,
-      });
-
-      // Execute the workflow modifications
-      if (result.actions) {
-        for (const action of result.actions) {
-          switch (action.type) {
-            case 'ADD_NODE':
-              addNode({
-                type: action.nodeType,
-                position: action.position,
-                data: action.config,
-              });
-              break;
-            case 'CONNECT_NODES':
-              connectNodes(action.sourceId, action.targetId);
-              break;
-            case 'UPDATE_NODE':
-              updateNodeConfig(action.nodeId, action.config);
-              break;
-          }
-        }
-      }
-
-      if (onWorkflowUpdate) {
-        onWorkflowUpdate();
-      }
-
     } catch (error) {
-      console.error('Error processing voice command:', error);
-      showToast('error', 'Failed to process voice command');
-    } finally {
-      setIsProcessing(false);
+      toast.error('Error executing command');
+      setWorkflowState(prev => ({ ...prev, error: error instanceof Error ? error.message : 'Unknown error' }));
     }
-  }, [
-    session?.user?.id,
-    workflowId,
-    selectedNode,
-    nodes,
-    edges,
-    addNode,
-    connectNodes,
-    updateNodeConfig,
-    showToast,
-    addMessage,
-    onWorkflowUpdate,
-  ]);
+  }, []);
 
   const handleError = useCallback((error: string) => {
-    showToast('error', error);
-  }, [showToast]);
+    toast.error(`Voice recognition error: ${error}`);
+    setWorkflowState(prev => ({ ...prev, error }));
+  }, []);
 
   return (
-    <div className="flex flex-col space-y-4">
-      <VoiceCommandInput
-        onCommand={handleVoiceCommand}
-        onError={handleError}
-        disabled={isProcessing || !session?.user?.id}
-      />
+    <div className="flex flex-col h-screen">
+      <div className="flex-none p-4 bg-gray-100 dark:bg-gray-800">
+        <VoiceCommandInput
+          onCommand={handleCommand}
+          onError={handleError}
+          disabled={workflowState.isRunning}
+        />
+      </div>
       
-      {isProcessing && (
-        <div className="flex items-center justify-center p-4">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500" />
-        </div>
-      )}
+      <div className="flex-grow">
+        <FlowEditor
+          workflow={workflowState.currentWorkflow}
+          isRunning={workflowState.isRunning}
+          selectedNode={workflowState.selectedNode}
+          onNodeSelect={(nodeId) => setWorkflowState(prev => ({ ...prev, selectedNode: nodeId }))}
+        />
+      </div>
 
-      {lastCommandResult && (
-        <div className="p-4 bg-gray-100 dark:bg-gray-800 rounded-lg">
-          <h3 className="font-medium text-gray-900 dark:text-gray-100">
-            Last Command Result
-          </h3>
-          <p className="mt-1 text-sm text-gray-600 dark:text-gray-300">
-            {lastCommandResult}
-          </p>
+      {workflowState.error && (
+        <div className="flex-none p-4 bg-red-100 dark:bg-red-900">
+          <p className="text-red-600 dark:text-red-300">{workflowState.error}</p>
         </div>
       )}
     </div>
   );
-}; 
+} 

@@ -5,6 +5,7 @@ import { Node, Edge } from 'reactflow';
 import { Spinner } from '@/components/ui/Spinner';
 import { Toast } from '@/components/ui/Toast';
 import { validateWorkflow } from '@/utils/workflowValidation';
+import { WorkflowNodeCreator } from './WorkflowNodeCreator';
 
 interface ConversationalWorkflowBuilderProps {
   onWorkflowUpdate: (nodes: Node[], edges: Edge[]) => void;
@@ -37,6 +38,8 @@ export const ConversationalWorkflowBuilder: React.FC<ConversationalWorkflowBuild
   const [error, setError] = useState<string | null>(null);
   const [showToast, setShowToast] = useState(false);
   const [selectedStep, setSelectedStep] = useState<string | null>(null);
+  const [nodes, setNodes] = useState<Node[]>([]);
+  const [edges, setEdges] = useState<Edge[]>([]);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   // Scroll to bottom of messages
@@ -117,8 +120,10 @@ export const ConversationalWorkflowBuilder: React.FC<ConversationalWorkflowBuild
           return;
         }
         
-        const { nodes, edges } = convertWorkflowToReactFlow(validationResult.validatedData!);
-        onWorkflowUpdate(nodes, edges);
+        const { nodes: newNodes, edges: newEdges } = convertWorkflowToReactFlow(validationResult.validatedData!);
+        setNodes(newNodes);
+        setEdges(newEdges);
+        onWorkflowUpdate(newNodes, newEdges);
       }
       
       // Clear input and selected step
@@ -162,39 +167,9 @@ export const ConversationalWorkflowBuilder: React.FC<ConversationalWorkflowBuild
       const column = Math.floor(index / MAX_NODES_PER_COLUMN);
       const row = index % MAX_NODES_PER_COLUMN;
       
-      // Determine node type and style
-      let nodeType = 'default';
-      let nodeStyle = {};
-      
-      switch (step.type.toLowerCase()) {
-        case 'trigger':
-          nodeType = 'input';
-          nodeStyle = { background: '#e0f2fe', borderColor: '#60a5fa' };
-          break;
-        case 'condition':
-          nodeType = 'condition';
-          nodeStyle = { background: '#fef3c7', borderColor: '#fbbf24' };
-          break;
-        case 'action':
-          nodeType = 'default';
-          nodeStyle = { background: '#dcfce7', borderColor: '#34d399' };
-          break;
-        case 'api':
-          nodeType = 'api';
-          nodeStyle = { background: '#f3e8ff', borderColor: '#a855f7' };
-          break;
-        case 'database':
-          nodeType = 'database';
-          nodeStyle = { background: '#fee2e2', borderColor: '#f87171' };
-          break;
-        default:
-          nodeType = 'default';
-          nodeStyle = { background: '#f3f4f6', borderColor: '#9ca3af' };
-      }
-      
       nodes.push({
         id: step.id,
-        type: nodeType,
+        type: step.type.toLowerCase(),
         position: {
           x: column * GRID_SPACING_X + 100,
           y: row * GRID_SPACING_Y + 100
@@ -202,54 +177,19 @@ export const ConversationalWorkflowBuilder: React.FC<ConversationalWorkflowBuild
         data: {
           label: step.title,
           description: step.description,
-          settings: {
-            ...step.parameters,
-            nodeType: step.type,
-            customStyle: nodeStyle
-          }
-        },
-        style: nodeStyle
-      });
-      
-      // Create edges with improved types
-      step.edges.forEach((edge: any) => {
-        let edgeType = 'default';
-        let edgeStyle = {};
-        
-        switch (edge.edge_type.toLowerCase()) {
-          case 'success':
-            edgeType = 'success';
-            edgeStyle = { stroke: '#34d399', strokeWidth: 2 };
-            break;
-          case 'failure':
-            edgeType = 'failure';
-            edgeStyle = { stroke: '#f87171', strokeWidth: 2 };
-            break;
-          case 'condition_true':
-            edgeType = 'conditionTrue';
-            edgeStyle = { stroke: '#60a5fa', strokeWidth: 2 };
-            break;
-          case 'condition_false':
-            edgeType = 'conditionFalse';
-            edgeStyle = { stroke: '#f97316', strokeWidth: 2 };
-            break;
-          default:
-            edgeType = 'default';
-            edgeStyle = { stroke: '#9ca3af', strokeWidth: 2 };
+          config: step.parameters
         }
-        
-        edges.push({
-          id: `${step.id}-${edge.target_node_id}`,
-          source: step.id,
-          target: edge.target_node_id,
-          type: edgeType,
-          animated: edge.edge_type === 'async',
-          style: edgeStyle,
-          data: {
-            label: edge.edge_type,
-            description: edge.description
-          }
-        });
+      });
+    });
+    
+    // Create edges
+    workflow.connections.forEach((connection: any) => {
+      edges.push({
+        id: `${connection.source}-${connection.target}`,
+        source: connection.source,
+        target: connection.target,
+        animated: true,
+        style: { stroke: '#6366f1' }
       });
     });
     
@@ -257,104 +197,45 @@ export const ConversationalWorkflowBuilder: React.FC<ConversationalWorkflowBuild
   };
 
   return (
-    <div className="conversational-workflow-builder flex flex-col h-full">
-      <div className="chat-container flex-1 overflow-y-auto p-4 bg-gray-50 rounded-lg mb-4">
-        {messages.length === 0 ? (
-          <div className="flex items-center justify-center h-full text-gray-500">
-            <p>Start a conversation with the agent to build your workflow</p>
-          </div>
-        ) : (
-          messages.map((message, index) => (
-            <div 
-              key={index} 
-              className={`message mb-4 p-3 rounded-lg ${
-                message.role === 'user' 
-                  ? 'bg-blue-100 ml-auto max-w-[80%]' 
-                  : 'bg-white border border-gray-200 max-w-[80%]'
-              }`}
-            >
-              <div className="flex justify-between items-center mb-1">
-                <p className="text-sm font-medium">
-                  {message.role === 'user' ? 'You' : 'Agent'}
-                </p>
-                {message.role === 'user' && message.status && (
-                  <span className={`text-xs ${
-                    message.status === 'sending' ? 'text-gray-500' :
-                    message.status === 'sent' ? 'text-green-500' :
-                    'text-red-500'
-                  }`}>
-                    {message.status === 'sending' ? 'Sending...' :
-                     message.status === 'sent' ? 'Sent' :
-                     'Failed'}
-                  </span>
-                )}
-              </div>
-              <p className="text-gray-800">{message.content}</p>
-              
-              {/* Show workflow step details if available */}
-              {message.workflowStep && (
-                <div className="mt-2 p-2 bg-gray-50 rounded border border-gray-200">
-                  <div className="flex justify-between items-center">
-                    <h4 className="font-medium text-sm">{message.workflowStep.title}</h4>
-                    <button
-                      onClick={() => handleEditStep(message.workflowStep!.id)}
-                      className="text-xs text-blue-600 hover:text-blue-800"
-                    >
-                      Edit
-                    </button>
-                  </div>
-                  <p className="text-sm text-gray-600 mt-1">{message.workflowStep.description}</p>
-                  <div className="mt-2">
-                    <span className="text-xs font-medium text-gray-500">Type: </span>
-                    <span className="text-xs text-gray-700">{message.workflowStep.type}</span>
-                  </div>
-                  {Object.entries(message.workflowStep.parameters).map(([key, value]) => (
-                    <div key={key} className="mt-1">
-                      <span className="text-xs font-medium text-gray-500">{key}: </span>
-                      <span className="text-xs text-gray-700">
-                        {typeof value === 'object' ? JSON.stringify(value) : String(value)}
-                      </span>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
-          ))
-        )}
-        <div ref={messagesEndRef} />
+    <div className="flex flex-col h-full">
+      <div className="flex-1 relative">
+        <WorkflowNodeCreator
+          initialNodes={nodes}
+          initialEdges={edges}
+          onNodesChange={setNodes}
+          onEdgesChange={setEdges}
+        />
+      </div>
+      
+      <div className="border-t border-gray-200 dark:border-gray-800 p-4">
+        <div className="flex items-center space-x-2">
+          <textarea
+            value={inputText}
+            onChange={(e) => setInputText(e.target.value)}
+            onKeyDown={handleKeyDown}
+            placeholder="Describe your workflow step..."
+            className="flex-1 min-h-[80px] p-2 rounded-md border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
+          />
+          <button
+            onClick={handleSendMessage}
+            disabled={isProcessing || !inputText.trim()}
+            className="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 disabled:opacity-50"
+          >
+            {isProcessing ? <Spinner size="sm" /> : 'Send'}
+          </button>
+        </div>
       </div>
       
       {showToast && error && (
         <Toast
-          type="error"
-          message={error}
+          title="Error"
+          description={error}
+          variant="destructive"
           onClose={() => setShowToast(false)}
-          className="mb-4"
         />
       )}
       
-      <div className="input-container flex items-center">
-        <input
-          type="text"
-          value={inputText}
-          onChange={(e) => setInputText(e.target.value)}
-          onKeyDown={handleKeyDown}
-          placeholder={selectedStep ? "Describe how you want to modify this step..." : "Type your message..."}
-          className="flex-1 p-3 border border-gray-300 rounded-l-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-          disabled={isProcessing}
-        />
-        <button
-          onClick={handleSendMessage}
-          disabled={isProcessing || !inputText.trim()}
-          className="bg-blue-600 text-white p-3 rounded-r-lg hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed flex items-center justify-center min-w-[100px]"
-        >
-          {isProcessing ? (
-            <Spinner className="w-5 h-5" />
-          ) : (
-            selectedStep ? 'Update' : 'Send'
-          )}
-        </button>
-      </div>
+      <div ref={messagesEndRef} />
     </div>
   );
 }; 
