@@ -12,7 +12,7 @@ declare global {
 // Helper function to request microphone access explicitly
 const requestMicrophoneAccess = async (): Promise<boolean> => {
   try {
-    if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+    if (!navigator.mediaDevices) {
       console.error('Browser does not support mediaDevices API');
       return false;
     }
@@ -60,11 +60,9 @@ export default function MicrophonePermission({ onPermissionGranted, onPermission
   const [browserDetails, setBrowserDetails] = useState<string | null>(null);
 
   useEffect(() => {
-    // Set mounted state only if we're in the browser
     if (typeof window !== 'undefined') {
       setMounted(true);
       
-      // Detect browser for better error messages
       const userAgent = window.navigator.userAgent;
       const browserInfo = [];
       
@@ -76,10 +74,18 @@ export default function MicrophonePermission({ onPermissionGranted, onPermission
       if (browserInfo.length > 0) {
         setBrowserDetails(browserInfo.join('/'));
       }
+
+      // Initial permission check
+      checkPermission();
     }
     
     return () => {
       setMounted(false);
+      // Clean up any active stream when component unmounts
+      if (window.streamReference) {
+        window.streamReference.getTracks().forEach(track => track.stop());
+        delete window.streamReference;
+      }
     };
   }, []);
 
@@ -92,7 +98,11 @@ export default function MicrophonePermission({ onPermissionGranted, onPermission
         // Fallback for browsers without permissions API (like Safari)
         const granted = await requestMicrophoneAccess();
         setPermissionStatus(granted ? 'granted' : 'denied');
-        granted ? onPermissionGranted?.() : onPermissionDenied?.();
+        if (granted) {
+          onPermissionGranted?.();
+        } else {
+          onPermissionDenied?.();
+        }
         return;
       }
 
@@ -116,13 +126,21 @@ export default function MicrophonePermission({ onPermissionGranted, onPermission
       if (result.state === 'prompt') {
         const granted = await requestMicrophoneAccess();
         setPermissionStatus(granted ? 'granted' : 'denied');
-        granted ? onPermissionGranted?.() : onPermissionDenied?.();
+        if (granted) {
+          onPermissionGranted?.();
+        } else {
+          onPermissionDenied?.();
+        }
       }
 
       // Listen for permission changes
       const handleChange = () => {
         setPermissionStatus(result.state);
-        result.state === 'granted' ? onPermissionGranted?.() : onPermissionDenied?.();
+        if (result.state === 'granted') {
+          onPermissionGranted?.();
+        } else {
+          onPermissionDenied?.();
+        }
       };
 
       result.addEventListener('change', handleChange);
@@ -137,7 +155,11 @@ export default function MicrophonePermission({ onPermissionGranted, onPermission
       try {
         const granted = await requestMicrophoneAccess();
         setPermissionStatus(granted ? 'granted' : 'denied');
-        granted ? onPermissionGranted?.() : onPermissionDenied?.();
+        if (granted) {
+          onPermissionGranted?.();
+        } else {
+          onPermissionDenied?.();
+        }
       } catch (directError) {
         console.error('Direct permission request also failed:', directError);
         onPermissionDenied?.();

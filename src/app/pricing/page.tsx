@@ -134,7 +134,8 @@ export default function PricingPage() {
         'Advanced API access',
         'Custom workflows',
         'Analytics dashboard'
-      ]
+      ],
+      cta: 'Get Started'
     },
     {
       name: 'Custom Solutions',
@@ -157,7 +158,8 @@ export default function PricingPage() {
         'Advanced security',
         'SLA guarantee',
         'Training & onboarding'
-      ]
+      ],
+      cta: 'Contact Sales'
     }
   ];
 
