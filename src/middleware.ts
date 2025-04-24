@@ -16,6 +16,12 @@ const publicPaths = [
   '/pricing',
   '/faq',
   '/favicon.ico',
+  '/api/health',
+  '/api/health/',
+];
+
+// Auth-related paths that should bypass middleware
+const authPaths = [
   '/api/auth',
   '/api/auth/callback',
   '/api/auth/callback/google',
@@ -24,18 +30,16 @@ const publicPaths = [
   '/api/auth/signout',
   '/api/auth/providers',
   '/api/auth/csrf',
-  '/api/health',
-  '/api/health/',
 ];
 
-// Helper function to check if a path matches any of the public paths
+// Helper function to check if a path matches any of the patterns
 function matchesPath(path: string, patterns: string[]): boolean {
   return patterns.some(pattern => {
     // Exact match
     if (pattern === path) return true;
     // Pattern ends with wildcard
     if (pattern.endsWith('*') && path.startsWith(pattern.slice(0, -1))) return true;
-    // Check if path starts with any public path pattern
+    // Check if path starts with any pattern
     if (path.startsWith(pattern)) return true;
     return false;
   });
@@ -64,7 +68,7 @@ function isValidRedirectUrl(url: string): boolean {
 
 // Helper function to check if a path is auth-related
 function isAuthRelatedPath(path: string): boolean {
-  return path === '/login' || path === '/signup' || path.startsWith('/api/auth/');
+  return path === '/login' || path === '/signup' || matchesPath(path, authPaths);
 }
 
 export async function middleware(request: NextRequest) {
@@ -75,18 +79,21 @@ export async function middleware(request: NextRequest) {
     return NextResponse.redirect(new URL('/signup', request.url));
   }
 
-  // Skip middleware for static assets, API routes and health checks
+  // Skip middleware for static assets and files
   if (
     pathname.startsWith('/_next') ||
     pathname.startsWith('/static') ||
-    pathname.includes('.') ||
-    pathname.startsWith('/api/auth') ||
-    pathname.startsWith('/api/health')
+    pathname.includes('.')
   ) {
     return NextResponse.next();
   }
 
-  // Also skip for these specific paths to prevent loops
+  // Skip middleware for auth-related paths
+  if (matchesPath(pathname, authPaths)) {
+    return NextResponse.next();
+  }
+
+  // Skip middleware for public paths
   if (matchesPath(pathname, publicPaths)) {
     return NextResponse.next();
   }
@@ -110,7 +117,9 @@ export async function middleware(request: NextRequest) {
       // Only set callbackUrl if it's not an auth-related path and it's not already a login page
       if (!isAuthRelatedPath(pathname) && pathname !== '/login') {
         const fullPath = `${pathname}${search}`;
-        loginUrl.searchParams.set('callbackUrl', fullPath);
+        if (isValidRedirectUrl(fullPath)) {
+          loginUrl.searchParams.set('callbackUrl', fullPath);
+        }
       }
       
       return NextResponse.redirect(loginUrl);
@@ -146,8 +155,9 @@ export async function middleware(request: NextRequest) {
     return response;
   } catch (error) {
     console.error('Middleware error:', error);
-    // In case of error, allow the request to proceed
-    return NextResponse.next();
+    // On error, redirect to login page without callback
+    // This prevents potential redirect loops caused by error states
+    return NextResponse.redirect(new URL('/login', request.url));
   }
 }
 
@@ -156,12 +166,11 @@ export const config = {
   matcher: [
     /*
      * Match all request paths except for the ones starting with:
-     * - api/auth (auth API routes)
      * - _next/static (static files)
      * - _next/image (image optimization files)
      * - favicon.ico (favicon file)
      * - public folder
      */
-    '/((?!api/auth|_next/static|_next/image|favicon.ico|public/).*)',
+    '/((?!_next/static|_next/image|favicon.ico|public/).*)',
   ],
 }; 
