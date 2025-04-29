@@ -8,7 +8,7 @@ dotenv.config({ path: '.env.test' });
 const baseURL = process.env.TEST_BASE_URL || 'http://localhost:3000';
 
 export default defineConfig({
-  testDir: './tests',
+  testDir: './tests/e2e',
   timeout: 30 * 1000,
   expect: {
     timeout: 5000
@@ -48,10 +48,10 @@ export default defineConfig({
       use: { ...devices['iPhone 12'] },
     },
   ],
-  // Only start a local development server when explicitly not using the Vercel URL
-  webServer: !process.env.TEST_BASE_URL ? {
+  webServer: {
     command: 'npm run dev',
-    port: 3000,
-    reuseExistingServer: true,
-  } : undefined,
+    url: 'http://localhost:3000',
+    reuseExistingServer: !process.env.CI,
+    timeout: 120 * 1000,
+  },
 }); 
