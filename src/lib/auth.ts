@@ -5,6 +5,7 @@ import CredentialsProvider from "next-auth/providers/credentials";
 import bcrypt from "bcryptjs";
 import { prisma } from "./prisma";
 import { z } from "zod";
+import { request } from "next/navigation";
 
 // User schema for validation
 const userSchema = z.object({
@@ -105,7 +106,7 @@ const authOptions: NextAuthOptions = {
         httpOnly: true,
         sameSite: 'lax',
         path: '/',
-        secure: true, // Always use secure cookies
+        secure: process.env.NODE_ENV === 'production', // Only require secure in production
         domain: process.env.NODE_ENV === 'production' 
           ? '.isyncso.com' 
           : undefined
@@ -149,28 +150,35 @@ const authOptions: NextAuthOptions = {
       return session;
     },
     async redirect({ url, baseUrl }) {
+      // Get the actual host from the environment or use port 3001
+      const currentHost = process.env.NEXTAUTH_URL || 'http://localhost:3001';
+      
       console.log('[Auth] Redirect Callback:', { 
         url, 
         baseUrl,
+        currentHost,
         nextAuthUrl: process.env.NEXTAUTH_URL,
         timestamp: new Date().toISOString(),
         urlObject: {
           isRelative: url.startsWith('/'),
-          isSameOrigin: url.startsWith(baseUrl),
-          pathname: new URL(url.startsWith('/') ? `${baseUrl}${url}` : url).pathname
+          isSameOrigin: url.startsWith(currentHost),
+          pathname: url.startsWith('/') ? `${currentHost}${url}` : url,
         }
       });
       
-      // Allow relative URLs
-      if (url.startsWith('/')) {
-        return `${baseUrl}${url}`;
-      }
-      // Allow URLs from the same origin
-      else if (url.startsWith(baseUrl)) {
-        return url;
+      // Always use port 3001 for localhost
+      if (url.includes('localhost')) {
+        const urlObj = new URL(url);
+        urlObj.port = '3001';
+        return urlObj.toString();
       }
       
-      return baseUrl;
+      // Allow relative URLs
+      if (url.startsWith('/')) {
+        return `${currentHost}${url}`;
+      }
+      
+      return currentHost;
     }
   }
 } as const;

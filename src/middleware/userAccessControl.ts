@@ -21,7 +21,7 @@ export async function validateUserAccess(req: NextRequest, res: NextResponse) {
     
     // 2. Get user ID from request path or parameters
     // This assumes paths like /api/users/:userId/data or query params like ?userId=123
-    const url = new URL(req.url);
+    const url = req.nextUrl;
     const pathParts = url.pathname.split('/');
     const requestedUserId = pathParts.includes('users') 
       ? pathParts[pathParts.indexOf('users') + 1]

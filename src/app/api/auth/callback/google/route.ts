@@ -17,5 +17,5 @@ export async function GET(request: NextRequest) {
   // Redirect to the NextAuth callback handler
   const callbackUrl = `/api/auth/callback/google?code=${code}&state=${state}`;
   
-  return NextResponse.redirect(new URL(callbackUrl, request.url));
+  return NextResponse.redirect(new URL(callbackUrl, request.nextUrl.origin));
 } 

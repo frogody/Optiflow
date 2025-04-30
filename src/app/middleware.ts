@@ -37,8 +37,8 @@ export async function middleware(request: NextRequest) {
 
   // If no token and auth is required, redirect to login
   if (!token && isAuthRequired) {
-    const loginUrl = new URL('/login', request.url)
-    loginUrl.searchParams.set('callbackUrl', request.url)
+    const loginUrl = new URL('/login', request.nextUrl.origin)
+    loginUrl.searchParams.set('callbackUrl', request.nextUrl.toString())
     return NextResponse.redirect(loginUrl)
   }
 

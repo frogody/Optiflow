@@ -38,12 +38,12 @@ export async function GET(request: NextRequest) {
   // If there was an error, redirect to an error page
   if (error) {
     return NextResponse.redirect(
-      new URL(`/error?message=OAuth+connection+failed:+${error}`, request.url)
+      new URL(`/error?message=OAuth+connection+failed:+${error}`, request.nextUrl.origin)
     );
   }
   
   // Add success parameter to the return URL
-  const redirectUrl = new URL(returnUrl, request.url);
+  const redirectUrl = new URL(returnUrl, request.nextUrl.origin);
   redirectUrl.searchParams.set('connection', code ? 'success' : 'error');
   
   // Redirect back to the app

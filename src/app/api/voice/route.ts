@@ -95,7 +95,7 @@ export async function GET(req: Request) {
       );
     }
 
-    const { searchParams } = new URL(req.url);
+    const { searchParams } = req.nextUrl;
     const workflowId = searchParams.get('workflowId');
 
     const voiceInteractions = await prisma.voiceInteraction.findMany({

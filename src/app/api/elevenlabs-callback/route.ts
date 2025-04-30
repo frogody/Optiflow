@@ -21,7 +21,7 @@ export async function POST(request: NextRequest) {
               window.opener.postMessage({
                 type: 'workflow_generated',
                 workflow: ${JSON.stringify(workflow)}
-              }, '${new URL(request.headers.get('referer') || request.headers.get('origin') || '*').origin}');
+              }, '${request.nextUrl.origin}');
               
               // Close this window after a short delay
               setTimeout(function() {

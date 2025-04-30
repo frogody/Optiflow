@@ -16,6 +16,6 @@ export async function GET(request: NextRequest) {
     return NextResponse.redirect(authUrl);
   } catch (error) {
     console.error('Error generating Google auth URL:', error);
-    return NextResponse.redirect(new URL('/login?error=AuthenticationError', request.url));
+    return NextResponse.redirect(new URL('/login?error=AuthenticationError', request.nextUrl.origin));
   }
 } 

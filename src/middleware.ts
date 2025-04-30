@@ -54,27 +54,25 @@ function isValidRedirectUrl(url: string): boolean {
 }
 
 export async function middleware(request: NextRequest) {
-  const { pathname, origin, host, searchParams } = request.nextUrl;
-  
-  // Enhanced debug logging for URL information and request details
+  const requestHeaders = new Headers(request.headers);
+  const pathname = request.nextUrl.pathname;
+  const origin = request.headers.get('origin') || request.nextUrl.origin;
+  const host = request.headers.get('host');
+
+  // Debug logging
   console.log('[Middleware Debug]', {
     timestamp: new Date().toISOString(),
     pathname,
     origin,
     host,
-    fullUrl: request.url,
+    fullUrl: request.nextUrl.toString(),
     method: request.method,
-    searchParams: Object.fromEntries(searchParams.entries()),
-    headers: Object.fromEntries(request.headers.entries()),
-    cookies: Array.from(request.cookies.getAll()).map(cookie => ({
-      name: cookie.name,
-      value: cookie.name.includes('csrf') ? '[REDACTED]' : 
-            cookie.name.includes('session') ? '[REDACTED]' : 
-            cookie.value
-    })),
+    searchParams: Object.fromEntries(request.nextUrl.searchParams),
+    headers: Object.fromEntries(request.headers),
+    cookies: request.cookies.getAll(),
     nextAuthUrl: process.env.NEXTAUTH_URL,
     nodeEnv: process.env.NODE_ENV,
-    referrer: request.headers.get('referer') || 'none'
+    referrer: request.headers.get('referer'),
   });
 
   // Track potential redirect loops
@@ -86,7 +84,7 @@ export async function middleware(request: NextRequest) {
       referrer: request.headers.get('referer')
     });
     // Return to home page with error if loop detected
-    return NextResponse.redirect(new URL('/?error=redirect_loop', request.url));
+    return NextResponse.redirect(new URL('/?error=redirect_loop', request.nextUrl.origin));
   }
   
   // Skip middleware for static files, API routes, and public paths
@@ -97,6 +95,15 @@ export async function middleware(request: NextRequest) {
     matchesPath(pathname, [...authPaths, ...publicPaths])
   ) {
     return NextResponse.next();
+  }
+
+  // Force all NextAuth callbacks to use port 3001
+  if (pathname.startsWith('/api/auth') || pathname.includes('callback')) {
+    const url = request.nextUrl;
+    if (url.port !== '3001') {
+      url.port = '3001';
+      return NextResponse.redirect(url);
+    }
   }
 
   try {
@@ -127,12 +134,16 @@ export async function middleware(request: NextRequest) {
     if (token && (pathname === '/login' || pathname === '/signup')) {
       console.log('[Middleware] Redirecting authenticated user:', { 
         from: pathname,
-        to: '/dashboard',
+        to: request.cookies.get('next-auth.callback-url')?.value || '/dashboard',
         tokenExp: token.exp,
         redirectCount
       });
-      const response = NextResponse.redirect(new URL('/dashboard', request.url));
+      
+      // Get the callback URL from cookie, defaulting to dashboard
+      const callbackUrl = request.cookies.get('next-auth.callback-url')?.value || '/dashboard';
+      const response = NextResponse.redirect(new URL(callbackUrl, request.nextUrl.origin));
       response.headers.set('x-redirect-count', (redirectCount + 1).toString());
+      
       // Ensure cookies are set with proper security
       response.cookies.set({
         name: process.env.NODE_ENV === 'production' 
@@ -161,7 +172,8 @@ export async function middleware(request: NextRequest) {
             : 'next-auth.session-token'
         )
       });
-      const loginUrl = new URL('/login', request.url);
+      const loginUrl = new URL('/login', request.nextUrl.origin);
+      // Store the original path as callback URL
       loginUrl.searchParams.set('callbackUrl', pathname);
       const response = NextResponse.redirect(loginUrl);
       response.headers.set('x-redirect-count', (redirectCount + 1).toString());
@@ -185,7 +197,7 @@ export async function middleware(request: NextRequest) {
       stack: error instanceof Error ? error.stack : undefined
     });
     // On error, redirect to login with more context
-    const loginUrl = new URL('/login', request.url);
+    const loginUrl = new URL('/login', request.nextUrl.origin);
     loginUrl.searchParams.set('error', 'AuthError');
     loginUrl.searchParams.set('errorDetail', error instanceof Error ? error.message : 'Unknown error');
     const response = NextResponse.redirect(loginUrl);
@@ -194,16 +206,13 @@ export async function middleware(request: NextRequest) {
   }
 }
 
-// Configure which routes the middleware should run on
+// Configure the middleware to run on specific paths
 export const config = {
   matcher: [
-    /*
-     * Match all request paths except for the ones starting with:
-     * - _next/static (static files)
-     * - _next/image (image optimization files)
-     * - favicon.ico (favicon file)
-     * - public folder
-     */
-    '/((?!_next/static|_next/image|favicon.ico|public).*)',
+    '/api/auth/:path*',
+    '/api/livekit/:path*',
+    '/login',
+    '/voice-agent',
+    '/dashboard',
   ],
 }; 

@@ -46,7 +46,7 @@ export async function POST(
       case 'check_connection':
         try {
           // Simulate connection check with the MCP URL
-          const url = new URL(mcpUrl);
+          const url = request.nextUrl;
           return NextResponse.json({ 
             connected: true,
             endpoint: url.origin
