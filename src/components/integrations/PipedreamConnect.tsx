@@ -1,16 +1,18 @@
-import React, { useState } from 'react';
-import { connectAccount } from '@pipedream/sdk';
+import React, { useState, useCallback } from 'react';
+import { createFrontendClient } from '@pipedream/sdk/browser';
 import { Spinner } from '@/components/ui/Spinner';
 import { toast } from 'react-hot-toast';
-import { useSession, signIn } from 'next-auth/react';
+import { useSession } from 'next-auth/react';
 
 interface PipedreamConnectProps {
-  onSuccess?: (connection: any) => void;
+  app: string;
+  onSuccess?: (account: { id: string }) => void;
   onError?: (error: Error) => void;
   className?: string;
 }
 
 export const PipedreamConnect: React.FC<PipedreamConnectProps> = ({
+  app,
   onSuccess,
   onError,
   className = '',
@@ -18,69 +20,91 @@ export const PipedreamConnect: React.FC<PipedreamConnectProps> = ({
   const [isLoading, setIsLoading] = useState(false);
   const { data: session, status } = useSession();
 
-  const handleConnect = async () => {
-    // Check if user is authenticated
-    if (!session) {
-      toast.error('Please sign in to connect your Pipedream account');
-      signIn();
+  const handleConnect = useCallback(async () => {
+    if (!app) {
+      const error = new Error('App name is required');
+      console.error('Connection error:', error);
+      onError?.(error);
+      return;
+    }
+
+    if (!session?.user?.id) {
+      toast.error('Please sign in to connect your account');
       return;
     }
 
     setIsLoading(true);
     try {
+      console.log(`Initiating connection for ${app}...`);
+      console.log('Environment:', {
+        hasClientId: !!process.env.NEXT_PUBLIC_PIPEDREAM_CLIENT_ID,
+        hasProjectId: !!process.env.NEXT_PUBLIC_PIPEDREAM_PROJECT_ID,
+        projectEnvironment: process.env.NEXT_PUBLIC_PIPEDREAM_PROJECT_ENVIRONMENT
+      });
+
+      // Get the connect token from our backend
       const response = await fetch('/api/pipedream/connect', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
+        body: JSON.stringify({
+          external_user_id: session.user.id,
+          user_facing_label: `Connect ${app} for ${session.user.email}`,
+          app_id: app // Pass the app ID to the backend
+        }),
       });
 
+      const data = await response.json();
+
       if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || 'Failed to fetch connect token');
+        console.error('Token creation failed:', data);
+        throw new Error(data.error || data.details || 'Failed to fetch connect token');
       }
 
-      const { token, connect_link_url } = await response.json();
-
-      if (!token) {
+      if (!data.token) {
         throw new Error('Connect token not received');
       }
 
-      connectAccount({
-        token,
-        onSuccess: (connection) => {
-          toast.success('Account connected successfully!');
-          onSuccess?.(connection);
+      console.log(`Token received for ${app}, initializing connection...`);
+
+      // Initialize the Pipedream frontend client
+      const pd = createFrontendClient();
+
+      // Start the connection flow
+      await pd.connectAccount({
+        app,
+        token: data.token,
+        onSuccess: (account) => {
+          console.log(`Successfully connected ${app}:`, account);
+          toast.success(`Successfully connected ${app}!`);
+          onSuccess?.(account);
           setIsLoading(false);
-        },
-        onClose: () => {
-          setIsLoading(false);
-          toast.error('Connection cancelled');
         },
         onError: (errorData) => {
-          console.error('Connect flow error:', errorData);
-          toast.error(errorData.message || 'Failed to connect account. Please try again.');
-          onError?.(new Error(errorData.message || 'Connection failed'));
+          console.error(`Connection error for ${app}:`, errorData);
+          const errorMessage = errorData.message || `Failed to connect ${app}. Please try again.`;
+          toast.error(errorMessage);
+          onError?.(new Error(errorMessage));
           setIsLoading(false);
-        },
+        }
       });
     } catch (err) {
-      console.error('Error during connect process:', err);
-      toast.error(err instanceof Error ? err.message : 'An unexpected error occurred');
-      onError?.(err instanceof Error ? err : new Error('Connection failed'));
+      console.error(`Error during ${app} connection:`, err);
+      const errorMessage = err instanceof Error ? err.message : 'An unexpected error occurred';
+      toast.error(errorMessage);
+      onError?.(err instanceof Error ? err : new Error(errorMessage));
       setIsLoading(false);
     }
-  };
+  }, [app, session, onSuccess, onError]);
 
-  // Show loading state if session is loading
   if (status === 'loading') {
     return (
       <button
         disabled
-        className={`inline-flex items-center justify-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 opacity-50 cursor-not-allowed ${className}`}
+        className={`px-4 py-2 bg-blue-600 text-white rounded-md opacity-50 ${className}`}
       >
-        <Spinner size="sm" className="mr-2" />
-        Loading...
+        <Spinner className="w-5 h-5" />
       </button>
     );
   }
@@ -89,17 +113,14 @@ export const PipedreamConnect: React.FC<PipedreamConnectProps> = ({
     <button
       onClick={handleConnect}
       disabled={isLoading || !session}
-      className={`inline-flex items-center justify-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed ${className}`}
+      className={`px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors disabled:opacity-50 ${className}`}
     >
       {isLoading ? (
-        <>
-          <Spinner size="sm" className="mr-2" />
-          Connecting...
-        </>
+        <Spinner className="w-5 h-5" />
       ) : !session ? (
         'Sign in to Connect'
       ) : (
-        'Connect Account via Pipedream'
+        `Connect ${app}`
       )}
     </button>
   );

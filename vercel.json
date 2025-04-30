@@ -7,7 +7,12 @@
     }
   ],
   "env": {
-    "NEXT_PUBLIC_DEPLOYMENT_ENV": "production"
+    "NEXT_PUBLIC_DEPLOYMENT_ENV": "production",
+    "NEXT_PUBLIC_PIPEDREAM_CLIENT_ID": "kWYR9dn6Vmk7MnLuVfoXx4jsedOcp83vBg6st3rWuiM",
+    "NEXT_PUBLIC_APP_URL": "https://app.isyncso.com",
+    "NEXT_PUBLIC_PIPEDREAM_REDIRECT_URI": "https://app.isyncso.com/api/pipedream/callback",
+    "PIPEDREAM_PROJECT_ID": "isyncso",
+    "PIPEDREAM_CLIENT_SECRET": "ayINomSnhCcHGR6Xf1_4PElM25mqsEFsrvTHKQ7ink0"
   },
   "routes": [
     {

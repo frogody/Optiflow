@@ -35,12 +35,22 @@ export default function DashboardPage() {
   const { data: session, status } = useSession();
 
   useEffect(() => {
-    if (!currentUser) {
+    if (status === 'loading') {
+      return;
+    }
+
+    if (status === 'unauthenticated') {
       router.push('/login');
       return;
     }
+
+    if (status === 'authenticated' && !currentUser) {
+      // Initialize user store from session
+      useUserStore.setState({ currentUser: session.user });
+    }
+
     setIsLoading(false);
-  }, [currentUser, router]);
+  }, [status, session, currentUser, router]);
 
   // Handle command input
   const handleCommand = async (command: string) => {

@@ -15,6 +15,29 @@ const userSchema = z.object({
 
 const authOptions: NextAuthOptions = {
   adapter: PrismaAdapter(prisma),
+  debug: process.env.NODE_ENV === 'development',
+  logger: {
+    error(code, metadata) {
+      console.error('[Auth Error]', {
+        code,
+        metadata,
+        timestamp: new Date().toISOString()
+      });
+    },
+    warn(code) {
+      console.warn('[Auth Warning]', {
+        code,
+        timestamp: new Date().toISOString()
+      });
+    },
+    debug(code, metadata) {
+      console.log('[Auth Debug]', {
+        code,
+        metadata,
+        timestamp: new Date().toISOString()
+      });
+    }
+  },
   providers: [
     CredentialsProvider({
       name: 'credentials',
@@ -24,7 +47,7 @@ const authOptions: NextAuthOptions = {
       },
       async authorize(credentials) {
         if (!credentials?.email || !credentials?.password) {
-          console.log('Missing credentials');
+          console.log('[Auth] Missing credentials');
           return null;
         }
 
@@ -34,18 +57,18 @@ const authOptions: NextAuthOptions = {
           });
 
           if (!user || !user.passwordHash) {
-            console.log('User not found or no password:', credentials.email);
+            console.log('[Auth] User not found or no password:', credentials.email);
             return null;
           }
 
           const isValid = await bcrypt.compare(credentials.password, user.passwordHash);
           
           if (!isValid) {
-            console.log('Invalid password for user:', credentials.email);
+            console.log('[Auth] Invalid password for user:', credentials.email);
             return null;
           }
 
-          console.log('Auth success:', { email: user.email, id: user.id });
+          console.log('[Auth] Authentication successful:', { email: user.email, id: user.id });
           
           return {
             id: user.id,
@@ -53,7 +76,7 @@ const authOptions: NextAuthOptions = {
             name: user.name
           };
         } catch (error) {
-          console.error('Auth error:', error);
+          console.error('[Auth] Authentication error:', error);
           return null;
         }
       }
@@ -70,10 +93,37 @@ const authOptions: NextAuthOptions = {
   },
   session: {
     strategy: 'jwt',
-    maxAge: 30 * 24 * 60 * 60 // 30 days
+    maxAge: 30 * 24 * 60 * 60, // 30 days
+    updateAge: 24 * 60 * 60, // 24 hours
+  },
+  cookies: {
+    sessionToken: {
+      name: process.env.NODE_ENV === 'production' 
+        ? '__Secure-next-auth.session-token' 
+        : 'next-auth.session-token',
+      options: {
+        httpOnly: true,
+        sameSite: 'lax',
+        path: '/',
+        secure: true, // Always use secure cookies
+        domain: process.env.NODE_ENV === 'production' 
+          ? '.isyncso.com' 
+          : undefined
+      }
+    }
   },
   callbacks: {
-    async jwt({ token, user }) {
+    async jwt({ token, user, account, trigger }) {
+      console.log('[Auth] JWT Callback:', { 
+        event: trigger,
+        tokenId: token?.id, 
+        userId: user?.id,
+        accountType: account?.type,
+        expires: token?.exp,
+        issued: token?.iat,
+        timestamp: new Date().toISOString()
+      });
+      
       if (user) {
         token.id = user.id;
         token.email = user.email;
@@ -81,13 +131,46 @@ const authOptions: NextAuthOptions = {
       }
       return token;
     },
-    async session({ session, token }) {
+    async session({ session, token, trigger }) {
+      console.log('[Auth] Session Callback:', { 
+        event: trigger,
+        sessionUserId: session.user?.id, 
+        tokenId: token.id,
+        sessionExpiry: session.expires,
+        tokenExpiry: token.exp,
+        timestamp: new Date().toISOString()
+      });
+      
       if (token && session.user) {
         session.user.id = token.id as string;
         session.user.email = token.email as string;
         session.user.name = token.name as string;
       }
       return session;
+    },
+    async redirect({ url, baseUrl }) {
+      console.log('[Auth] Redirect Callback:', { 
+        url, 
+        baseUrl,
+        nextAuthUrl: process.env.NEXTAUTH_URL,
+        timestamp: new Date().toISOString(),
+        urlObject: {
+          isRelative: url.startsWith('/'),
+          isSameOrigin: url.startsWith(baseUrl),
+          pathname: new URL(url.startsWith('/') ? `${baseUrl}${url}` : url).pathname
+        }
+      });
+      
+      // Allow relative URLs
+      if (url.startsWith('/')) {
+        return `${baseUrl}${url}`;
+      }
+      // Allow URLs from the same origin
+      else if (url.startsWith(baseUrl)) {
+        return url;
+      }
+      
+      return baseUrl;
     }
   }
 } as const;

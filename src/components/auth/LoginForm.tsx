@@ -19,6 +19,7 @@ export default function LoginForm() {
   useEffect(() => {
     // If already authenticated, redirect to dashboard
     if (status === 'authenticated') {
+      console.log('[LoginForm] User authenticated, redirecting to:', callbackUrl);
       router.push(callbackUrl);
     }
   }, [status, router, callbackUrl]);
@@ -35,19 +36,25 @@ export default function LoginForm() {
     setError('');
     
     try {
+      console.log('[LoginForm] Attempting login for:', email);
       const result = await signIn('credentials', {
         redirect: false,
         email,
         password,
+        callbackUrl
       });
+      
+      console.log('[LoginForm] Login result:', result);
       
       if (result?.error) {
         setError('Invalid email or password');
         setIsLoading(false);
-      } else {
+      } else if (result?.ok) {
         // Auth successful - redirect will happen via the useEffect above
+        console.log('[LoginForm] Login successful, redirecting to:', callbackUrl);
       }
     } catch (err) {
+      console.error('[LoginForm] Login error:', err);
       setError('An error occurred during login');
       setIsLoading(false);
     }

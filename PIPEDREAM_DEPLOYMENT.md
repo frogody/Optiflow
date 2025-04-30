@@ -1,74 +1,85 @@
-# Deploying Pipedream Connect on Vercel
+# Pipedream Integration Deployment Guide
 
-This guide will help you set up and deploy the Pipedream Connect integration on Vercel.
+This guide explains how to deploy your application with Pipedream Connect integration to Vercel environments.
 
 ## Prerequisites
 
-1. A Pipedream account with API access
-2. A Vercel account
-3. Your Optiflow repository connected to Vercel
+1. A Pipedream account with Connect API access
+2. Your OAuth client credentials from Pipedream
+3. Vercel account and CLI installed locally
 
 ## Setup Steps
 
-### 1. Create a Pipedream OAuth App
+### 1. Configure Environment Variables
 
-1. Log in to your [Pipedream account](https://pipedream.com/auth/login)
-2. Navigate to **Developer Settings** > **OAuth Apps**
-3. Click **New OAuth App**
-4. Fill in the details:
-   - **App Name**: Your application name (e.g., "Optiflow")
-   - **Description**: A brief description of your app
-   - **Redirect URI**: `https://your-vercel-domain.vercel.app/api/pipedream/callback`
-   - **Scopes**: Select the necessary scopes for your integration
-5. Save the app and note down the **Client ID** and **Client Secret**
-
-### 2. Configure Environment Variables in Vercel
-
-1. Open your project in the [Vercel Dashboard](https://vercel.com/dashboard)
-2. Go to **Settings** > **Environment Variables**
-3. Add the following environment variables:
+Before deploying, you need to set up the following environment variables in Vercel:
 
 ```
-NEXT_PUBLIC_PIPEDREAM_CLIENT_ID=your_pipedream_client_id
-PIPEDREAM_CLIENT_SECRET=your_pipedream_client_secret
-PIPEDREAM_PROJECT_ID=your_pipedream_project_id
-PIPEDREAM_PROJECT_ENVIRONMENT=production
-NEXT_PUBLIC_APP_URL=https://your-vercel-domain.vercel.app
-NEXT_PUBLIC_PIPEDREAM_REDIRECT_URI=https://your-vercel-domain.vercel.app/api/pipedream/callback
+# Pipedream Configuration
+NEXT_PUBLIC_PIPEDREAM_CLIENT_ID=your-client-id
+PIPEDREAM_CLIENT_SECRET=your-client-secret
+PIPEDREAM_PROJECT_ID=your-project-id
+NEXT_PUBLIC_APP_URL=your-app-url (e.g., https://app.isyncso.com)
+NEXT_PUBLIC_PIPEDREAM_REDIRECT_URI=your-callback-url (e.g., https://app.isyncso.com/api/pipedream/callback)
 ```
 
-4. Click **Save**
+You can add these in the Vercel dashboard under Project Settings → Environment Variables, or use the Vercel CLI:
 
-### 3. Deploy to Vercel
+```bash
+vercel env add PIPEDREAM_CLIENT_SECRET
+```
 
-1. Make sure your code changes are committed to your repository
-2. Push to the branch that's connected to your Vercel project
-3. Vercel will automatically deploy your application
-4. Once deployed, verify the correct URL is used in your Pipedream OAuth app settings
+### 2. Configure Pipedream OAuth Application
 
-## Testing the Integration
+1. In your Pipedream account, go to Settings → API Keys
+2. Configure your OAuth application with the correct redirect URI:
+   - For development: `http://localhost:3000/api/pipedream/callback`
+   - For production: `https://app.isyncso.com/api/pipedream/callback` (or your custom domain)
 
-1. Visit your deployed application
-2. Navigate to `/test-pipedream` to test the integration
-3. Try connecting to different services to ensure the OAuth flow works correctly
+### 3. Deploy to All Environments
+
+Use the provided script to deploy to all environments:
+
+```bash
+./deploy-to-vercel.sh
+```
+
+This will deploy to:
+- Preview environment (for testing)
+- Development environment 
+- Production environment
+
+### 4. Verify Deployment
+
+After deployment, verify that your Pipedream integration is working correctly:
+
+1. Navigate to your deployed application
+2. Try connecting an account through the Pipedream integration
+3. Check the console logs for successful connection
 
 ## Troubleshooting
 
-If you encounter issues with the OAuth callback:
+### Token Creation Issues
 
-1. Check that the redirect URI in your Pipedream OAuth app matches exactly with your deployed application URL
-2. Verify all environment variables are correctly set in Vercel
-3. Check the Vercel function logs for any errors
-4. Ensure your browser allows third-party cookies for the OAuth popup
+If you're having issues creating tokens:
 
-## Security Considerations
+1. Check that your `PIPEDREAM_CLIENT_SECRET` is correct
+2. Verify your `PIPEDREAM_PROJECT_ID` is set correctly
+3. Check the server logs for detailed error messages
 
-- Never commit your Pipedream Client Secret to your repository
-- The Client ID is public and can be exposed in the frontend code
-- Always use HTTPS for your redirect URI
+### Connection Issues
 
-## Additional Resources
+If accounts aren't connecting properly:
 
-- [Pipedream OAuth Documentation](https://pipedream.com/docs/connect/oauth)
-- [Vercel Environment Variables](https://vercel.com/docs/concepts/projects/environment-variables)
-- [Next.js API Routes](https://nextjs.org/docs/api-routes/introduction) 
+1. Ensure the redirect URI in your Pipedream OAuth app matches your deployed application
+2. Check that you're using the correct app slug in your connection code
+3. Verify the token is being passed correctly to the frontend
+
+## Environment-Specific Configurations
+
+For different environments, the script sets:
+
+- Development: Sets `NEXT_PUBLIC_DEPLOYMENT_ENV=development`
+- Production: Uses your production configuration
+
+You may need to customize other environment variables per environment in your Vercel project settings. 

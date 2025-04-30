@@ -1,8 +1,10 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { createFrontendClient } from '@pipedream/sdk/browser';
 import { FaSlack } from 'react-icons/fa';
+import { useSession } from 'next-auth/react';
+import { toast } from 'react-hot-toast';
 
 interface SlackConnectorProps {
   className?: string;
@@ -16,33 +18,84 @@ export default function SlackConnector({
   onError
 }: SlackConnectorProps) {
   const [isConnecting, setIsConnecting] = useState(false);
-  const [pdClient, setPdClient] = useState<any>(null);
-
-  useEffect(() => {
-    // Initialize the Pipedream client
-    const pd = createFrontendClient();
-    setPdClient(pd);
-  }, []);
+  const { data: session } = useSession();
 
   const handleConnect = async () => {
-    if (!pdClient) return;
+    if (!session?.user?.id) {
+      console.log('No user session found');
+      toast.error('You must be logged in to connect Slack');
+      return;
+    }
     
     setIsConnecting(true);
     try {
-      await pdClient.connectAccount({
+      console.log('Starting Slack connection process...', {
+        userId: session.user.id,
+        email: session.user.email
+      });
+      
+      // Get a token from our backend API
+      const response = await fetch('/api/pipedream/connect', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          external_user_id: session.user.id,
+          app_id: 'slack'
+        }),
+      });
+      
+      console.log('Backend response status:', response.status);
+      const data = await response.json();
+      console.log('Backend response data:', {
+        hasToken: !!data.token,
+        error: data.error,
+        details: data.details
+      });
+      
+      if (!response.ok) {
+        throw new Error(data.error || data.details || 'Failed to get connect token');
+      }
+      
+      if (!data.token) {
+        throw new Error('Connect token not received');
+      }
+      
+      console.log('Token received, initializing Pipedream client...');
+      
+      // Create a new client instance for this connection
+      const pdClient = createFrontendClient();
+      
+      // Use the token to start the OAuth flow
+      await pdClient.connect({
         app: 'slack',
-        // Use environment variables for client ID
-        oauthAppId: process.env.NEXT_PUBLIC_PIPEDREAM_CLIENT_ID || '',
-        token: process.env.NEXT_PUBLIC_PIPEDREAM_TOKEN || '',
-        onSuccess: ({ id }: { id: string }) => {
+        token: data.token,
+        onSuccess: ({ accountId }: { accountId: string }) => {
           setIsConnecting(false);
-          console.log(`Slack successfully connected: ${id}`);
-          if (onSuccess) onSuccess(id);
+          console.log(`Slack successfully connected: ${accountId}`);
+          toast.success('Slack connected successfully!');
+          if (onSuccess) onSuccess(accountId);
+        },
+        onError: (error: any) => {
+          setIsConnecting(false);
+          console.error('Error in Pipedream Connect flow:', {
+            message: error.message,
+            name: error.name,
+            stack: error.stack,
+            details: error
+          });
+          toast.error(error.message || 'Failed to connect Slack');
+          if (onError) onError(new Error(error.message || 'Failed to connect Slack'));
         }
       });
     } catch (error) {
       setIsConnecting(false);
-      console.error('Error connecting Slack:', error);
+      console.error('Error connecting Slack:', {
+        message: error instanceof Error ? error.message : 'Unknown error',
+        error
+      });
+      toast.error(error instanceof Error ? error.message : 'Failed to connect Slack');
       if (onError && error instanceof Error) onError(error);
     }
   };
@@ -50,7 +103,7 @@ export default function SlackConnector({
   return (
     <button
       onClick={handleConnect}
-      disabled={isConnecting || !pdClient}
+      disabled={isConnecting || !session}
       className={`flex items-center justify-center gap-2 px-4 py-2 bg-[#4A154B] text-white rounded-md hover:bg-[#5a2d5c] transition-colors disabled:opacity-50 ${className}`}
     >
       <FaSlack className="h-5 w-5" />

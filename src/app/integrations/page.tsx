@@ -6,7 +6,8 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { FaSearch } from 'react-icons/fa';
 import { HiOutlineCube, HiOutlineSparkles, HiOutlineLightningBolt } from 'react-icons/hi';
-import { PipedreamConnect } from '@/components/integrations/PipedreamConnect';
+import PipedreamConnectButton from '@/components/PipedreamConnectButton';
+import { toast } from 'react-hot-toast';
 
 // Interface for integration items
 interface Integration {
@@ -111,6 +112,52 @@ const GradientOrb = ({ delay = 0, size = 600, color = 'blue' }) => {
         delay
       }}
     />
+  );
+};
+
+const IntegrationCard = ({ integration }: { integration: Integration }) => {
+  return (
+    <motion.div
+      whileHover={{ scale: 1.02 }}
+      className="bg-white/10 backdrop-blur-lg rounded-xl p-6 border border-gray-200/20 shadow-lg"
+    >
+      <div className="flex items-center space-x-4 mb-4">
+        <div className="w-12 h-12 flex items-center justify-center bg-white/5 rounded-lg">
+          <Image
+            src={integration.icon}
+            alt={integration.name}
+            width={24}
+            height={24}
+            className="w-6 h-6"
+          />
+        </div>
+        <div>
+          <h3 className="text-lg font-semibold text-white">{integration.name}</h3>
+          <p className="text-sm text-gray-400">{integration.category}</p>
+        </div>
+      </div>
+      <p className="text-gray-300 mb-4">{integration.description}</p>
+      <div className="flex justify-between items-center">
+        {integration.popular && (
+          <span className="text-xs bg-blue-500/10 text-blue-400 px-2 py-1 rounded">
+            Popular
+          </span>
+        )}
+        <PipedreamConnectButton
+          appSlug={integration.name.toLowerCase().replace(/\s+/g, '_')}
+          buttonText={`Connect ${integration.name}`}
+          onSuccess={(accountId) => {
+            console.log(`Successfully connected ${integration.name}:`, accountId);
+            toast.success(`Successfully connected ${integration.name}`);
+          }}
+          onError={(error) => {
+            console.error(`Error connecting ${integration.name}:`, error);
+            toast.error(`Failed to connect ${integration.name}`);
+          }}
+          className="ml-auto"
+        />
+      </div>
+    </motion.div>
   );
 };
 
@@ -278,20 +325,83 @@ export default function IntegrationsPage() {
           <h1 className="text-2xl font-bold text-gray-900 mb-6">Integrations</h1>
           
           <div className="space-y-6">
+            {/* Main Pipedream Connect Section */}
             <div className="border border-gray-200 rounded-lg p-6">
               <h2 className="text-lg font-medium text-gray-900 mb-4">Pipedream Connect</h2>
               <p className="text-gray-600 mb-4">
                 Connect your third-party accounts through Pipedream to enable seamless integration with various services.
               </p>
-              <PipedreamConnect
-                onSuccess={(connection) => {
-                  console.log('Connection successful:', connection);
-                  // Handle successful connection (e.g., update UI, store connection info)
-                }}
-                onError={(error) => {
-                  console.error('Connection error:', error);
-                }}
-              />
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                {/* Popular Integrations */}
+                {popularIntegrations.slice(0, 6).map((integration) => (
+                  <div 
+                    key={integration.name}
+                    className="bg-white/10 backdrop-blur-lg rounded-lg p-4 border border-gray-200/20"
+                  >
+                    <div className="flex items-center space-x-3 mb-3">
+                      <div className="w-8 h-8 flex items-center justify-center bg-white/5 rounded">
+                        <Image
+                          src={integration.icon}
+                          alt={integration.name}
+                          width={20}
+                          height={20}
+                          className="w-5 h-5"
+                        />
+                      </div>
+                      <span className="text-sm font-medium text-gray-700">{integration.name}</span>
+                    </div>
+                    <PipedreamConnectButton
+                      appSlug={integration.name.toLowerCase().replace(/\s+/g, '_')}
+                      buttonText={`Connect ${integration.name}`}
+                      onSuccess={(accountId) => {
+                        console.log(`Successfully connected ${integration.name}:`, accountId);
+                        toast.success(`Successfully connected ${integration.name}`);
+                      }}
+                      onError={(error) => {
+                        console.error(`Error connecting ${integration.name}:`, error);
+                        toast.error(`Failed to connect ${integration.name}`);
+                      }}
+                      className="w-full"
+                    />
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* All Integrations Section */}
+            <div className="mt-8">
+              <div className="flex justify-between items-center mb-6">
+                <h2 className="text-xl font-semibold text-gray-900">All Integrations</h2>
+                <div className="flex space-x-4">
+                  <div className="relative">
+                    <input
+                      type="text"
+                      placeholder="Search integrations..."
+                      value={searchQuery}
+                      onChange={(e) => setSearchQuery(e.target.value)}
+                      className="pl-10 pr-4 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+                    />
+                    <FaSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+                  </div>
+                  <select
+                    value={selectedCategory}
+                    onChange={(e) => setSelectedCategory(e.target.value)}
+                    className="border border-gray-300 rounded-md px-4 py-2 focus:ring-blue-500 focus:border-blue-500"
+                  >
+                    {categories.map((category) => (
+                      <option key={category.name} value={category.name}>
+                        {category.name}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {filteredIntegrations.map((integration) => (
+                  <IntegrationCard key={integration.name} integration={integration} />
+                ))}
+              </div>
             </div>
           </div>
         </div>
