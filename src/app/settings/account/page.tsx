@@ -1,14 +1,8 @@
 'use client';
 
-import { Metadata } from 'next';
 import { useState } from 'react';
 import { Switch } from '@headlessui/react';
 import { cn } from '@/lib/utils';
-
-export const metadata: Metadata = {
-  title: 'Account Settings - Optiflow',
-  description: 'Manage your account preferences and security settings',
-};
 
 export default function AccountSettingsPage() {
   const [emailNotifications, setEmailNotifications] = useState({
