@@ -84,4 +84,11 @@ export function delay(ms: number): Promise<void> {
  */
 export function isEmptyObject(obj: object): boolean {
   return obj && Object.keys(obj).length === 0 && obj.constructor === Object;
+}
+
+import { type ClassValue, clsx } from 'clsx';
+import { twMerge } from 'tailwind-merge';
+
+export function cn(...inputs: ClassValue[]) {
+  return twMerge(clsx(inputs));
 } 

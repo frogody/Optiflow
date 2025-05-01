@@ -11,7 +11,7 @@ interface TranslatedTextProps {
 }
 
 export default function TranslatedText({ textKey, fallback, className }: TranslatedTextProps) {
-  const { language } = useLanguage();
+  const { language, version } = useLanguage();
   const [translation, setTranslation] = useState<string>(fallback || textKey);
 
   useEffect(() => {
@@ -28,21 +28,30 @@ export default function TranslatedText({ textKey, fallback, className }: Transla
         if (result && result[key] !== undefined) {
           result = result[key];
         } else {
-          console.warn(`Translation key not found: ${textKey} in language ${language}`);
-          throw new Error(`Translation key not found: ${textKey}`);
+          console.debug(`Translation key not found: ${textKey} in language ${language}, falling back to English`);
+          // Try English before giving up
+          result = translations.en;
+          for (const fallbackKey of keys) {
+            if (result && result[fallbackKey] !== undefined) {
+              result = result[fallbackKey];
+            } else {
+              throw new Error(`Translation key not found: ${textKey}`);
+            }
+          }
         }
       }
       
       if (typeof result === 'string') {
         setTranslation(result);
       } else {
-        console.warn(`Translation is not a string: ${textKey}`);
+        console.warn(`Translation is not a string: ${textKey}, using fallback`);
         setTranslation(fallback || textKey);
       }
     } catch (error) {
+      console.debug(`Translation error for key ${textKey}:`, error);
       setTranslation(fallback || textKey);
     }
-  }, [language, textKey, fallback]);
+  }, [language, textKey, fallback, version]);
 
   return <span className={className}>{translation}</span>;
 } 

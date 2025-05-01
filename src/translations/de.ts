@@ -9,7 +9,13 @@ const translations = {
     "signup": "Registrieren",
     "dashboard": "Dashboard",
     "flows": "Workflows",
-    "connections": "Verbindungen"
+    "connections": "Verbindungen",
+    "aicademy": "AIcademy",
+    "optiflow": "Optiflow",
+    "voice_workflows": "Sprach-Workflows",
+    "conversational": "Konversations-KI",
+    "ai_factory": "KI-Fabrik",
+    "ai_cademy": "KI-Akademie"
   },
   "footer": {
     "product": "Produkt",
@@ -28,6 +34,33 @@ const translations = {
     "security": "Sicherheit",
     "compliance": "Compliance",
     "allRightsReserved": "Alle Rechte vorbehalten"
+  },
+  "dashboard": {
+    "welcome": "Willkommen, Gmail-Benutzer",
+    "manageConnections": "Verwalten Sie Ihre Verbindungen und Workflows an einem Ort",
+    "tellOrchestrator": "Sagen Sie dem Orchestrator, was zu tun ist:",
+    "submit": "Absenden",
+    "connectionStatus": "Verbindungsstatus",
+    "connectToPipedream": "Verbinden Sie sich mit der Pipedream API, um Ihre Workflows zu verwalten",
+    "notConnected": "Nicht verbunden",
+    "overview": "Übersicht",
+    "aiAgents": "KI-Agenten",
+    "connections": "Verbindungen",
+    "manageApiConnections": "Verwalten Sie Ihre API-Verbindungen und Integrationen",
+    "view": "Anzeigen",
+    "workflows": "Workflows",
+    "createAndManage": "Erstellen und verwalten Sie automatisierte Workflows",
+    "analytics": "Analysen",
+    "trackPerformance": "Verfolgen Sie Ihre Workflow-Leistung und API-Nutzung",
+    "settings": "Einstellungen",
+    "configureAccount": "Konfigurieren Sie Ihr Konto und Ihre Benachrichtigungseinstellungen",
+    "quickActions": "Schnellaktionen",
+    "manageConnections2": "Verbindungen verwalten",
+    "viewAndConfigure": "Anzeigen und konfigurieren Sie Ihre API-Verbindungen",
+    "checkConnectionStatus": "Verbindungsstatus prüfen",
+    "verifyConnection": "Überprüfen Sie Ihren aktuellen Verbindungsstatus",
+    "profileSettings": "Profileinstellungen",
+    "updateAccount": "Aktualisieren Sie Ihre Kontoinformationen"
   },
   "landing": {
     "heroTitle": "Die Automatisierungsplattform Für Ihren Workflow",

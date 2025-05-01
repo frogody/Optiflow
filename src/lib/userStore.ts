@@ -9,6 +9,7 @@ export interface FrontendUser {
   id: string;
   email: string | null;
   name: string | null;
+  image?: string | null;
   // Add any additional fields from your session type here
 }
 

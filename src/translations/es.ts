@@ -9,7 +9,13 @@ const translations = {
     "signup": "Registrarse",
     "dashboard": "Panel de control",
     "flows": "Flujos",
-    "connections": "Conexiones"
+    "connections": "Conexiones",
+    "aicademy": "AIcademy",
+    "optiflow": "Optiflow",
+    "voice_workflows": "Flujos de Trabajo por Voz",
+    "conversational": "IA Conversacional",
+    "ai_factory": "Fábrica de IA",
+    "ai_cademy": "Academia de IA"
   },
   "footer": {
     "product": "Producto",
@@ -28,6 +34,33 @@ const translations = {
     "security": "Seguridad",
     "compliance": "Cumplimiento",
     "allRightsReserved": "Todos los derechos reservados"
+  },
+  "dashboard": {
+    "welcome": "Bienvenido, Usuario de Gmail",
+    "manageConnections": "Gestiona tus conexiones y flujos de trabajo desde un solo lugar",
+    "tellOrchestrator": "Dile al orquestador qué hacer:",
+    "submit": "Enviar",
+    "connectionStatus": "Estado de la Conexión",
+    "connectToPipedream": "Conéctate a la API de Pipedream para gestionar tus flujos de trabajo",
+    "notConnected": "No Conectado",
+    "overview": "Resumen",
+    "aiAgents": "Agentes de IA",
+    "connections": "Conexiones",
+    "manageApiConnections": "Gestiona tus conexiones API e integraciones",
+    "view": "Ver",
+    "workflows": "Flujos de Trabajo",
+    "createAndManage": "Crea y gestiona flujos de trabajo automatizados",
+    "analytics": "Análisis",
+    "trackPerformance": "Sigue el rendimiento de tus flujos de trabajo y el uso de la API",
+    "settings": "Configuración",
+    "configureAccount": "Configura tu cuenta y preferencias de notificación",
+    "quickActions": "Acciones Rápidas",
+    "manageConnections2": "Gestionar Conexiones",
+    "viewAndConfigure": "Ver y configurar tus conexiones API",
+    "checkConnectionStatus": "Verificar Estado de la Conexión",
+    "verifyConnection": "Verifica tu estado de conexión actual",
+    "profileSettings": "Configuración del Perfil",
+    "updateAccount": "Actualizar información de la cuenta"
   },
   "landing": {
     "heroTitle": "La Plataforma de Automatización Para Tu Flujo de Trabajo",

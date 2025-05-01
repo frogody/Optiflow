@@ -9,7 +9,13 @@ const translations = {
     "signup": "Sign Up",
     "dashboard": "Dashboard",
     "flows": "Flows",
-    "connections": "Connections"
+    "connections": "Connections",
+    "aicademy": "AIcademy",
+    "optiflow": "Optiflow",
+    "voice_workflows": "Voice Workflows",
+    "conversational": "Conversational AI",
+    "ai_factory": "AI Factory",
+    "ai_cademy": "AI Academy"
   },
   "footer": {
     "product": "Product",
@@ -28,6 +34,33 @@ const translations = {
     "security": "Security",
     "compliance": "Compliance",
     "allRightsReserved": "All rights reserved"
+  },
+  "dashboard": {
+    "welcome": "Welcome, Gmail User",
+    "manageConnections": "Manage your connections and workflows from one place",
+    "tellOrchestrator": "Tell the orchestrator what to do:",
+    "submit": "Submit",
+    "connectionStatus": "Connection Status",
+    "connectToPipedream": "Connect to the Pipedream API to manage your workflows",
+    "notConnected": "Not Connected",
+    "overview": "Overview",
+    "aiAgents": "AI Agents",
+    "connections": "Connections",
+    "manageApiConnections": "Manage your API connections and integrations",
+    "view": "View",
+    "workflows": "Workflows",
+    "createAndManage": "Create and manage automated workflows",
+    "analytics": "Analytics",
+    "trackPerformance": "Track your workflow performance and API usage",
+    "settings": "Settings",
+    "configureAccount": "Configure your account and notification preferences",
+    "quickActions": "Quick Actions",
+    "manageConnections2": "Manage Connections",
+    "viewAndConfigure": "View and configure your API connections",
+    "checkConnectionStatus": "Check Connection Status",
+    "verifyConnection": "Verify your current connection status",
+    "profileSettings": "Profile Settings",
+    "updateAccount": "Update your account information"
   },
   "landing": {
     "heroTitle": "The Automation Platform For Your Workflow",

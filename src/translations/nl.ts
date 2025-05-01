@@ -9,7 +9,13 @@ const translations = {
     "signup": "Aanmelden",
     "dashboard": "Dashboard",
     "flows": "Workflows",
-    "connections": "Connecties"
+    "connections": "Connecties",
+    "aicademy": "AIcademy",
+    "optiflow": "Optiflow",
+    "voice_workflows": "Spraak Workflows",
+    "conversational": "Conversationele AI",
+    "ai_factory": "AI Fabriek",
+    "ai_cademy": "AI Academie"
   },
   "footer": {
     "product": "Product",
