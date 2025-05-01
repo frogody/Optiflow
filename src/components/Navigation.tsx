@@ -127,14 +127,14 @@ export default function Navigation() {
     // Account Section
     { 
       name: 'My Profile',
-      href: '/profile',
+      href: '/settings/profile',
       description: 'Manage your personal profile',
       icon: 'user',
       section: 'account'
     },
     {
       name: 'Account Settings',
-      href: '/settings',
+      href: '/settings/account',
       description: 'Preferences and security settings',
       icon: 'settings',
       section: 'account'
@@ -142,14 +142,14 @@ export default function Navigation() {
     // Team Section
     {
       name: 'Team Management',
-      href: '/team',
+      href: '/settings/team',
       description: 'Invite and manage team members',
       icon: 'users',
       section: 'team'
     },
     {
       name: 'Roles & Permissions',
-      href: '/team/roles',
+      href: '/settings/roles',
       description: 'Configure access controls',
       icon: 'shield',
       section: 'team'
@@ -157,14 +157,14 @@ export default function Navigation() {
     // Billing Section
     {
       name: 'Billing & Plans',
-      href: '/billing',
+      href: '/settings/billing',
       description: 'Manage subscription and payments',
       icon: 'creditcard',
       section: 'billing'
     },
     {
       name: 'Usage & Analytics',
-      href: '/usage',
+      href: '/settings/usage',
       description: 'View your resource consumption',
       icon: 'chart',
       section: 'billing'
