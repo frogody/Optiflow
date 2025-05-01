@@ -2,7 +2,16 @@
 
 import { useState } from 'react';
 import { Switch } from '@headlessui/react';
+import { motion } from 'framer-motion';
 import { cn } from '@/lib/utils';
+import {
+  HiOutlineBell,
+  HiOutlineShieldCheck,
+  HiOutlineLink,
+  HiOutlineUserCircle,
+  HiOutlineLockClosed,
+  HiOutlineGlobe,
+} from 'react-icons/hi';
 
 export default function AccountSettingsPage() {
   const [emailNotifications, setEmailNotifications] = useState({
@@ -15,144 +24,208 @@ export default function AccountSettingsPage() {
   const [twoFactorEnabled, setTwoFactorEnabled] = useState(false);
   const [sessionTimeout, setSessionTimeout] = useState('30');
 
+  const fadeInUp = {
+    initial: { opacity: 0, y: 20 },
+    animate: { opacity: 1, y: 0 },
+    transition: { duration: 0.5 }
+  };
+
   return (
-    <div className="max-w-4xl mx-auto">
-      <div className="mb-8">
-        <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Account Settings</h1>
-        <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
+    <div className="max-w-4xl mx-auto p-8">
+      <motion.div 
+        className="mb-8"
+        initial={{ opacity: 0, y: -20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5 }}
+      >
+        <h1 className="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500">
+          Account Settings
+        </h1>
+        <p className="mt-2 text-gray-400">
           Manage your account preferences and security settings
         </p>
-      </div>
+      </motion.div>
 
-      <div className="space-y-6">
+      <div className="space-y-8">
         {/* Email Preferences */}
-        <section className="bg-white dark:bg-gray-800 shadow rounded-lg p-6">
-          <h2 className="text-lg font-medium text-gray-900 dark:text-white mb-4">Email Preferences</h2>
-          <div className="space-y-4">
-            {Object.entries(emailNotifications).map(([key, enabled]) => (
-              <div key={key} className="flex items-center justify-between">
-                <div>
-                  <h3 className="text-sm font-medium text-gray-900 dark:text-white capitalize">
-                    {key.replace('_', ' ')}
-                  </h3>
-                  <p className="text-sm text-gray-500 dark:text-gray-400">
-                    {getNotificationDescription(key)}
-                  </p>
+        <motion.section 
+          className="relative group"
+          {...fadeInUp}
+        >
+          <div className="absolute -inset-[1px] rounded-lg bg-gradient-to-r from-blue-500/20 via-purple-500/20 to-pink-500/20 blur group-hover:opacity-100 transition duration-500 opacity-50" />
+          <div className="relative bg-gray-900/60 backdrop-blur-sm rounded-lg p-6 border border-gray-800/50">
+            <div className="flex items-center mb-4">
+              <HiOutlineBell className="w-6 h-6 text-blue-500 mr-3" />
+              <h2 className="text-xl font-medium text-white">Email Preferences</h2>
+            </div>
+            <div className="space-y-6">
+              {Object.entries(emailNotifications).map(([key, enabled]) => (
+                <div key={key} className="flex items-center justify-between group">
+                  <div>
+                    <h3 className="text-sm font-medium text-gray-200 capitalize group-hover:text-white transition-colors">
+                      {key.replace('_', ' ')}
+                    </h3>
+                    <p className="text-sm text-gray-400 group-hover:text-gray-300 transition-colors">
+                      {getNotificationDescription(key)}
+                    </p>
+                  </div>
+                  <Switch
+                    checked={enabled}
+                    onChange={(value) => setEmailNotifications(prev => ({ ...prev, [key]: value }))}
+                    className={cn(
+                      enabled ? 'bg-gradient-to-r from-blue-500 to-purple-500' : 'bg-gray-700',
+                      'relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:ring-offset-gray-900'
+                    )}
+                  >
+                    <span
+                      className={cn(
+                        enabled ? 'translate-x-5' : 'translate-x-0',
+                        'pointer-events-none relative inline-block h-5 w-5 transform rounded-full bg-white shadow-lg ring-0 transition duration-200 ease-in-out'
+                      )}
+                    />
+                  </Switch>
+                </div>
+              ))}
+            </div>
+          </div>
+        </motion.section>
+
+        {/* Security Settings */}
+        <motion.section 
+          className="relative group"
+          {...fadeInUp}
+          transition={{ delay: 0.1 }}
+        >
+          <div className="absolute -inset-[1px] rounded-lg bg-gradient-to-r from-purple-500/20 via-pink-500/20 to-red-500/20 blur group-hover:opacity-100 transition duration-500 opacity-50" />
+          <div className="relative bg-gray-900/60 backdrop-blur-sm rounded-lg p-6 border border-gray-800/50">
+            <div className="flex items-center mb-6">
+              <HiOutlineShieldCheck className="w-6 h-6 text-purple-500 mr-3" />
+              <h2 className="text-xl font-medium text-white">Security Settings</h2>
+            </div>
+            
+            {/* Two-Factor Authentication */}
+            <div className="mb-8">
+              <div className="flex items-center justify-between mb-4">
+                <div className="flex items-center">
+                  <HiOutlineLockClosed className="w-5 h-5 text-purple-400 mr-3" />
+                  <div>
+                    <h3 className="text-sm font-medium text-gray-200">Two-Factor Authentication</h3>
+                    <p className="text-sm text-gray-400">Add an extra layer of security to your account</p>
+                  </div>
                 </div>
                 <Switch
-                  checked={enabled}
-                  onChange={(value) => setEmailNotifications(prev => ({ ...prev, [key]: value }))}
+                  checked={twoFactorEnabled}
+                  onChange={setTwoFactorEnabled}
                   className={cn(
-                    enabled ? 'bg-blue-600' : 'bg-gray-200 dark:bg-gray-700',
-                    'relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-blue-600 focus:ring-offset-2'
+                    twoFactorEnabled ? 'bg-gradient-to-r from-purple-500 to-pink-500' : 'bg-gray-700',
+                    'relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 focus:ring-offset-gray-900'
                   )}
                 >
                   <span
                     className={cn(
-                      enabled ? 'translate-x-5' : 'translate-x-0',
-                      'pointer-events-none relative inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out'
+                      twoFactorEnabled ? 'translate-x-5' : 'translate-x-0',
+                      'pointer-events-none relative inline-block h-5 w-5 transform rounded-full bg-white shadow-lg ring-0 transition duration-200 ease-in-out'
                     )}
                   />
                 </Switch>
               </div>
-            ))}
-          </div>
-        </section>
-
-        {/* Security Settings */}
-        <section className="bg-white dark:bg-gray-800 shadow rounded-lg p-6">
-          <h2 className="text-lg font-medium text-gray-900 dark:text-white mb-4">Security Settings</h2>
-          
-          {/* Two-Factor Authentication */}
-          <div className="mb-6">
-            <div className="flex items-center justify-between mb-4">
-              <div>
-                <h3 className="text-sm font-medium text-gray-900 dark:text-white">Two-Factor Authentication</h3>
-                <p className="text-sm text-gray-500 dark:text-gray-400">Add an extra layer of security to your account</p>
-              </div>
-              <Switch
-                checked={twoFactorEnabled}
-                onChange={setTwoFactorEnabled}
-                className={cn(
-                  twoFactorEnabled ? 'bg-blue-600' : 'bg-gray-200 dark:bg-gray-700',
-                  'relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-blue-600 focus:ring-offset-2'
-                )}
-              >
-                <span
-                  className={cn(
-                    twoFactorEnabled ? 'translate-x-5' : 'translate-x-0',
-                    'pointer-events-none relative inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out'
-                  )}
-                />
-              </Switch>
+              {twoFactorEnabled && (
+                <motion.div 
+                  initial={{ opacity: 0, height: 0 }}
+                  animate={{ opacity: 1, height: 'auto' }}
+                  className="mt-4 p-4 rounded-lg bg-gradient-to-r from-purple-500/10 to-pink-500/10 border border-purple-500/20"
+                >
+                  <p className="text-sm text-purple-200">
+                    Two-factor authentication is enabled. Use an authenticator app to generate codes.
+                  </p>
+                </motion.div>
+              )}
             </div>
-            {twoFactorEnabled && (
-              <div className="mt-4 p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
-                <p className="text-sm text-blue-700 dark:text-blue-300">
-                  Two-factor authentication is enabled. Use an authenticator app to generate codes.
-                </p>
-              </div>
-            )}
-          </div>
 
-          {/* Session Settings */}
-          <div>
-            <h3 className="text-sm font-medium text-gray-900 dark:text-white mb-2">Session Timeout</h3>
-            <p className="text-sm text-gray-500 dark:text-gray-400 mb-3">
-              Choose how long you want to stay logged in
-            </p>
-            <select
-              value={sessionTimeout}
-              onChange={(e) => setSessionTimeout(e.target.value)}
-              className="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 dark:border-gray-600 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm rounded-md dark:bg-gray-700 dark:text-white"
-            >
-              <option value="15">15 minutes</option>
-              <option value="30">30 minutes</option>
-              <option value="60">1 hour</option>
-              <option value="240">4 hours</option>
-              <option value="480">8 hours</option>
-            </select>
+            {/* Session Settings */}
+            <div>
+              <div className="flex items-center mb-3">
+                <HiOutlineGlobe className="w-5 h-5 text-purple-400 mr-3" />
+                <h3 className="text-sm font-medium text-gray-200">Session Timeout</h3>
+              </div>
+              <p className="text-sm text-gray-400 mb-3 ml-8">
+                Choose how long you want to stay logged in
+              </p>
+              <div className="relative ml-8">
+                <select
+                  value={sessionTimeout}
+                  onChange={(e) => setSessionTimeout(e.target.value)}
+                  className="w-full bg-gray-800/50 border border-gray-700 text-gray-200 rounded-lg py-2 pl-3 pr-10 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500 appearance-none hover:border-purple-400 transition-colors"
+                >
+                  <option value="15">15 minutes</option>
+                  <option value="30">30 minutes</option>
+                  <option value="60">1 hour</option>
+                  <option value="240">4 hours</option>
+                  <option value="480">8 hours</option>
+                </select>
+                <div className="absolute inset-y-0 right-0 flex items-center px-2 pointer-events-none">
+                  <svg className="h-4 w-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" />
+                  </svg>
+                </div>
+              </div>
+            </div>
           </div>
-        </section>
+        </motion.section>
 
         {/* Connected Accounts */}
-        <section className="bg-white dark:bg-gray-800 shadow rounded-lg p-6">
-          <h2 className="text-lg font-medium text-gray-900 dark:text-white mb-4">Connected Accounts</h2>
-          <div className="space-y-4">
-            {connectedAccounts.map((account) => (
-              <div key={account.name} className="flex items-center justify-between py-3 border-b border-gray-200 dark:border-gray-700 last:border-0">
-                <div className="flex items-center">
-                  <account.icon className="h-6 w-6 text-gray-400" aria-hidden="true" />
-                  <div className="ml-3">
-                    <p className="text-sm font-medium text-gray-900 dark:text-white">{account.name}</p>
-                    <p className="text-sm text-gray-500 dark:text-gray-400">{account.status}</p>
+        <motion.section 
+          className="relative group"
+          {...fadeInUp}
+          transition={{ delay: 0.2 }}
+        >
+          <div className="absolute -inset-[1px] rounded-lg bg-gradient-to-r from-pink-500/20 via-red-500/20 to-orange-500/20 blur group-hover:opacity-100 transition duration-500 opacity-50" />
+          <div className="relative bg-gray-900/60 backdrop-blur-sm rounded-lg p-6 border border-gray-800/50">
+            <div className="flex items-center mb-6">
+              <HiOutlineLink className="w-6 h-6 text-pink-500 mr-3" />
+              <h2 className="text-xl font-medium text-white">Connected Accounts</h2>
+            </div>
+            <div className="space-y-4">
+              {connectedAccounts.map((account) => (
+                <div key={account.name} className="flex items-center justify-between py-3 border-b border-gray-800 last:border-0 group hover:bg-gray-800/30 rounded-lg px-4 transition-colors">
+                  <div className="flex items-center">
+                    <account.icon className="h-6 w-6 text-gray-400 group-hover:text-gray-300 transition-colors" aria-hidden="true" />
+                    <div className="ml-3">
+                      <p className="text-sm font-medium text-gray-200 group-hover:text-white transition-colors">{account.name}</p>
+                      <p className="text-sm text-gray-400 group-hover:text-gray-300 transition-colors">{account.status}</p>
+                    </div>
                   </div>
+                  <button
+                    type="button"
+                    className={cn(
+                      account.connected
+                        ? 'text-red-400 hover:text-red-300 hover:bg-red-400/10'
+                        : 'text-blue-400 hover:text-blue-300 hover:bg-blue-400/10',
+                      'text-sm font-medium px-3 py-1 rounded-md transition-colors'
+                    )}
+                  >
+                    {account.connected ? 'Disconnect' : 'Connect'}
+                  </button>
                 </div>
-                <button
-                  type="button"
-                  className={cn(
-                    account.connected
-                      ? 'text-red-600 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300'
-                      : 'text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300',
-                    'text-sm font-medium'
-                  )}
-                >
-                  {account.connected ? 'Disconnect' : 'Connect'}
-                </button>
-              </div>
-            ))}
+              ))}
+            </div>
           </div>
-        </section>
+        </motion.section>
 
         {/* Save Changes Button */}
-        <div className="flex justify-end">
+        <motion.div 
+          className="flex justify-end"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.3 }}
+        >
           <button
             type="button"
-            className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+            className="px-6 py-2 bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 text-white rounded-lg hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 focus:ring-offset-gray-900 font-medium transition-all duration-200 transform hover:scale-105"
           >
             Save Changes
           </button>
-        </div>
+        </motion.div>
       </div>
     </div>
   );
