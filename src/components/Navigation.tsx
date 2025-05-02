@@ -345,114 +345,120 @@ export default function Navigation() {
           )}
         </AnimatePresence>
 
-        <div className="max-w-7xl mx-auto px-4">
-          <nav className={`flex items-center justify-between ${navPadding}`}>
-            {/* Logo */}
-            <button 
-              onClick={() => handleNavigation('/')}
-              className="flex items-center space-x-2"
-              aria-label="ISYNCSO Home"
-            >
-              <div className="relative w-10 h-10">
-                <Image
-                  src="/ISYNCSO_LOGO.png"
-                  alt=""
-                  width={40}
-                  height={40}
-                  className="rounded"
-                  priority
-                />
-              </div>
-              <span className="text-lg font-medium dark:text-white light:text-gray-800 tracking-tight">ISYNCSO</span>
-            </button>
+        <div className="max-w-7xl mx-auto px-4 sm:px-6">
+          <nav className="flex items-center justify-between h-16 relative">
+            {/* Left section with logo and main nav */}
+            <div className="flex items-center">
+              {/* Logo */}
+              <button 
+                onClick={() => handleNavigation('/')}
+                className="flex items-center absolute -top-4 md:-top-4 -left-2 md:left-0"
+                aria-label="ISYNCSO Home"
+              >
+                <div className="relative w-20 h-20 md:w-24 md:h-24">
+                  <Image
+                    src="/isyncso_final_logo.png"
+                    alt="ISYNCSO"
+                    fill
+                    className="object-contain"
+                    priority
+                  />
+                </div>
+              </button>
 
-            {/* Desktop Navigation */}
-            <div className="hidden md:flex items-center space-x-4">
-              {filteredNavigationItems.map((item) => (
-                <div key={item.name} className="relative group">
-                  {item.children ? (
-                    <>
+              {/* Main Navigation Items */}
+              <div className="hidden md:flex items-center space-x-8 ml-28">
+                {filteredNavigationItems.map((item) => (
+                  <div key={item.name} className="relative group">
+                    {item.children ? (
+                      <>
+                        <button
+                          className={`${buttonPadding} ${buttonBaseStyles} ${buttonLightStyles} ${buttonDarkStyles}
+                            ${item.current ? `${buttonActiveStyles.light} ${buttonActiveStyles.dark}` : 'border-transparent'}
+                            flex items-center gap-1`}
+                          aria-expanded={isUserMenuOpen}
+                          aria-haspopup="true"
+                        >
+                          <TranslatedText 
+                            textKey={`navigation.${item.translationKey}`} 
+                            fallback={item.name}
+                            className="whitespace-nowrap"
+                          />
+                          <svg 
+                            className="w-4 h-4" 
+                            fill="none" 
+                            stroke="currentColor" 
+                            viewBox="0 0 24 24"
+                            aria-hidden="true"
+                          >
+                            <path 
+                              strokeLinecap="round" 
+                              strokeLinejoin="round" 
+                              strokeWidth={2} 
+                              d="M19 9l-7 7-7-7" 
+                            />
+                          </svg>
+                        </button>
+                        
+                        {/* Dropdown menu */}
+                        <div className="absolute left-1/2 transform -translate-x-1/2 mt-2 w-56 rounded-xl bg-white dark:bg-gray-900 shadow-lg ring-1 ring-black/5 dark:ring-white/10 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
+                          <div className="py-2">
+                            {item.children.map((child) => (
+                              <button
+                                key={child.name}
+                                onClick={() => handleNavigation(child.href)}
+                                className={`block w-full text-left px-4 py-2 text-sm
+                                  ${child.current
+                                    ? 'bg-gray-100 text-gray-900 dark:bg-gray-800 dark:text-white'
+                                    : 'text-gray-700 hover:bg-gray-50 hover:text-gray-900 dark:text-gray-300 dark:hover:bg-gray-800 dark:hover:text-white'
+                                  } transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-primary/50`}
+                              >
+                                <TranslatedText textKey={`navigation.${child.translationKey}`} fallback={child.name} />
+                              </button>
+                            ))}
+                          </div>
+                        </div>
+                      </>
+                    ) : (
                       <button
+                        onClick={() => handleNavigation(item.href)}
                         className={`${buttonPadding} ${buttonBaseStyles} ${buttonLightStyles} ${buttonDarkStyles}
-                          ${item.current ? `${buttonActiveStyles.light} ${buttonActiveStyles.dark}` : 'border-transparent'}
-                          flex items-center gap-1`}
-                        aria-expanded={isUserMenuOpen}
-                        aria-haspopup="true"
+                          ${item.current ? `${buttonActiveStyles.light} ${buttonActiveStyles.dark}` : 'border-transparent'}`}
                       >
                         <TranslatedText 
                           textKey={`navigation.${item.translationKey}`} 
                           fallback={item.name}
                           className="whitespace-nowrap"
                         />
-                        <svg 
-                          className="w-4 h-4" 
-                          fill="none" 
-                          stroke="currentColor" 
-                          viewBox="0 0 24 24"
-                          aria-hidden="true"
-                        >
-                          <path 
-                            strokeLinecap="round" 
-                            strokeLinejoin="round" 
-                            strokeWidth={2} 
-                            d="M19 9l-7 7-7-7" 
-                          />
-                        </svg>
                       </button>
-                      
-                      {/* Dropdown menu */}
-                      <div className="absolute left-1/2 transform -translate-x-1/2 mt-2 w-56 rounded-xl bg-white dark:bg-gray-900 shadow-lg ring-1 ring-black/5 dark:ring-white/10 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
-                        <div className="py-2">
-                          {item.children.map((child) => (
-                            <button
-                              key={child.name}
-                              onClick={() => handleNavigation(child.href)}
-                              className={`block w-full text-left px-4 py-2 text-sm
-                                ${child.current
-                                  ? 'bg-gray-100 text-gray-900 dark:bg-gray-800 dark:text-white'
-                                  : 'text-gray-700 hover:bg-gray-50 hover:text-gray-900 dark:text-gray-300 dark:hover:bg-gray-800 dark:hover:text-white'
-                                } transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-primary/50`}
-                            >
-                              <TranslatedText textKey={`navigation.${child.translationKey}`} fallback={child.name} />
-                            </button>
-                          ))}
-                        </div>
-                      </div>
-                    </>
-                  ) : (
-                    <button
-                      onClick={() => handleNavigation(item.href)}
-                      className={`${buttonPadding} ${buttonBaseStyles} ${buttonLightStyles} ${buttonDarkStyles}
-                        ${item.current ? `${buttonActiveStyles.light} ${buttonActiveStyles.dark}` : 'border-transparent'}`}
-                    >
-                      <TranslatedText 
-                        textKey={`navigation.${item.translationKey}`} 
-                        fallback={item.name}
-                        className="whitespace-nowrap"
-                      />
-                    </button>
-                  )}
-                </div>
-              ))}
+                    )}
+                  </div>
+                ))}
+              </div>
+            </div>
 
-              {/* Language Switcher */}
-              <LanguageSwitcher />
+            {/* Right section with language, auth, etc */}
+            <div className="flex items-center space-x-4 sm:space-x-6">
+              {/* Language Switcher - Hidden on mobile */}
+              <div className="hidden md:block">
+                <LanguageSwitcher />
+              </div>
 
-              {/* User Menu */}
+              {/* Auth Buttons */}
               {currentUser ? (
                 <div className="relative user-menu">
                   <button
                     onClick={handleUserMenuClick}
-                    className="flex items-center space-x-2 px-3 py-1.5 rounded-full border border-transparent hover:border-white/10 hover:bg-white/5"
+                    className="flex items-center space-x-2 px-2 sm:px-3 py-1.5 rounded-full border border-transparent hover:border-white/10 hover:bg-white/5"
                   >
                     <Image
-                      src={currentUser.image || '/default-avatar.png'}
+                      src={currentUser.image || '/default-avatar.svg'}
                       alt=""
-                      width={32}
-                      height={32}
+                      width={28}
+                      height={28}
                       className="rounded-full ring-2 ring-primary/20"
                     />
-                    <span className="text-sm text-white/90 font-medium">{currentUser.name}</span>
+                    <span className="hidden sm:block text-sm text-white/90 font-medium">{currentUser.name}</span>
                     <svg 
                       className="w-4 h-4 text-white/70" 
                       fill="none" 
@@ -469,7 +475,7 @@ export default function Navigation() {
                   </button>
                   
                   {/* User dropdown menu */}
-                  <div className="absolute right-0 mt-2 w-80 rounded-xl bg-white dark:bg-gray-900 shadow-xl ring-1 ring-black/5 dark:ring-white/10 z-50">
+                  <div className="absolute right-0 mt-2 w-[280px] sm:w-80 rounded-xl bg-white dark:bg-gray-900 shadow-xl ring-1 ring-black/5 dark:ring-white/10 z-50">
                     <Transition
                       show={isUserMenuOpen}
                       enter="transition ease-out duration-200"
@@ -479,33 +485,26 @@ export default function Navigation() {
                       leaveFrom="transform opacity-100 scale-100"
                       leaveTo="transform opacity-0 scale-95"
                     >
-                      <div>
+                      <div className="max-h-[calc(100vh-80px)] overflow-y-auto">
                         {/* User profile header */}
                         <div className="p-4 border-b border-gray-100 dark:border-gray-800">
-                          <div className="flex items-center">
+                          <div className="flex items-center space-x-3">
                             <Image
-                              src={currentUser.image || '/default-avatar.png'}
+                              src={currentUser.image || '/default-avatar.svg'}
                               alt=""
-                              width={48}
-                              height={48}
-                              className="rounded-full"
+                              width={40}
+                              height={40}
+                              className="rounded-full ring-2 ring-primary/20"
                             />
-                            <div className="ml-3">
-                              <div className="text-sm font-medium text-gray-900 dark:text-white">{currentUser.name}</div>
-                              <div className="text-xs text-gray-500 dark:text-gray-400 truncate">{currentUser.email}</div>
-                              
-                              {/* Plan badge */}
-                              <div className="mt-1">
-                                <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-primary/10 text-primary">
-                                  Pro Plan
-                                </span>
-                              </div>
+                            <div>
+                              <div className="font-medium text-gray-900 dark:text-white">{currentUser.name}</div>
+                              <div className="text-sm text-gray-500 dark:text-gray-400">{currentUser.email}</div>
                             </div>
                           </div>
                         </div>
                         
                         {/* Menu sections */}
-                        <div className="py-2 max-h-[calc(100vh-200px)] overflow-y-auto">
+                        <div className="py-2">
                           {Object.entries(groupedNavItems).map(([section, items]) => (
                             <div key={section} className={section !== 'logout' ? 'mb-2' : ''}>
                               {section !== 'logout' && (
@@ -551,182 +550,197 @@ export default function Navigation() {
                   </div>
                 </div>
               ) : (
-                <div className="flex items-center space-x-2">
+                <div className="flex items-center space-x-2 sm:space-x-3">
                   <button
                     onClick={() => handleNavigation('/login')}
-                    className="px-4 py-1.5 text-sm dark:text-white/90 dark:hover:text-white light:text-gray-700 light:hover:text-gray-900 rounded-full border border-transparent hover:border-white/10 hover:bg-white/5 transition-all duration-200"
+                    className="px-3 sm:px-4 py-1.5 text-sm dark:text-white/90 dark:hover:text-white light:text-gray-700 light:hover:text-gray-900 rounded-full border border-transparent hover:border-white/10 hover:bg-white/5 transition-all duration-200"
                   >
                     <TranslatedText textKey="navigation.login" fallback="Log in" />
                   </button>
                   <button
                     onClick={() => handleNavigation('/signup')}
-                    className="px-4 py-1.5 text-sm text-white bg-primary hover:bg-primary-dark rounded-full transition-colors duration-200"
+                    className="px-3 sm:px-4 py-1.5 text-sm text-white bg-primary hover:bg-primary-dark rounded-full transition-colors duration-200"
                   >
                     <TranslatedText textKey="navigation.signup" fallback="Sign Up" />
                   </button>
                 </div>
               )}
-            </div>
 
-            {/* Mobile menu button */}
-            <button
-              onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-              className="md:hidden p-2 rounded-md text-gray-400 hover:text-white hover:bg-white/5"
-            >
-              <span className="sr-only">Open menu</span>
-              {isMobileMenuOpen ? (
-                <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                </svg>
-              ) : (
-                <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
-                </svg>
-              )}
-            </button>
+              {/* Mobile menu button */}
+              <button
+                onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+                className="md:hidden p-2 rounded-md text-gray-400 hover:text-white hover:bg-white/5"
+                aria-label={isMobileMenuOpen ? 'Close menu' : 'Open menu'}
+              >
+                {isMobileMenuOpen ? (
+                  <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                ) : (
+                  <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+                  </svg>
+                )}
+              </button>
+            </div>
           </nav>
         </div>
 
         {/* Mobile menu */}
-        <div className="md:hidden mobile-menu">
-          <Transition
-            show={isMobileMenuOpen}
-            enter="transition-all duration-300 ease-out"
-            enterFrom="opacity-0 -translate-y-1"
-            enterTo="opacity-100 translate-y-0"
-            leave="transition-all duration-200 ease-in"
-            leaveFrom="opacity-100 translate-y-0"
-            leaveTo="opacity-0 -translate-y-1"
-          >
-            <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50">
-              <div className="fixed inset-y-0 left-0 w-full max-w-sm bg-white dark:bg-gray-900 shadow-xl">
-                <div className="flex items-center justify-between px-4 py-3 border-b border-gray-200 dark:border-gray-700">
-                  <div className="flex items-center">
+        <Transition
+          show={isMobileMenuOpen}
+          enter="transition-all duration-300 ease-out"
+          enterFrom="opacity-0 -translate-y-1"
+          enterTo="opacity-100 translate-y-0"
+          leave="transition-all duration-200 ease-in"
+          leaveFrom="opacity-100 translate-y-0"
+          leaveTo="opacity-0 -translate-y-1"
+          className="md:hidden"
+        >
+          <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-40" onClick={() => setIsMobileMenuOpen(false)}>
+            <div className="fixed inset-y-0 left-0 w-full max-w-sm bg-white dark:bg-gray-900 shadow-xl" onClick={e => e.stopPropagation()}>
+              <div className="flex items-center justify-between h-16 px-4 border-b border-gray-200 dark:border-gray-700">
+                <div className="flex items-center space-x-3">
+                  <div className="relative w-8 h-8">
                     <Image
-                      src="/ISYNCSO_LOGO.png"
+                      src="/isyncso_final_logo.png"
                       alt="ISYNCSO"
-                      width={32}
-                      height={32}
-                      className="rounded"
+                      fill
+                      className="object-contain"
                     />
-                    <span className="ml-2 text-lg font-medium text-gray-900 dark:text-white">ISYNCSO</span>
                   </div>
-                  <button
-                    onClick={() => setIsMobileMenuOpen(false)}
-                    className="p-2 rounded-md text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-white focus:outline-none focus:ring-2 focus:ring-inset focus:ring-primary"
-                    aria-label="Close menu"
-                  >
-                    <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                    </svg>
-                  </button>
+                  <span className="text-lg font-medium text-gray-900 dark:text-white">Menu</span>
                 </div>
-                
-                <div className="px-2 py-4 space-y-1 overflow-y-auto max-h-[calc(100vh-5rem)]">
-                  {filteredNavigationItems.map((item) => (
-                    <div key={item.name} className="space-y-1">
-                      {item.children ? (
-                        <>
-                          <div className="px-3 py-2 text-sm font-medium text-gray-900 dark:text-white">
-                            <TranslatedText textKey={`navigation.${item.translationKey}`} fallback={item.name} />
-                          </div>
-                          <div className="space-y-1 pl-4">
-                            {item.children.map((child) => (
-                              <button
-                                key={child.name}
-                                onClick={() => {
-                                  handleNavigation(child.href);
-                                  setIsMobileMenuOpen(false);
-                                }}
-                                className={`block w-full text-left px-3 py-2 text-sm rounded-md transition-colors
-                                  ${child.current
-                                    ? 'bg-gray-100 text-gray-900 dark:bg-gray-800 dark:text-white'
-                                    : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900 dark:text-gray-300 dark:hover:bg-gray-800 dark:hover:text-white'
-                                  }`}
-                              >
-                                <TranslatedText textKey={`navigation.${child.translationKey}`} fallback={child.name} />
-                              </button>
-                            ))}
-                          </div>
-                        </>
-                      ) : (
-                        <button
-                          onClick={() => {
-                            handleNavigation(item.href);
-                            setIsMobileMenuOpen(false);
-                          }}
-                          className={`block w-full text-left px-3 py-2 text-sm rounded-md transition-colors
-                            ${item.current
-                              ? 'bg-gray-100 text-gray-900 dark:bg-gray-800 dark:text-white'
-                              : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900 dark:text-gray-300 dark:hover:bg-gray-800 dark:hover:text-white'
-                            }`}
-                        >
-                          <TranslatedText textKey={`navigation.${item.translationKey}`} fallback={item.name} />
-                        </button>
-                      )}
-                    </div>
-                  ))}
-
-                  {/* Mobile Auth Buttons */}
-                  <div className="px-3 py-4 space-y-2 border-t border-gray-200 dark:border-gray-700">
-                    {currentUser ? (
+                <button
+                  onClick={() => setIsMobileMenuOpen(false)}
+                  className="p-2 rounded-md text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-white"
+                  aria-label="Close menu"
+                >
+                  <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
+              </div>
+              
+              <div className="px-2 py-4 space-y-1 overflow-y-auto max-h-[calc(100vh-4rem)]">
+                {filteredNavigationItems.map((item) => (
+                  <div key={item.name} className="space-y-1">
+                    {item.children ? (
                       <>
-                        <div className="flex items-center px-3 py-2 space-x-3">
-                          <Image
-                            src={currentUser.image || '/default-avatar.png'}
-                            alt=""
-                            width={32}
-                            height={32}
-                            className="rounded-full"
-                          />
-                          <span className="text-sm font-medium text-gray-900 dark:text-white">{currentUser.name}</span>
+                        <div className="px-3 py-2 text-sm font-medium text-gray-900 dark:text-white">
+                          <TranslatedText textKey={`navigation.${item.translationKey}`} fallback={item.name} />
                         </div>
-                        {userNavigation.map((item) => (
-                          <button
-                            key={item.name}
-                            onClick={item.onClick || (() => handleNavigation(item.href))}
-                            className="block w-full text-left px-3 py-2 text-sm text-gray-600 hover:bg-gray-50 hover:text-gray-900 dark:text-gray-300 dark:hover:bg-gray-800 dark:hover:text-white rounded-md"
-                          >
-                            <div className="flex items-center">
-                              {item.icon && <span className="mr-2">{item.icon}</span>}
-                              <div>
-                                <div className="font-medium">{item.name}</div>
-                                {item.description && (
-                                  <div className="text-xs text-gray-500 dark:text-gray-400">{item.description}</div>
-                                )}
-                              </div>
-                            </div>
-                          </button>
-                        ))}
+                        <div className="space-y-1 pl-4">
+                          {item.children.map((child) => (
+                            <button
+                              key={child.name}
+                              onClick={() => {
+                                handleNavigation(child.href);
+                                setIsMobileMenuOpen(false);
+                              }}
+                              className={`block w-full text-left px-3 py-2 text-sm rounded-md transition-colors
+                                ${child.current
+                                  ? 'bg-gray-100 text-gray-900 dark:bg-gray-800 dark:text-white'
+                                  : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900 dark:text-gray-300 dark:hover:bg-gray-800 dark:hover:text-white'
+                                }`}
+                            >
+                              <TranslatedText textKey={`navigation.${child.translationKey}`} fallback={child.name} />
+                            </button>
+                          ))}
+                        </div>
                       </>
                     ) : (
-                      <>
-                        <button
-                          onClick={() => {
-                            handleNavigation('/login');
-                            setIsMobileMenuOpen(false);
-                          }}
-                          className="block w-full px-3 py-2 text-sm text-center text-gray-700 hover:text-gray-900 dark:text-gray-300 dark:hover:text-white bg-gray-50 hover:bg-gray-100 dark:bg-gray-800 dark:hover:bg-gray-700 rounded-md transition-colors"
-                        >
-                          <TranslatedText textKey="navigation.login" fallback="Log in" />
-                        </button>
-                        <button
-                          onClick={() => {
-                            handleNavigation('/signup');
-                            setIsMobileMenuOpen(false);
-                          }}
-                          className="block w-full px-3 py-2 text-sm text-center text-white bg-primary hover:bg-primary-dark rounded-md transition-colors"
-                        >
-                          <TranslatedText textKey="navigation.signup" fallback="Sign Up" />
-                        </button>
-                      </>
+                      <button
+                        onClick={() => {
+                          handleNavigation(item.href);
+                          setIsMobileMenuOpen(false);
+                        }}
+                        className={`block w-full text-left px-3 py-2 text-sm rounded-md transition-colors
+                          ${item.current
+                            ? 'bg-gray-100 text-gray-900 dark:bg-gray-800 dark:text-white'
+                            : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900 dark:text-gray-300 dark:hover:bg-gray-800 dark:hover:text-white'
+                          }`}
+                      >
+                        <TranslatedText textKey={`navigation.${item.translationKey}`} fallback={item.name} />
+                      </button>
                     )}
                   </div>
+                ))}
+
+                {/* Mobile Language Switcher */}
+                <div className="px-3 py-4 border-t border-gray-200 dark:border-gray-700">
+                  <div className="text-sm font-medium text-gray-900 dark:text-white mb-2">
+                    Language
+                  </div>
+                  <div className="pl-1">
+                    <LanguageSwitcher />
+                  </div>
+                </div>
+
+                {/* Mobile Auth Section */}
+                <div className="px-3 py-4 space-y-2 border-t border-gray-200 dark:border-gray-700">
+                  {currentUser ? (
+                    <>
+                      <div className="flex items-center px-3 py-2 space-x-3">
+                        <Image
+                          src={currentUser.image || '/default-avatar.svg'}
+                          alt=""
+                          width={32}
+                          height={32}
+                          className="rounded-full ring-2 ring-primary/20"
+                        />
+                        <div>
+                          <div className="font-medium text-gray-900 dark:text-white">{currentUser.name}</div>
+                          <div className="text-sm text-gray-500 dark:text-gray-400">{currentUser.email}</div>
+                        </div>
+                      </div>
+                      {userNavigation.map((item) => (
+                        <button
+                          key={item.name}
+                          onClick={() => {
+                            if (item.onClick) {
+                              item.onClick();
+                            } else {
+                              handleNavigation(item.href);
+                            }
+                            setIsMobileMenuOpen(false);
+                          }}
+                          className="flex items-center w-full px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 hover:text-gray-900 dark:text-gray-300 dark:hover:bg-gray-800 dark:hover:text-white rounded-md"
+                        >
+                          <span className="mr-3 text-gray-500 dark:text-gray-400">
+                            {getMenuIcon(item.icon || '')}
+                          </span>
+                          <span>{item.name}</span>
+                        </button>
+                      ))}
+                    </>
+                  ) : (
+                    <div className="flex flex-col space-y-2">
+                      <button
+                        onClick={() => {
+                          handleNavigation('/login');
+                          setIsMobileMenuOpen(false);
+                        }}
+                        className="w-full px-3 py-2 text-sm text-center text-gray-700 hover:text-gray-900 dark:text-gray-300 dark:hover:text-white bg-gray-50 hover:bg-gray-100 dark:bg-gray-800 dark:hover:bg-gray-700 rounded-md transition-colors"
+                      >
+                        <TranslatedText textKey="navigation.login" fallback="Log in" />
+                      </button>
+                      <button
+                        onClick={() => {
+                          handleNavigation('/signup');
+                          setIsMobileMenuOpen(false);
+                        }}
+                        className="w-full px-3 py-2 text-sm text-center text-white bg-primary hover:bg-primary-dark rounded-md transition-colors"
+                      >
+                        <TranslatedText textKey="navigation.signup" fallback="Sign Up" />
+                      </button>
+                    </div>
+                  )}
                 </div>
               </div>
             </div>
-          </Transition>
-        </div>
+          </div>
+        </Transition>
       </header>
 
       {/* Notification Portal */}

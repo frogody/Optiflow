@@ -39,7 +39,7 @@ export default function DashboardHeader() {
               className="flex items-center"
             >
               <Image
-                src="/logo.png"
+                src="/new logo isyncso.png"
                 alt="ISYNCSO"
                 width={120}
                 height={32}

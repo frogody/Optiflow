@@ -1,0 +1,25 @@
+{
+  "name": "simple-agent",
+  "version": "1.0.0",
+  "description": "Simple LiveKit Voice Agent",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js start",
+    "dev": "node index.js dev",
+    "console": "node index.js console",
+    "connect": "node index.js connect --room playground-gj3L-eWd5"
+  },
+  "keywords": [
+    "livekit",
+    "agent",
+    "voice",
+    "ai"
+  ],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@livekit/agents": "^0.7.4",
+    "@livekit/agents-plugin-openai": "^0.9.1",
+    "dotenv": "^16.0.3"
+  }
+}

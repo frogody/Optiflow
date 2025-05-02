@@ -11,6 +11,8 @@ import {
   HiOutlineCode,
   HiOutlineAcademicCap
 } from 'react-icons/hi';
+import Image from 'next/image';
+import PlaceholderLogo from '@/components/PlaceholderLogo';
 
 export default function HomePage() {
   const containerRef = useRef(null);
@@ -207,6 +209,96 @@ export default function HomePage() {
                 Explore Products
               </Link>
             </motion.div>
+          </motion.div>
+        </div>
+      </section>
+
+      {/* Trusted By Section */}
+      <section className="relative z-10 py-16 border-t border-b border-white/5">
+        <div className="container mx-auto px-6">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8 }}
+            viewport={{ once: true }}
+            className="text-center"
+          >
+            <h2 className="text-lg font-medium text-[#3CDFFF]/70 mb-12">
+              Trusted by
+            </h2>
+            
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-8 items-center justify-items-center">
+              <motion.div
+                initial={{ opacity: 0 }}
+                whileInView={{ opacity: 0.7 }}
+                whileHover={{ opacity: 1 }}
+                transition={{ duration: 0.3 }}
+                className="w-full h-6 relative"
+              >
+                <Image
+                  src="/ICTGROUP_white_transparent.png"
+                  alt="ICT Group"
+                  fill
+                  className="object-contain"
+                />
+              </motion.div>
+              <motion.div
+                initial={{ opacity: 0 }}
+                whileInView={{ opacity: 0.7 }}
+                whileHover={{ opacity: 1 }}
+                transition={{ duration: 0.3, delay: 0.1 }}
+                className="w-full h-6 relative"
+              >
+                <Image
+                  src="/Oneflow-vit.png"
+                  alt="OneFlow"
+                  fill
+                  className="object-contain"
+                />
+              </motion.div>
+              <motion.div
+                initial={{ opacity: 0 }}
+                whileInView={{ opacity: 0.7 }}
+                whileHover={{ opacity: 1 }}
+                transition={{ duration: 0.3, delay: 0.2 }}
+                className="w-full h-6 relative"
+              >
+                <Image
+                  src="/2021-NEXXT-Logo_white_transparent.png"
+                  alt="Nexxt.one"
+                  fill
+                  className="object-contain"
+                />
+              </motion.div>
+              <motion.div
+                initial={{ opacity: 0 }}
+                whileInView={{ opacity: 0.7 }}
+                whileHover={{ opacity: 1 }}
+                transition={{ duration: 0.3, delay: 0.3 }}
+                className="w-full h-6 relative"
+              >
+                <Image
+                  src="/KOPPELHET_white_transparent.png"
+                  alt="Koppelhet"
+                  fill
+                  className="object-contain"
+                />
+              </motion.div>
+              <motion.div
+                initial={{ opacity: 0 }}
+                whileInView={{ opacity: 0.7 }}
+                whileHover={{ opacity: 1 }}
+                transition={{ duration: 0.3, delay: 0.4 }}
+                className="w-full h-6 relative"
+              >
+                <Image
+                  src="/Logictrade_white_transparent.png"
+                  alt="LogicTrade"
+                  fill
+                  className="object-contain"
+                />
+              </motion.div>
+            </div>
           </motion.div>
         </div>
       </section>

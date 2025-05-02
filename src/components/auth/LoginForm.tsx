@@ -5,6 +5,7 @@ import { signIn, useSession } from 'next-auth/react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
+import Image from 'next/image';
 
 export default function LoginForm() {
   const { data: session, status } = useSession();
@@ -69,32 +70,59 @@ export default function LoginForm() {
   }
 
   return (
-    <div className="min-h-screen">
-      {/* Neural Network Background */}
-      <div className="neural-bg"></div>
+    <div className="min-h-screen relative overflow-hidden">
+      {/* Enhanced Background */}
+      <div className="absolute inset-0 bg-gradient-to-br from-gray-950 via-gray-900 to-gray-950">
+        <div className="absolute inset-0 bg-[url('/grid.svg')] opacity-40 bg-center [mask-image:linear-gradient(180deg,white,rgba(255,255,255,0))]"></div>
+        <div className="absolute inset-0 bg-gradient-to-br from-blue-900/20 via-emerald-800/20 to-blue-900/20"></div>
+        <div className="absolute inset-0 bg-[radial-gradient(circle_800px_at_50%_-100px,#0c4a6e30,transparent)]"></div>
+      </div>
       
       {/* Login Form */}
-      <div className="flex items-center justify-center min-h-screen p-4">
+      <div className="flex items-center justify-center min-h-screen p-4 relative z-10">
         <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5 }}
-          className="w-full max-w-md p-8 bg-black/40 backdrop-blur-md border border-white/10 rounded-xl shadow-glow"
+          initial={{ opacity: 0, y: 20, scale: 0.95 }}
+          animate={{ opacity: 1, y: 0, scale: 1 }}
+          transition={{ duration: 0.5, ease: "easeOut" }}
+          className="w-full max-w-md p-8 bg-gray-950/60 backdrop-blur-xl border border-emerald-900/20 rounded-2xl shadow-2xl shadow-emerald-900/10"
         >
           <div className="text-center mb-8">
-            <h1 className="text-3xl font-bold gradient-text mb-2">Welcome Back</h1>
-            <p className="text-white/60">Sign in to continue to your dashboard</p>
+            <motion.div
+              initial={{ opacity: 0, y: -10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.2 }}
+            >
+              <div className="flex justify-center mb-6">
+                <Image
+                  src="/Optiflow icon.png"
+                  alt="Optiflow Logo"
+                  width={80}
+                  height={80}
+                  className="rounded-xl"
+                />
+              </div>
+              <h1 className="text-4xl font-bold bg-gradient-to-r from-emerald-400 via-blue-400 to-emerald-400 bg-clip-text text-transparent mb-2">Welcome Back</h1>
+              <p className="text-white/50 text-lg">Sign in to continue to your dashboard</p>
+            </motion.div>
           </div>
           
           {error && (
-            <div className="bg-red-500/20 border border-red-500/50 text-red-200 px-4 py-3 rounded-lg mb-6">
+            <motion.div
+              initial={{ opacity: 0, y: -10 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="bg-red-950/40 border border-red-900/50 text-red-200 px-4 py-3 rounded-xl mb-6 backdrop-blur-sm"
+            >
               {error}
-            </div>
+            </motion.div>
           )}
           
           <form onSubmit={handleLogin} className="space-y-6">
-            <div>
-              <label htmlFor="email" className="block text-sm font-medium text-white/80 mb-1">
+            <motion.div
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.3 }}
+            >
+              <label htmlFor="email" className="block text-sm font-medium text-white/70 mb-1">
                 Email Address
               </label>
               <input
@@ -103,13 +131,17 @@ export default function LoginForm() {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
-                className="w-full bg-black/30 border border-white/20 rounded-lg px-4 py-2 text-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="w-full bg-gray-900/50 border border-emerald-900/30 rounded-xl px-4 py-3 text-white placeholder-white/30 focus:outline-none focus:ring-2 focus:ring-emerald-600/30 focus:border-transparent transition-all duration-200"
                 placeholder="Enter your email"
               />
-            </div>
+            </motion.div>
             
-            <div>
-              <label htmlFor="password" className="block text-sm font-medium text-white/80 mb-1">
+            <motion.div
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.4 }}
+            >
+              <label htmlFor="password" className="block text-sm font-medium text-white/70 mb-1">
                 Password
               </label>
               <input
@@ -118,58 +150,80 @@ export default function LoginForm() {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 required
-                className="w-full bg-black/30 border border-white/20 rounded-lg px-4 py-2 text-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="w-full bg-gray-900/50 border border-emerald-900/30 rounded-xl px-4 py-3 text-white placeholder-white/30 focus:outline-none focus:ring-2 focus:ring-emerald-600/30 focus:border-transparent transition-all duration-200"
                 placeholder="Enter your password"
               />
-            </div>
+            </motion.div>
             
-            <div className="flex items-center justify-between text-sm">
+            <motion.div
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.5 }}
+              className="flex items-center justify-between text-sm"
+            >
               <div className="flex items-center">
                 <input
                   id="remember_me"
                   name="remember_me"
                   type="checkbox"
-                  className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                  className="h-4 w-4 text-emerald-600 focus:ring-emerald-500 border-gray-700 rounded bg-gray-900/50"
                 />
-                <label htmlFor="remember_me" className="ml-2 block text-white/60">
+                <label htmlFor="remember_me" className="ml-2 block text-white/50">
                   Remember me
                 </label>
               </div>
               
-              <div className="text-white/60 hover:text-white">
+              <div className="text-white/50 hover:text-emerald-400 transition-colors">
                 <Link href="/forgot-password">
                   Forgot your password?
                 </Link>
               </div>
-            </div>
+            </motion.div>
             
-            <div>
+            <motion.div
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.6 }}
+            >
               <button
                 type="submit"
                 disabled={isLoading}
-                className={`w-full py-2 px-4 bg-gradient-to-r from-blue-500 to-purple-500 text-white rounded-lg font-medium shadow-glow hover:shadow-glow-intense transition-all ${
-                  isLoading ? 'opacity-70 cursor-not-allowed' : ''
+                className={`w-full py-3 px-4 bg-gradient-to-r from-emerald-600 via-blue-600 to-emerald-600 text-white rounded-xl font-medium shadow-lg shadow-emerald-900/20 hover:shadow-xl hover:shadow-emerald-900/30 transition-all duration-300 ${
+                  isLoading ? 'opacity-70 cursor-not-allowed' : 'hover:scale-[1.02] hover:from-emerald-500 hover:via-blue-500 hover:to-emerald-500'
                 }`}
               >
-                {isLoading ? 'Signing In...' : 'Sign In'}
+                {isLoading ? (
+                  <span className="flex items-center justify-center">
+                    <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                    Signing In...
+                  </span>
+                ) : 'Sign In'}
               </button>
-            </div>
+            </motion.div>
           </form>
           
-          <div className="mt-6">
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.7 }}
+            className="mt-6"
+          >
             <div className="relative">
               <div className="absolute inset-0 flex items-center">
-                <div className="w-full border-t border-white/10"></div>
+                <div className="w-full border-t border-emerald-900/30"></div>
               </div>
               <div className="relative flex justify-center text-sm">
-                <span className="px-2 bg-black/40 text-white/60">Or continue with</span>
+                <span className="px-2 bg-gray-950/60 text-white/50">Or continue with</span>
               </div>
             </div>
             
             <div className="mt-6 grid grid-cols-2 gap-3">
               <button
                 onClick={() => signIn('google', { callbackUrl })}
-                className="w-full inline-flex justify-center py-2 px-4 border border-white/20 rounded-lg shadow-sm bg-white/5 text-sm font-medium text-white hover:bg-white/10"
+                className="w-full inline-flex justify-center py-2 px-4 border border-emerald-900/30 rounded-xl shadow-sm bg-gray-900/50 text-sm font-medium text-white/70 hover:bg-emerald-900/20 hover:border-emerald-800/40 transition-all duration-200"
               >
                 <span className="sr-only">Sign in with Google</span>
                 <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
@@ -179,7 +233,7 @@ export default function LoginForm() {
               
               <button
                 onClick={() => signIn('github', { callbackUrl })}
-                className="w-full inline-flex justify-center py-2 px-4 border border-white/20 rounded-lg shadow-sm bg-white/5 text-sm font-medium text-white hover:bg-white/10"
+                className="w-full inline-flex justify-center py-2 px-4 border border-emerald-900/30 rounded-xl shadow-sm bg-gray-900/50 text-sm font-medium text-white/70 hover:bg-emerald-900/20 hover:border-emerald-800/40 transition-all duration-200"
               >
                 <span className="sr-only">Sign in with GitHub</span>
                 <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true">
@@ -187,14 +241,19 @@ export default function LoginForm() {
                 </svg>
               </button>
             </div>
-          </div>
+          </motion.div>
           
-          <p className="mt-8 text-center text-sm text-white/60">
+          <motion.p
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.8 }}
+            className="mt-8 text-center text-sm text-white/50"
+          >
             Don't have an account?{' '}
-            <Link href="/register" className="font-medium text-blue-500 hover:text-blue-400">
+            <Link href="/register" className="font-medium text-emerald-400 hover:text-emerald-300 transition-colors">
               Sign up now
             </Link>
-          </p>
+          </motion.p>
         </motion.div>
       </div>
     </div>

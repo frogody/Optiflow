@@ -24,7 +24,7 @@ export default function TeamSettings() {
       name: 'John Doe',
       email: 'john@example.com',
       role: 'admin',
-      avatarUrl: '/default-avatar.png',
+      avatarUrl: '/default-avatar.svg',
       status: 'active'
     },
     {
@@ -32,7 +32,7 @@ export default function TeamSettings() {
       name: 'Jane Smith',
       email: 'jane@example.com',
       role: 'member',
-      avatarUrl: '/default-avatar.png',
+      avatarUrl: '/default-avatar.svg',
       status: 'active'
     },
     {
@@ -40,7 +40,7 @@ export default function TeamSettings() {
       name: 'Alex Johnson',
       email: 'alex@example.com',
       role: 'viewer',
-      avatarUrl: '/default-avatar.png',
+      avatarUrl: '/default-avatar.svg',
       status: 'invited'
     }
   ]);
@@ -65,7 +65,7 @@ export default function TeamSettings() {
         name: 'Invited User',
         email: inviteEmail,
         role: inviteRole,
-        avatarUrl: '/default-avatar.png',
+        avatarUrl: '/default-avatar.svg',
         status: 'invited'
       };
       

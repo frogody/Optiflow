@@ -150,35 +150,45 @@ const authOptions: NextAuthOptions = {
       return session;
     },
     async redirect({ url, baseUrl }) {
-      // Get the actual host from the environment or use port 3001
-      const currentHost = process.env.NEXTAUTH_URL || 'http://localhost:3001';
+      // Get the actual host from the environment
+      const currentHost = process.env.NEXTAUTH_URL;
+      if (!currentHost) {
+        console.warn('[Auth] NEXTAUTH_URL is not set');
+        return url;
+      }
       
       console.log('[Auth] Redirect Callback:', { 
         url, 
         baseUrl,
         currentHost,
-        nextAuthUrl: process.env.NEXTAUTH_URL,
         timestamp: new Date().toISOString(),
         urlObject: {
           isRelative: url.startsWith('/'),
           isSameOrigin: url.startsWith(currentHost),
-          pathname: url.startsWith('/') ? `${currentHost}${url}` : url,
+          pathname: url
         }
       });
-      
-      // Always use port 3001 for localhost
-      if (url.includes('localhost')) {
-        const urlObj = new URL(url);
-        urlObj.port = '3001';
-        return urlObj.toString();
-      }
       
       // Allow relative URLs
       if (url.startsWith('/')) {
         return `${currentHost}${url}`;
       }
       
-      return currentHost;
+      // For absolute URLs, ensure they use the correct host
+      try {
+        const urlObj = new URL(url);
+        const currentHostUrl = new URL(currentHost);
+        
+        // If the URL is for localhost, ensure it uses the correct port
+        if (urlObj.hostname === 'localhost') {
+          urlObj.port = currentHostUrl.port;
+        }
+        
+        return urlObj.toString();
+      } catch (error) {
+        console.error('[Auth] Error processing redirect URL:', error);
+        return currentHost;
+      }
     }
   }
 } as const;

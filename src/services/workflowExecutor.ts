@@ -13,6 +13,7 @@ import { Node, Edge } from 'reactflow';
 import { WorkflowSettings } from '@/components/workflow/WorkflowSettings';
 import WorkflowMemory, { getWorkflowMemory, MemoryItem } from './workflowMemory';
 import ragService, { RetrievalRequest } from './ragService';
+import { PipedreamService } from './PipedreamService';
 
 export type NodeStatus = 'idle' | 'running' | 'completed' | 'error' | 'waiting-approval';
 
@@ -602,71 +603,238 @@ export class WorkflowExecutor {
   }
   
   /**
-   * Mock node execution (for demonstration purposes)
+   * Mock execution of a node - in production, this would be replaced with actual node-specific logic
    */
   private async mockExecuteNode(node: Node, inputs: any, ragContext: string): Promise<any> {
+    // This is a simplified mock implementation
+    // In a real system, each node type would have its own execution logic
+    
+    // Get node type from data.type property
+    const nodeType = node.data?.type || 'unknown';
+    
+    // Get node settings
+    const settings = node.data?.settings || {};
+    
+    // Log execution
+    console.log(`Executing node: ${node.id} (${nodeType})`, { inputs, settings });
+    
     // Simulate processing time
-    await new Promise(resolve => setTimeout(resolve, 500 + Math.random() * 1000));
+    await new Promise(resolve => setTimeout(resolve, 500));
     
-    const nodeType = node.data.type || 'default';
-    
-    // Mock outputs based on node type
+    // Handle specific node types
     switch (nodeType) {
-      case 'extract-webpage':
-        return {
-          title: 'Example Website',
-          content: 'This is example content extracted from a webpage.',
-          timestamp: new Date().toISOString()
-        };
-        
-      case 'process-data':
-        return {
-          processedData: inputs.data ? `Processed: ${JSON.stringify(inputs.data)}` : 'No input data',
-          fields: ['name', 'email', 'phone'],
-          metadata: { processingTime: '0.35s' }
-        };
-        
-      case 'conditional':
-        // Evaluate the condition if possible
-        const condition = node.data.settings?.condition;
-        if (condition && typeof condition === 'string') {
-          // Very simple evaluation for demo purposes
-          try {
-            // Create a safe evaluation context with inputs
-            const context = { ...inputs, result: inputs.result || {} };
-            const result = eval(`with (context) { ${condition} }`);
-            return { 
-              result, 
-              path: result ? 'true' : 'false', 
-              condition 
-            };
-          } catch (error) {
-            return { error: 'Condition evaluation failed', condition };
-          }
+      case 'slack':
+      case 'slack-message': {
+        try {
+          // Use PipedreamService to send Slack message
+          const pipedreamService = PipedreamService.getInstance();
+          
+          const message = {
+            channel: settings.channel || '#general',
+            text: this.interpolateTemplate(settings.message || 'Message from workflow', inputs)
+          };
+          
+          // Execute Slack message via Pipedream
+          const result = await pipedreamService.makeApiRequest(
+            'slack',
+            'workflow-user', // In production, use actual userId
+            '/chat.postMessage',
+            'POST',
+            message
+          );
+          
+          return {
+            success: true,
+            messageId: result.ts || `mock-${Date.now()}`,
+            channel: message.channel,
+            text: message.text
+          };
+        } catch (error) {
+          console.error('Error sending Slack message:', error);
+          throw new Error(`Slack message failed: ${error.message}`);
         }
-        return { result: Math.random() > 0.5, condition: 'Random outcome' };
-        
-      case 'send-email':
+      }
+      
+      case 'gmail':
+      case 'email': {
+        try {
+          // Use PipedreamService to send Gmail email
+          const pipedreamService = PipedreamService.getInstance();
+          
+          const email = {
+            to: this.interpolateTemplate(settings.to || '', inputs),
+            subject: this.interpolateTemplate(settings.subject || 'Email from workflow', inputs),
+            body: this.interpolateTemplate(settings.body || '', inputs),
+            cc: settings.cc ? this.interpolateTemplate(settings.cc, inputs) : '',
+            bcc: settings.bcc ? this.interpolateTemplate(settings.bcc, inputs) : '',
+            html: settings.html || false
+          };
+          
+          // Execute Gmail email via Pipedream
+          const result = await pipedreamService.makeApiRequest(
+            'gmail',
+            'workflow-user', // In production, use actual userId
+            '/send',
+            'POST',
+            email
+          );
+          
+          return {
+            success: true,
+            messageId: result.id || `mock-${Date.now()}`,
+            to: email.to,
+            subject: email.subject
+          };
+        } catch (error) {
+          console.error('Error sending Gmail email:', error);
+          throw new Error(`Gmail email failed: ${error.message}`);
+        }
+      }
+      
+      case 'outlook': {
+        try {
+          // Use PipedreamService to send Outlook email
+          const pipedreamService = PipedreamService.getInstance();
+          
+          const email = {
+            to: this.interpolateTemplate(settings.to || '', inputs),
+            subject: this.interpolateTemplate(settings.subject || 'Email from workflow', inputs),
+            body: this.interpolateTemplate(settings.body || '', inputs),
+            cc: settings.cc ? this.interpolateTemplate(settings.cc, inputs) : '',
+            bcc: settings.bcc ? this.interpolateTemplate(settings.bcc, inputs) : '',
+            html: settings.html || false
+          };
+          
+          // Execute Outlook email via Pipedream
+          const result = await pipedreamService.makeApiRequest(
+            'office365',
+            'workflow-user', // In production, use actual userId
+            '/mail/send',
+            'POST',
+            email
+          );
+          
+          return {
+            success: true,
+            messageId: result.id || `mock-${Date.now()}`,
+            to: email.to,
+            subject: email.subject
+          };
+        } catch (error) {
+          console.error('Error sending Outlook email:', error);
+          throw new Error(`Outlook email failed: ${error.message}`);
+        }
+      }
+      
+      case 'extract-webpage': {
+        // Mock web data extraction
         return {
-          sent: true,
-          to: node.data.settings?.to || 'example@example.com',
-          subject: node.data.settings?.subject || 'No subject',
+          title: 'Example Company',
+          content: 'This is extracted content from the website.',
+          metadata: {
+            url: settings.url || 'https://example.com',
+            timestamp: new Date().toISOString(),
+            selector: settings.selector || 'body'
+          }
+        };
+      }
+      
+      case 'process-data': {
+        // Mock data processing
+        return {
+          processed: true,
+          result: {
+            name: inputs?.title || 'Unknown',
+            content: inputs?.content || '',
+            format: settings.outputFormat || 'json'
+          }
+        };
+      }
+      
+      case 'conditional': {
+        // Mock conditional logic
+        const condition = settings.condition || '';
+        const conditionResult = this.evaluateCondition(condition, inputs);
+        
+        return {
+          condition,
+          result: conditionResult,
+          path: conditionResult ? 'true' : 'false'
+        };
+      }
+      
+      case 'database': {
+        // Mock database operation
+        return {
+          operation: settings.queryType || 'select',
+          success: true,
+          affectedRows: 1,
           timestamp: new Date().toISOString()
         };
-        
-      case 'database':
-        return {
-          operation: node.data.settings?.queryType || 'select',
-          affected: Math.floor(Math.random() * 10) + 1,
-          success: true
-        };
-        
+      }
+      
       default:
+        // Generic mock response for other node types
         return {
-          executed: true,
+          success: true,
           nodeType,
-          timestamp: new Date().toISOString()
+          inputs,
+          timestamp: new Date().toISOString(),
+          result: `Executed ${nodeType} node`
         };
+    }
+  }
+  
+  /**
+   * Interpolate template strings with input values
+   * Replaces {{variable.path}} with the corresponding value from inputs
+   */
+  private interpolateTemplate(template: string, inputs: any): string {
+    if (!template || !inputs) {
+      return template;
+    }
+    
+    // Replace template variables like {{data.company.name}} with actual values
+    return template.replace(/\{\{([^}]+)\}\}/g, (match, path) => {
+      // Split the path by dots
+      const keys = path.trim().split('.');
+      
+      // Traverse the inputs object following the path
+      let value = inputs;
+      for (const key of keys) {
+        if (value === undefined || value === null) {
+          return match; // Return original placeholder if path is invalid
+        }
+        value = value[key];
+      }
+      
+      return value !== undefined ? String(value) : match;
+    });
+  }
+  
+  /**
+   * Evaluate a conditional expression
+   * Very simplified version - in production would use a proper expression evaluator
+   */
+  private evaluateCondition(condition: string, inputs: any): boolean {
+    try {
+      // SECURITY WARNING: In a real implementation, you should use a sandboxed
+      // expression evaluator, not eval(). This is just for demonstration.
+      
+      // Replace dot notation paths with array notation for evaluation
+      const processedCondition = condition.replace(/([a-zA-Z_][a-zA-Z0-9_]*(?:\.[a-zA-Z_][a-zA-Z0-9_]*)*)/g, (match) => {
+        // Convert path.to.value to inputs["path"]["to"]["value"]
+        const keys = match.split('.');
+        return 'inputs' + keys.map(k => `["${k}"]`).join('');
+      });
+      
+      // Never use eval() in production!
+      // This is just for demonstration purposes
+      const result = eval(processedCondition);
+      return Boolean(result);
+    } catch (error) {
+      console.error('Error evaluating condition:', error);
+      return false;
     }
   }
 }

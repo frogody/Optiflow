@@ -97,15 +97,6 @@ export async function middleware(request: NextRequest) {
     return NextResponse.next();
   }
 
-  // Force all NextAuth callbacks to use port 3001
-  if (pathname.startsWith('/api/auth') || pathname.includes('callback')) {
-    const url = request.nextUrl;
-    if (url.port !== '3001') {
-      url.port = '3001';
-      return NextResponse.redirect(url);
-    }
-  }
-
   try {
     // Get the token with consistent cookie settings
     const token = await getToken({ 

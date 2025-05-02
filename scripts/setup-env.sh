@@ -10,7 +10,7 @@ LIVEKIT_API_SECRET="PwNX4F1FwxFVxd7f25RMv3Fw4SLRGwFUvtzeh4LhUOc"
 NEXT_PUBLIC_LIVEKIT_URL="wss://isyncso-sync-p1sl1ryj.livekit.cloud"
 
 # NextAuth Configuration
-NEXTAUTH_URL="http://localhost:3001"
+NEXTAUTH_URL="http://localhost:3000"
 NEXTAUTH_SECRET="$(openssl rand -base64 32)"
 
 # Database URL (if using Prisma)

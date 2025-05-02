@@ -1,86 +1,71 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { PipedreamMCPService } from '@/services/PipedreamMCPService';
 
-interface StateObject {
-  returnUrl?: string;
-  appId?: string;
-  userId?: string;
-  [key: string]: any;
-}
-
 /**
- * This route handles callbacks from Pipedream OAuth flows.
- * 
- * When a user connects an application through Pipedream,
- * the OAuth provider redirects back to this endpoint with a code and state.
+ * Handle OAuth callback from Pipedream
  */
 export async function GET(request: NextRequest) {
   try {
-    const { searchParams } = request.nextUrl;
+    // Get query parameters
+    const searchParams = request.nextUrl.searchParams;
     const code = searchParams.get('code');
     const state = searchParams.get('state');
     const error = searchParams.get('error');
-    const errorDescription = searchParams.get('error_description');
-
-    console.log('OAuth callback received:', {
-      code: code ? '[REDACTED]' : null,
-      state,
-      error,
-      errorDescription
-    });
-
-    // Handle OAuth errors
+    
+    // Handle error from OAuth provider
     if (error) {
-      console.error('OAuth error:', error, errorDescription);
-      return NextResponse.redirect(
-        new URL(`/app?error=oauth_error&reason=${encodeURIComponent(errorDescription || error)}`, request.nextUrl.origin)
-      );
+      console.error('OAuth error:', error);
+      return NextResponse.redirect(new URL(`/connections?error=${error}`, request.url));
     }
-
+    
     // Validate required parameters
     if (!code || !state) {
       console.error('Missing required OAuth parameters');
-      return NextResponse.redirect(
-        new URL('/app?error=invalid_request&reason=missing_parameters', request.nextUrl.origin)
-      );
+      return NextResponse.redirect(new URL('/connections?error=invalid_request', request.url));
     }
-
-    let stateData;
-    try {
-      stateData = JSON.parse(decodeURIComponent(state));
-    } catch (e) {
-      console.error('Invalid state parameter:', e);
-      return NextResponse.redirect(
-        new URL('/app?error=invalid_state', request.nextUrl.origin)
-      );
-    }
-
-    // Initialize Pipedream service
+    
+    // Initialize Pipedream MCP service
     const pipedreamService = PipedreamMCPService.getInstance({
-      clientId: process.env.NEXT_PUBLIC_PIPEDREAM_CLIENT_ID!,
-      clientSecret: process.env.PIPEDREAM_CLIENT_SECRET!,
-      projectId: process.env.NEXT_PUBLIC_PIPEDREAM_PROJECT_ID!,
-      redirectUri: new URL('/api/oauth/callback', request.nextUrl.origin).toString(),
-      environment: process.env.NODE_ENV === 'production' ? 'production' : 'development'
+      clientId: process.env.PIPEDREAM_CLIENT_ID || '',
+      clientSecret: process.env.PIPEDREAM_CLIENT_SECRET || '',
+      projectId: process.env.PIPEDREAM_PROJECT_ID || '',
+      redirectUri: process.env.PIPEDREAM_REDIRECT_URI || '',
+      environment: (process.env.NODE_ENV as 'development' | 'production') || 'development'
     });
-
-    // Process OAuth callback
+    
+    // Handle the OAuth callback
     const success = await pipedreamService.handleOAuthCallback(code, state);
-
+    
     if (success) {
-      // Redirect to success URL from state or default to app page
-      const redirectUrl = stateData.returnUrl || '/app';
-      return NextResponse.redirect(new URL(redirectUrl, request.nextUrl.origin));
+      // Parse state to get app ID if needed
+      let appId: string | null = null;
+      try {
+        const stateData = JSON.parse(state);
+        appId = stateData.appId;
+      } catch (e) {
+        console.error('Failed to parse state:', e);
+      }
+      
+      // Redirect to connections page with success message
+      return NextResponse.redirect(new URL(
+        `/connections?success=true&app=${appId || 'service'}`, 
+        request.url
+      ));
     } else {
-      console.error('Failed to process OAuth callback');
-      return NextResponse.redirect(
-        new URL('/app?error=oauth_failed&reason=processing_failed', request.nextUrl.origin)
-      );
+      // Redirect with error
+      return NextResponse.redirect(new URL(
+        '/connections?error=authorization_failed', 
+        request.url
+      ));
     }
+    
   } catch (error) {
-    console.error('Unexpected error in OAuth callback:', error);
-    return NextResponse.redirect(
-      new URL('/app?error=internal_error', request.nextUrl.origin)
-    );
+    console.error('Error handling OAuth callback:', error);
+    
+    // Redirect to connections page with error
+    return NextResponse.redirect(new URL(
+      `/connections?error=${encodeURIComponent(error.message || 'unknown_error')}`, 
+      request.url
+    ));
   }
 } 

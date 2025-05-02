@@ -1,29 +1,56 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
-  swcMinify: true,
   output: 'standalone',
   images: {
     remotePatterns: [
       {
         protocol: 'https',
-        hostname: '**',
+        hostname: '*.icloud.com',
+        pathname: '/**',
+      },
+      {
+        protocol: 'https',
+        hostname: '*.icloud-content.com',
+        pathname: '/**',
+      },
+      {
+        protocol: 'https',
+        hostname: '*.livekit.cloud',
+        pathname: '/**',
       }
     ],
     dangerouslyAllowSVG: true,
     unoptimized: false,
-    domains: ['lh3.googleusercontent.com', 'avatars.githubusercontent.com', 'ui-avatars.com'],
+    domains: ['localhost'], // Add localhost for development
   },
   typescript: {
     ignoreBuildErrors: true,
   },
+  // Add trailing slash to ensure consistent URL handling
+  trailingSlash: true,
+  // Environment variables that should be available to the client
   env: {
     NEXT_PUBLIC_DEPLOYMENT_ENV: process.env.NODE_ENV || 'development',
-    NEXTAUTH_URL: process.env.NEXTAUTH_URL,
-    NEXT_PUBLIC_PIPEDREAM_CLIENT_ID: process.env.NEXT_PUBLIC_PIPEDREAM_CLIENT_ID || 'kWYR9dn6Vmk7MnLuVfoXx4jsedOcp83vBg6st3rWuiM',
-    NEXT_PUBLIC_APP_URL: process.env.NEXT_PUBLIC_APP_URL || 'https://app.isyncso.com',
-    NEXT_PUBLIC_PIPEDREAM_REDIRECT_URI: process.env.NEXT_PUBLIC_PIPEDREAM_REDIRECT_URI || 'https://app.isyncso.com/api/pipedream/callback',
-  }
+    // Add OAuth config variables to be available to the client
+    NEXT_PUBLIC_GOOGLE_CLIENT_ID: process.env.GOOGLE_CLIENT_ID,
+  },
+  // Tell Next.js to use Babel instead of SWC
+  transpilePackages: ['next'],
+  experimental: {
+    // Disable SWC for font compatibility
+    forceSwcTransforms: false
+  },
+  // Configure webpack for WebSocket support
+  webpack: (config, { isServer, dev }) => {
+    if (!isServer && dev) {
+      config.watchOptions = {
+        poll: 1000,
+        aggregateTimeout: 300,
+      };
+    }
+    return config;
+  },
 }
 
 module.exports = nextConfig

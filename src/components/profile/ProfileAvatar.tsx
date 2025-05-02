@@ -57,7 +57,7 @@ export default function ProfileAvatar({ avatarUrl, name, onAvatarChange }: Profi
       <div className="relative group">
         <div className="relative h-32 w-32 rounded-full overflow-hidden border-4 border-white/10 bg-black/20">
           <Image 
-            src={previewUrl || avatarUrl || '/default-avatar.png'} 
+            src={previewUrl || avatarUrl || '/default-avatar.svg'} 
             alt={name}
             className="object-cover"
             fill

@@ -1,15 +1,19 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useVoiceRecognition } from '@/hooks/useVoiceRecognition';
 import { MicrophoneIcon, StopIcon } from '@heroicons/react/24/solid';
+import { Room } from 'livekit-client';
+import { CommandProcessor } from '@/services/commandProcessor';
 
 interface VoiceCommandInputProps {
-  onCommand: (command: string) => void;
+  room: Room;
+  onResponse: (response: string) => void;
   onError: (error: string) => void;
   disabled?: boolean;
 }
 
 export const VoiceCommandInput: React.FC<VoiceCommandInputProps> = ({
-  onCommand,
+  room,
+  onResponse,
   onError,
   disabled = false,
 }) => {
@@ -25,6 +29,27 @@ export const VoiceCommandInput: React.FC<VoiceCommandInputProps> = ({
   } = useVoiceRecognition();
 
   const [showTranscript, setShowTranscript] = useState(false);
+  const commandProcessorRef = useRef<CommandProcessor | null>(null);
+
+  useEffect(() => {
+    // Initialize command processor
+    commandProcessorRef.current = new CommandProcessor({
+      room,
+      onResponse,
+      onError,
+    });
+
+    // Set up data message listener
+    const handleData = (data: Uint8Array) => {
+      commandProcessorRef.current?.handleDataMessage(data);
+    };
+
+    room.on('dataReceived', handleData);
+
+    return () => {
+      room.off('dataReceived', handleData);
+    };
+  }, [room, onResponse, onError]);
 
   useEffect(() => {
     if (error) {
@@ -33,19 +58,31 @@ export const VoiceCommandInput: React.FC<VoiceCommandInputProps> = ({
   }, [error, onError]);
 
   useEffect(() => {
-    if (transcript && !isListening) {
-      onCommand(transcript);
+    if (transcript && !isListening && commandProcessorRef.current) {
+      commandProcessorRef.current.processCommand(transcript);
       reset();
     }
-  }, [transcript, isListening, onCommand, reset]);
+  }, [transcript, isListening, reset]);
 
-  const handleToggleListening = () => {
+  const handleToggleListening = async () => {
     if (isListening) {
       stopListening();
       setShowTranscript(false);
     } else {
-      startListening();
-      setShowTranscript(true);
+      try {
+        // Initialize AudioContext only when starting to listen
+        const AudioContext = window.AudioContext || window.webkitAudioContext;
+        const audioContext = new AudioContext();
+        await audioContext.resume();
+
+        // Start listening after AudioContext is initialized
+        await startListening();
+        setShowTranscript(true);
+      } catch (err) {
+        const errorMessage = err instanceof Error ? err.message : String(err);
+        onError(`Failed to initialize audio: ${errorMessage}`);
+        setShowTranscript(false);
+      }
     }
   };
 

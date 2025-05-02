@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { createUserConnectToken, extractTokenData } from "../../../../../pipedream-client";
+import { createFrontendClient } from "@pipedream/sdk/browser";
 
 /**
  * API endpoint to create Pipedream connect tokens
@@ -20,46 +20,37 @@ export async function POST(request: NextRequest) {
 
     console.log(`Creating token for user: ${userId}`);
 
-    // Create a token for the user using the direct OAuth flow approach
+    // Create a Pipedream client
+    const pd = createFrontendClient();
+
+    // Create a token for the user
     let tokenResponse;
     try {
-      tokenResponse = await createUserConnectToken(userId);
-    } catch (tokenError: any) {
-      console.error("Token creation error details:", tokenError);
-      
-      // Provide a more helpful error message
-      let errorMessage = tokenError.message;
-      if (tokenError.message.includes("Failed to get OAuth token")) {
-        errorMessage = "OAuth authentication failed. Please check client ID and secret.";
-      } else if (tokenError.message.includes("Failed to create connect token")) {
-        errorMessage = "Failed to create Pipedream connect token. Please check project ID and user ID.";
-      }
-      
-      return NextResponse.json(
-        { 
-          error: "Failed to create token",
-          message: errorMessage,
-          details: typeof tokenError === 'object' ? 
-                   (tokenError.toString ? tokenError.toString() : JSON.stringify(tokenError)) : 
-                   String(tokenError)
+      tokenResponse = await pd.connectAccount({
+        app: "pipedream",
+        userId,
+        onSuccess: (response) => {
+          console.log("Successfully created token:", response);
+          return response;
         },
+        onError: (error) => {
+          console.error("Error creating token:", error);
+          throw error;
+        }
+      });
+    } catch (error) {
+      console.error("Error creating token:", error);
+      return NextResponse.json(
+        { error: "Failed to create token" },
         { status: 500 }
       );
     }
-    
-    console.log(`Token created successfully: ${JSON.stringify(tokenResponse)}`);
 
-    // Return the token data directly
     return NextResponse.json(tokenResponse);
-  } catch (error: any) {
-    console.error("Error in token route handler:", error);
-    
+  } catch (error) {
+    console.error("Error in token creation:", error);
     return NextResponse.json(
-      { 
-        error: "Failed to process token request", 
-        message: error.message,
-        stack: process.env.NODE_ENV === 'development' ? error.stack : undefined
-      },
+      { error: "Internal server error" },
       { status: 500 }
     );
   }

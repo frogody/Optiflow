@@ -15,7 +15,7 @@ const Header: React.FC<HeaderProps> = ({ isAdvancedMode, onToggleMode }) => {
         <div className="flex items-center space-x-4">
           <div className="flex items-center">
             <Image 
-              src="/logo.png" 
+              src="/new logo isyncso.png" 
               alt="ISYNCSO" 
               width={180}
               height={48}

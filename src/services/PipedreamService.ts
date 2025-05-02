@@ -244,7 +244,97 @@ export class PipedreamService {
   }
 
   async makeApiRequest<T>(appName: string, userId: string, endpoint: string, method: string, data?: any): Promise<T> {
-    // Mock implementation
-    return {} as T;
+    try {
+      // In development mode, use mock responses
+      if (process.env.NODE_ENV === 'development') {
+        console.log(`[DEV] Mocking API request to ${appName}${endpoint}:`, data);
+        
+        // Mock response data based on app and endpoint
+        return this.generateMockResponse(appName, endpoint, method, data) as T;
+      }
+      
+      // In production, make actual API requests to Pipedream
+      const pipedreamEndpoint = `https://api.pipedream.com/v1/components/${appName}${endpoint}`;
+      
+      const headers = {
+        'Authorization': `Bearer ${process.env.PIPEDREAM_API_KEY}`,
+        'Content-Type': 'application/json',
+      };
+      
+      console.log(`Making API request to ${pipedreamEndpoint}`, { method, headers, data });
+      
+      const response = await fetch(pipedreamEndpoint, {
+        method,
+        headers,
+        body: data ? JSON.stringify(data) : undefined,
+      });
+      
+      if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(`Pipedream API error (${response.status}): ${errorText}`);
+      }
+      
+      const result = await response.json();
+      return result as T;
+    } catch (error) {
+      console.error(`Error in Pipedream API request to ${appName}${endpoint}:`, error);
+      throw error;
+    }
+  }
+  
+  /**
+   * Generate mock response for testing and development
+   */
+  private generateMockResponse(appName: string, endpoint: string, method: string, data?: any): unknown {
+    // Mock data for different apps and endpoints
+    const mockResponses: Record<string, Record<string, any>> = {
+      slack: {
+        '/chat.postMessage': {
+          ok: true,
+          channel: data?.channel || 'general',
+          ts: String(Date.now() / 1000),
+          message: {
+            text: data?.text || 'Message content',
+            user: 'U12345678',
+            ts: String(Date.now() / 1000),
+          }
+        },
+        '/channels.list': {
+          ok: true,
+          channels: [
+            { id: 'C12345', name: 'general', is_private: false },
+            { id: 'C67890', name: 'random', is_private: false }
+          ]
+        }
+      },
+      gmail: {
+        '/send': {
+          id: `msg_${Date.now()}`,
+          threadId: `thread_${Date.now()}`,
+          labelIds: ['SENT'],
+          snippet: data?.subject || 'Email subject',
+          status: 'sent',
+          recipient: data?.to || 'recipient@example.com'
+        }
+      },
+      office365: {
+        '/mail/send': {
+          id: `msg_${Date.now()}`,
+          status: 'sent',
+          recipient: data?.to || 'recipient@example.com',
+          createdDateTime: new Date().toISOString()
+        }
+      }
+    };
+    
+    // Return specific mock response or a generic one
+    return mockResponses[appName]?.[endpoint] || {
+      success: true,
+      timestamp: new Date().toISOString(),
+      appName,
+      endpoint,
+      method,
+      data
+    };
   }
 } 
