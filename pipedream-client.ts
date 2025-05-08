@@ -9,13 +9,27 @@ import {
 
 // Client configuration
 const clientOpts: BackendClientOpts = {
-  environment: "development", // change to production if running for a test production account, or in production
+  environment: "production", // Correct for production deployment
   credentials: {
-    clientId: process.env.NEXT_PUBLIC_PIPEDREAM_CLIENT_ID || "kWYR9dn6Vmk7MnLuVfoXx4jsedOcp83vBg6st3rWuiM",
-    clientSecret: process.env.PIPEDREAM_CLIENT_SECRET || "ayINomSnhCcHGR6Xf1_4PElM25mqsEFsrvTHKQ7ink0",
+    // Consistently use PIPEDREAM_CLIENT_ID from Vercel env vars
+    clientId: process.env.PIPEDREAM_CLIENT_ID!,
+    clientSecret: process.env.PIPEDREAM_CLIENT_SECRET!,
   },
-  projectId: "isyncso", // Hardcoded project ID value
+  // Consistently use PIPEDREAM_PROJECT_ID from Vercel env vars
+  projectId: process.env.PIPEDREAM_PROJECT_ID!,
 };
+
+// Add critical startup checks (these will log in Vercel function logs if vars are missing)
+if (!clientOpts.credentials.clientId) {
+  console.error("FATAL: Missing Pipedream Client ID. Set PIPEDREAM_CLIENT_ID in Vercel environment variables.");
+  // Consider throwing an error here to prevent the app from running with invalid config
+}
+if (!clientOpts.credentials.clientSecret) {
+  console.error("FATAL: Missing Pipedream Client Secret. Set PIPEDREAM_CLIENT_SECRET in Vercel environment variables.");
+}
+if (!clientOpts.projectId) {
+  console.error("FATAL: Missing Pipedream Project ID. Set PIPEDREAM_PROJECT_ID in Vercel environment variables.");
+}
 
 // Create the backend client
 const pd: BackendClient = createBackendClient(clientOpts);
@@ -62,7 +76,7 @@ export async function createUserConnectToken(externalUserId: string): Promise<Co
       headers: {
         "Content-Type": "application/json",
         "Authorization": `Bearer ${access_token}`,
-        "X-PD-Environment": clientOpts.environment
+        "X-PD-Environment": clientOpts.environment!,
       },
       body: JSON.stringify({
         external_user_id: externalUserId,

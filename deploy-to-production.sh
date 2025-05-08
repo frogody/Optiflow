@@ -80,9 +80,19 @@ if [ -z "$DEPLOYMENT_URL" ]; then
     exit 1
 fi
 
-# Set production alias
-echo -e "${YELLOW}Setting production alias...${NC}"
-vercel alias set "$DEPLOYMENT_URL" app.isyncso.com
+# Set production alias via Vercel API
+echo -e "${YELLOW}Setting production alias via Vercel API...${NC}"
+VERCEL_TEAM_ID_FOR_API="team_3IImOWASk24KHHAQ55rvxO3x"
+ALIAS_DOMAIN="app.isyncso.com"
+
+# Check if VERCEL_TOKEN is set
+if [ -z "$VERCEL_TOKEN" ]; then
+    echo -e "${RED}VERCEL_TOKEN is not set${NC}"
+    exit 1
+else
+    # Vercel API endpoint for setting an alias for a deployment
+    API_ALIAS_URL="https://api.vercel.com/v2/deployments/$DEPLOYMENT_ID/aliases?teamId=$VERCEL_TEAM_ID_FOR_API"
+fi
 
 # Verify deployment
 echo -e "${YELLOW}Verifying deployment...${NC}"
