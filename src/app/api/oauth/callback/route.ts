@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { PipedreamMCPService } from '@/services/PipedreamMCPService';
 
+export const dynamic = 'force-dynamic'; // Ensures the route is always dynamically rendered
+
 interface StateObject {
   returnUrl?: string;
   appId?: string;

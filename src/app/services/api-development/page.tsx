@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { motion } from 'framer-motion';
+import dynamic from 'next/dynamic';
 import Link from 'next/link';
 import { 
   HiOutlineCode,
@@ -22,6 +22,8 @@ import {
   HiOutlineStar,
   HiOutlineChartSquareBar
 } from 'react-icons/hi';
+
+const MotionDiv = dynamic(() => import('framer-motion').then(mod => mod.motion.div), { ssr: false, loading: () => (props: any) => <div {...props} /> });
 
 export default function APIDevPage() {
   const [selectedEndpoint, setSelectedEndpoint] = useState('prediction');
@@ -404,7 +406,7 @@ curl -X POST https://api.optiflow.ai/v1/workflow \\
         <div className="absolute w-[400px] h-[400px] rounded-full right-1/4 bottom-1/3 bg-[#4AFFD4] opacity-10 blur-[120px]" />
         
         <div className="container mx-auto px-4 relative z-10">
-          <motion.div
+          <MotionDiv
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8 }}
@@ -435,7 +437,7 @@ curl -X POST https://api.optiflow.ai/v1/workflow \\
                 Get API Key
               </Link>
             </div>
-          </motion.div>
+          </MotionDiv>
         </div>
       </section>
 
@@ -453,7 +455,7 @@ curl -X POST https://api.optiflow.ai/v1/workflow \\
           
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             {features.map((feature, index) => (
-              <motion.div
+              <MotionDiv
                 key={index}
                 initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
@@ -466,7 +468,7 @@ curl -X POST https://api.optiflow.ai/v1/workflow \\
                 </div>
                 <h3 className="text-xl font-semibold mb-3">{feature.title}</h3>
                 <p className="text-gray-300">{feature.description}</p>
-              </motion.div>
+              </MotionDiv>
             ))}
           </div>
         </div>
@@ -718,7 +720,7 @@ const data = await response.json();`}
                 icon: <HiOutlineChartSquareBar className="w-8 h-8" />
               }
             ].map((useCase, index) => (
-              <motion.div
+              <MotionDiv
                 key={index}
                 initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
@@ -731,7 +733,7 @@ const data = await response.json();`}
                 </div>
                 <h3 className="text-xl font-semibold mb-3">{useCase.title}</h3>
                 <p className="text-gray-300">{useCase.description}</p>
-              </motion.div>
+              </MotionDiv>
             ))}
           </div>
         </div>
@@ -799,7 +801,7 @@ const data = await response.json();`}
         <div className="absolute w-[600px] h-[600px] rounded-full right-1/4 -bottom-1/2 bg-[#4AFFD4] opacity-10 blur-[120px]" />
         
         <div className="container mx-auto px-4 relative">
-          <motion.div 
+          <MotionDiv 
             initial={{ opacity: 0, y: 30 }}
             whileInView={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8 }}
@@ -831,7 +833,7 @@ const data = await response.json();`}
                 View Full Documentation
               </Link>
             </div>
-          </motion.div>
+          </MotionDiv>
         </div>
       </section>
     </div>

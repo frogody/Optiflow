@@ -1,6 +1,6 @@
 'use client';
 
-import { motion } from 'framer-motion';
+import dynamic from 'next/dynamic';
 import Link from 'next/link';
 import { 
   HiOutlineChartBar,
@@ -10,6 +10,8 @@ import {
   HiOutlineTrendingUp,
   HiOutlinePresentationChartLine
 } from 'react-icons/hi';
+
+const MotionDiv = dynamic(() => import('framer-motion').then(mod => mod.motion.div), { ssr: false, loading: () => (props: any) => <div {...props} /> });
 
 export default function AnalyticsPage() {
   const features = [
@@ -73,7 +75,7 @@ export default function AnalyticsPage() {
         <div className="absolute w-[400px] h-[400px] rounded-full right-1/4 bottom-1/3 bg-[#4AFFD4] opacity-10 blur-[120px]"></div>
         
         <div className="container mx-auto px-4 text-center relative z-10">
-          <motion.div
+          <MotionDiv
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8 }}
@@ -104,7 +106,7 @@ export default function AnalyticsPage() {
                 Learn More
               </Link>
             </div>
-          </motion.div>
+          </MotionDiv>
         </div>
       </section>
 
@@ -122,7 +124,7 @@ export default function AnalyticsPage() {
           
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             {features.map((feature, index) => (
-              <motion.div
+              <MotionDiv
                 key={index}
                 initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
@@ -135,7 +137,7 @@ export default function AnalyticsPage() {
                 </div>
                 <h3 className="text-xl font-semibold mb-3">{feature.title}</h3>
                 <p className="text-gray-300">{feature.description}</p>
-              </motion.div>
+              </MotionDiv>
             ))}
           </div>
         </div>
@@ -157,7 +159,7 @@ export default function AnalyticsPage() {
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
             {processSteps.map((step, index) => (
-              <motion.div
+              <MotionDiv
                 key={index}
                 initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
@@ -174,7 +176,7 @@ export default function AnalyticsPage() {
                   <h3 className="text-xl font-semibold mb-3">{step.title}</h3>
                   <p className="text-gray-300">{step.description}</p>
                 </div>
-              </motion.div>
+              </MotionDiv>
             ))}
           </div>
         </div>
@@ -187,7 +189,7 @@ export default function AnalyticsPage() {
         <div className="absolute w-[600px] h-[600px] rounded-full right-1/4 -bottom-1/2 bg-[#4AFFD4] opacity-10 blur-[120px]"></div>
         
         <div className="container mx-auto px-4 relative">
-          <motion.div 
+          <MotionDiv 
             initial={{ opacity: 0, y: 30 }}
             whileInView={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8 }}
@@ -211,7 +213,7 @@ export default function AnalyticsPage() {
             >
               Start Analytics Journey
             </Link>
-          </motion.div>
+          </MotionDiv>
         </div>
       </section>
     </div>

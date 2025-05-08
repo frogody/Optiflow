@@ -74,18 +74,21 @@ export default function PipedreamConnectButton({
       return;
     }
     
-    // Ensure the slug is properly formatted as a valid string
     let validatedSlug = appSlug;
     if (typeof validatedSlug !== 'string' || !validatedSlug) {
       console.warn(`Invalid app slug: ${validatedSlug}, using "generic" instead`);
       validatedSlug = 'generic';
     }
     
-    // Remove any characters that could cause pattern matching issues
     validatedSlug = validatedSlug.replace(/[^\w-]/g, '');
     
     setHasErrored(false);
     
+    // Temporarily bypass the /api/pipedream/test call to unblock main flow testing
+    console.log('Bypassing /api/pipedream/test for now. Proceeding with connectService.');
+    connectService(validatedSlug, oauthAppId);
+
+    /* Original code with /api/pipedream/test call:
     // First try the direct test endpoint to check for server-side issues
     try {
       setIsDirectConnecting(true);
@@ -109,6 +112,7 @@ export default function PipedreamConnectButton({
       // Fall back to direct connection attempt
       connectService(validatedSlug, oauthAppId);
     }
+    */
   };
 
   // Display error message if max retries exceeded
