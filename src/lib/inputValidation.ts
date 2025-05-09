@@ -126,7 +126,7 @@ function containsScriptInjection(value: string): boolean { // Basic XSS detectio
  */
 export function sanitizeString(value: string): string {
   // Replace HTML entities
-  let sanitized = value
+  const sanitized = value
     .replace(/</g, '&lt;')
     .replace(/>/g, '&gt;')
     .replace(/"/g, '&quot;')

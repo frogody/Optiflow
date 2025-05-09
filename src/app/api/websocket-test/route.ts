@@ -1,57 +1,45 @@
 // @ts-nocheck - This file has some TypeScript issues that are hard to fix
-import { NextRequest } from 'next/server';
 
 export const runtime = 'edge';
 
-export async function GET(req: NextRequest) {
-  const { socket: ws, response } = await new Promise((resolve) => {
-    const upgrade = Reflect.get(req, 'socket').upgrade;
+export async function GET() {
+  const upgrade = Reflect.get(globalThis, 'socket')?.upgrade;
 
-    if (!upgrade) {
-      resolve({
-        socket: null,
-        response: new Response('WebSocket upgrade not supported', {
-          status: 426,
-        }),
-      });
-      return;
-    }
+  if (!upgrade) {
+    return new Response('WebSocket upgrade not supported', {
+      status: 426,
+    });
+  }
 
-    const webSocket = new WebSocket();
+  const webSocket = new WebSocket();
 
-    webSocket.onopen = () => {
-      console.log('WebSocket opened');
+  webSocket.onopen = () => {
+    console.log('WebSocket opened');
 
-      // Setup heartbeat
-      const pingInterval = setInterval(() => {
-        if (webSocket.readyState === webSocket.OPEN) {
-          webSocket.send(JSON.stringify({ type: 'ping' }));
-        }
-      }, 15000);
+    // Setup heartbeat
+    const pingInterval = setInterval(() => {
+      if (webSocket.readyState === webSocket.OPEN) {
+        webSocket.send(JSON.stringify({ type: 'ping' }));
+      }
+    }, 15000);
 
-      webSocket.onclose = () => {
-        console.log('WebSocket closed');
-        clearInterval(pingInterval);
-      };
+    webSocket.onclose = () => {
+      console.log('WebSocket closed');
+      clearInterval(pingInterval);
     };
+  };
 
-    upgrade(webSocket, {
-      protocol: req.headers.get('sec-websocket-protocol') || '',
-    });
-
-    resolve({
-      socket: webSocket,
-      response: new Response(null, { status: 101 }),
-    });
+  upgrade(webSocket, {
+    protocol: '',
   });
 
-  return response;
+  return new Response(null, { status: 101 });
 }
 
 // Handle WebSocket upgrade
 export const dynamic = 'force-dynamic';
 
-export async function POST(req: NextRequest) {
+export async function POST() {
   try {
     // Test WebSocket connection to echo.websocket.org
     // which is a simple echo service that will send back any message we send
@@ -94,7 +82,7 @@ async function testWebSocketConnection() {
         settled = true;
         try {
           ws.close();
-        } catch (err) {}
+        } catch {}
         reject(new Error('WebSocket connection timed out after 5 seconds'));
       }
     }, 5000);
@@ -113,7 +101,7 @@ async function testWebSocketConnection() {
           clearTimeout(timeoutId);
           try {
             ws.close();
-          } catch (err) {}
+          } catch {}
           reject(error);
         }
       }
@@ -127,7 +115,7 @@ async function testWebSocketConnection() {
           clearTimeout(timeoutId);
           try {
             ws.close();
-          } catch (err) {}
+          } catch {}
           resolve({
             success: true,
             data:
@@ -142,7 +130,7 @@ async function testWebSocketConnection() {
           clearTimeout(timeoutId);
           try {
             ws.close();
-          } catch (err) {}
+          } catch {}
           reject(error);
         }
       }
@@ -155,7 +143,7 @@ async function testWebSocketConnection() {
         clearTimeout(timeoutId);
         try {
           ws.close();
-        } catch (err) {}
+        } catch {}
         reject(new Error(`WebSocket error: ${error}`));
       }
     };

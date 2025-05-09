@@ -2,18 +2,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getMockConnections, updateMockConnection } from './mockConnections';
 
-// Mock MCP server connections for development
-const mockMcpServers = {
-  aora: {
-  url: 'http://localhost:3001',
-    tools: {
-  clay: { connected: false     },
-      lindyai: { connected: false     },
-      n8n: { connected: false     }
-    }
-  }
-};
-
 export async function POST(
   request: NextRequest,
   { params }: { params: { orchestratorId: string; method: string     } }
@@ -51,7 +39,7 @@ export async function POST(
           return NextResponse.json({ connected: true,
             endpoint: url.origin
               });
-        } catch (error) {
+        } catch {
           return NextResponse.json(
             { error: 'Invalid MCP server URL'     },
             { status: 400     }

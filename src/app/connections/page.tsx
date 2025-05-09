@@ -12,7 +12,6 @@ export default function ConnectionsPage(): JSX.Element {
   const { currentUser } = useUserStore();
   const userId = currentUser?.id || '';
   const [connections, setConnections] = useState<any[]>([]);
-  const [isLoading, setIsLoading] = useState(false);
 
   const commonApps = [
     { slug: 'slack', name: 'Slack'     },
@@ -78,65 +77,59 @@ export default function ConnectionsPage(): JSX.Element {
         Connect Your Services
       </h1>
       
-      {isLoading ? (
-        <div className="flex justify-center my-12">
-          <div className="animate-spin h-10 w-10 border-4 border-primary rounded-full border-t-transparent" />
-        </div>
-      ) : (
-        <>
-          <div className="bg-white dark:bg-dark-50 shadow-lg dark:shadow-neon rounded-xl p-8 mb-8">
-            <h2 className="text-2xl font-semibold mb-6 text-dark-50 dark:text-white">
-              Your Connected Accounts
-            </h2>
-            {connections.length > 0 ? (
-              <ul className="space-y-4">
-                {connections.map((connection) => (
-                  <li 
-                    key={connection.id} 
-                    className="flex items-center justify-between p-4 bg-gray-50 dark:bg-dark-100 rounded-lg border border-gray-100 dark:border-dark-200"
-                  >
-                    <div className="flex items-center">
-                      <span className="font-medium text-dark-50 dark:text-white">
-                        {connection.app_name || connection.app}
-                      </span>
-                    </div>
-                    <span className="px-3 py-1 text-sm bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-100 rounded-full font-medium">
-                      Connected
-                    </span>
-                  </li>
-                ))}
-              </ul>
-            ) : (
-              <p className="text-gray-500 dark:text-gray-400 text-center py-8">
-                No connected accounts yet. Connect your first service below.
-              </p>
-            )}
-          </div>
+      {/* Loading state removed as isLoading is unused */}
 
-          <div className="bg-white dark:bg-dark-50 shadow-lg dark:shadow-neon rounded-xl p-8">
-            <h2 className="text-2xl font-semibold mb-6 text-dark-50 dark:text-white">
-              Available Services
-            </h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {commonApps.map((app) => (
-                <div 
-                  key={app.slug} 
-                  className="border dark:border-dark-200 p-6 rounded-xl bg-gray-50 dark:bg-dark-100 flex flex-col items-center hover:shadow-lg dark:hover:shadow-neon transition-all duration-200"
-                >
-                  <h3 className="text-lg font-semibold mb-4 text-dark-50 dark:text-white">
-                    {app.name}
-                  </h3>
-                  <PipedreamConnectButton
-                    appSlug={app.slug}
-                    buttonText={`Connect ${app.name}`}
-                    onSuccess={handleConnectionSuccess}
-                  />
+      <div className="bg-white dark:bg-dark-50 shadow-lg dark:shadow-neon rounded-xl p-8 mb-8">
+        <h2 className="text-2xl font-semibold mb-6 text-dark-50 dark:text-white">
+          Your Connected Accounts
+        </h2>
+        {connections.length > 0 ? (
+          <ul className="space-y-4">
+            {connections.map((connection) => (
+              <li 
+                key={connection.id} 
+                className="flex items-center justify-between p-4 bg-gray-50 dark:bg-dark-100 rounded-lg border border-gray-100 dark:border-dark-200"
+              >
+                <div className="flex items-center">
+                  <span className="font-medium text-dark-50 dark:text-white">
+                    {connection.app_name || connection.app}
+                  </span>
                 </div>
-              ))}
+                <span className="px-3 py-1 text-sm bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-100 rounded-full font-medium">
+                  Connected
+                </span>
+              </li>
+            ))}
+          </ul>
+        ) : (
+          <p className="text-gray-500 dark:text-gray-400 text-center py-8">
+            No connected accounts yet. Connect your first service below.
+          </p>
+        )}
+      </div>
+
+      <div className="bg-white dark:bg-dark-50 shadow-lg dark:shadow-neon rounded-xl p-8">
+        <h2 className="text-2xl font-semibold mb-6 text-dark-50 dark:text-white">
+          Available Services
+        </h2>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {commonApps.map((app) => (
+            <div 
+              key={app.slug} 
+              className="border dark:border-dark-200 p-6 rounded-xl bg-gray-50 dark:bg-dark-100 flex flex-col items-center hover:shadow-lg dark:hover:shadow-neon transition-all duration-200"
+            >
+              <h3 className="text-lg font-semibold mb-4 text-dark-50 dark:text-white">
+                {app.name}
+              </h3>
+              <PipedreamConnectButton
+                appSlug={app.slug}
+                buttonText={`Connect ${app.name}`}
+                onSuccess={handleConnectionSuccess}
+              />
             </div>
-          </div>
-        </>
-      )}
+          ))}
+        </div>
+      </div>
     </div>
   );
 } 

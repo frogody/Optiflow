@@ -4,13 +4,6 @@ import { PipedreamMCPService } from '@/services/PipedreamMCPService';
 
 export const dynamic = 'force-dynamic'; // Ensures the route is always dynamically rendered
 
-interface StateObject {
-  returnUrl?: string;
-  appId?: string;
-  userId?: string;
-  [key: string]: any;
-}
-
 /**
  * This route handles callbacks from Pipedream OAuth flows.
  *

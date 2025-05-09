@@ -2,7 +2,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import {
   createUserConnectToken,
-  extractTokenData,
 } from '../../../../../pipedream-client';
 
 /**

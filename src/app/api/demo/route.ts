@@ -1,11 +1,11 @@
 // @ts-nocheck - This file has some TypeScript issues that are hard to fix
-import { NextRequest, NextResponse } from 'next/server';
+import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import bcrypt from 'bcryptjs';
 
 export const dynamic = 'force-dynamic';
 
-export async function POST(request: NextRequest) {
+export async function POST() {
   try {
     // Check if demo account already exists
     const existingUser = await prisma.user.findUnique({
@@ -70,4 +70,8 @@ export async function POST(request: NextRequest) {
       { status: 400     }
     );
   }
+}
+
+export async function GET() {
+  // Implementation of GET method
 } 

@@ -1,8 +1,6 @@
 // @ts-nocheck - This file has some TypeScript issues that are hard to fix
 import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
-import { ElevenLabsConversationalService } from '@/services/ElevenLabsConversationalService';
-import { ElevenLabsConfig } from '@/types/elevenlabs';
 import OpenAI from 'openai';
 
 // Define request validation schema
@@ -100,13 +98,7 @@ export async function POST(request: NextRequest) {
     const body = await request.json();
     const validatedData = ConversationRequestSchema.parse(body);
     
-    const { message, agentId, apiKey, conversationHistory = [] } = validatedData;
-    
-    // Initialize ElevenLabs service
-    const config: ElevenLabsConfig = {
-      agentId,
-      apiKey
-    };
+    const { message, conversationHistory = [] } = validatedData;
     
     // Generate workflow using GPT
     const workflowData = await generateWorkflowWithGPT(message, conversationHistory);

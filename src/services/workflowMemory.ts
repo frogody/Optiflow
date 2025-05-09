@@ -310,7 +310,7 @@ export function createWorkflowMemory(options: WorkflowMemoryOptions): WorkflowMe
 /**
  * Get or create a memory instance for a workflow
  */
-let memoryInstances: Map<string, WorkflowMemory> = new Map();
+const memoryInstances: Map<string, WorkflowMemory> = new Map();
 
 export function getWorkflowMemory(options: WorkflowMemoryOptions): WorkflowMemory {
   const key = `${options.workflowId}_${options.memoryType}`;

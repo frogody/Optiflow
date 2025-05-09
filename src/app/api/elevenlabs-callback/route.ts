@@ -1,10 +1,12 @@
 // @ts-nocheck - This file has some TypeScript issues that are hard to fix
 import { NextRequest, NextResponse } from 'next/server';
 
-export async function POST(request: NextRequest) {
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+export async function POST(_request: NextRequest) {
+  void _request;
   try {
     // Parse the workflow data from the request
-    const { workflow } = await request.json();
+    const { workflow } = await _request.json();
 
     console.log('Received workflow from ElevenLabs callback:', workflow);
 
@@ -22,7 +24,7 @@ export async function POST(request: NextRequest) {
               window.opener.postMessage({
                 type: 'workflow_generated',
                 workflow: ${JSON.stringify(workflow)}
-              }, '${new URL(request.headers.get('referer') || request.headers.get('origin') || '*').origin}');
+              }, '${new URL(_request.headers.get('referer') || _request.headers.get('origin') || '*').origin}');
               
               // Close this window after a short delay
               setTimeout(function() {
@@ -55,7 +57,7 @@ export async function POST(request: NextRequest) {
   }
 }
 
-export async function GET(request: NextRequest) {
+export async function GET() {
   // Handle GET requests (e.g., when testing the callback URL)
   const html = `
     <!DOCTYPE html>

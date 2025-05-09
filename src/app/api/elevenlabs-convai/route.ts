@@ -1,33 +1,6 @@
 // @ts-nocheck - This file has some TypeScript issues that are hard to fix
 import { NextRequest, NextResponse } from 'next/server';
 import { ElevenLabsConversationalService } from '@/services/ElevenLabsConversationalService';
-import OpenAI from 'openai';
-
-// Copy the WorkflowStep interface to use in our route
-interface WorkflowStep { id: string;
-  type: string;
-  title: string;
-  description: string;
-  edges: any[];
-  parameters: Record<string, any>;
-    }
-
-// Modified WorkflowResponse interface to include transcriptions
-interface WorkflowResponse {
-  steps: WorkflowStep[];
-  parameters: Record<string, any>;
-  name: string;
-  description: string;
-  conversation: Array<{ 
-  role: "user" | "assistant";
-  content: string;
-  timestamp: number;
-      }>;
-  isComplete: boolean;
-  audioResponses?: Uint8Array[];
-  transcriptions?: string[]; // Added this property
-  processingError?: string;
-}
 
 // Input validation schema
 export interface ConversationalRequest {
@@ -45,96 +18,6 @@ export interface ConversationalRequest {
     use_speaker_boost?: boolean;
       };
 }
-
-// Initialize OpenAI client
-const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY
-    });
-
-// Function to generate workflow steps using GPT-4o
-async function generateWorkflowWithGPT(message: string): Promise<{ workflowName: string;
-  workflowDescription: string;
-  steps: WorkflowStep[];
-  assistantMessage: string;
-    }> {
-  try {
-    // Create a system prompt for generating workflows
-    const systemPrompt = `You are Sync, an AI specialized in creating detailed, professional workflow designs.
-When a user describes a workflow they need, you'll create:
-1. A clear workflow name (10 words or less)
-2. A concise workflow description (20-30 words);
-3. 3-6 detailed workflow steps, each with:
-   - Descriptive title (5 words or less)
-   - Brief description (15-20 words)
-   - Appropriate type (e.g., trigger, action, condition)
-   - Relevant parameters with realistic values (3-6 parameters)
-   - Logical connections to other steps
-;
-Focus on practical, implementable workflows for business processes, marketing campaigns, lead qualification, and data processing.;
-Your response should be JSON-formatted with the following structure:;
-{
-  "workflowName": "Name of the workflow",
-  "workflowDescription": "Brief description of what the workflow does",
-  "steps": [
-    {
-      "id": "step-id",
-      "type": "step-type",
-      "title": "Step Title",
-      "description": "What this step does",
-      "edges": [{ "target_node_id": "next-step-id", "edge_type": "success"    }],
-      "parameters": { key1: value1, key2: value2    }
-    }
-  ],
-  "assistantMessage": "A helpful, encouraging message to the user about the workflow you've created (100-150 words)"
-}`;
-
-    // Call OpenAI API for workflow generation
-    const completion = await openai.chat.completions.create({
-      model: "gpt-4o",
-      messages: [
-        { role: "system", content: systemPrompt     },
-        { role: "user", content: `Create a workflow for: ${message}` }
-      ],
-      temperature: 0.7,
-      response_format: { type: "json_object"     }
-    });
-
-    const responseContent = completion.choices[0].message.content;
-    if (!responseContent) {
-      throw new Error('Empty response from OpenAI API');
-    }
-
-    // Parse the JSON response
-    const workflowData = JSON.parse(responseContent);
-    return { workflowName: workflowData.workflowName,
-      workflowDescription: workflowData.workflowDescription,
-      steps: workflowData.steps,
-      assistantMessage: workflowData.assistantMessage
-        };
-  } catch (error) {
-    console.error('Error generating workflow with GPT:', error);
-    // Return a fallback workflow if GPT fails
-    return {
-      workflowName: "Basic Workflow",
-      workflowDescription: "A simple workflow based on your request",
-      steps: [
-        {
-          id: "workflow-design",
-          type: "workflow",
-          title: "Workflow Design",
-          description: "Design a workflow based on the conversation",
-          edges: [],
-          parameters: {
-  requirements: message
-              }
-        }
-      ],
-      assistantMessage: "I've created a basic workflow based on your request. Let me know if you'd like to make any adjustments or add more specific steps."
-    };
-  }
-}
-
-// Create ElevenLabs service instance
-const elevenLabsService = new ElevenLabsConversationalService();
 
 // Check for environment variables
 if (!process.env.ELEVENLABS_API_KEY) {

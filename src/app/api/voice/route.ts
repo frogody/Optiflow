@@ -4,7 +4,6 @@ import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 import { ConversationService } from '@/services/ConversationService';
-import { VoiceCommandResponse } from '@/types/voice';
 
 export async function POST(req: Request) {
   try {
