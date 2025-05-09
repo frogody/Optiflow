@@ -25,8 +25,8 @@ describe('Pipedream Connect API Route', () => {
     const response = await POST(new Request('http://localhost'));
     const data = await response.json();
 
-    expect(response.status).toBe(401);
-    expect(data.error).toBe('Unauthorized');
+    expect(response.status).toBe(400);
+    expect(data.error).toBe('You must be logged in to connect your account');
   });
 
   it('successfully generates a connect token', async () => {

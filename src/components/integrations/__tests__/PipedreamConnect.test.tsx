@@ -50,13 +50,13 @@ describe('PipedreamConnect', () => {
     // Mock successful token fetch
     (global.fetch as vi.Mock).mockResolvedValueOnce({
       ok: true,
-      json: () => Promise.resolve({ token: 'test-token'     }),
+      json: () => Promise.resolve({ token: 'test-token' }),
     });
 
     fireEvent.click(button);
     
-    // Should show loading state
-    expect(screen.getByText('Connecting...')).toBeInTheDocument();
+    // Should show spinner (loading state)
+    expect(document.querySelector('.animate-spin')).toBeInTheDocument();
   });
 
   it('handles successful connection', async () => {
@@ -87,9 +87,11 @@ describe('PipedreamConnect', () => {
     renderWithSession(<PipedreamConnect app="via-pipedream" />);
     
     // Mock failed token fetch
-    (global.fetch as vi.Mock).mockResolvedValueOnce({ ok: false,
+    (global.fetch as vi.Mock).mockResolvedValueOnce({
+      ok: false,
       status: 500,
-        });
+      json: () => Promise.resolve({ error: 'An unexpected error occurred' }),
+    });
 
     const button = screen.getByText('Connect via-pipedream');
     fireEvent.click(button);

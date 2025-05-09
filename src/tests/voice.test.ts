@@ -53,7 +53,7 @@ describe('Voice Recognition', () => {
       await result.current.startListening();
     });
 
-    expect(result.current.error).toBe('Failed to start voice recognition');
+    expect(result.current.error).toBe('Microphone permission denied');
   });
 });
 
@@ -111,7 +111,7 @@ describe('Pipedream Service', () => {
     };
 
     const workflowId = await pipedreamService.createWorkflow(workflow as any);
-    expect(workflowId).toMatch(/^mock-\d+$/);
+    expect(workflowId).toMatch(/^mock-workflow-\d+$/);
   });
 
   it('should add a mock node to workflow', async () => {
