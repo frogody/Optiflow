@@ -7,7 +7,9 @@ import type { FC } from 'react';
 interface VoiceAgentClientProps {}
 
 const VoiceAgentClient: FC<VoiceAgentClientProps> = () => {
-  return React.createElement('div', null, 'Voice Agent Widget Placeholder');
+  return (
+    <div>Voice Agent Widget Placeholder</div>
+  );
 };
 
 export default VoiceAgentClient; 
