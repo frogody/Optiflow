@@ -3,4 +3,4 @@ export class AIError extends Error {
     super(message, options);
     this.name = 'AIError';
   }
-} 
+}

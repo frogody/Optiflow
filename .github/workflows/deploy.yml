@@ -24,12 +24,14 @@ jobs:
     needs: test
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
+    env:
+      TEST_BASE_URL: ${{ secrets.VERCEL_URL }}
     steps:
       - uses: actions/checkout@v4
       - name: Use Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '18.x'
+          node-version: '18'
           cache: 'npm'
       - run: npm ci
       - run: npm run build
@@ -52,14 +54,26 @@ jobs:
           echo "# Google OAuth" >> .env.production
           echo "GOOGLE_CLIENT_ID=${{ secrets.GOOGLE_CLIENT_ID }}" >> .env.production
           echo "GOOGLE_CLIENT_SECRET=${{ secrets.GOOGLE_CLIENT_SECRET }}" >> .env.production
+          echo "" >> .env.production
+          echo "# Vercel Configuration" >> .env.production
+          echo "VERCEL_TOKEN=${{ secrets.VERCEL_TOKEN }}" >> .env.production
+          echo "VERCEL_ORG_ID=${{ secrets.VERCEL_ORG_ID }}" >> .env.production
+          echo "VERCEL_PROJECT_ID=${{ secrets.VERCEL_PROJECT_ID }}" >> .env.production
+          echo "" >> .env.production
+          echo "# LiveKit Configuration" >> .env.production
+          echo "LIVEKIT_API_KEY=${{ secrets.LIVEKIT_API_KEY }}" >> .env.production
+          echo "LIVEKIT_API_SECRET=${{ secrets.LIVEKIT_API_SECRET }}" >> .env.production
+          echo "LIVEKIT_URL=${{ secrets.LIVEKIT_URL }}" >> .env.production
       
-      # Deploy to your hosting provider (example for Vercel)
+      # Deploy to Vercel
       - name: Deploy to Vercel
-        uses: amondnet/vercel-action@v20
+        uses: amondnet/vercel-action@v25.2.0
         with:
-          zeit-token: ${{ secrets.VERCEL_TOKEN }}
           vercel-token: ${{ secrets.VERCEL_TOKEN }}
           vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
           vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID }}
           working-directory: ./
-          vercel-args: '--prod' 
+          vercel-args: '--prod'
+      - name: Set TEST_BASE_URL fallback
+        run: |
+          echo "TEST_BASE_URL=\"${TEST_BASE_URL:-http://app.isyncto.com}\"" >> $GITHUB_ENV 

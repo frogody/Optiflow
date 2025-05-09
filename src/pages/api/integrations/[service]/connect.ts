@@ -6,14 +6,19 @@ function getPipedreamOAuthUrl(userId: string, service: string) {
   if (service === 'slack') {
     // Replace with your actual Pipedream Connect client ID and redirect URI
     const clientId = process.env.PIPEDREAM_CLIENT_ID;
-    const redirectUri = encodeURIComponent(`${process.env.NEXT_PUBLIC_BASE_URL}/api/integrations/${service}/callback`);
+    const redirectUri = encodeURIComponent(
+      `${process.env.NEXT_PUBLIC_BASE_URL}/api/integrations/${service}/callback`
+    );
     return `https://connect.pipedream.com/oauth/${clientId}/${service}?external_user_id=${userId}&redirect_uri=${redirectUri}`;
   }
   // Add more services here
   throw new Error('Unsupported service');
 }
 
-export default async function handler(req: NextApiRequest, res: NextApiResponse) {
+export default async function handler(
+  req: NextApiRequest,
+  res: NextApiResponse
+) {
   // Assume user is authenticated and req.user.id is available
   // (In production, use your auth middleware/session)
   const userId = (req as any).user?.id || req.query.user_id;
@@ -27,4 +32,4 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   } catch (err: any) {
     res.status(400).json({ error: err.message });
   }
-} 
+}

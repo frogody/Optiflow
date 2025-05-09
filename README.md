@@ -149,6 +149,26 @@ optiflow/
 └── package.json        # Project dependencies and scripts
 ```
 
+## Utility Scripts
+
+Optiflow includes several utility scripts to help fix common issues:
+
+### Fix Scripts
+
+We provide several scripts for automating fixes and ensuring compatibility:
+
+```bash
+# Run all fixes at once
+node fix_all.js
+
+# Fix specific issues
+node fix_safari.js         # Fix Safari compatibility issues
+node fix_environment_vars.js # Fix environment variables
+node fix_animations.js     # Optimize animations
+```
+
+For more details on these scripts, see [FIXES.md](FIXES.md).
+
 ## Authentication Flow
 
 1. User registers or logs in

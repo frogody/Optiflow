@@ -33,7 +33,8 @@ describe('Voice Recognition', () => {
   });
 
   it('should initialize voice recognition with default config', () => {
-    const { isListening, isProcessing, transcript, error } = useVoiceRecognition();
+    const { isListening, isProcessing, transcript, error } =
+      useVoiceRecognition();
     expect(isListening).toBe(false);
     expect(isProcessing).toBe(false);
     expect(transcript).toBe('');
@@ -42,7 +43,9 @@ describe('Voice Recognition', () => {
 
   it('should handle microphone permission errors', async () => {
     const mockError = new Error('Microphone permission denied');
-    vi.spyOn(navigator.mediaDevices, 'getUserMedia').mockRejectedValue(mockError);
+    vi.spyOn(navigator.mediaDevices, 'getUserMedia').mockRejectedValue(
+      mockError
+    );
 
     const { startListening, error } = useVoiceRecognition();
     await startListening();
@@ -140,4 +143,4 @@ describe('Pipedream Service', () => {
       { id: 'n8n', name: 'n8n' },
     ]);
   });
-}); 
+});

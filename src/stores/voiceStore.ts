@@ -1,6 +1,10 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
-import { VoiceCommand, VoiceInteraction, ConversationMessage } from '@/types/voice';
+import {
+  VoiceCommand,
+  VoiceInteraction,
+  ConversationMessage,
+} from '@/types/voice';
 
 interface Message {
   role: 'user' | 'assistant' | 'system';
@@ -27,8 +31,12 @@ interface VoiceState {
   setTranscript: (transcript: string) => void;
   setError: (error: string | null) => void;
   setCurrentWorkflowId: (workflowId: string | null) => void;
-  addCommand: (command: Omit<VoiceCommand, 'id' | 'createdAt' | 'updatedAt'>) => void;
-  addInteraction: (interaction: Omit<VoiceInteraction, 'id' | 'createdAt' | 'updatedAt'>) => void;
+  addCommand: (
+    command: Omit<VoiceCommand, 'id' | 'createdAt' | 'updatedAt'>
+  ) => void;
+  addInteraction: (
+    interaction: Omit<VoiceInteraction, 'id' | 'createdAt' | 'updatedAt'>
+  ) => void;
   addMessage: (message: Message) => void;
   clearHistory: () => void;
 
@@ -64,8 +72,9 @@ export const useVoiceStore = create<VoiceState>()(
       setProcessing: (isProcessing) => set({ isProcessing }),
       setTranscript: (transcript) => set({ currentTranscript: transcript }),
       setError: (error) => set({ currentError: error }),
-      setCurrentWorkflowId: (workflowId) => set({ currentWorkflowId: workflowId }),
-      
+      setCurrentWorkflowId: (workflowId) =>
+        set({ currentWorkflowId: workflowId }),
+
       addCommand: (command) =>
         set((state) => ({
           commands: [
@@ -130,8 +139,7 @@ export const useVoiceStore = create<VoiceState>()(
           lastCommandResult: null,
         }),
 
-      setLastCommandResult: (result) =>
-        set({ lastCommandResult: result }),
+      setLastCommandResult: (result) => set({ lastCommandResult: result }),
     }),
     {
       name: 'voice-storage',
@@ -142,4 +150,4 @@ export const useVoiceStore = create<VoiceState>()(
       }),
     }
   )
-); 
+);

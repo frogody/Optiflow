@@ -12,7 +12,7 @@
     "NEXT_PUBLIC_APP_URL": "https://app.isyncso.com",
     "NEXT_PUBLIC_PIPEDREAM_REDIRECT_URI": "https://app.isyncso.com/api/pipedream/callback",
     "PIPEDREAM_PROJECT_ID": "isyncso",
-    "PIPEDREAM_CLIENT_SECRET": "ayINomSnhCcHGR6Xf1_4PElM25mqsEFsrvTHKQ7ink0"
+    "PIPEDREAM_CLIENT_SECRET": "BerYu7GI62asa5a18oMY6Y7GgGZZGLL0PtEyUVpRjrE"
   },
   "routes": [
     {

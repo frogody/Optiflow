@@ -1,0 +1,173 @@
+/* Safari compatibility fixes */
+
+/* Fix for backdrop-filter in Safari */
+@supports not (backdrop-filter: blur(8px)) {
+  .backdrop-blur-sm {
+    background-color: rgba(0, 0, 0, 0.7) !important;
+  }
+  
+  .bg-gradient-to-br.from-white\/5.to-white\/10.backdrop-blur-sm {
+    background-color: rgba(15, 23, 42, 0.8) !important;
+  }
+  
+  .from-\[\#3CDFFF\]\/10.to-\[\#4AFFD4\]\/10.backdrop-blur-sm {
+    background-color: rgba(15, 23, 42, 0.8) !important;
+  }
+
+  .glass-container {
+    background-color: rgba(0, 0, 0, 0.85) !important;
+  }
+
+  .main-header {
+    background-color: rgba(10, 22, 40, 0.9) !important;
+  }
+
+  .user-menu {
+    background-color: rgba(10, 22, 40, 0.95) !important;
+  }
+
+  .flow-card {
+    background-color: rgba(13, 14, 24, 0.85) !important;
+  }
+
+  .react-flow__controls {
+    background-color: rgba(13, 14, 24, 0.8) !important;
+  }
+
+  .react-flow__panel {
+    background-color: rgba(13, 14, 24, 0.8) !important;
+  }
+
+  .flow-header {
+    background: linear-gradient(to right, rgba(13, 14, 24, 0.95), rgba(13, 14, 24, 0.85)) !important;
+  }
+
+  .voice-agent-panel {
+    background-color: rgba(0, 0, 0, 0.85) !important; 
+  }
+}
+
+/* Fix for -webkit-backdrop-filter in Safari */
+@supports ((-webkit-backdrop-filter: blur(8px)) or (backdrop-filter: blur(8px))) {
+  .backdrop-blur-sm {
+    -webkit-backdrop-filter: blur(8px);
+    backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  }
+
+  .glass-container {
+    -webkit-backdrop-filter: blur(12px);
+    backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  }
+
+  .main-header {
+    -webkit-backdrop-filter: blur(10px);
+    backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  }
+
+  .user-menu {
+    -webkit-backdrop-filter: blur(10px);
+    backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  }
+
+  .flow-card {
+    -webkit-backdrop-filter: blur(10px);
+    backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  }
+
+  .react-flow__controls {
+    -webkit-backdrop-filter: blur(8px);
+    backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  }
+
+  .react-flow__panel {
+    -webkit-backdrop-filter: blur(8px);
+    backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  }
+
+  .voice-agent-panel {
+    -webkit-backdrop-filter: blur(8px);
+    backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  }
+}
+
+/* Fix for text-size-adjust */
+html {
+  -webkit-text-size-adjust: 100%;
+  -moz-text-size-adjust: 100%;
+  -ms-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+
+/* Specific fixes for Safari based on body class detection */
+body.safari {
+  /* Fixed backdrop-filter issues in Safari */
+  .bg-gradient-to-br.backdrop-blur-sm {
+    background-color: rgba(15, 23, 42, 0.8);
+  }
+  
+  /* Fix for transform issues in Safari */
+  .motion-safe\:hover\:scale-105 {
+    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    will-change: transform;
+  }
+  
+  /* Fix for grid layouts in Safari */
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  }
+}
+
+/* Additional fixes for Mobile Safari */
+body.mobile-safari {
+  /* Fix for sticky positioning in iOS Safari */
+  .sticky {
+    position: -webkit-sticky;
+    position: sticky;
+  }
+  
+  /* Fix double-tap issues on interactive elements */
+  a, button, [role="button"] {
+    touch-action: manipulation;
+  }
+  
+  /* Override 100vh which can cause issues in mobile Safari */
+  .h-screen {
+    height: 100vh; /* fallback */
+    height: -webkit-fill-available;
+  }
+  
+  .min-h-screen {
+    min-height: 100vh; /* fallback */
+    min-height: -webkit-fill-available;
+  }
+  
+  /* Fix for position:fixed which can cause issues during scroll in iOS Safari */
+  .fixed {
+    position: fixed;
+    -webkit-transform: translateZ(0);
+  -webkit-transform: translateZ(0);
+  -webkit-transform: translateZ(0);
+  -webkit-transform: translateZ(0);
+  -webkit-transform: translateZ(0);
+  -webkit-transform: translateZ(0);
+  -webkit-transform: translateZ(0);
+  -webkit-transform: translateZ(0);
+  -webkit-transform: translateZ(0);
+  -webkit-transform: translateZ(0);
+  -webkit-transform: translateZ(0);
+  }
+  
+  /* Additional backdrop-filter fixes for iOS Safari */
+  .backdrop-blur, .backdrop-blur-sm, .backdrop-blur-md, .backdrop-blur-lg, .backdrop-blur-xl {
+    background-color: rgba(0, 0, 0, 0.7);
+  }
+} 

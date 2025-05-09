@@ -2,10 +2,11 @@ import { OAuth2Client } from 'google-auth-library';
 
 // Helper function to get the base URL
 const getBaseUrl = () => {
-  return process.env.NEXTAUTH_URL || (
-    process.env.NODE_ENV === 'production'
+  return (
+    process.env.NEXTAUTH_URL ||
+    (process.env.NODE_ENV === 'production'
       ? 'https://app.isyncso.com'
-      : 'http://localhost:3000'
+      : 'http://localhost:3000')
   );
 };
 
@@ -29,7 +30,7 @@ export function getGoogleAuthUrl() {
     access_type: 'offline',
     scope: scopes,
     prompt: 'consent',
-    redirect_uri: `${getBaseUrl()}/api/auth/callback/google`
+    redirect_uri: `${getBaseUrl()}/api/auth/callback/google`,
   });
 }
 
@@ -54,10 +55,10 @@ export async function getGoogleUserInfo(accessToken: string) {
       },
     }
   );
-  
+
   if (!response.ok) {
     throw new Error(`Failed to fetch user info: ${response.statusText}`);
   }
-  
+
   return await response.json();
-} 
+}

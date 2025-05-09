@@ -16,7 +16,7 @@ async function proxyToPipedream({ userId, integration, action, params }: any) {
   const res = await fetch(endpoint, {
     method: 'POST',
     headers: {
-      'Authorization': `Bearer ${apiKey}`,
+      Authorization: `Bearer ${apiKey}`,
       'Content-Type': 'application/json',
     },
     body: JSON.stringify(params),
@@ -28,7 +28,10 @@ async function proxyToPipedream({ userId, integration, action, params }: any) {
   return await res.json();
 }
 
-export default async function handler(req: NextApiRequest, res: NextApiResponse) {
+export default async function handler(
+  req: NextApiRequest,
+  res: NextApiResponse
+) {
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method not allowed' });
   }
@@ -46,12 +49,18 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   if (transcript) {
     if (transcript.toLowerCase().includes('slack')) {
       if (!hasIntegration(userId, 'slack')) {
-        return res.status(403).json({ error: 'You have not connected Slack. Please connect it in your integrations dashboard.' });
+        return res
+          .status(403)
+          .json({
+            error:
+              'You have not connected Slack. Please connect it in your integrations dashboard.',
+          });
       }
       // Extract channel and message (very basic mock)
       const channelMatch = transcript.match(/#(\w+)/);
       const channel = channelMatch ? `#${channelMatch[1]}` : '#general';
-      const message = transcript.replace(/.*slack.*?(#\w+)?/i, '').trim() || transcript;
+      const message =
+        transcript.replace(/.*slack.*?(#\w+)?/i, '').trim() || transcript;
       // Proxy to Slack sendMessage
       try {
         const result = await proxyToPipedream({
@@ -60,27 +69,46 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
           action: 'sendMessage',
           params: { channel, text: message },
         });
-        return res.json({ confirmation: `Sent Slack message to ${channel}: "${message}"`, result });
+        return res.json({
+          confirmation: `Sent Slack message to ${channel}: "${message}"`,
+          result,
+        });
       } catch (err: any) {
         return res.status(500).json({ error: err.message });
       }
     }
     // Add more intent parsing for other integrations here
-    return res.json({ confirmation: "Sorry, I didn't understand that command yet." });
+    return res.json({
+      confirmation: "Sorry, I didn't understand that command yet.",
+    });
   }
 
   // If explicit integration/action/params are provided
   if (integration && action && params) {
     if (!hasIntegration(userId, integration)) {
-      return res.status(403).json({ error: `You have not connected ${integration}. Please connect it in your integrations dashboard.` });
+      return res
+        .status(403)
+        .json({
+          error: `You have not connected ${integration}. Please connect it in your integrations dashboard.`,
+        });
     }
     try {
-      const result = await proxyToPipedream({ userId, integration, action, params });
-      return res.json({ confirmation: `Action ${action} on ${integration} complete.`, result });
+      const result = await proxyToPipedream({
+        userId,
+        integration,
+        action,
+        params,
+      });
+      return res.json({
+        confirmation: `Action ${action} on ${integration} complete.`,
+        result,
+      });
     } catch (err: any) {
       return res.status(500).json({ error: err.message });
     }
   }
 
-  return res.status(400).json({ error: 'Missing transcript or integration/action/params' });
-} 
+  return res
+    .status(400)
+    .json({ error: 'Missing transcript or integration/action/params' });
+}

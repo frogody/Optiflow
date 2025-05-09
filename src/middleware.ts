@@ -34,9 +34,10 @@ const authPaths = [
 
 // Helper function to check if a path matches any of the patterns
 function matchesPath(path: string, patterns: string[]): boolean {
-  return patterns.some(pattern => {
+  return patterns.some((pattern) => {
     if (pattern === path) return true;
-    if (pattern.endsWith('*') && path.startsWith(pattern.slice(0, -1))) return true;
+    if (pattern.endsWith('*') && path.startsWith(pattern.slice(0, -1)))
+      return true;
     return path.startsWith(pattern);
   });
 }
@@ -47,7 +48,9 @@ function isValidRedirectUrl(url: string): boolean {
     const urlObj = new URL(url);
     const hostname = urlObj.hostname;
     const allowedDomains = ['app.isyncso.com', 'localhost'];
-    return allowedDomains.includes(hostname) && !urlObj.pathname.includes('/login');
+    return (
+      allowedDomains.includes(hostname) && !urlObj.pathname.includes('/login')
+    );
   } catch {
     return !url.includes('/login');
   }
@@ -55,7 +58,7 @@ function isValidRedirectUrl(url: string): boolean {
 
 export async function middleware(request: NextRequest) {
   const { pathname, origin, host, searchParams } = request.nextUrl;
-  
+
   // Enhanced debug logging for URL information and request details
   console.log('[Middleware Debug]', {
     timestamp: new Date().toISOString(),
@@ -66,29 +69,33 @@ export async function middleware(request: NextRequest) {
     method: request.method,
     searchParams: Object.fromEntries(searchParams.entries()),
     headers: Object.fromEntries(request.headers.entries()),
-    cookies: Array.from(request.cookies.getAll()).map(cookie => ({
+    cookies: Array.from(request.cookies.getAll()).map((cookie) => ({
       name: cookie.name,
-      value: cookie.name.includes('csrf') ? '[REDACTED]' : 
-            cookie.name.includes('session') ? '[REDACTED]' : 
-            cookie.value
+      value: cookie.name.includes('csrf')
+        ? '[REDACTED]'
+        : cookie.name.includes('session')
+          ? '[REDACTED]'
+          : cookie.value,
     })),
     nextAuthUrl: process.env.NEXTAUTH_URL,
     nodeEnv: process.env.NODE_ENV,
-    referrer: request.headers.get('referer') || 'none'
+    referrer: request.headers.get('referer') || 'none',
   });
 
   // Track potential redirect loops
-  const redirectCount = parseInt(request.headers.get('x-redirect-count') || '0');
+  const redirectCount = parseInt(
+    request.headers.get('x-redirect-count') || '0'
+  );
   if (redirectCount > 3) {
     console.error('[Middleware] Potential redirect loop detected:', {
       pathname,
       redirectCount,
-      referrer: request.headers.get('referer')
+      referrer: request.headers.get('referer'),
     });
     // Return to home page with error if loop detected
     return NextResponse.redirect(new URL('/?error=redirect_loop', request.url));
   }
-  
+
   // Skip middleware for static files, API routes, and public paths
   if (
     pathname.startsWith('/_next') ||
@@ -101,50 +108,59 @@ export async function middleware(request: NextRequest) {
 
   try {
     // Get the token with consistent cookie settings
-    const token = await getToken({ 
+    const token = await getToken({
       req: request,
       secret: process.env.NEXTAUTH_SECRET,
       secureCookie: true, // Always use secure cookies
-      cookieName: process.env.NODE_ENV === 'production' 
-        ? '__Secure-next-auth.session-token' 
-        : 'next-auth.session-token'
+      cookieName:
+        process.env.NODE_ENV === 'production'
+          ? '__Secure-next-auth.session-token'
+          : 'next-auth.session-token',
     });
 
     // Debug logging
-    console.log('[Middleware] Auth Check:', { 
-      pathname, 
+    console.log('[Middleware] Auth Check:', {
+      pathname,
       hasToken: !!token,
       cookieHeader: request.headers.get('cookie'),
-      tokenData: token ? { 
-        id: token.id,
-        email: token.email,
-        expires: token.exp,
-        issued: token.iat
-      } : null
+      tokenData: token
+        ? {
+            id: token.id,
+            email: token.email,
+            expires: token.exp,
+            issued: token.iat,
+          }
+        : null,
     });
 
     // If user is authenticated and trying to access login/signup pages
     if (token && (pathname === '/login' || pathname === '/signup')) {
-      console.log('[Middleware] Redirecting authenticated user:', { 
+      console.log('[Middleware] Redirecting authenticated user:', {
         from: pathname,
         to: '/dashboard',
         tokenExp: token.exp,
-        redirectCount
+        redirectCount,
       });
-      const response = NextResponse.redirect(new URL('/dashboard', request.url));
+      const response = NextResponse.redirect(
+        new URL('/dashboard', request.url)
+      );
       response.headers.set('x-redirect-count', (redirectCount + 1).toString());
       // Ensure cookies are set with proper security
       response.cookies.set({
-        name: process.env.NODE_ENV === 'production' 
-          ? '__Secure-next-auth.session-token' 
-          : 'next-auth.session-token',
-        value: request.cookies.get(process.env.NODE_ENV === 'production' 
-          ? '__Secure-next-auth.session-token' 
-          : 'next-auth.session-token')?.value || '',
+        name:
+          process.env.NODE_ENV === 'production'
+            ? '__Secure-next-auth.session-token'
+            : 'next-auth.session-token',
+        value:
+          request.cookies.get(
+            process.env.NODE_ENV === 'production'
+              ? '__Secure-next-auth.session-token'
+              : 'next-auth.session-token'
+          )?.value || '',
         httpOnly: true,
         secure: true,
         sameSite: 'lax',
-        path: '/'
+        path: '/',
       });
       return response;
     }
@@ -156,10 +172,10 @@ export async function middleware(request: NextRequest) {
         to: '/login',
         redirectCount,
         hasSessionCookie: request.cookies.has(
-          process.env.NODE_ENV === 'production' 
-            ? '__Secure-next-auth.session-token' 
+          process.env.NODE_ENV === 'production'
+            ? '__Secure-next-auth.session-token'
             : 'next-auth.session-token'
-        )
+        ),
       });
       const loginUrl = new URL('/login', request.url);
       loginUrl.searchParams.set('callbackUrl', pathname);
@@ -175,19 +191,22 @@ export async function middleware(request: NextRequest) {
     response.headers.set('X-Frame-Options', 'SAMEORIGIN');
     response.headers.set('X-Content-Type-Options', 'nosniff');
     response.headers.set('Referrer-Policy', 'origin-when-cross-origin');
-    
+
     return response;
   } catch (error) {
     console.error('[Middleware] Error:', {
       error,
       pathname,
       redirectCount,
-      stack: error instanceof Error ? error.stack : undefined
+      stack: error instanceof Error ? error.stack : undefined,
     });
     // On error, redirect to login with more context
     const loginUrl = new URL('/login', request.url);
     loginUrl.searchParams.set('error', 'AuthError');
-    loginUrl.searchParams.set('errorDetail', error instanceof Error ? error.message : 'Unknown error');
+    loginUrl.searchParams.set(
+      'errorDetail',
+      error instanceof Error ? error.message : 'Unknown error'
+    );
     const response = NextResponse.redirect(loginUrl);
     response.headers.set('x-redirect-count', (redirectCount + 1).toString());
     return response;
@@ -206,4 +225,4 @@ export const config = {
      */
     '/((?!_next/static|_next/image|favicon.ico|public).*)',
   ],
-}; 
+};

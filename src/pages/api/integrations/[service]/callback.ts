@@ -1,6 +1,9 @@
 import { NextApiRequest, NextApiResponse } from 'next';
 
-export default async function handler(req: NextApiRequest, res: NextApiResponse) {
+export default async function handler(
+  req: NextApiRequest,
+  res: NextApiResponse
+) {
   // Assume user is authenticated and req.user.id is available
   // (In production, use your auth middleware/session)
   const userId = (req as any).user?.id || req.query.user_id;
@@ -16,4 +19,4 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   console.log(`User ${userId} connected ${service} with code: ${code}`);
   // Redirect to integrations dashboard or success page
   res.redirect('/integrations/success');
-} 
+}

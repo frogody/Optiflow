@@ -10,9 +10,9 @@ const translations = {
   nl,
   de,
   fr,
-  es
+  es,
 };
 
 export type TranslationKey = keyof typeof translations;
 
-export default translations; 
+export default translations;

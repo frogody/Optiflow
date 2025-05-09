@@ -187,7 +187,7 @@ const AudioVisualizer = ({ isActive, color = '#4299e1', debug = false }: { isAct
       ref={canvasRef} 
       className="w-full h-16 mb-4 rounded-md"
       style={{ display: 'block' }}
-    />
+    ></canvas>
   );
 };
 
@@ -1530,78 +1530,6 @@ export default function VoiceAgentClient() {
 
   // Always render the widget in the bottom right, draggable
   return (
-    <div>
-      {/* Floating Widget Button (when minimized) */}
-      {widgetMinimized && (
-        <button
-          className="fixed bottom-6 right-6 z-[1000] bg-indigo-600 hover:bg-indigo-700 text-white rounded-full shadow-lg w-16 h-16 flex items-center justify-center text-2xl border-4 border-white"
-          onClick={() => setWidgetMinimized(false)}
-          aria-label="Open Voice Assistant"
-        >
-          <span role="img" aria-label="Assistant">🗣️</span>
-        </button>
-      )}
-      {/* Floating Widget (when open) */}
-      {!widgetMinimized && (
-        <div
-          ref={widgetRef}
-          className="fixed z-[1000] bg-[#181C23] bg-opacity-95 text-white rounded-2xl shadow-2xl border border-[#2AF5EC]/30 flex items-center px-6 py-4 gap-4"
-          style={{
-            left: widgetPosition.x,
-            top: widgetPosition.y,
-            width: 420,
-            minHeight: 80,
-            maxHeight: '90vh',
-            transition: 'box-shadow 0.2s',
-            cursor: dragging ? 'grabbing' : 'grab',
-            borderRadius: 24,
-          }}
-        >
-          {/* Power or waveform */}
-          {voiceEnabled ? (
-            <div className="flex items-center justify-center w-16 h-16">
-              {/* Animated waveform */}
-              <svg width="48" height="48" viewBox="0 0 48 48">
-                <g>
-                  {[8, 16, 24, 32, 40].map((x, i) => (
-                    <rect key={i} x={x} y={16 - Math.abs(i-2)*4} width="4" height={16 + Math.abs(i-2)*8} rx="2" fill="#2AF5EC">
-                      <animate attributeName="height" values={`16;${32 - Math.abs(i-2)*8};16`} dur="1s" repeatCount="indefinite" begin={`${i*0.1}s`} />
-                      <animate attributeName="y" values={`${16 - Math.abs(i-2)*4};${8 + Math.abs(i-2)*4};${16 - Math.abs(i-2)*4}`} dur="1s" repeatCount="indefinite" begin={`${i*0.1}s`} />
-                    </rect>
-                  ))}
-                </g>
-              </svg>
-            </div>
-          ) : (
-            <button
-              className="flex items-center justify-center w-16 h-16 rounded-full border border-[#2AF5EC]/30 text-[#2AF5EC]/40 bg-[#23272F]"
-              onClick={handleEnableVoice}
-              aria-label="Enable Voice Agent"
-            >
-              <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#2AF5EC" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10" opacity="0.2"/><path d="M12 8v4"/><path d="M12 16h.01"/><circle cx="12" cy="12" r="10"/></svg>
-            </button>
-          )}
-          {/* Mode dropdown */}
-          <select
-            aria-label="Agent mode"
-            className="bg-[#23272F] text-white px-4 py-2 rounded-lg border border-[#2AF5EC]/20 focus:outline-none focus:ring-2 focus:ring-[#2AF5EC]/40 text-lg font-medium shadow"
-            value={agentMode}
-            onChange={e => setAgentMode(e.target.value)}
-          >
-            <option>Sales mode</option>
-            <option>Support mode</option>
-            <option>Integration mode</option>
-          </select>
-          {/* Mic button */}
-          <button
-            className={`flex items-center justify-center w-16 h-16 rounded-full border-2 ${voiceEnabled ? 'border-[#2AF5EC] bg-gradient-to-tr from-[#2AF5EC]/20 to-[#2AF5EC]/40 shadow-lg animate-glow' : 'border-[#2AF5EC]/20 bg-[#23272F] text-[#2AF5EC]/40'} transition-all duration-300`}
-            disabled={!voiceEnabled}
-            aria-label="Microphone"
-          >
-            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke={voiceEnabled ? '#2AF5EC' : '#2AF5EC40'} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="9" y="2" width="6" height="12" rx="3"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="22"/><line x1="8" y1="22" x2="16" y2="22"/></svg>
-          </button>
-        </div>
-      )}
-    </div>
+    <div>Voice Agent Widget Placeholder</div>
   );
 } 
