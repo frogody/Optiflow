@@ -50,8 +50,7 @@ export class DataExporterServer extends MCPServer {
 
     return {
       jsonrpc: '2.0',
-      result: { ,
-  data: exportedData,
+      result: { data: exportedData,
         format,
         timestamp: new Date().toISOString(),
           },

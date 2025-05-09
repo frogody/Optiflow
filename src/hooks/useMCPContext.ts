@@ -145,7 +145,7 @@ export function useMCPContext({ modelId, autoLoad = true }: UseMCPContextOptions
   const transferContext = useCallback(async (
     targetModelId: string,
     sectionIds?: string[]
-  ) // eslint-disable-line react-hooks/exhaustive-deps => {
+  ) => {
     if (!selectedModel) {
       toast.error('No model selected');
       return false;

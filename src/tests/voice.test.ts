@@ -3,6 +3,7 @@ import { useVoiceRecognition } from '@/hooks/useVoiceRecognition';
 import { ConversationService } from '@/services/ConversationService';
 import { PipedreamService } from '@/services/PipedreamService';
 import { prisma } from '@/lib/prisma';
+import { renderHook, act } from '@testing-library/react';
 
 // Mock the WebSocket and AudioContext
 vi.mock('@/lib/prisma', () => ({
@@ -33,8 +34,8 @@ describe('Voice Recognition', () => {
   });
 
   it('should initialize voice recognition with default config', () => {
-    const { isListening, isProcessing, transcript, error } =
-      useVoiceRecognition();
+    const { result } = renderHook(() => useVoiceRecognition());
+    const { isListening, isProcessing, transcript, error } = result.current;
     expect(isListening).toBe(false);
     expect(isProcessing).toBe(false);
     expect(transcript).toBe('');
@@ -47,10 +48,12 @@ describe('Voice Recognition', () => {
       mockError
     );
 
-    const { startListening, error } = useVoiceRecognition();
-    await startListening();
+    const { result } = renderHook(() => useVoiceRecognition());
+    await act(async () => {
+      await result.current.startListening();
+    });
 
-    expect(error).toBe('Failed to start voice recognition');
+    expect(result.current.error).toBe('Failed to start voice recognition');
   });
 });
 
@@ -96,6 +99,7 @@ describe('Pipedream Service', () => {
 
   beforeEach(() => {
     pipedreamService = new PipedreamService('test-api-key');
+    process.env.NODE_ENV = 'development';
   });
 
   it('should create a mock workflow', async () => {

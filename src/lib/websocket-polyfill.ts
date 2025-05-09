@@ -10,9 +10,10 @@ export const isNode = !isBrowser;
 
 // Type definitions to help TypeScript understand WebSocket events
 declare global {
-  interface Window { AudioContext: typeof AudioContext;,
-  webkitAudioContext: typeof AudioContext;
-      }
+  interface Window {
+    AudioContext: typeof AudioContext;
+    webkitAudioContext: typeof AudioContext;
+  }
 }
 
 /**

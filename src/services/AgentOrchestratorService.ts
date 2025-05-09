@@ -5,30 +5,30 @@ import { toast } from 'react-hot-toast';
 import { pipedreamConfig } from '@/config/pipedream';
 
 // Types for orchestration
-export interface Agent { id: string;,
-  name: string;,
-  description: string;,
-  modelId: string;,
-  status: 'idle' | 'running' | 'paused' | 'error';,
-  connectedApps: string[];,
-  capabilities: AgentCapability[];,
+export interface Agent { id: string;
+  name: string;
+  description: string;
+  modelId: string;
+  status: 'idle' | 'running' | 'paused' | 'error';
+  connectedApps: string[];
+  capabilities: AgentCapability[];
   flows: Flow[];
   lastRun?: Date;
   error?: string;
     }
 
-export interface AgentCapability { id: string;,
-  name: string;,
-  description: string;,
-  category: 'data' | 'automation' | 'analysis' | 'communication';,
+export interface AgentCapability { id: string;
+  name: string;
+  description: string;
+  category: 'data' | 'automation' | 'analysis' | 'communication';
   requiredPermissions: string[];
     }
 
-export interface Flow { id: string;,
-  name: string;,
-  description: string;,
-  status: 'active' | 'inactive' | 'draft';,
-  triggerApp: string;,
+export interface Flow { id: string;
+  name: string;
+  description: string;
+  status: 'active' | 'inactive' | 'draft';
+  triggerApp: string;
   actionApps: string[];
   lastExecuted?: Date;
   executionCount: number;

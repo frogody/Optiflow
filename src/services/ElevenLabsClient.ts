@@ -49,10 +49,10 @@ export class ElevenLabsClient {
       await this.wsHandler.connect();
       await this.wsHandler.send({
         type: 'configuration',
-        content: { ,
-  agentId: this.config.agentId,
+        content: {
+          agentId: this.config.agentId,
           authorization: this.config.apiKey
-            }
+        }
       });
     } catch (error) {
       if (this.callbacks.onError) { this.callbacks.onError(error instanceof Error ? error : new Error('Failed to start session'));

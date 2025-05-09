@@ -4,6 +4,7 @@ import { PipedreamConnect } from '../PipedreamConnect';
 import { toast } from 'react-hot-toast';
 import { connectAccount } from '@pipedream/sdk';
 import { vi } from 'vitest';
+import { SessionProvider } from 'next-auth/react';
 
 // Mock the Pipedream SDK
 vi.mock('@pipedream/sdk', () => ({ connectAccount: vi.fn()
@@ -20,6 +21,17 @@ vi.mock('react-hot-toast', () => ({
 // Mock fetch
 global.fetch = vi.fn();
 
+const mockSession = {
+  user: { id: 'test-user-id', email: 'test@example.com' },
+  expires: '2099-01-01T00:00:00.000Z',
+};
+
+function renderWithSession(ui) {
+  return render(
+    <SessionProvider session={mockSession}>{ui}</SessionProvider>
+  );
+}
+
 describe('PipedreamConnect', () => {
   beforeEach(() => {
     vi.clearAllMocks();
@@ -27,13 +39,13 @@ describe('PipedreamConnect', () => {
   });
 
   it('renders the connect button', () => {
-    render(<PipedreamConnect />);
-    expect(screen.getByText('Connect Account via Pipedream')).toBeInTheDocument();
+    renderWithSession(<PipedreamConnect app="via-pipedream" />);
+    expect(screen.getByText('Connect via-pipedream')).toBeInTheDocument();
   });
 
   it('shows loading state when connecting', async () => {
-    render(<PipedreamConnect />);
-    const button = screen.getByText('Connect Account via Pipedream');
+    renderWithSession(<PipedreamConnect app="via-pipedream" />);
+    const button = screen.getByText('Connect via-pipedream');
     
     // Mock successful token fetch
     (global.fetch as vi.Mock).mockResolvedValueOnce({
@@ -49,7 +61,7 @@ describe('PipedreamConnect', () => {
 
   it('handles successful connection', async () => {
     const onSuccess = vi.fn();
-    render(<PipedreamConnect onSuccess={onSuccess} />);
+    renderWithSession(<PipedreamConnect app="via-pipedream" onSuccess={onSuccess} />);
     
     // Mock successful token fetch
     (global.fetch as vi.Mock).mockResolvedValueOnce({
@@ -62,7 +74,7 @@ describe('PipedreamConnect', () => {
       onConnectSuccess({ id: 'test-connection'     });
     });
 
-    const button = screen.getByText('Connect Account via Pipedream');
+    const button = screen.getByText('Connect via-pipedream');
     fireEvent.click(button);
 
     await waitFor(() => {
@@ -72,14 +84,14 @@ describe('PipedreamConnect', () => {
   });
 
   it('handles token fetch error', async () => {
-    render(<PipedreamConnect />);
+    renderWithSession(<PipedreamConnect app="via-pipedream" />);
     
     // Mock failed token fetch
     (global.fetch as vi.Mock).mockResolvedValueOnce({ ok: false,
       status: 500,
         });
 
-    const button = screen.getByText('Connect Account via Pipedream');
+    const button = screen.getByText('Connect via-pipedream');
     fireEvent.click(button);
 
     await waitFor(() => {
@@ -88,7 +100,7 @@ describe('PipedreamConnect', () => {
   });
 
   it('handles connection error', async () => {
-    render(<PipedreamConnect />);
+    renderWithSession(<PipedreamConnect app="via-pipedream" />);
     
     // Mock successful token fetch
     (global.fetch as vi.Mock).mockResolvedValueOnce({
@@ -101,7 +113,7 @@ describe('PipedreamConnect', () => {
       onError({ message: 'Connection failed'     });
     });
 
-    const button = screen.getByText('Connect Account via Pipedream');
+    const button = screen.getByText('Connect via-pipedream');
     fireEvent.click(button);
 
     await waitFor(() => {

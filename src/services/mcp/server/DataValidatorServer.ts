@@ -8,12 +8,12 @@ interface ValidationRule { required?: boolean;
 interface ValidationRules { [key: string]: ValidationRule;
     }
 
-interface ValidationError { field: string;,
+interface ValidationError { field: string;
   message: string;
     }
 
-interface ValidationResults { isValid: boolean;,
-  errors: ValidationError[];,
+interface ValidationResults { isValid: boolean;
+  errors: ValidationError[];
   warnings: ValidationError[];
     }
 

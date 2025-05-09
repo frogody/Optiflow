@@ -22,7 +22,7 @@ const WorkflowSchema = z.object({ name: z.string(),
   steps: z.array(WorkflowStepSchema)
     });
 
-export interface ValidationError { path: string[];,
+export interface ValidationError { path: string[];
   message: string;
     }
 
@@ -58,7 +58,7 @@ function detectCycle(
   return false;
 }
 
-export function validateWorkflow(workflow: unknown): { isValid: boolean;,
+export function validateWorkflow(workflow: unknown): { isValid: boolean;
   errors: ValidationError[];
   validatedData?: z.infer<typeof WorkflowSchema>;
     } {
@@ -119,7 +119,7 @@ export function validateWorkflow(workflow: unknown): { isValid: boolean;,
     
     return {
       isValid: false,
-      errors: [{ ,
+      errors: [{
   path: [],
         message: 'Invalid workflow structure'
           }]

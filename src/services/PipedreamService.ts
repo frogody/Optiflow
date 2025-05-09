@@ -67,7 +67,7 @@ export class PipedreamService {
     try {
       if (process.env.NODE_ENV === 'development') {
         const mockWorkflow = {
-          id: `mock-${Date.now()}`,
+          id: `mock-workflow-${Date.now()}`,
           name: workflow.name,
           description: workflow.description || '',
           organization_id: workflow.organizationId,
@@ -126,7 +126,7 @@ export class PipedreamService {
 
   // Mock methods for development
   async addNode(workflowId: string, node: WorkflowNode): Promise<string> {
-    const nodeId = `node-${Date.now()}`;
+    const nodeId = `mock-node-${Date.now()}`;
     this.mockNodes.set(nodeId, { ...node, id: nodeId });
     return nodeId;
   }

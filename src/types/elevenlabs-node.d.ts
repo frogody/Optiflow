@@ -1,14 +1,14 @@
 // @ts-nocheck - This file has some TypeScript issues that are hard to fix
 declare module 'elevenlabs-node' {
   export interface VoiceSettings {
-    stability: number;,
-  similarityBoost: number;
+    stability: number;
+    similarityBoost: number;
   }
 
   export interface TextToSpeechOptions {
-    textInput: string;,
-  voiceId: string;,
-  modelId: string;
+    textInput: string;
+    voiceId: string;
+    modelId: string;
     voiceSettings?: VoiceSettings;
   }
 
