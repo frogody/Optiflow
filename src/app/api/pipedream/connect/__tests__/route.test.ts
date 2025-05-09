@@ -2,16 +2,17 @@
 import { POST } from '../route';
 import { createBackendClient } from '@pipedream/sdk/server';
 import { getServerSession } from 'next-auth';
+import { vi } from 'vitest';
 
 // Mock next-auth
-jest.mock('next-auth', () => ({ getServerSession: jest.fn() }));
+vi.mock('next-auth', () => ({ getServerSession: vi.fn() }));
 
 // Mock Pipedream SDK
-jest.mock('@pipedream/sdk/server', () => ({ createBackendClient: jest.fn() }));
+vi.mock('@pipedream/sdk/server', () => ({ createBackendClient: vi.fn() }));
 
 describe('Pipedream Connect API Route', () => {
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
     process.env.PIPEDREAM_CLIENT_ID = 'test-client-id';
     process.env.PIPEDREAM_CLIENT_SECRET = 'test-client-secret';
     process.env.PIPEDREAM_PROJECT_ID = 'test-project-id';
@@ -19,7 +20,7 @@ describe('Pipedream Connect API Route', () => {
   });
 
   it('returns 401 when user is not authenticated', async () => {
-    (getServerSession as jest.Mock).mockResolvedValueOnce(null);
+    (getServerSession as vi.Mock).mockResolvedValueOnce(null);
 
     const response = await POST(new Request('http://localhost'));
     const data = await response.json();
@@ -30,12 +31,12 @@ describe('Pipedream Connect API Route', () => {
 
   it('successfully generates a connect token', async () => {
     // Mock authenticated session
-    (getServerSession as jest.Mock).mockResolvedValueOnce({
+    (getServerSession as vi.Mock).mockResolvedValueOnce({
       user: { id: 'test-user-id' },
     });
 
     // Mock Pipedream client
-    const mockCreateConnectToken = jest
+    const mockCreateConnectToken = vi
       .fn()
       .mockResolvedValueOnce({
         token: 'test-token',
@@ -43,7 +44,7 @@ describe('Pipedream Connect API Route', () => {
         connect_link_url: 'https://connect.pipedream.com/test',
       });
 
-    (createBackendClient as jest.Mock).mockReturnValueOnce({
+    (createBackendClient as vi.Mock).mockReturnValueOnce({
       createConnectToken: mockCreateConnectToken,
     });
 
@@ -64,16 +65,16 @@ describe('Pipedream Connect API Route', () => {
 
   it('handles Pipedream API errors', async () => {
     // Mock authenticated session
-    (getServerSession as jest.Mock).mockResolvedValueOnce({
+    (getServerSession as vi.Mock).mockResolvedValueOnce({
       user: { id: 'test-user-id' },
     });
 
     // Mock Pipedream client error
-    const mockCreateConnectToken = jest
+    const mockCreateConnectToken = vi
       .fn()
       .mockRejectedValueOnce(new Error('Pipedream API error'));
 
-    (createBackendClient as jest.Mock).mockReturnValueOnce({
+    (createBackendClient as vi.Mock).mockReturnValueOnce({
       createConnectToken: mockCreateConnectToken,
     });
 
@@ -86,7 +87,7 @@ describe('Pipedream Connect API Route', () => {
 
   it('validates required environment variables', async () => {
     // Mock authenticated session
-    (getServerSession as jest.Mock).mockResolvedValueOnce({
+    (getServerSession as vi.Mock).mockResolvedValueOnce({
       user: { id: 'test-user-id' },
     });
 

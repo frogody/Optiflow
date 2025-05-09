@@ -3,26 +3,27 @@ import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { PipedreamConnect } from '../PipedreamConnect';
 import { toast } from 'react-hot-toast';
 import { connectAccount } from '@pipedream/sdk';
+import { vi } from 'vitest';
 
 // Mock the Pipedream SDK
-jest.mock('@pipedream/sdk', () => ({ connectAccount: jest.fn()
+vi.mock('@pipedream/sdk', () => ({ connectAccount: vi.fn()
     }));
 
 // Mock react-hot-toast
-jest.mock('react-hot-toast', () => ({
+vi.mock('react-hot-toast', () => ({
   toast: {
-  success: jest.fn(),
-    error: jest.fn(),
+  success: vi.fn(),
+    error: vi.fn(),
       },
 }));
 
 // Mock fetch
-global.fetch = jest.fn();
+global.fetch = vi.fn();
 
 describe('PipedreamConnect', () => {
   beforeEach(() => {
-    jest.clearAllMocks();
-    (global.fetch as jest.Mock).mockReset();
+    vi.clearAllMocks();
+    (global.fetch as vi.Mock).mockReset();
   });
 
   it('renders the connect button', () => {
@@ -35,7 +36,7 @@ describe('PipedreamConnect', () => {
     const button = screen.getByText('Connect Account via Pipedream');
     
     // Mock successful token fetch
-    (global.fetch as jest.Mock).mockResolvedValueOnce({
+    (global.fetch as vi.Mock).mockResolvedValueOnce({
       ok: true,
       json: () => Promise.resolve({ token: 'test-token'     }),
     });
@@ -47,17 +48,17 @@ describe('PipedreamConnect', () => {
   });
 
   it('handles successful connection', async () => {
-    const onSuccess = jest.fn();
+    const onSuccess = vi.fn();
     render(<PipedreamConnect onSuccess={onSuccess} />);
     
     // Mock successful token fetch
-    (global.fetch as jest.Mock).mockResolvedValueOnce({
+    (global.fetch as vi.Mock).mockResolvedValueOnce({
       ok: true,
       json: () => Promise.resolve({ token: 'test-token'     }),
     });
 
     // Mock successful connection
-    (connectAccount as jest.Mock).mockImplementation(({ onSuccess: onConnectSuccess     }) => {
+    (connectAccount as vi.Mock).mockImplementation(({ onSuccess: onConnectSuccess     }) => {
       onConnectSuccess({ id: 'test-connection'     });
     });
 
@@ -74,7 +75,7 @@ describe('PipedreamConnect', () => {
     render(<PipedreamConnect />);
     
     // Mock failed token fetch
-    (global.fetch as jest.Mock).mockResolvedValueOnce({ ok: false,
+    (global.fetch as vi.Mock).mockResolvedValueOnce({ ok: false,
       status: 500,
         });
 
@@ -90,13 +91,13 @@ describe('PipedreamConnect', () => {
     render(<PipedreamConnect />);
     
     // Mock successful token fetch
-    (global.fetch as jest.Mock).mockResolvedValueOnce({
+    (global.fetch as vi.Mock).mockResolvedValueOnce({
       ok: true,
       json: () => Promise.resolve({ token: 'test-token'     }),
     });
 
     // Mock connection error
-    (connectAccount as jest.Mock).mockImplementation(({ onError }) => {
+    (connectAccount as vi.Mock).mockImplementation(({ onError }) => {
       onError({ message: 'Connection failed'     });
     });
 

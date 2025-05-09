@@ -1,7 +1,7 @@
 // @ts-nocheck - This file has some TypeScript issues that are hard to fix
 import React from 'react';
 import { render, screen } from '@testing-library/react';
-import '@testing-library/jest-dom';
+import '@testing-library/jest-dom/vitest';
 import Header from '../Header';
 
 describe('Header Component', () => {
