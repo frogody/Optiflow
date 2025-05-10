@@ -23,7 +23,7 @@ const jobOpenings = [
     department: 'Engineering',
     location: 'Remote',
     type: 'Full-time',
-    description: 'We're looking for an experienced AI Engineer to help design and develop our core machine learning models and AI capabilities.',
+    description: 'We\'re looking for an experienced AI Engineer to help design and develop our core machine learning models and AI capabilities.',
     responsibilities: [
       'Design, develop, and optimize machine learning models for various workflow automation tasks',
       'Collaborate with product and engineering teams to integrate AI capabilities into our platform',

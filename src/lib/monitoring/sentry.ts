@@ -6,7 +6,26 @@
  * API routes for server-side monitoring.
  */
 
-import * as Sentry from '@sentry/nextjs';
+// Use try/catch to avoid build failures if Sentry is not installed
+let Sentry: any;
+
+try {
+  Sentry = require('@sentry/nextjs');
+} catch (e) {
+  // Create a mock Sentry object if the package is not available
+  Sentry = {
+    init: () => {},
+    setUser: () => {},
+    addBreadcrumb: () => {},
+    captureException: () => '',
+    captureMessage: () => '',
+    startTransaction: () => ({}),
+    flush: async () => true,
+    BrowserTracing: class {},
+    Replay: class {}
+  };
+  console.warn('Sentry package not found, using mock implementation');
+}
 
 /**
  * Sentry initialization options

@@ -46,7 +46,7 @@ export default function CommunityForum() {
       name: 'Jarvis Voice Agent',
       href: '/help/community/voice-agent',
       icon: MicrophoneIcon,
-      description: 'Discussions about Optiflow's voice assistant',
+      description: 'Discussions about Optiflow\'s voice assistant',
       topics: 86,
       posts: 542,
       color: 'text-[#22D3EE] bg-[#022c22]',

@@ -85,7 +85,7 @@ const values = [
   {
     icon: SparklesIcon,
     title: 'Innovation',
-    description: 'We constantly push boundaries, embracing emerging technologies and fresh ideas to create solutions that anticipate tomorrow's challenges.'
+    description: 'We constantly push boundaries, embracing emerging technologies and fresh ideas to create solutions that anticipate tomorrow\'s challenges.'
   },
   {
     icon: UserGroupIcon,
