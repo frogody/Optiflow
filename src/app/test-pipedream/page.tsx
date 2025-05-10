@@ -2,8 +2,8 @@
 
 import { useEffect, useState } from 'react';
 
-import PipedreamConnectButton from '@/components/PipedreamConnectButton.js'; // Assuming .js for now
-import { usePipedreamConnect } from '@/lib/pipedream/usePipedreamConnect.js'; // Assuming .js for now
+import PipedreamConnectButton from '../../components/PipedreamConnectButton.js';
+import { usePipedreamConnect } from '../../lib/pipedream/usePipedreamConnect.js';
 
 // Component to handle the actual Pipedream connection logic and UI, only rendered client-side
 function PipedreamConnectionUI() {
