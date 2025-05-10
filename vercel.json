@@ -1,10 +1,7 @@
 {
   "version": 2,
-  "buildCommand": "npm run build",
-  "framework": "nextjs",
-  "installCommand": "npm install",
-  "github": {
-    "enabled": true,
-    "silent": true
-  }
+  "buildCommand": "echo 'Skipping build step'",
+  "outputDirectory": "public",
+  "framework": null,
+  "ignoreCommand": "exit 0"
 } 
