@@ -72,6 +72,10 @@ export default function ConnectionsPage(): JSX.Element {
         }
   };
 
+  const onError = (error: Error) => {
+    toast.error(`Error connecting to Pipedream: ${error.message}`);
+  };
+
   return (
     <div className="container mx-auto py-8 px-4 min-h-screen">
       <h1 className="text-3xl font-bold mb-8 text-dark-50 dark:text-white">
@@ -126,6 +130,7 @@ export default function ConnectionsPage(): JSX.Element {
                 appSlug={app.slug}
                 buttonText={`Connect ${app.name}`}
                 onSuccess={handleConnectionSuccess}
+                onError={onError}
               />
             </div>
           ))}
