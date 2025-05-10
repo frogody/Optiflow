@@ -1,5 +1,5 @@
-// @ts-nocheck - This file has some TypeScript issues that are hard to fix
 import { NextResponse } from 'next/server';
+
 import { ClaudeService } from '@/services/agents/ClaudeService';
 import { MODEL_MAP } from '@/services/ClaudeWrapper';
 
@@ -27,7 +27,7 @@ export async function POST(request: Request): Promise<NextResponse> {
     const existingWorkflow = undefined;
     
     // Use the model from environment variables, with appropriate fallback
-    const modelName = process.env.ANTHROPIC_DEFAULT_MODEL || MODEL_MAP.CLAUDE_3_SONNET;
+    const modelName = process.env.ANTHROPIC_DEFAULT_MODEL || MODEL_MAP.CLAUDE_3_7_SONNET;
     console.log(`[claude/route] Using model: ${modelName}`);
     
     // Initialize Claude service with API key from environment variable

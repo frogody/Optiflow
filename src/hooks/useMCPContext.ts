@@ -1,7 +1,7 @@
-// @ts-nocheck - This file has some TypeScript issues that are hard to fix
-import { useState, useEffect, useCallback } from 'react';
-import { MCPContextService, ModelContext, ContextSection } from '@/services/MCPContextService';
+import { useCallback, useEffect, useState } from 'react';
 import { toast } from 'react-hot-toast';
+
+import { ContextSection, MCPContextService, ModelContext } from '@/services/MCPContextService';
 
 interface UseMCPContextOptions { modelId?: string;
   autoLoad?: boolean;

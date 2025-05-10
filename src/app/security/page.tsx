@@ -1,14 +1,14 @@
 'use client';
 
-import Link from 'next/link';
 import { 
-  ShieldCheckIcon, 
-  LockClosedIcon, 
-  ServerIcon, 
-  DocumentTextIcon,
-  CheckCircleIcon,
-  ArrowRightIcon
+  ArrowRightIcon, 
+  CheckCircleIcon, 
+  DocumentTextIcon, 
+  LockClosedIcon,
+  ServerIcon,
+  ShieldCheckIcon
 } from '@heroicons/react/24/outline';
+import Link from 'next/link';
 
 // Security features
 const securityFeatures = [

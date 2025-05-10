@@ -1,6 +1,6 @@
-// @ts-nocheck - This file has some TypeScript issues that are hard to fix
 import { NextResponse } from 'next/server';
-import { getPipedreamConfig } from '@/lib/pipedream/config';
+
+import { getPipedreamConfig } from '@/lib/pipedream/config.js';
 
 export async function GET(
   request: Request,

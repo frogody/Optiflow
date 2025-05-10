@@ -1,11 +1,11 @@
-// @ts-nocheck - This file has some TypeScript issues that are hard to fix
-import { useState, useEffect, useCallback } from 'react';
+import { useCallback, useEffect, useState } from 'react';
+
 import { useUserStore } from '@/lib/userStore';
 import {
-  PipedreamMCPService,
   MCPAppInfo,
   MCPConnection,
   PipedreamMCPConfig,
+  PipedreamMCPService,
 } from '@/services/PipedreamMCPService';
 
 // Default configuration for the Pipedream MCP service - update with your values
@@ -63,7 +63,7 @@ export function usePipedreamMCP({
     };
 
     return PipedreamMCPService.getInstance(mergedConfig);
-  }, [config]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [config]);
 
   // Fetch available MCP apps
   const fetchAvailableApps = useCallback(
@@ -91,7 +91,7 @@ export function usePipedreamMCP({
       }
     },
     [userId, getMCPService]
-  ); // eslint-disable-line react-hooks/exhaustive-deps
+  );
 
   // Fetch user connections
   const fetchUserConnections = useCallback(async () => {
@@ -115,7 +115,7 @@ export function usePipedreamMCP({
     } finally {
       setIsLoading(false);
     }
-  }, [userId, getMCPService]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [userId, getMCPService]);
 
   // Update connection status
   const updateConnectionStatus = useCallback(() => {
@@ -145,7 +145,7 @@ export function usePipedreamMCP({
           : new Error('Failed to update connection status')
       );
     }
-  }, [userId, selectedAppId, getMCPService]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [userId, selectedAppId, getMCPService]);
 
   // Initialize data on mount and when dependencies change
   useEffect(() => {
@@ -154,12 +154,12 @@ export function usePipedreamMCP({
       fetchAvailableApps();
       fetchUserConnections();
     }
-  }, [userId, fetchAvailableApps, fetchUserConnections]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [userId, fetchAvailableApps, fetchUserConnections]);
 
   // Update connection status when selected app or user changes
   useEffect(() => {
     updateConnectionStatus();
-  }, [userId, selectedAppId, updateConnectionStatus]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [userId, selectedAppId, updateConnectionStatus]);
 
   // Initiate OAuth flow to connect an app
   const connectOAuthApp = useCallback(
@@ -209,7 +209,7 @@ export function usePipedreamMCP({
       }
     },
     [userId, getMCPService]
-  ); // eslint-disable-line react-hooks/exhaustive-deps
+  );
 
   // Connect with API Key
   const connectWithApiKey = useCallback(
@@ -258,7 +258,7 @@ export function usePipedreamMCP({
       }
     },
     [userId, getMCPService, fetchUserConnections]
-  ); // eslint-disable-line react-hooks/exhaustive-deps
+  );
 
   // Disconnect an app
   const disconnectApp = useCallback(
@@ -297,7 +297,7 @@ export function usePipedreamMCP({
       }
     },
     [userId, getMCPService, fetchUserConnections]
-  ); // eslint-disable-line react-hooks/exhaustive-deps
+  );
 
   // Make an API request to a connected app
   const makeApiRequest = useCallback(
@@ -334,7 +334,7 @@ export function usePipedreamMCP({
       }
     },
     [userId, getMCPService]
-  ); // eslint-disable-line react-hooks/exhaustive-deps
+  );
 
   // Get connection status for a specific app
   const getConnectionStatusForApp = useCallback(
@@ -350,7 +350,7 @@ export function usePipedreamMCP({
       }
     },
     [userId, getMCPService]
-  ); // eslint-disable-line react-hooks/exhaustive-deps
+  );
 
   // Get app details by ID
   const getAppById = useCallback(
@@ -364,7 +364,7 @@ export function usePipedreamMCP({
       }
     },
     [getMCPService]
-  ); // eslint-disable-line react-hooks/exhaustive-deps
+  );
 
   return {
     // Data

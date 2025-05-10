@@ -1,12 +1,15 @@
-// @ts-nocheck - This file has some TypeScript issues that are hard to fix
 'use client';
 
-import React, { useState, useEffect, useRef } from 'react';
-import { useFloating, offset, flip, shift, useHover, useInteractions } from '@floating-ui/react';
-import MicrophonePermission from '@/components/MicrophonePermission';
+import { flip, offset, shift, useFloating, useHover, useInteractions } from '@floating-ui/react';
+
 // LiveKit imports
-import { LiveKitRoom, useConnectionState, ConnectionState, useRoomContext } from '@livekit/components-react';
-import { Room, RoomConnectOptions, createLocalTracks } from 'livekit-client';
+import { ConnectionState, LiveKitRoom, useConnectionState, useRoomContext } from '@livekit/components-react';
+import { createLocalTracks } from 'livekit-client';
+import React, { useEffect, useRef, useState } from 'react';
+
+import MicrophonePermission from '@/components/MicrophonePermission';
+import { useUserStore } from '@/lib/userStore';
+
 
 interface VoiceAgentProps { onWorkflowGenerated: (workflow: any) => void;
     }

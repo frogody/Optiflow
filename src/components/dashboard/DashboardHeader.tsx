@@ -1,18 +1,17 @@
-// @ts-nocheck - This file has some TypeScript issues that are hard to fix
 'use client';
 
-import { useState } from 'react';
-import Link from 'next/link';
-import Image from 'next/image';
 import { 
+  ArrowRightOnRectangleIcon, 
   Bars3Icon, 
-  XMarkIcon, 
   BellIcon, 
+  Cog6ToothIcon,
   MagnifyingGlassIcon,
   UserCircleIcon,
-  ArrowRightOnRectangleIcon,
-  Cog6ToothIcon
+  XMarkIcon
 } from '@heroicons/react/24/outline';
+import Image from 'next/image';
+import Link from 'next/link';
+import { useState } from 'react';
 
 interface DashboardHeaderProps {
   userName: string;

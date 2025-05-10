@@ -1,6 +1,7 @@
-import { NextRequest, NextResponse } from 'next/server';
-import { getUserById } from '@/lib/auth';
 import Cookies from 'js-cookie';
+import { NextRequest, NextResponse } from 'next/server';
+
+import { getUserById } from '@/lib/auth';
 
 /**
  * Middleware to validate user access to resources

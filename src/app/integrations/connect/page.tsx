@@ -1,17 +1,18 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
-import Image from 'next/image';
-import Link from 'next/link';
-import { motion } from 'framer-motion';
 import { 
   ArrowLeftIcon,
   MagnifyingGlassIcon,
   StarIcon
 } from '@heroicons/react/24/outline';
-import PipedreamConnectButton from '@/components/PipedreamConnectButton';
+import { motion } from 'framer-motion';
+import Image from 'next/image';
+import Link from 'next/link';
+import { useRouter } from 'next/navigation';
+import { useEffect, useState } from 'react';
 import { toast } from 'react-hot-toast';
+
+import PipedreamConnectButton from '@/components/PipedreamConnectButton';
 
 // Interface for integration items
 interface Integration {

@@ -1,18 +1,18 @@
 'use client';
 
-import { useState } from 'react';
-import Link from 'next/link';
 import {
-  CodeBracketIcon,
-  DocumentTextIcon,
-  RocketLaunchIcon,
-  KeyIcon,
-  CubeIcon,
-  ServerIcon,
   BookOpenIcon,
   ChatBubbleLeftRightIcon,
+  CodeBracketIcon,
   CommandLineIcon,
+  CubeIcon,
+  DocumentTextIcon,
+  KeyIcon,
+  RocketLaunchIcon,
+  ServerIcon,
 } from '@heroicons/react/24/outline';
+import Link from 'next/link';
+import { useState } from 'react';
 
 export default function DeveloperPortal() {
   const [selectedLanguage, setSelectedLanguage] = useState('curl');

@@ -1,4 +1,4 @@
-// @ts-nocheck - This file has some TypeScript issues that are hard to fix
+// Workflow command types
 export enum CommandType {
   CREATE_NODE = 'CREATE_NODE',
   CONNECT_NODES = 'CONNECT_NODES',
@@ -11,8 +11,9 @@ export enum CommandType {
   STOP_WORKFLOW = 'STOP_WORKFLOW',
 }
 
-export interface WorkflowCommand { type: CommandType;
-  nodeType?: string;
+export interface WorkflowCommand {
+  type: CommandType;
+  nodeType?: NodeType;
   nodeName?: string;
   newName?: string;
   sourceNode?: string;
@@ -20,21 +21,56 @@ export interface WorkflowCommand { type: CommandType;
   workflowName?: string;
 }
 
+// Node types for the workflow editor
+export type NodeType = 
+  | 'trigger'
+  | 'action'
+  | 'condition'
+  | 'loop'
+  | 'delay'
+  | 'http'
+  | 'script'
+  | 'aiAgent'
+  | 'database'
+  | 'transformation';
+
+// Workflow node structure
 export interface WorkflowNode {
   id: string;
-  type: string;
-  name: string;
-  position: { x: number; y: number };
-  data: Record<string, any>;
+  type: NodeType;
+  position: {
+    x: number;
+    y: number;
+  };
+  data: {
+    label: string;
+    description: string;
+    config: Record<string, unknown>;
+  };
 }
 
-export interface WorkflowEdge { id: string;
+export interface WorkflowEdge {
+  id: string;
   source: string;
   target: string;
-  type?: string;
+  label?: string;
 }
 
-export interface Workflow { id: string;
+// Workflow status types
+export type WorkflowStatus = 'active' | 'inactive' | 'draft' | 'error';
+
+// Trigger types
+export type TriggerType = 'schedule' | 'webhook' | 'event' | 'manual' | 'voice';
+
+// Workflow execution status
+export type ExecutionStatus = 'success' | 'failed' | 'running' | 'cancelled';
+
+// Workflow execution step status
+export type StepStatus = 'success' | 'failed' | 'running' | 'pending' | 'skipped';
+
+// Main workflow interface
+export interface Workflow {
+  id: string;
   name: string;
   description: string;
   status: WorkflowStatus;
@@ -51,25 +87,15 @@ export interface Workflow { id: string;
   folderId?: string;
 }
 
-export interface WorkflowState { currentWorkflow: Workflow | null;
+// Workflow state management
+export interface WorkflowState {
+  currentWorkflow: Workflow | null;
   selectedNode: string | null;
   isRunning: boolean;
   error: string | null;
 }
 
-// Workflow status types
-export type WorkflowStatus = 'active' | 'inactive' | 'draft' | 'error';
-
-// Trigger types
-export type TriggerType = 'schedule' | 'webhook' | 'event' | 'manual' | 'voice';
-
-// Workflow execution log status
-export type ExecutionStatus = 'success' | 'failed' | 'running' | 'cancelled';
-
-// Workflow execution step status
-export type StepStatus = 'success' | 'failed' | 'running' | 'pending' | 'skipped';
-
-// Workflow execution log
+// Workflow execution logging
 export interface ExecutionLog {
   id: string;
   workflowId: string;
@@ -83,21 +109,20 @@ export interface ExecutionLog {
   steps: ExecutionStep[];
 }
 
-// Workflow execution step
 export interface ExecutionStep {
   id: string;
   name: string;
-  type: string;
+  type: NodeType;
   status: StepStatus;
   startTime: string;
   endTime?: string;
   duration?: number;
-  input?: any;
-  output?: any;
+  input?: Record<string, unknown>;
+  output?: Record<string, unknown>;
   error?: string;
 }
 
-// Workflow folder
+// Workflow organization
 export interface WorkflowFolder {
   id: string;
   name: string;
@@ -107,7 +132,6 @@ export interface WorkflowFolder {
   updatedAt: string;
 }
 
-// Workflow template
 export interface WorkflowTemplate {
   id: string;
   name: string;
@@ -122,15 +146,20 @@ export interface WorkflowTemplate {
   isOfficial: boolean;
 }
 
-// Node types for the workflow editor
-export type NodeType = 
-  | 'trigger'
-  | 'action'
-  | 'condition'
-  | 'loop'
-  | 'delay'
-  | 'http'
-  | 'script'
-  | 'aiAgent'
-  | 'database'
-  | 'transformation'; 
+// Generated workflow types
+export interface GeneratedWorkflow {
+  name: string;
+  description: string;
+  nodes: WorkflowNode[];
+  edges: WorkflowEdge[];
+}
+
+export interface WorkflowGenerationOptions {
+  model?: string;
+  temperature?: number;
+  maxTokens?: number;
+  thinking?: {
+    type: 'enabled';
+    budget_tokens?: number;
+  };
+} 

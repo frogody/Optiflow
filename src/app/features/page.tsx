@@ -1,18 +1,17 @@
-// @ts-nocheck - This file has some TypeScript issues that are hard to fix
 'use client';
 
 import { motion } from 'framer-motion';
-import Link from 'next/link';
 import Image from 'next/image';
-import { 
-  HiOutlineLightningBolt, 
-  HiOutlineChartBar, 
-  HiOutlineCog,
-  HiOutlineServer,
-  HiOutlineShieldCheck,
-  HiOutlineDocumentReport
-} from 'react-icons/hi';
+import Link from 'next/link';
 import { FaLinkedin, FaTwitter } from 'react-icons/fa';
+import { 
+  HiOutlineChartBar, 
+  HiOutlineCog, 
+  HiOutlineDocumentReport,
+  HiOutlineLightningBolt,
+  HiOutlineServer,
+  HiOutlineShieldCheck
+} from 'react-icons/hi';
 
 export default function FeaturesPage(): JSX.Element {
   // Features data

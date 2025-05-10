@@ -1,14 +1,12 @@
-// @ts-nocheck - This file has some TypeScript issues that are hard to fix
 import { PrismaClient } from '@prisma/client';
 
-declare global {
-  var prisma: PrismaClient | undefined;
-}
+// Use a single instance of Prisma Client in development
+const globalForPrisma = global as unknown as { prisma: PrismaClient };
 
-export const prisma = globalThis.prisma || new PrismaClient();
+export const prisma = globalForPrisma.prisma || new PrismaClient();
 
 if (process.env.NODE_ENV !== 'production') {
-  globalThis.prisma = prisma;
+  globalForPrisma.prisma = prisma;
 }
 
 export default prisma;

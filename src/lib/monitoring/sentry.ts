@@ -204,4 +204,18 @@ export type {
   TransactionContext as SentryTransactionContext,
   SeverityLevel as SentrySeverityLevel,
   CaptureContext as SentryCaptureContext
-} from '@sentry/nextjs'; 
+} from '@sentry/nextjs';
+
+class MockSentry {
+  init(options: any): void {
+    console.log('Mock Sentry initialized with options:', options);
+  }
+
+  setUser(user: any): void {
+    console.log('Mock Sentry user set:', user);
+  }
+
+  addBreadcrumb(breadcrumb: any): void {
+    console.log('Mock Sentry breadcrumb added:', breadcrumb);
+  }
+} 

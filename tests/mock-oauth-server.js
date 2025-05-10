@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-var-requires */
 /**
  * Mock OAuth Server for Testing
  * 
@@ -7,8 +8,8 @@
  * Run with: node tests/mock-oauth-server.js
  */
 
-const express = require('express');
 const cors = require('cors');
+const express = require('express');
 const app = express();
 const port = process.env.MOCK_OAUTH_PORT || 3001;
 

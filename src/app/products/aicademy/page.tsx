@@ -1,22 +1,21 @@
-// @ts-nocheck - This file has some TypeScript issues that are hard to fix
 'use client';
 
 import { motion } from 'framer-motion';
 import Link from 'next/link';
 import {
   HiOutlineAcademicCap,
-  HiOutlineUserGroup,
-  HiOutlinePresentationChartLine,
-  HiOutlineLightBulb,
-  HiOutlineChartBar,
-  HiOutlineClipboardCheck,
-  HiOutlineBookOpen,
-  HiOutlinePuzzle,
-  HiOutlineChatAlt2,
-  HiOutlineDocumentText,
   HiOutlineArrowRight,
-  HiOutlineStar,
+  HiOutlineBookOpen,
+  HiOutlineChartBar,
+  HiOutlineChatAlt2,
+  HiOutlineClipboardCheck,
   HiOutlineClock,
+  HiOutlineDocumentText,
+  HiOutlineLightBulb,
+  HiOutlinePresentationChartLine,
+  HiOutlinePuzzle,
+  HiOutlineStar,
+  HiOutlineUserGroup,
   HiOutlineUsers,
 } from 'react-icons/hi';
 

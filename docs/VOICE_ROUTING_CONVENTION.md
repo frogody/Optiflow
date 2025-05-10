@@ -38,7 +38,7 @@ export default {
     "open dashboard"
   ],
   route: "dashboard",
-  
+ 
   // Handler function
   handler({ context }) {
     return {
@@ -60,7 +60,7 @@ All workflow nodes must implement an `update` method that allows for programmati
 // src/components/workflow/nodes/TextNode.tsx
 export default function TextNode({ data, ...props }) {
   // ...component implementation
-  
+ 
   // Required update method for voice control
   const update = (payload) => {
     // Update node data based on payload
@@ -70,7 +70,7 @@ export default function TextNode({ data, ...props }) {
       ...payload
     });
   };
-  
+ 
   return (
     <div className="workflow-node">
       {/* Node content */}
@@ -86,7 +86,7 @@ Our validation script (`scripts/validate-voice-routing.ts`) automatically checks
 1. All pages have a `voiceRoute` export (except for layout, loading, error, and API pages)
 2. All `voiceRoute` values have a matching intent/skill file
 3. All intent/skill files with a `route` property match an existing page
-4. All workflow nodes implement an `update` method
+4. All workflow nodes implement an `update` method with correct parameter handling
 
 You can run this validation manually:
 
@@ -102,7 +102,7 @@ The following types of pages do not require a `voiceRoute`:
 
 - Layout files (`layout.tsx`)
 - Loading states (`loading.tsx`)
-- Error boundaries (`error.tsx`) 
+- Error boundaries (`error.tsx`)
 - Not-found pages (`not-found.tsx`)
 - API routes (`/api/**/*.ts`)
 
@@ -130,4 +130,4 @@ If the validation script fails, check:
 1. The spelling and casing of your `voiceRoute` matches exactly in both the page and intent files
 2. Each `voiceRoute` is unique across the application
 3. Intent files properly export the `route` property
-4. Workflow nodes implement the `update` method with correct parameter handling 
+4. Workflow nodes implement the `update` method with correct parameter handling

@@ -1,7 +1,7 @@
-// @ts-nocheck - This file has some TypeScript issues that are hard to fix
-import { Team, TeamMember, OrganizationMember, User } from '@prisma/client';
-import { prisma } from '@/lib/prisma';
+import { OrganizationMember, Team, TeamMember, User } from '@prisma/client';
 import { z } from 'zod';
+
+import { prisma } from '@/lib/prisma';
 
 // Validation schemas
 const createTeamSchema = z.object({ name: z.string().min(1).max(100),

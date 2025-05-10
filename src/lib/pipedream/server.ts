@@ -1,17 +1,16 @@
-// @ts-nocheck - This file has some TypeScript issues that are hard to fix
 "use server";
 
 // Import our environment fix module first
 import './fix-env';
 
 import {
-  createBackendClient,
-  type ConnectTokenCreateOpts,
-  type ConnectTokenResponse,
-  type ProjectEnvironment,
   type AccountsRequestResponse,
   type AppResponse,
-  type BackendClient
+  type BackendClient,
+  type ConnectTokenCreateOpts,
+  type ConnectTokenResponse,
+  createBackendClient,
+  type ProjectEnvironment
 } from "@pipedream/sdk/server";
 
 // Environment variables needed for Pipedream Connect
@@ -220,7 +219,7 @@ export async function getUserConnections(external_user_id: string): Promise<Acco
  */
 export async function getUserAccounts(
   externalId: string,
-  includeCredentials: boolean = false,
+  includeCredentials = false,
 ): Promise<AccountsRequestResponse> {
   if (!externalId) {
     throw new Error("External user ID is required");
@@ -245,7 +244,7 @@ export async function getUserAccounts(
  */
 export async function getAccountById(
   accountId: string,
-  includeCredentials: boolean = false,
+  includeCredentials = false,
 ) {
   if (!accountId) {
     throw new Error("Account ID is required");

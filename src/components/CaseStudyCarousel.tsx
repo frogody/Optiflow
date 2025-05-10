@@ -1,8 +1,8 @@
-// @ts-nocheck - This file has some TypeScript issues that are hard to fix
-import { useState } from 'react';
-import { Card } from '@/components/ui/Card';
-import { Button } from '@/components/ui/Button';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
+import { useState } from 'react';
+
+import { Button } from '@/components/ui/Button';
+import { Card } from '@/components/ui/Card';
 
 const caseStudies = [
   {
@@ -80,6 +80,7 @@ export function CaseStudyCarousel() {
         size="icon"
         className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-1/2"
         onClick={prevSlide}
+        title="Previous case study"
       >
         <ChevronLeft className="h-4 w-4" />
       </Button>
@@ -89,6 +90,7 @@ export function CaseStudyCarousel() {
         size="icon"
         className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-1/2"
         onClick={nextSlide}
+        title="Next case study"
       >
         <ChevronRight className="h-4 w-4" />
       </Button>
@@ -101,6 +103,7 @@ export function CaseStudyCarousel() {
               index === currentIndex ? 'bg-primary' : 'bg-muted'
             }`}
             onClick={() => setCurrentIndex(index)}
+            aria-label={`Go to case study ${index + 1}`}
           />
         ))}
       </div>

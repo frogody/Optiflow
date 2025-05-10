@@ -1,12 +1,12 @@
-// @ts-nocheck - This file has some TypeScript issues that are hard to fix
 'use client';
 
-import { useEffect, useState } from 'react';
-import { useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
 import Link from 'next/link';
-import { useUserStore } from '@/lib/userStore';
+import { useRouter } from 'next/navigation';
+import { useEffect, useState } from 'react';
 import toast from 'react-hot-toast';
+
+import { useUserStore } from '@/lib/userStore';
 
 interface UserProfile {
   name: string;

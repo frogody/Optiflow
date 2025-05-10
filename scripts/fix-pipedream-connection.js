@@ -5,10 +5,10 @@
  * that prevent connections from working properly.
  */
 
-const fs = require('fs');
-const path = require('path');
-const https = require('https');
 const { execSync } = require('child_process');
+const fs = require('fs');
+const https = require('https');
+const path = require('path');
 const readline = require('readline');
 
 const rl = readline.createInterface({

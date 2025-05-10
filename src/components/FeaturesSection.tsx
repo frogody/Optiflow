@@ -1,9 +1,8 @@
-// @ts-nocheck - This file has some TypeScript issues that are hard to fix
 import { motion } from 'framer-motion';
 import {
+  HiOutlineChartBar,
   HiOutlineLightBulb,
   HiOutlineShieldCheck,
-  HiOutlineChartBar,
 } from 'react-icons/hi';
 
 const features = [

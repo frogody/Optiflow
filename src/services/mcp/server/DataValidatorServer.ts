@@ -1,6 +1,6 @@
-// @ts-nocheck - This file has some TypeScript issues that are hard to fix
-import { MCPServer } from './MCPServer';
 import { MCPRequest, MCPResponse } from '../types';
+
+import { MCPServer } from './MCPServer';
 
 interface ValidationRule { required?: boolean;
     }

@@ -1,20 +1,21 @@
-// @ts-nocheck - This file has some TypeScript issues that are hard to fix
 'use client';
 
-import { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
-import { useUserStore } from '@/lib/userStore';
+import { 
+  DocumentTextIcon, 
+  FolderIcon,
+  FolderPlusIcon, 
+  PlusIcon 
+} from '@heroicons/react/24/outline';
 import { motion } from 'framer-motion';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
+import { useEffect, useState } from 'react';
 import { toast } from 'react-hot-toast';
+
 import WorkflowList from '@/components/workflow/WorkflowList';
+import { useUserStore } from '@/lib/userStore';
 import { Workflow, WorkflowFolder } from '@/types/workflow';
-import { 
-  PlusIcon, 
-  FolderPlusIcon,
-  FolderIcon, 
-  DocumentTextIcon 
-} from '@heroicons/react/24/outline';
+
 
 // Define types for agents and their capabilities
 interface AgentCapability { id: string;

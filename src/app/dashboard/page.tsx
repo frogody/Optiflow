@@ -1,14 +1,14 @@
-// @ts-nocheck - This file has some TypeScript issues that are hard to fix
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useEffect, useState } from 'react';
+
+import ActivityFeedWidget from '@/components/dashboard/ActivityFeedWidget';
 import DashboardHeader from '@/components/dashboard/DashboardHeader';
 import KpiWidget from '@/components/dashboard/KpiWidget';
-import ActivityFeedWidget from '@/components/dashboard/ActivityFeedWidget';
 import OnboardingSection from '@/components/dashboard/OnboardingSection';
-import WorkflowsWidget from '@/components/dashboard/WorkflowsWidget';
-import RecommendationsWidget from '@/components/dashboard/RecommendationsWidget';
 import QuickActionsWidget from '@/components/dashboard/QuickActionsWidget';
+import RecommendationsWidget from '@/components/dashboard/RecommendationsWidget';
+import WorkflowsWidget from '@/components/dashboard/WorkflowsWidget';
 
 export default function DashboardPage() {
   const [showOnboarding, setShowOnboarding] = useState(true);

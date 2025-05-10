@@ -1,8 +1,8 @@
-// @ts-nocheck - This file has some TypeScript issues that are hard to fix
-import { useState } from 'react';
-import { usePipedream } from '@/hooks/usePipedream';
-import Image from 'next/image';
 import { motion } from 'framer-motion';
+import Image from 'next/image';
+import { useState } from 'react';
+
+import { usePipedream } from '@/hooks/usePipedream';
 
 interface MCPApp {
   name: string;

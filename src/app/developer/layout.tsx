@@ -1,20 +1,20 @@
 'use client';
 
-import Link from 'next/link';
-import { useState, useEffect } from 'react';
-import { usePathname } from 'next/navigation';
 import {
-  CodeBracketIcon,
-  BookOpenIcon,
-  RocketLaunchIcon,
-  KeyIcon,
-  CubeIcon,
-  ServerIcon,
-  ChatBubbleLeftRightIcon,
   Bars3Icon,
-  XMarkIcon,
+  BookOpenIcon,
+  ChatBubbleLeftRightIcon,
   ChevronDownIcon,
+  CodeBracketIcon,
+  CubeIcon,
+  KeyIcon,
+  RocketLaunchIcon,
+  ServerIcon,
+  XMarkIcon,
 } from '@heroicons/react/24/outline';
+import Link from 'next/link';
+import { usePathname } from 'next/navigation';
+import { useEffect, useState } from 'react';
 
 const navigation = [
   { name: 'Overview', href: '/developer' },
@@ -82,7 +82,7 @@ export default function DeveloperLayout({
     if (href === '/developer' && pathname === '/developer') {
       return true;
     }
-    return pathname.startsWith(href) && href !== '/developer';
+    return (pathname?.startsWith(href) ?? false) && href !== '/developer';
   };
 
   return (
@@ -172,7 +172,7 @@ export default function DeveloperLayout({
                 type="button"
                 className="inline-flex items-center justify-center p-2 rounded-md text-[#9CA3AF] hover:text-[#E5E7EB] hover:bg-[#1E293B] transition-colors"
                 aria-controls="mobile-menu"
-                aria-expanded={mobileMenuOpen ? "true" : "false"}
+                aria-expanded="false"
                 onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
               >
                 <span className="sr-only">{mobileMenuOpen ? 'Close menu' : 'Open menu'}</span>

@@ -1,7 +1,7 @@
-// @ts-nocheck - This file has some TypeScript issues that are hard to fix
+import { HTMLMotionProps, motion } from 'framer-motion';
 import { forwardRef } from 'react';
+
 import { Loading } from './Loading';
-import { motion, HTMLMotionProps } from 'framer-motion';
 
 interface ButtonProps
   extends Omit<HTMLMotionProps<'button'>, 'ref' | 'children'> {

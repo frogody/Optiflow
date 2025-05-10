@@ -1,14 +1,14 @@
 'use client';
 
-import { useState } from 'react';
 import {
-  CheckIcon,
-  XMarkIcon,
-  ArrowUpIcon,
   ArrowDownIcon,
-  InformationCircleIcon
+  ArrowUpIcon,
+  CheckIcon,
+  InformationCircleIcon,
+  XMarkIcon
 } from '@heroicons/react/24/outline';
 import { CheckCircleIcon } from '@heroicons/react/24/solid';
+import { useState } from 'react';
 
 // Mock data for demonstration purposes
 const mockUserPlan = {

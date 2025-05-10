@@ -1,28 +1,35 @@
-// @ts-nocheck - This file has some TypeScript issues that are hard to fix
-interface RateLimitConfig { maxRequests: number;  // Maximum requests per window,
+interface RateLimitConfig {
+  maxRequests: number;  // Maximum requests per window
   windowMs: number;     // Time window in milliseconds
   retryAfterMs?: number; // Time to wait before retrying
-    }
+}
 
 interface RateLimitState {
   requests: number;
   windowStart: number;
 }
 
+interface RateLimitError extends Error {
+  response?: {
+    status: number;
+  };
+}
+
 export class RateLimiter {
-  private config: RateLimitConfig;
+  private config: Required<RateLimitConfig>;
   private state: Map<string, RateLimitState>;
 
   constructor(config: RateLimitConfig) {
-    this.config = { retryAfterMs: 1000,  // Default retry after 1 second
+    this.config = {
+      retryAfterMs: 1000,  // Default retry after 1 second
       ...config
-        };
+    };
     this.state = new Map();
   }
 
   async acquire(key: string): Promise<boolean> {
     const now = Date.now();
-    const state = this.state.get(key) || { requests: 0, windowStart: now     };
+    const state = this.state.get(key) || { requests: 0, windowStart: now };
 
     // Reset window if expired
     if (now - state.windowStart >= this.config.windowMs) {
@@ -60,12 +67,16 @@ export class RateLimiter {
     }
   }
 
-  private isRateLimitError(error: any): boolean {
-    return (
-      error?.response?.status === 429 ||
-      error?.message?.toLowerCase().includes('rate limit') ||
-      error?.message?.toLowerCase().includes('too many requests')
-    );
+  private isRateLimitError(error: unknown): error is RateLimitError {
+    if (error instanceof Error) {
+      const rateLimitError = error as RateLimitError;
+      return (
+        rateLimitError.response?.status === 429 ||
+        rateLimitError.message.toLowerCase().includes('rate limit') ||
+        rateLimitError.message.toLowerCase().includes('too many requests')
+      );
+    }
+    return false;
   }
 
   getRemainingRequests(key: string): number {

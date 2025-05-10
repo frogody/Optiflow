@@ -1,17 +1,19 @@
 'use client';
 
-import { useState, useMemo } from 'react';
-import { Workflow, WorkflowStatus, TriggerType } from '@/types/workflow';
-import WorkflowCard from './WorkflowCard';
 import { 
-  MagnifyingGlassIcon, 
-  FunnelIcon,
-  ArrowUpIcon, 
-  ArrowDownIcon,
-  TableCellsIcon,
+  ArrowDownIcon, 
+  ArrowUpIcon,
+  FunnelIcon, 
+  MagnifyingGlassIcon,
   Squares2X2Icon,
+  TableCellsIcon,
   TagIcon
 } from '@heroicons/react/24/outline';
+import { useMemo, useState } from 'react';
+
+import WorkflowCard from './WorkflowCard';
+
+import { TriggerType, Workflow, WorkflowStatus } from '@/types/workflow';
 
 interface WorkflowListProps {
   workflows: Workflow[];

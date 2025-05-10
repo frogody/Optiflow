@@ -1,4 +1,6 @@
 #!/usr/bin/env node
+/* eslint-env node */
+/* eslint-disable @typescript-eslint/no-var-requires */
 
 /**
  * Comprehensive Fix Script
@@ -40,9 +42,6 @@ function main() {
     console.log('\n💫 STEP 4: Optimizing animations...');
     execSync('node fix_animations.js', { stdio: 'inherit' });
 
-    // Add @ts-nocheck to all files to prevent parsing errors from blocking other linters
-    console.log('\n🚫 STEP 5: Adding @ts-nocheck to suppress parsing errors...');
-    execSync('node fix_typescript_ignore.js', { stdio: 'inherit' });
     
     // Run TypeScript syntax fixes
     console.log('\n🔧 STEP 6: Fixing TypeScript syntax issues...');

@@ -1,5 +1,4 @@
-// @ts-nocheck - This file has some TypeScript issues that are hard to fix
-import React, { useState, useRef } from 'react';
+import React, { useRef, useState } from 'react';
 
 interface VoiceOrbProps { onTranscript: (transcript: string) => void;
     }

@@ -1,16 +1,15 @@
-// @ts-nocheck - This file has some TypeScript issues that are hard to fix
 'use client';
 
-import { motion, useScroll, useTransform, AnimatePresence } from 'framer-motion';
-import { useRef, useEffect, useState } from 'react';
+import { AnimatePresence, motion, useScroll, useTransform } from 'framer-motion';
 import Link from 'next/link';
+import { useEffect, useRef, useState } from 'react';
 import { 
-  HiOutlineLightBulb,
-  HiOutlineSparkles,
   HiOutlineChip,
-  HiOutlineCube,
+  HiOutlineCode,
   HiOutlineCog,
-  HiOutlineCode
+  HiOutlineCube,
+  HiOutlineLightBulb,
+  HiOutlineSparkles
 } from 'react-icons/hi';
 
 // Constellation point component with reduced animation complexity

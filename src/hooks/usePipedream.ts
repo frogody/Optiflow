@@ -1,7 +1,7 @@
-// @ts-nocheck - This file has some TypeScript issues that are hard to fix
-import { useState, useCallback } from 'react';
 import { useSession } from 'next-auth/react';
+import { useCallback, useState } from 'react';
 import { toast } from 'react-hot-toast';
+
 import { PipedreamService } from '@/services/PipedreamService';
 
 interface UsePipedreamOptions {
@@ -35,7 +35,7 @@ export function usePipedream(options: UsePipedreamOptions = {}) {
       throw new Error('App name is required');
     }
     return session.user.id;
-  }, [session, options.appName]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [session, options.appName]);
 
   const connectToApp = useCallback(async () => {
     try {
@@ -60,7 +60,7 @@ export function usePipedream(options: UsePipedreamOptions = {}) {
     } finally {
       setIsLoading(false);
     }
-  }, [options.appName, checkAuth]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [options.appName, checkAuth]);
 
   const makeRequest = useCallback(
     async <T>(endpoint: string, method: string, data?: any): Promise<T> => {
@@ -89,7 +89,7 @@ export function usePipedream(options: UsePipedreamOptions = {}) {
       }
     },
     [options.appName, checkAuth]
-  ); // eslint-disable-line react-hooks/exhaustive-deps
+  );
 
   const disconnect = useCallback(async () => {
     try {
@@ -112,7 +112,7 @@ export function usePipedream(options: UsePipedreamOptions = {}) {
     } finally {
       setIsLoading(false);
     }
-  }, [options.appName, checkAuth]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [options.appName, checkAuth]);
 
   return {
     isLoading,

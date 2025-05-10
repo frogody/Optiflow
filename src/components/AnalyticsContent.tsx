@@ -1,12 +1,12 @@
-// @ts-nocheck - This file has some TypeScript issues that are hard to fix
 'use client';
 
-import { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
 import Link from 'next/link';
-import { useUserStore } from '@/lib/userStore';
+import { useRouter } from 'next/navigation';
+import { useEffect, useState } from 'react';
+
 import { usePipedream } from '@/hooks/usePipedream';
+import { useUserStore } from '@/lib/userStore';
 
 // Mock data for analytics display
 const analyticsData = {

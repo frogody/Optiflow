@@ -1,10 +1,11 @@
-// @ts-nocheck - This file has some TypeScript issues that are hard to fix
 'use client';
 
-import { useEffect } from 'react';
-import { useRouter } from 'next/navigation';
-import { useUserStore } from '@/lib/userStore';
 import Cookies from 'js-cookie';
+import { useRouter } from 'next/navigation';
+import { useEffect } from 'react';
+
+import { useUserStore } from '@/lib/userStore';
+
 
 export default function LogoutPage(): JSX.Element {
   const router = useRouter();

@@ -1,7 +1,6 @@
-// @ts-nocheck - This file has some TypeScript issues that are hard to fix
+import { DataExporterServer } from './DataExporterServer';
 import { DataProcessorServer } from './DataProcessorServer';
 import { DataValidatorServer } from './DataValidatorServer';
-import { DataExporterServer } from './DataExporterServer';
 
 async function startServers() {
   try {

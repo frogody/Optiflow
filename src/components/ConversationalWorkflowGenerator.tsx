@@ -1,9 +1,9 @@
-// @ts-nocheck - This file has some TypeScript issues that are hard to fix
 'use client';
 
-import React, { useState, useRef, useEffect } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { AnimatePresence, motion } from 'framer-motion';
+import React, { useEffect, useRef, useState } from 'react';
 import { FaMicrophone, FaStop } from 'react-icons/fa';
+
 import LiquidGlobe from './LiquidGlobe';
 
 // Global type for window.streamReference already declared in MicrophonePermission.tsx

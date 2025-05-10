@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-var-requires */
 /**
  * Pipedream Integration Test Script
  * 
@@ -7,8 +8,8 @@
  * Usage: node test-pipedream-integration.js [deployment-url]
  */
 
-const https = require('https');
 const http = require('http');
+const https = require('https');
 const readline = require('readline');
 const { URL } = require('url');
 

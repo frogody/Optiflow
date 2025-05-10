@@ -1,11 +1,10 @@
-// @ts-nocheck - This file has some TypeScript issues that are hard to fix
 type LogLevel = 'debug' | 'info' | 'warn' | 'error';
 
 interface LogEntry {
   timestamp: Date;
   level: LogLevel;
   message: string;
-  context?: Record<string, any>;
+  context?: Record<string, unknown>;
   error?: Error;
 }
 
@@ -35,61 +34,61 @@ export class Logger {
     return Logger.instance;
   }
 
-  private log(level: LogLevel, message: string, context?: Record<string, any>, error?: Error) {
-    const entry: LogEntry = { timestamp: new Date(),
+  private log(level: LogLevel, message: string, context?: Record<string, unknown>, error?: Error): void {
+    const entry: LogEntry = {
+      timestamp: new Date(),
       level,
       message,
       context,
-      error
+      error,
     };
 
-    // Add to history
     this.history.push(entry);
     if (this.history.length > this.config.maxHistorySize) {
       this.history.shift();
     }
 
-    // Console output if enabled
     if (this.config.enableConsole) {
       const contextStr = context ? `\nContext: ${JSON.stringify(context, null, 2)}` : '';
       const errorStr = error ? `\nError: ${error.stack}` : '';
       
-      switch (level) {
-        case 'debug':
-          console.debug(`[${entry.timestamp.toISOString()}] ${message}${contextStr}${errorStr}`);
-          break;
-        case 'info':
-          console.info(`[${entry.timestamp.toISOString()}] ${message}${contextStr}${errorStr}`);
-          break;
-        case 'warn':
-          console.warn(`[${entry.timestamp.toISOString()}] ${message}${contextStr}${errorStr}`);
-          break;
-        case 'error':
-          console.error(`[${entry.timestamp.toISOString()}] ${message}${contextStr}${errorStr}`);
-          break;
-      }
+      const colorMap: Record<LogLevel, string> = {
+        debug: '\x1b[36m', // Cyan
+        info: '\x1b[32m',  // Green
+        warn: '\x1b[33m',  // Yellow
+        error: '\x1b[31m', // Red
+      };
+
+      const reset = '\x1b[0m';
+      const color = colorMap[level];
+      
+      console.log(
+        `${color}[${entry.timestamp.toISOString()}] [${level.toUpperCase()}]${reset} ${message}${contextStr}${errorStr}`,
+        context || '',
+        error || ''
+      );
     }
   }
 
-  debug(message: string, context?: Record<string, any>) {
+  debug(message: string, context?: Record<string, unknown>): void {
     if (this.shouldLog('debug')) {
       this.log('debug', message, context);
     }
   }
 
-  info(message: string, context?: Record<string, any>) {
+  info(message: string, context?: Record<string, unknown>): void {
     if (this.shouldLog('info')) {
       this.log('info', message, context);
     }
   }
 
-  warn(message: string, context?: Record<string, any>) {
+  warn(message: string, context?: Record<string, unknown>): void {
     if (this.shouldLog('warn')) {
       this.log('warn', message, context);
     }
   }
 
-  error(message: string, error?: Error, context?: Record<string, any>) {
+  error(message: string, error?: Error, context?: Record<string, unknown>): void {
     if (this.shouldLog('error')) {
       this.log('error', message, context, error);
     }

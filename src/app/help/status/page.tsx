@@ -1,12 +1,12 @@
 'use client';
 
-import { useState } from 'react';
 import {
   CheckCircleIcon,
   ExclamationTriangleIcon,
-  XCircleIcon,
   InformationCircleIcon,
+  XCircleIcon,
 } from '@heroicons/react/24/outline';
+import { useState } from 'react';
 
 // Mock data for the service statuses
 const serviceStatuses = [

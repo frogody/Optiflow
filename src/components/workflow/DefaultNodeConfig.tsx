@@ -1,29 +1,28 @@
-// @ts-nocheck - This file has some TypeScript issues that are hard to fix
 'use client';
 
-import { Fragment, useState, useEffect } from 'react';
 import { Dialog, Transition } from '@headlessui/react';
 import { 
-  ExclamationCircleIcon, 
-  DocumentTextIcon,
-  EnvelopeIcon, 
-  ClockIcon,
-  AdjustmentsHorizontalIcon,
-  ServerIcon,
-  CloudIcon,
-  ChatBubbleLeftRightIcon,
-  DocumentDuplicateIcon,
+  AdjustmentsHorizontalIcon, 
   ArrowPathIcon,
-  UserIcon,
-  TableCellsIcon,
-  BeakerIcon,
+  BeakerIcon, 
+  CalendarIcon,
+  ChartBarIcon,
+  ChatBubbleLeftRightIcon,
+  ClockIcon,
+  CloudIcon,
   CodeBracketIcon,
   CpuChipIcon,
-  ChartBarIcon,
+  DocumentDuplicateIcon,
+  DocumentTextIcon,
+  EnvelopeIcon,
+  ExclamationCircleIcon,
   FolderIcon,
   PaperAirplaneIcon,
-  CalendarIcon
+  ServerIcon,
+  TableCellsIcon,
+  UserIcon
 } from '@heroicons/react/24/outline';
+import { Fragment, useEffect, useState } from 'react';
 
 // Map of node types to icons for representation
 const nodeTypeIcons: Record<string, any> = { 'extract-webpage': DocumentTextIcon,

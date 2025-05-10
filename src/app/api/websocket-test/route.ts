@@ -1,5 +1,3 @@
-// @ts-nocheck - This file has some TypeScript issues that are hard to fix
-
 export const runtime = 'edge';
 
 export async function GET() {

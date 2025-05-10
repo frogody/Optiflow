@@ -1,8 +1,9 @@
-import { NextRequest, NextResponse } from 'next/server';
-import { getServerSession } from 'next-auth/next';
-import { authOptions } from '@/lib/auth';
 import { AccessToken } from 'livekit-server-sdk';
 import { AgentAPI, RoomServiceClient } from 'livekit-server-sdk';
+import { NextRequest, NextResponse } from 'next/server';
+import { getServerSession } from 'next-auth/next';
+
+import { authOptions } from '@/lib/auth';
 
 export async function POST(req: NextRequest) {
   // Check authentication

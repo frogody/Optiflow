@@ -1,8 +1,8 @@
-// @ts-nocheck - This file has some TypeScript issues that are hard to fix
 'use client';
 
-import { useEffect } from 'react';
 import { useSession } from 'next-auth/react';
+import { useEffect } from 'react';
+
 import { useUserStore } from '@/lib/userStore';
 
 /**

@@ -1,7 +1,7 @@
-// @ts-nocheck - This file has some TypeScript issues that are hard to fix
-import { useState, useCallback, useEffect } from 'react';
-import { useUserStore } from '@/lib/userStore';
+import { useCallback, useEffect, useState } from 'react';
 import { toast } from 'react-hot-toast';
+
+import { useUserStore } from '@/lib/userStore';
 
 interface UseOneflowOptions { autoConnect?: boolean;
     }

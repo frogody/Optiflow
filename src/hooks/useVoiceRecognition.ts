@@ -1,6 +1,6 @@
-// @ts-nocheck - This file has some TypeScript issues that are hard to fix
-import { useState, useEffect, useCallback, useRef } from 'react';
-import { VoiceRecognitionState, VoiceRecognitionConfig } from '@/types/voice';
+import { useCallback, useEffect, useRef, useState } from 'react';
+
+import { VoiceRecognitionConfig, VoiceRecognitionState } from '@/types/voice';
 
 const DEFAULT_CONFIG: VoiceRecognitionConfig = {
   language: 'en-US',

@@ -1,23 +1,23 @@
 'use client';
 
-import { useState } from 'react';
-import Link from 'next/link';
-import Image from 'next/image';
 import {
+  ArrowRightIcon,
+  BookOpenIcon,
+  ChatBubbleLeftRightIcon,
+  ClockIcon,
+  DocumentTextIcon,
+  LifebuoyIcon,
   MagnifyingGlassIcon,
-  RocketLaunchIcon,
-  WrenchScrewdriverIcon,
   MicrophoneIcon,
   PuzzlePieceIcon,
   QuestionMarkCircleIcon,
-  ArrowRightIcon,
-  ChatBubbleLeftRightIcon,
-  LifebuoyIcon,
-  ClockIcon,
-  DocumentTextIcon,
-  BookOpenIcon,
+  RocketLaunchIcon,
+  WrenchScrewdriverIcon,
 } from '@heroicons/react/24/outline';
 import { BookmarkIcon } from '@heroicons/react/24/solid';
+import Image from 'next/image';
+import Link from 'next/link';
+import { useState } from 'react';
 
 export default function HelpCenter() {
   const [searchQuery, setSearchQuery] = useState('');

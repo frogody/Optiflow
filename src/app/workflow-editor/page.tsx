@@ -1,38 +1,40 @@
-// @ts-nocheck - This file has some TypeScript issues that are hard to fix
 'use client';
 
-import { useCallback, useState, useRef, useMemo, useEffect } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import ReactFlow, {
-  ReactFlowProvider,
-  MiniMap,
-  Controls,
-  Background,
-  useNodesState,
-  useEdgesState,
   addEdge,
-  Connection,
-  Edge,
-  ConnectionLineType,
-  Panel,
+  Background,
   BackgroundVariant,
-  Node,
-  XYPosition,
-  MarkerType,
+  Connection,
+  ConnectionLineType,
+  Controls,
+  Edge,
   EdgeTypes,
+  MarkerType,
+  MiniMap,
+  Node,
+  Panel,
+  ReactFlowProvider,
+  useEdgesState,
+  useNodesState,
+  XYPosition,
 } from 'reactflow';
+
 import 'reactflow/dist/style.css';
-import useNodeTypes from '@/components/workflow/NodeTypesFactory';
 import { AIAgentConfigData } from '@/components/workflow/AIAgentConfig';
-import NodePalette from '@/components/workflow/NodePalette';
-import { DefaultNodeData } from '@/components/workflow/DefaultNodeConfig';
-import CustomEdge from '@/components/workflow/CustomEdge';
-import WorkflowSettingsPanel, { WorkflowSettings } from '@/components/workflow/WorkflowSettings';
-import { Cog6ToothIcon } from '@heroicons/react/24/outline';
-import PipedreamAppNode from '@/components/workflow/PipedreamAppNode';
-import DefaultNode from '@/components/workflow/DefaultNode';
 import AIAgentNode from '@/components/workflow/AIAgentNode';
+import CustomEdge from '@/components/workflow/CustomEdge';
+import DefaultNode from '@/components/workflow/DefaultNode';
+import { DefaultNodeData } from '@/components/workflow/DefaultNodeConfig';
 import { ElevenLabsAgentWidget } from '@/components/workflow/ElevenLabsAgentWidget';
+import NodePalette from '@/components/workflow/NodePalette';
+import useNodeTypes from '@/components/workflow/NodeTypesFactory';
+import PipedreamAppNode from '@/components/workflow/PipedreamAppNode';
 import WorkflowHeader from '@/components/workflow/WorkflowHeader';
+import WorkflowSettingsPanel, { WorkflowSettings } from '@/components/workflow/WorkflowSettings';
+
+import { Cog6ToothIcon } from '@heroicons/react/24/outline';
+
 
 // Define a union type for node data
 type NodeDataType = { id?: string;
@@ -378,7 +380,7 @@ function WorkflowEditorContent() {
       } catch (error) { console.error('Error loading workflow from sessionStorage:', error);
           }
     }
-  }, [setNodes, setEdges, setSettings]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [setNodes, setEdges, setSettings]);
   
   // Handle connections between nodes
   const onConnect = useCallback(
@@ -395,7 +397,7 @@ function WorkflowEditorContent() {
         )
       ),
     [setEdges]
-  ); // eslint-disable-line react-hooks/exhaustive-deps
+  );
   
   // Handle node data updates
   const onNodeConfigChange = useCallback((nodeId: string, config: AIAgentConfigData) => {
@@ -414,7 +416,7 @@ function WorkflowEditorContent() {
         return node;
       })
     );
-  }, [setNodes]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [setNodes]);
   
   // Update node data change handlers
   const updatedNodes = useMemo(() => {
@@ -429,7 +431,7 @@ function WorkflowEditorContent() {
       }
       return node;
     });
-  }, [nodes, onNodeConfigChange]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [nodes, onNodeConfigChange]);
 
   // Handle default node configuration updates
   const onDefaultNodeConfigChange = useCallback((nodeId: string, updatedData: DefaultNodeData) => {
@@ -448,12 +450,12 @@ function WorkflowEditorContent() {
         return node;
       })
     );
-  }, [setNodes]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [setNodes]);
   
   // Handle edge deletion
   const onEdgeDelete = useCallback((edgeId: string) => {
     setEdges((eds) => eds.filter((e) => e.id !== edgeId));
-  }, [setEdges]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [setEdges]);
   
   // Update edges data with delete handler
   const updatedEdges = useMemo(() => {
@@ -463,13 +465,13 @@ function WorkflowEditorContent() {
         onDelete: onEdgeDelete
           }
     }));
-  }, [edges, onEdgeDelete]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [edges, onEdgeDelete]);
   
   // Handle drag over to allow dropping
   const onDragOver = useCallback((event: React.DragEvent) => {
     event.preventDefault();
     event.dataTransfer.dropEffect = 'move';
-  }, []); // eslint-disable-line react-hooks/exhaustive-deps;
+  }, []);
   
   // Handle dropping a new node
   const onDrop = useCallback(
@@ -591,7 +593,7 @@ function WorkflowEditorContent() {
     
     // TODO: Implement actual save to backend
     console.log('Saving workflow:', workflowState);
-  }, [nodes, edges, settings]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [nodes, edges, settings]);
 
   return (
     <div className="h-screen flex flex-col">

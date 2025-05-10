@@ -1,14 +1,14 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import Link from 'next/link';
-import Image from 'next/image';
 import { 
-  LightBulbIcon, 
-  SparklesIcon,
+  ArrowTopRightOnSquareIcon, 
   ChevronRightIcon,
-  ArrowTopRightOnSquareIcon
+  LightBulbIcon,
+  SparklesIcon
 } from '@heroicons/react/24/outline';
+import Image from 'next/image';
+import Link from 'next/link';
+import { useEffect, useState } from 'react';
 
 interface WorkflowTemplate {
   id: string;

@@ -1,5 +1,5 @@
-// @ts-nocheck - This file has some TypeScript issues that are hard to fix
 import { NextRequest, NextResponse } from 'next/server';
+
 import { ElevenLabsConversationalService } from '@/services/ElevenLabsConversationalService';
 
 // Input validation schema

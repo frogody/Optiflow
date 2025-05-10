@@ -1,9 +1,8 @@
-// @ts-nocheck - This file has some TypeScript issues that are hard to fix
 'use client';
 
-import { useState } from 'react';
 import { Dialog, Disclosure, Transition } from '@headlessui/react';
 import { ChevronDownIcon, PlusIcon } from '@heroicons/react/24/outline';
+import { useState } from 'react';
 import { Fragment } from 'react';
 
 interface AIAgentConfigProps {
@@ -50,7 +49,7 @@ const MODEL_OPTIONS = [
 
 const contextStrategies = [
   { id: 'all_inputs', name: 'All Inputs', description: 'Use all available input data'     },
-  { id: 'last_node', name: 'Last Node', description: 'Use only the last node\'s output'     },
+  { id: 'last_node', name: 'Last Node', description: "Use only the last node's output"     },
   { id: 'custom', name: 'Custom', description: 'Define custom context rules'     },
   { id: 'smart', name: 'Smart', description: 'AI-powered context selection'     }
 ];

@@ -1,9 +1,10 @@
-import { describe, it, expect, beforeEach, vi } from 'vitest';
+import { act, renderHook } from '@testing-library/react';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
+
 import { useVoiceRecognition } from '@/hooks/useVoiceRecognition';
+import { prisma } from '@/lib/prisma';
 import { ConversationService } from '@/services/ConversationService';
 import { PipedreamService } from '@/services/PipedreamService';
-import { prisma } from '@/lib/prisma';
-import { renderHook, act } from '@testing-library/react';
 
 // Mock the WebSocket and AudioContext
 vi.mock('@/lib/prisma', () => ({

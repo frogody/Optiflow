@@ -1,7 +1,7 @@
-// @ts-nocheck - This file has some TypeScript issues that are hard to fix
 'use client';
 
 import React, { ReactNode } from 'react';
+
 import { isSafari } from '@/utils/browserDetection';
 
 interface BackdropFilterProps {

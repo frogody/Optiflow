@@ -1,14 +1,13 @@
-// @ts-nocheck - This file has some TypeScript issues that are hard to fix
 import {
+  Building2,
   ClipboardCheck,
-  Shield,
-  Lightbulb,
   Code,
-  Workflow,
   Factory,
   GraduationCap,
-  Building2,
+  Lightbulb,
   Search,
+  Shield,
+  Workflow,
 } from 'lucide-react';
 
 export function IconAudit() {

@@ -2,10 +2,10 @@ const { i18n } = require('./next-i18next.config');
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  reactStrictMode: false,
+  reactStrictMode: true,
   output: 'standalone',
   images: {
-    unoptimized: true,
+    unoptimized: false,
     remotePatterns: [
       {
         protocol: 'https',
@@ -13,35 +13,106 @@ const nextConfig = {
       }
     ],
     domains: ['lh3.googleusercontent.com', 'avatars.githubusercontent.com', 'ui-avatars.com'],
+    formats: ['image/avif', 'image/webp'],
   },
   // Skip type checking during build
   typescript: {
-    ignoreBuildErrors: true,
+    // Enable type checking in development, but don't fail production builds
+    ignoreBuildErrors: false,
+    // Enable more strict checks
+    tsconfigPath: './tsconfig.json',
   },
   // Skip ESLint during build
   eslint: {
-    ignoreDuringBuilds: true,
+    // Enable ESLint in development, but don't fail production builds
+    ignoreDuringBuilds: false,
+    dirs: ['src'],
   },
-  // Skip PostCSS validation
-  postcss: {
-    // Use a minimal config to avoid issues
-    config: {
-      plugins: {},
-    },
-  },
-  swcMinify: false,
+  swcMinify: true,
   experimental: {
-    // Disable SWC transforms
-    forceSwcTransforms: false,
-    // Disable React strict mode
-    strictMode: false,
+    // Enable modern optimizations
+    optimizeCss: true,
+    optimizePackageImports: ['@headlessui/react', '@heroicons/react'],
+    // Add modern features
+    serverActions: {
+      allowedOrigins: ['localhost:3000', 'optiflow.ai'],
+    },
+    serverComponentsExternalPackages: ['@prisma/client'],
+    ppr: true,
+    typedRoutes: true,
+  },
+  compiler: {
+    // Remove console.log in production
+    removeConsole: process.env.NODE_ENV === 'production',
+  },
+  // Add i18n configuration
+  i18n,
+  // Add webpack configuration for better optimization
+  webpack: (config, { dev, isServer }) => {
+    // Optimize bundle size
+    if (!dev && !isServer) {
+      config.optimization.splitChunks = {
+        chunks: 'all',
+        minSize: 20000,
+        maxSize: 244000,
+        minChunks: 1,
+        maxAsyncRequests: 30,
+        maxInitialRequests: 30,
+        cacheGroups: {
+          defaultVendors: {
+            test: /[\\/]node_modules[\\/]/,
+            priority: -10,
+            reuseExistingChunk: true,
+          },
+          default: {
+            minChunks: 2,
+            priority: -20,
+            reuseExistingChunk: true,
+          },
+        },
+      };
+    }
+
+    // Add module resolution optimizations
+    config.resolve.fallback = {
+      ...config.resolve.fallback,
+      fs: false,
+      net: false,
+      tls: false,
+    };
+
+    return config;
   },
   env: {
     NEXT_PUBLIC_DEPLOYMENT_ENV: process.env.NODE_ENV || 'development',
     NEXT_PUBLIC_PIPEDREAM_CLIENT_ID: process.env.NEXT_PUBLIC_PIPEDREAM_CLIENT_ID || 'kWYR9dn6Vmk7MnLuVfoXx4jsedOcp83vBg6st3rWuiM',
     NEXT_PUBLIC_APP_URL: process.env.NEXT_PUBLIC_APP_URL || 'https://app.isyncso.com',
     NEXT_PUBLIC_PIPEDREAM_REDIRECT_URI: process.env.NEXT_PUBLIC_PIPEDREAM_REDIRECT_URI || 'https://app.isyncso.com/api/pipedream/callback',
-  }
+  },
+  logging: {
+    fetches: {
+      fullUrl: true,
+    },
+  },
+  headers: async () => [
+    {
+      source: '/(.*)',
+      headers: [
+        {
+          key: 'X-Content-Type-Options',
+          value: 'nosniff',
+        },
+        {
+          key: 'X-Frame-Options',
+          value: 'DENY',
+        },
+        {
+          key: 'X-XSS-Protection',
+          value: '1; mode=block',
+        },
+      ],
+    },
+  ],
 }
 
 module.exports = nextConfig

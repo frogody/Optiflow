@@ -1,18 +1,18 @@
-// @ts-nocheck - This file has some TypeScript issues that are hard to fix
 import React, { useCallback, useEffect } from 'react';
 import ReactFlow, {
-  Node,
-  Edge,
-  Controls,
-  Background,
-  useNodesState,
-  useEdgesState,
   addEdge,
-  Connection,
-  Panel,
-  MarkerType,
+  Background,
   BackgroundVariant,
+  Connection,
+  Controls,
+  Edge,
+  MarkerType,
+  Node,
+  Panel,
+  useEdgesState,
+  useNodesState,
 } from 'reactflow';
+
 import 'reactflow/dist/style.css';
 import { useWorkflowStore } from '@/lib/workflowStore';
 

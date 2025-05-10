@@ -1,7 +1,6 @@
-// @ts-nocheck - This file has some TypeScript issues that are hard to fix
 'use client';
 
-import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import { createContext, ReactNode, useContext, useEffect, useState } from 'react';
 
 export type LanguageCode = 'en' | 'nl' | 'de' | 'fr' | 'es';
 

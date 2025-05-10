@@ -1,8 +1,8 @@
 "use client";
-import { useSession, signIn } from "next-auth/react";
-import VoiceAgentClient from "@/components/voice/VoiceAgentClient";
+import { signIn, useSession } from "next-auth/react";
 import { Suspense } from "react";
-import { toast } from "react-hot-toast";
+
+import VoiceAgentClient from "@/components/voice/VoiceAgentClient";
 
 export default function VoiceAgentPage(): JSX.Element {
   const { data: session, status } = useSession();
@@ -83,7 +83,7 @@ export default function VoiceAgentPage(): JSX.Element {
                 "Use natural language for your requests",
                 "Connect your services in Settings to enable more capabilities",
                 "You can type commands if you prefer not to speak",
-                "Say \"help\" to get assistance with commands"
+                "Say 'help' to get assistance with commands"
               ].map((tip, i) => (
                 <li key={i} className="flex items-start">
                   <div className="w-6 h-6 rounded-full bg-[#A855F7] flex items-center justify-center mr-3 shrink-0">

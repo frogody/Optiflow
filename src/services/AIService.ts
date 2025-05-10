@@ -1,15 +1,18 @@
-// @ts-nocheck - This file has some TypeScript issues that are hard to fix
-import { Prisma } from '@prisma/client';
-import { prisma } from '@/lib/prisma';
-import { z } from 'zod';
 import { Anthropic } from '@anthropic-ai/sdk';
+import { Prisma } from '@prisma/client';
+import { z } from 'zod';
+
 import { AIError } from '../errors/AIError';
-import { ClaudeWrapper, MODEL_MAP } from './ClaudeWrapper';
+import { GeneratedWorkflow } from '../types/workflow';
+
+import { ClaudeWrapper, MODEL_MAP, ModelName, ThinkingConfig } from './ClaudeWrapper';
+
+import { prisma } from '@/lib/prisma';
 
 const claudeWrapper = new ClaudeWrapper();
 
 // Types for raw queries
-type AIPromptRow = {
+interface AIPromptRow {
   id: string;
   name: string;
   description: string;
@@ -24,9 +27,9 @@ type AIPromptRow = {
   metadata: unknown | null;
   user_name: string;
   model_name: string | null;
-};
+}
 
-type AITrainingDataRow = {
+interface AITrainingDataRow {
   id: string;
   name: string;
   description: string;
@@ -42,7 +45,7 @@ type AITrainingDataRow = {
   metadata: unknown | null;
   user_name: string;
   model_name: string | null;
-};
+}
 
 // Simple validation of required environment variables
 if (!process.env.ANTHROPIC_API_KEY) {
@@ -51,41 +54,56 @@ if (!process.env.ANTHROPIC_API_KEY) {
 
 const anthropic = new Anthropic({
   apiKey: process.env.ANTHROPIC_API_KEY,
-  defaultHeaders: { 'anthropic-version': '2023-06-01',
+  defaultHeaders: {
+    'anthropic-version': '2024-02-19',
     'Content-Type': 'application/json'
-      }
+  }
 });
 
 // Validation schemas
-const createPromptSchema = z.object({ name: z.string().min(1).max(100),
+const createPromptSchema = z.object({
+  name: z.string().min(1).max(100),
   description: z.string().min(1),
   prompt: z.string().min(1),
   isPublic: z.boolean().optional(),
   modelId: z.string().optional(),
   metadata: z.record(z.unknown()).optional(),
   organizationId: z.string().uuid(),
-    });
+});
 
-const createTrainingDataSchema = z.object({ name: z.string().min(1).max(100),
+const createTrainingDataSchema = z.object({
+  name: z.string().min(1).max(100),
   description: z.string().min(1),
   data: z.record(z.unknown()),
   modelId: z.string().optional(),
   metadata: z.record(z.unknown()).optional(),
   organizationId: z.string().uuid(),
-    });
+});
 
 // Workflow types
+interface Position {
+  x: number;
+  y: number;
+}
+
+interface NodeConfig {
+  [key: string]: unknown;
+  type?: string;
+  label?: string;
+  description?: string;
+  inputs?: Record<string, unknown>;
+  outputs?: Record<string, unknown>;
+  settings?: Record<string, unknown>;
+}
+
 interface WorkflowNode {
   id: string;
   type: 'trigger' | 'action' | 'conditional' | 'wait';
-  position: {
-    x: number;
-    y: number;
-  };
+  position: Position;
   data: {
     label: string;
     description: string;
-    config: Record<string, any>;
+    config: NodeConfig;
   };
 }
 
@@ -96,22 +114,51 @@ interface WorkflowEdge {
   label: string;
 }
 
-interface GeneratedWorkflow {
-  name: string;
-  description: string;
-  nodes: WorkflowNode[];
-  edges: WorkflowEdge[];
+interface PaginationResult {
+  total: number;
+  pages: number;
+  page: number;
+  limit: number;
+}
+
+interface PromptsResult {
+  prompts: AIPromptRow[];
+  pagination: PaginationResult;
+}
+
+interface GenerateTextOptions {
+  model?: ModelName;
+  temperature?: number;
+  maxTokens?: number;
+  thinking?: ThinkingConfig;
 }
 
 export class AIService {
+  private anthropic: Anthropic;
+
+  constructor() {
+    const apiKey = process.env.ANTHROPIC_API_KEY;
+    if (!apiKey) {
+      throw new Error('ANTHROPIC_API_KEY environment variable is not set');
+    }
+
+    this.anthropic = new Anthropic({
+      apiKey,
+      defaultHeaders: {
+        'anthropic-version': '2024-02-19',
+        'Content-Type': 'application/json'
+      }
+    });
+  }
+
   /**
    * Create a new AI prompt
    */
-  async createPrompt(data: z.infer<typeof createPromptSchema>, userId: string) {
+  async createPrompt(data: z.infer<typeof createPromptSchema>, userId: string): Promise<AIPromptRow> {
     try {
       const validatedData = createPromptSchema.parse(data);
       
-      return await prisma.$queryRaw`
+      const [result] = await prisma.$queryRaw<[AIPromptRow]>`
         INSERT INTO ai_prompts (
           id, name, description, prompt, version, is_public, created_at, updated_at,
           user_id, organization_id, model_id, metadata
@@ -122,9 +169,11 @@ export class AIService {
         )
         RETURNING *;
       `;
+      
+      return result;
     } catch (error) {
       if (error instanceof Prisma.PrismaClientKnownRequestError) {
-        throw new AIError('Failed to create prompt', { cause: error     });
+        throw new AIError('Failed to create prompt', { cause: error });
       }
       throw error;
     }
@@ -133,7 +182,7 @@ export class AIService {
   /**
    * Get all prompts for an organization with pagination
    */
-  async getPromptsByOrganization(organizationId: string, page = 1, limit = 20) {
+  async getPromptsByOrganization(organizationId: string, page = 1, limit = 20): Promise<PromptsResult> {
     try {
       const skip = (page - 1) * limit;
       
@@ -147,7 +196,7 @@ export class AIService {
           ORDER BY p.created_at DESC
           LIMIT ${limit} OFFSET ${skip}
         `,
-        prisma.$queryRaw<[{ total: bigint     }]>`
+        prisma.$queryRaw<[{ total: bigint }]>`
           SELECT COUNT(*) as total
           FROM ai_prompts
           WHERE organization_id = ${organizationId} OR is_public = true
@@ -158,21 +207,22 @@ export class AIService {
       
       return {
         prompts,
-        pagination: { total,
+        pagination: {
+          total,
           pages: Math.ceil(total / limit),
           page,
           limit,
-            },
+        },
       };
     } catch (error) {
-      throw new AIError('Failed to fetch prompts', { cause: error     });
+      throw new AIError('Failed to fetch prompts', { cause: error });
     }
   }
   
   /**
    * Get all public prompts
    */
-  async getPublicPrompts() {
+  async getPublicPrompts(): Promise<AIPromptRow[]> {
     return prisma.$queryRaw<AIPromptRow[]>`
       SELECT p.*, u.name as user_name, m.name as model_name
       FROM ai_prompts p
@@ -186,7 +236,7 @@ export class AIService {
   /**
    * Create training data for AI models
    */
-  async createTrainingData(data: z.infer<typeof createTrainingDataSchema>, userId: string) {
+  async createTrainingData(data: z.infer<typeof createTrainingDataSchema>, userId: string): Promise<AITrainingDataRow> {
     try {
       const validatedData = createTrainingDataSchema.parse(data);
       
@@ -199,331 +249,294 @@ export class AIService {
           ${validatedData.data}, 1, 'pending', NOW(), NOW(),
           ${userId}, ${validatedData.organizationId}, ${validatedData.modelId}, ${validatedData.metadata || null}
         )
-        RETURNING *, NULL as user_name, NULL as model_name;
+        RETURNING *;
       `;
       
       return result;
     } catch (error) {
       if (error instanceof Prisma.PrismaClientKnownRequestError) {
-        throw new AIError('Failed to create training data', { cause: error     });
+        throw new AIError('Failed to create training data', { cause: error });
       }
       throw error;
     }
   }
   
   /**
-   * Get all training data for an organization
+   * Get training data by organization
    */
-  async getTrainingDataByOrganization(organizationId: string) {
+  async getTrainingDataByOrganization(organizationId: string): Promise<AITrainingDataRow[]> {
     return prisma.$queryRaw<AITrainingDataRow[]>`
-      SELECT td.*, u.name as user_name, m.name as model_name
-      FROM ai_training_data td
-      LEFT JOIN users u ON td.user_id = u.id
-      LEFT JOIN ai_models m ON td.model_id = m.id
-      WHERE td.organization_id = ${organizationId}
-      ORDER BY td.created_at DESC
+      SELECT t.*, u.name as user_name, m.name as model_name
+      FROM ai_training_data t
+      LEFT JOIN users u ON t.user_id = u.id
+      LEFT JOIN ai_models m ON t.model_id = m.id
+      WHERE t.organization_id = ${organizationId}
+      ORDER BY t.created_at DESC
     `;
   }
   
-  private async generateWithAnthropic(prompt: string, model?: string) {
-    let attempts = 0;
-    const maxAttempts = 3;
-    
-    // Use environment variable or default to Claude 3.7 Sonnet
-    const modelName = model || process.env.ANTHROPIC_DEFAULT_MODEL || MODEL_MAP.CLAUDE_3_7_SONNET;
-    
-    // Add debug logging
-    console.log('[AIService] Debug Info:');
-    console.log(`[AIService] Using model: ${modelName}`);
-    console.log(`[AIService] API Key length: ${process.env.ANTHROPIC_API_KEY?.length || 0}`);
-    console.log(`[AIService] API Key: ${ process.env.ANTHROPIC_API_KEY ? process.env.ANTHROPIC_API_KEY.substring(0, 10) + '...' : 'not set'    }`);
-    console.log(`[AIService] Model from param: ${model || 'not provided'}`);
-    console.log(`[AIService] Env MODEL: ${process.env.ANTHROPIC_DEFAULT_MODEL || 'not set'}`);
-    console.log(`[AIService] Final model selected: ${modelName}`);
-    
-    // Verify API key starts with sk-ant-
-    if (!process.env.ANTHROPIC_API_KEY?.toLowerCase().startsWith('sk-ant-')) {
-      console.error('[AIService] API key does not have the correct format (should start with sk-ant-)');
-      throw new AIError('API key format is invalid. It should start with sk-ant-');
-    }
-    
-    while (attempts < maxAttempts) {
-      try {
-        // Use Claude wrapper for API call
-        const result = await claudeWrapper.generateText(
-          prompt,
-          modelName,
-          parseInt(process.env.ANTHROPIC_MAX_TOKENS || '4096'),
-          parseFloat(process.env.ANTHROPIC_TEMPERATURE || '0.7')
-        );
-        console.log('[AIService] Successfully generated text with Anthropic');
-        return result;
-      } catch (error) {
-        attempts++;
-        console.error(`[AIService] Attempt ${attempts}/${maxAttempts} failed:`, error);
-        
-        // Check for specific error types and provide better diagnostics
-        if (error && typeof error === 'object' && 'status' in error) {
-          if (error.status === 401) {
-            console.error('[AIService] Authentication error - invalid API key. Please check your ANTHROPIC_API_KEY setting.');
-          } else if (error.status === 404) {
-            console.error(`[AIService] Model not found: ${modelName}. This model may not be available to your API key.`);
-          }
-        }
-        
-        if (attempts === maxAttempts) {
-          throw new AIError('Failed to generate text with Anthropic', { cause: error     });
-        }
-        // Exponential backoff
-        await new Promise(resolve => setTimeout(resolve, Math.pow(2, attempts) * 1000));
-      }
-    }
-  }
-  
   /**
-   * Generate text using the specified model
+   * Generate text using Anthropic's Claude model
    */
-  async generateText(prompt: string, model: string = 'gpt-4', temperature: number = 0.7, maxTokens: number = 1000) {
-    if (model.startsWith('gpt')) {
-      throw new Error(`Unsupported model: ${model}`);
-    } else if (model.startsWith('claude')) {
-      return this.generateWithAnthropic(prompt);
-    } else {
-      throw new Error(`Unsupported model: ${model}`);
-    }
-  }
-  
-  /**
-   * Analyze workflow data and suggest improvements
-   */
-  async analyzeWorkflow(workflowData: any) {
-    const prompt = `
-      Analyze the following workflow and suggest improvements:
-      
-      ${JSON.stringify(workflowData, null, 2)}
-      
-      Please provide:
-      1. Potential bottlenecks
-      2. Optimization opportunities
-      3. Security considerations
-      4. Suggested enhancements
-    `;
-    
-    return this.generateText(prompt, 'gpt-4', 0.7, 2000);
-  }
-  
-  /**
-   * Generate a workflow based on a description
-   */
-  async generateWorkflowFromDescription(description: string, context: string = '', model?: string): Promise<GeneratedWorkflow> {
-    const contextSection = context ? `\nPrevious conversation context:\n${context}\n` : '';
-    
-    const prompt = `
-      Create a workflow based on the following description:
-      
-      ${description}
-      ${contextSection}
-      
-      The workflow should focus on outreach campaigns and include the following components where appropriate:
-      1. Data Source nodes (e.g., SQL, HubSpot, CSV)
-      2. Data Processing nodes
-      3. Email Template nodes
-      4. Conditional Logic nodes
-      5. Delay/Wait nodes
-      6. Action nodes (e.g., Send Email, Update CRM)
-      
-      Each node should have:
-      - A descriptive name
-      - Appropriate configuration
-      - Clear connections to other nodes
-      - Proper positioning for visual clarity
-      
-      Return the workflow as a JSON object with this structure:
-      {
-        "name": "string",
-        "description": "string",
-        "nodes": [
-          {
-            "id": "string",
-            "type": "trigger|action|conditional|wait",
-            "position": { "x": number, "y": number     },
-            "data": {
-              "label": "string",
-              "description": "string",
-              "config": {
-                // Node-specific configuration
-              }
-            }
-          }
-        ],
-        "edges": [
-          { "id": "string",
-            "source": "string",
-            "target": "string",
-            "label": "string"
-              }
-        ]
-      }
-    `;
-    
-    const response = await this.generateWithAnthropic(prompt, model);
-    if (!response) {
-      throw new AIError('No response received from AI model');
-    }
-    
+  private async generateWithAnthropic(
+    prompt: string,
+    options: GenerateTextOptions = {}
+  ): Promise<string> {
+    const {
+      model = 'CLAUDE_3_7_SONNET',
+      temperature = 0.7,
+      maxTokens = 4000,
+      thinking
+    } = options;
+
     try {
-      // Extract JSON from the response
-      const jsonMatch = response.match(/```json\n([\s\S]*?)\n```/) || 
-                       response.match(/```\n([\s\S]*?)\n```/) ||
-                       response.match(/{[\s\S]*}/);
-      
-      if (jsonMatch) {
-        const jsonStr = jsonMatch[1] || jsonMatch[0];
-        const workflow = JSON.parse(jsonStr) as GeneratedWorkflow;
-        
-        // Validate the workflow structure
-        if (!workflow.nodes || !workflow.edges) { throw new Error('Invalid workflow structure: missing nodes or edges');
-            }
-        
-        // Add default configurations for outreach-specific nodes
-        workflow.nodes = workflow.nodes.map((node: WorkflowNode) => {
-          switch (node.type) {
-            case 'trigger':
-              if (node.data.label.toLowerCase().includes('sql')) {
-                node.data.config = { ...node.data.config,
-                  queryType: 'select',
-                  refreshInterval: '1h',
-                  maxRows: 1000
-                    };
-              } else if (node.data.label.toLowerCase().includes('hubspot')) {
-                node.data.config = { ...node.data.config,
-                  objectType: 'contacts',
-                  properties: ['email', 'firstname', 'lastname', 'company'],
-                  filters: []
-                    };
-              }
-              break;
-            case 'action':
-              if (node.data.label.toLowerCase().includes('email')) {
-                node.data.config = { ...node.data.config,
-                  provider: 'smtp',
-                  template: 'default',
-                  trackOpens: true,
-                  trackClicks: true
-                    };
-              }
-              break;
-            case 'wait':
-              node.data.config = { ...node.data.config,
-                duration: '3d',
-                workingHoursOnly: true
-                  };
-              break;
-          }
-          return node;
-        });
-        
-        return workflow;
-      }
-      
-      throw new Error('Could not extract JSON from response');
-    } catch (error) { console.error('Error parsing workflow JSON:', error);
-      throw new Error('Failed to generate workflow from description');
+      const response = await this.anthropic.messages.create({
+        model: MODEL_MAP[model],
+        max_tokens: maxTokens,
+        temperature,
+        messages: [{ role: 'user', content: prompt }],
+        ...(thinking && { thinking })
+      });
+
+      let finalText = '';
+      for (const content of response.content) {
+        if (content.type === 'text') {
+          finalText += content.text;
+        } else if (content.type === 'thinking') {
+          finalText += `\nThinking: ${content.text}\n`;
         }
+      }
+
+      return finalText.trim();
+    } catch (error) {
+      console.error('[AIService] Error generating text:', error);
+      throw new AIError('Failed to generate text with Anthropic', { cause: error });
+    }
   }
   
   /**
-   * Refine an existing workflow based on user feedback
+   * Generate text using specified model
    */
-  async refineWorkflow(feedback: string, existingWorkflow: any, context: string = ''): Promise<{ workflow: GeneratedWorkflow, message: string     }> {
-    const workflowStr = typeof existingWorkflow === 'string' 
-      ? existingWorkflow 
-      : JSON.stringify(existingWorkflow, null, 2);
-    
-    const contextSection = context ? `\nPrevious conversation context:\n${context}\n` : '';
-    
-    const prompt = `
-      You are a workflow refinement assistant. The user has an existing workflow and wants to make changes to it.
-      
-      Here is the existing workflow:
-      
-      ${workflowStr}
-      
-      The user's refinement request:
-      ${feedback}
-      ${contextSection}
-      
-      Please analyze the workflow and the user's request, then make the requested changes to the workflow.
-      Take into account the current nodes, edges, and their configurations. Preserve existing IDs and relationships
-      when possible, and only modify what's necessary to fulfill the request.
-      
-      Return the following:
-      1. A clear message explaining what changes you made (or why you couldn't make certain changes)
-      2. The updated workflow JSON that incorporates the requested changes
-      
-      Format your response like this:
-      
-      EXPLANATION:
-      [Your explanation of the changes made]
-      
-      UPDATED_WORKFLOW:
-      \`\`\`json
-      {
-        // The complete updated workflow JSON
-      }
-      \`\`\`
-    `;
-    
-    const response = await this.generateWithAnthropic(prompt);
-    if (!response) {
-      throw new AIError('No response received from AI model');
-    }
-    
+  async generateText(
+    prompt: string,
+    options: GenerateTextOptions = {}
+  ): Promise<string> {
+    return this.generateWithAnthropic(prompt, options);
+  }
+  
+  /**
+   * Analyze a workflow and provide insights
+   */
+  async analyzeWorkflow(workflow: GeneratedWorkflow): Promise<{
+    insights: string[];
+    suggestions: string[];
+    risks: string[];
+  }> {
     try {
-      // Extract explanation
-      const explanationMatch = response.match(/EXPLANATION:\s*([\s\S]*?)\s*UPDATED_WORKFLOW:/i);
-      const explanation = explanationMatch ? explanationMatch[1].trim() : 'Workflow updated based on your feedback.';
+      const prompt = `Analyze the following workflow and provide insights, suggestions, and potential risks:
       
-      // Extract JSON
-      const jsonMatch = response.match(/```json\s*([\s\S]*?)\s*```/) || 
-                        response.match(/```\s*([\s\S]*?)\s*```/) ||
-                        response.match(/{[\s\S]*}/);
-      
-      if (jsonMatch) {
-        const jsonStr = jsonMatch[1] || jsonMatch[0];
-        const workflow = JSON.parse(jsonStr) as GeneratedWorkflow;
-        
-        // Validate the workflow structure
-        if (!workflow.nodes || !workflow.edges) { throw new Error('Invalid workflow structure: missing nodes or edges');
-            }
-        
-        return { workflow, message: explanation     };
+Workflow Name: ${workflow.name}
+Description: ${workflow.description}
+
+Nodes:
+${workflow.nodes.map(node => `- ${node.type}: ${node.data.label} (${node.data.description})`).join('\n')}
+
+Connections:
+${workflow.edges.map(edge => `- ${edge.source} -> ${edge.target}: ${edge.label}`).join('\n')}
+
+Please provide:
+1. Key insights about the workflow design and structure
+2. Suggestions for improvement or optimization
+3. Potential risks or issues to consider`;
+
+      const response = await this.generateWithAnthropic(prompt);
+      const sections = response.split('\n\n');
+
+      return {
+        insights: sections[0]?.split('\n').filter(line => line.trim()) || [],
+        suggestions: sections[1]?.split('\n').filter(line => line.trim()) || [],
+        risks: sections[2]?.split('\n').filter(line => line.trim()) || []
+      };
+    } catch (error) {
+      throw new AIError('Failed to analyze workflow', { cause: error });
+    }
+  }
+  
+  /**
+   * Generate a workflow from a natural language description
+   */
+  async generateWorkflowFromDescription(
+    description: string,
+    context = '',
+    model: ModelName = 'CLAUDE_3_7_SONNET',
+    thinking?: ThinkingConfig
+  ): Promise<GeneratedWorkflow> {
+    const prompt = `Create a workflow based on the following description. The workflow should be practical, efficient, and follow best practices.
+
+Description: ${description}
+${context ? `Additional Context: ${context}` : ''}
+
+Please generate a workflow with:
+1. A clear name and description
+2. Appropriate trigger nodes for starting the workflow
+3. Action nodes for performing tasks
+4. Conditional nodes for decision making where needed
+5. Proper connections between nodes with meaningful labels
+
+Format the response as a JSON object with the following structure:
+{
+  "name": "Workflow name",
+  "description": "Workflow description",
+  "nodes": [
+    {
+      "id": "unique-id",
+      "type": "trigger|action|condition",
+      "position": { "x": number, "y": number },
+      "data": {
+        "label": "Node label",
+        "description": "Node description",
+        "config": {}
       }
-      
-      throw new Error('Could not extract workflow JSON from response');
-    } catch (error) { console.error('Error processing workflow refinement:', error);
-      throw new Error('Failed to refine workflow based on feedback');
-        }
+    }
+  ],
+  "edges": [
+    {
+      "id": "unique-id",
+      "source": "source-node-id",
+      "target": "target-node-id",
+      "label": "Connection label"
+    }
+  ]
+}`;
+
+    try {
+      const response = await this.generateText(prompt, {
+        model,
+        thinking,
+        temperature: 0.7,
+        maxTokens: 4000
+      });
+
+      // Extract JSON from response
+      const jsonMatch = response.match(/\{[\s\S]*\}/);
+      if (!jsonMatch) {
+        throw new AIError('Invalid workflow JSON generated');
+      }
+
+      const workflow = JSON.parse(jsonMatch[0]);
+
+      // Validate workflow structure
+      if (!workflow.name || !workflow.description || !Array.isArray(workflow.nodes) || !Array.isArray(workflow.edges)) {
+        throw new AIError('Invalid workflow structure generated');
+      }
+
+      return workflow;
+    } catch (error) {
+      if (error instanceof AIError) {
+        throw error;
+      }
+      throw new AIError('Failed to generate workflow', { cause: error });
+    }
+  }
+  
+  /**
+   * Refine an existing workflow based on feedback
+   */
+  async refineWorkflow(
+    feedback: string,
+    existingWorkflow: GeneratedWorkflow,
+    context = ''
+  ): Promise<{ workflow: GeneratedWorkflow; message: string }> {
+    try {
+      const prompt = `Refine the following workflow based on the provided feedback. Maintain the workflow's core functionality while addressing the feedback.
+
+Current Workflow:
+Name: ${existingWorkflow.name}
+Description: ${existingWorkflow.description}
+
+Nodes:
+${existingWorkflow.nodes.map(node => `- ${node.type}: ${node.data.label} (${node.data.description})`).join('\n')}
+
+Connections:
+${existingWorkflow.edges.map(edge => `- ${edge.source} -> ${edge.target}: ${edge.label}`).join('\n')}
+
+Feedback: ${feedback}
+${context ? `Additional Context: ${context}` : ''}
+
+Please provide:
+1. A refined version of the workflow in the same JSON format as the original
+2. A brief message explaining the changes made
+
+Format the response as a JSON object with:
+{
+  "workflow": {
+    // Updated workflow structure
+  },
+  "message": "Explanation of changes"
+}`;
+
+      const response = await this.generateWithAnthropic(prompt);
+      const result = JSON.parse(response) as {
+        workflow: GeneratedWorkflow;
+        message: string;
+      };
+
+      // Validate the refined workflow
+      if (!result.workflow || !result.message) {
+        throw new Error('Invalid refinement response structure');
+      }
+
+      return result;
+    } catch (error) {
+      throw new AIError('Failed to refine workflow', { cause: error });
+    }
   }
   
   /**
    * Generate documentation for a workflow
    */
-  async generateWorkflowDocumentation(workflowData: any) {
-    const prompt = `
-      Generate comprehensive documentation for the following workflow:
-      
-      ${JSON.stringify(workflowData, null, 2)}
-      
-      Please include:
-      1. Overview
-      2. Purpose
-      3. Components
-      4. Data flow
-      5. Configuration options
-      6. Usage examples
-    `;
-    
-    return this.generateWithAnthropic(prompt);
+  async generateWorkflowDocumentation(workflow: GeneratedWorkflow): Promise<{
+    overview: string;
+    setup: string;
+    usage: string;
+    troubleshooting: string;
+  }> {
+    try {
+      const prompt = `Generate comprehensive documentation for the following workflow:
+
+Workflow Name: ${workflow.name}
+Description: ${workflow.description}
+
+Components:
+${workflow.nodes.map(node => `- ${node.type}: ${node.data.label} (${node.data.description})`).join('\n')}
+
+Connections:
+${workflow.edges.map(edge => `- ${edge.source} -> ${edge.target}: ${edge.label}`).join('\n')}
+
+Please provide documentation with the following sections:
+1. Overview: A high-level explanation of the workflow's purpose and functionality
+2. Setup: Step-by-step instructions for configuring the workflow
+3. Usage: How to use and monitor the workflow
+4. Troubleshooting: Common issues and their solutions
+
+Format the response as a JSON object with sections as properties.`;
+
+      const response = await this.generateWithAnthropic(prompt);
+      const documentation = JSON.parse(response) as {
+        overview: string;
+        setup: string;
+        usage: string;
+        troubleshooting: string;
+      };
+
+      // Validate the documentation structure
+      if (!documentation.overview || !documentation.setup || !documentation.usage || !documentation.troubleshooting) {
+        throw new Error('Invalid documentation structure generated');
+      }
+
+      return documentation;
+    } catch (error) {
+      throw new AIError('Failed to generate workflow documentation', { cause: error });
+    }
   }
 }

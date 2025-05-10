@@ -1,6 +1,5 @@
-// @ts-nocheck - This file has some TypeScript issues that are hard to fix
-import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
+import React, { useEffect, useState } from 'react';
 
 interface ModelContext {
   modelId: string;

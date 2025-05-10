@@ -1,9 +1,8 @@
-// @ts-nocheck - This file has some TypeScript issues that are hard to fix
 'use client';
 
-import { useSession } from 'next-auth/react';
-import Link from 'next/link';
 import dynamic from 'next/dynamic';
+import Link from 'next/link';
+import { useSession } from 'next-auth/react';
 
 const AnalyticsContent = dynamic(() => import('@/components/AnalyticsContent'), { ssr: false,
   loading: () => (

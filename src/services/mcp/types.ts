@@ -1,19 +1,22 @@
-// @ts-nocheck - This file has some TypeScript issues that are hard to fix
+export type MCPParamValue = string | number | boolean | null | Record<string, unknown> | MCPParamValue[];
+
 export interface MCPRequest {
   jsonrpc: '2.0';
   method: string;
-  params: Record<string, any>;
+  params: Record<string, MCPParamValue>;
   id: string | number;
+}
+
+export interface MCPError {
+  code: number;
+  message: string;
+  data?: unknown;
 }
 
 export interface MCPResponse {
   jsonrpc: '2.0';
-  result?: any;
-  error?: {
-    code: number;
-    message: string;
-    data?: any;
-  };
+  result?: unknown;
+  error?: MCPError;
   id: string | number;
 }
 
@@ -24,22 +27,32 @@ export interface MCPApplication {
   endpoint: string;
 }
 
+export interface Position {
+  x: number;
+  y: number;
+}
+
+export interface WorkflowNodeConfig {
+  [key: string]: MCPParamValue;
+}
+
 export interface WorkflowNode {
   id: string;
   type: string;
   applicationId: string;
-  config: Record<string, any>;
-  position: {
-    x: number;
-    y: number;
-  };
+  config: WorkflowNodeConfig;
+  position: Position;
+}
+
+export interface WorkflowEdgeConfig {
+  [key: string]: MCPParamValue;
 }
 
 export interface WorkflowEdge {
   id: string;
   source: string;
   target: string;
-  config?: Record<string, any>;
+  config?: WorkflowEdgeConfig;
 }
 
 export interface Workflow {

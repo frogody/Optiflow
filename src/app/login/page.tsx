@@ -1,9 +1,9 @@
 'use client';
 
-import { useState } from 'react';
-import Link from 'next/link';
+import { EnvelopeIcon, EyeIcon, EyeSlashIcon, LockClosedIcon } from '@heroicons/react/24/outline';
 import Image from 'next/image';
-import { EnvelopeIcon, LockClosedIcon, EyeIcon, EyeSlashIcon } from '@heroicons/react/24/outline';
+import Link from 'next/link';
+import { useState } from 'react';
 
 export default function Login() {
   const [email, setEmail] = useState('');

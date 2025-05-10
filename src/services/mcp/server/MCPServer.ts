@@ -1,6 +1,6 @@
-// @ts-nocheck - This file has some TypeScript issues that are hard to fix
 import express from 'express';
-import { MCPRequest, MCPResponse, MCPApplication } from '../types';
+
+import { MCPApplication, MCPRequest, MCPResponse } from '../types';
 
 export abstract class MCPServer {
   protected app: express.Application;

@@ -1,9 +1,9 @@
-// @ts-nocheck - This file has some TypeScript issues that are hard to fix
 import { useState } from 'react';
+
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
-import { Textarea } from '@/components/ui/Textarea';
 import { Label } from '@/components/ui/Label';
+import { Textarea } from '@/components/ui/Textarea';
 import { useToast } from '@/components/ui/use-toast';
 
 export function ConsultationForm() {

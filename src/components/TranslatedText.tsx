@@ -1,9 +1,9 @@
-// @ts-nocheck - This file has some TypeScript issues that are hard to fix
 'use client';
 
 import { useEffect, useState } from 'react';
-import { useLanguage } from '@/lib/languageContext';
-import translations from '@/translations';
+
+import { useLanguage } from '@/lib/languageContext.js';
+import translations from '@/translations/index.js';
 
 interface TranslatedTextProps { textKey: string;
   fallback?: string;

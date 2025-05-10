@@ -9,10 +9,11 @@
  * Usage: node scripts/test-pipedream-auth.js
  */
 
-const dotenv = require('dotenv');
 const fs = require('fs');
 const path = require('path');
+
 const { createBackendClient } = require('@pipedream/sdk/server');
+const dotenv = require('dotenv');
 
 // Load environment variables from .env files
 if (fs.existsSync('.env.local')) {

@@ -1,11 +1,14 @@
-// @ts-nocheck - This file has some TypeScript issues that are hard to fix
-import { PipedreamService } from './PipedreamService';
-import { MCPContextService, ModelContext } from './MCPContextService';
+// Import types from PipedreamService
 import { toast } from 'react-hot-toast';
+
+import { MCPContextService, ModelContext } from './MCPContextService';
+import { PipedreamService } from './PipedreamService';
+
 import { pipedreamConfig } from '@/config/pipedream';
 
 // Types for orchestration
-export interface Agent { id: string;
+export interface Agent {
+  id: string;
   name: string;
   description: string;
   modelId: string;
@@ -15,16 +18,18 @@ export interface Agent { id: string;
   flows: Flow[];
   lastRun?: Date;
   error?: string;
-    }
+}
 
-export interface AgentCapability { id: string;
+export interface AgentCapability {
+  id: string;
   name: string;
   description: string;
   category: 'data' | 'automation' | 'analysis' | 'communication';
   requiredPermissions: string[];
-    }
+}
 
-export interface Flow { id: string;
+export interface Flow {
+  id: string;
   name: string;
   description: string;
   status: 'active' | 'inactive' | 'draft';
@@ -33,7 +38,7 @@ export interface Flow { id: string;
   lastExecuted?: Date;
   executionCount: number;
   averageExecutionTime?: number;
-    }
+}
 
 // Mock data for agents
 const MOCK_AGENTS: Agent[] = [
@@ -248,22 +253,14 @@ const MOCK_AGENTS: Agent[] = [
  */
 export class AgentOrchestratorService {
   private static instance: AgentOrchestratorService;
-  private agents: Map<string, Agent> = new Map();
+  private agents: Map<string, Agent>;
   private pipedreamService: PipedreamService;
   private mcpContextService: MCPContextService;
   
   private constructor() {
-    // Initialize services
-    const config = { ...pipedreamConfig,
-      environment: pipedreamConfig.environment as 'development' | 'production' | undefined
-        };
-    this.pipedreamService = PipedreamService.getInstance(config);
+    this.agents = new Map(MOCK_AGENTS.map(agent => [agent.id, agent]));
+    this.pipedreamService = new PipedreamService();
     this.mcpContextService = MCPContextService.getInstance();
-    
-    // Initialize with mock data
-    MOCK_AGENTS.forEach(agent => {
-      this.agents.set(agent.id, { ...agent });
-    });
   }
   
   /**
@@ -301,19 +298,17 @@ export class AgentOrchestratorService {
     }
     
     try {
-      // Update agent status
-      const updatedAgent = { ...agent, status: 'running' as const     };
-      this.agents.set(agentId, updatedAgent);
-      
-      // Check if all required apps are connected
+      // Validate connected apps
       for (const appName of agent.connectedApps) {
-        const connectionStatus = await this.pipedreamService.getConnectionStatus(appName, userId);
-        if (connectionStatus.status !== 'connected') {
-          // Try to connect to the app
-          toast.success(`Connecting to ${appName}...`);
-          await this.pipedreamService.connectToApp(appName, userId);
+        const config = await this.pipedreamService.getIntegrationConfig(appName);
+        if (!config) {
+          throw new Error(`Missing configuration for ${appName}`);
         }
       }
+      
+      // Update agent status
+      const updatedAgent = { ...agent, status: 'running' as const, lastRun: new Date() };
+      this.agents.set(agentId, updatedAgent);
       
       // Load the model context for this agent
       const modelContext = this.mcpContextService.getModel(agent.modelId);
@@ -354,7 +349,7 @@ export class AgentOrchestratorService {
     
     try {
       // Update agent status
-      const updatedAgent = { ...agent, status: 'idle' as const     };
+      const updatedAgent = { ...agent, status: 'idle' as const };
       this.agents.set(agentId, updatedAgent);
       
       toast.success(`Agent ${agent.name} stopped successfully`);

@@ -1,6 +1,6 @@
-// @ts-nocheck - This file has some TypeScript issues that are hard to fix
-import { NextRequest, NextResponse } from 'next/server';
 import { cookies } from 'next/headers';
+import { NextRequest, NextResponse } from 'next/server';
+
 import { authenticateUser, createTestUser } from '@/lib/auth';
 
 /**

@@ -1,7 +1,10 @@
-import { prisma } from '@/lib/prisma';
-import { z } from 'zod';
+import { KnowledgeBase, KnowledgeDocument, Prisma } from '@prisma/client';
 import { OpenAI } from 'openai';
+import { z } from 'zod';
+
 import { RagService } from './ragService';
+
+import { prisma } from '@/lib/prisma';
 
 // Validation schemas
 const createKnowledgeBaseSchema = z.object({
@@ -20,11 +23,13 @@ const updateKnowledgeBaseSchema = z.object({
   isPublic: z.boolean().optional(),
 });
 
+const documentMetadataSchema = z.record(z.union([z.string(), z.number(), z.boolean(), z.null()]));
+
 const createDocumentSchema = z.object({
   title: z.string().min(1).max(255),
   content: z.string(),
   contentType: z.enum(['text', 'markdown', 'html']).default('text'),
-  metadata: z.record(z.any()).optional(),
+  metadata: documentMetadataSchema.optional(),
   tags: z.array(z.string()).optional(),
   knowledgeBaseId: z.string().uuid(),
 });
@@ -38,6 +43,12 @@ const searchDocumentsSchema = z.object({
   organizationId: z.string().uuid().optional(),
   limit: z.number().positive().optional().default(10),
 });
+
+export type KnowledgeBaseWithDocuments = KnowledgeBase & {
+  documents: KnowledgeDocument[];
+};
+
+export type DocumentMetadata = z.infer<typeof documentMetadataSchema>;
 
 export class KnowledgeBaseService {
   private ragService: RagService;
@@ -301,33 +312,20 @@ export class KnowledgeBaseService {
   }
 
   /**
-   * Search documents across knowledge bases the user has access to
+   * Search documents across knowledge bases
    */
   async searchDocuments(params: z.infer<typeof searchDocumentsSchema>, userId: string) {
     const validatedParams = searchDocumentsSchema.parse(params);
     
-    // Build query based on access level
-    const query: any = {};
+    // Build the base query
+    const query: Prisma.KnowledgeDocumentWhereInput = {};
     
+    // Add knowledge base filters
     if (validatedParams.knowledgeBaseId) {
-      // Searching in a specific knowledge base
-      const knowledgeBase = await prisma.knowledgeBase.findUnique({
-        where: { id: validatedParams.knowledgeBaseId },
-      });
-      
-      if (!knowledgeBase) {
-        throw new Error('Knowledge base not found');
-      }
-      
-      const hasAccess = await this.checkKnowledgeBaseAccess(knowledgeBase, userId);
-      if (!hasAccess) {
-        throw new Error('User does not have access to this knowledge base');
-      }
-      
       query.knowledgeBaseId = validatedParams.knowledgeBaseId;
     } else {
-      // Searching across multiple knowledge bases based on type/ownership
-      const knowledgeBaseWhere: any = {};
+      // If no specific knowledge base is specified, search across accessible ones
+      const knowledgeBaseWhere: Prisma.KnowledgeBaseWhereInput = {};
       
       if (validatedParams.knowledgeBaseType) {
         knowledgeBaseWhere.type = validatedParams.knowledgeBaseType;
@@ -339,108 +337,207 @@ export class KnowledgeBaseService {
       
       if (validatedParams.teamId) {
         knowledgeBaseWhere.teamId = validatedParams.teamId;
-        // Verify team access
-        const hasTeamAccess = await this.checkTeamAccess(validatedParams.teamId, userId);
-        if (!hasTeamAccess) {
-          throw new Error('User does not have access to this team');
-        }
       }
       
       if (validatedParams.organizationId) {
         knowledgeBaseWhere.organizationId = validatedParams.organizationId;
-        // Verify organization access
-        const hasOrgAccess = await this.checkOrganizationAccess(validatedParams.organizationId, userId);
-        if (!hasOrgAccess) {
-          throw new Error('User does not have access to this organization');
-        }
       }
       
-      // Build filter for knowledge bases the user has access to
-      query.knowledgeBase = {
-        OR: [
-          { ownerId: userId }, // Personal knowledge bases
-          { teamId: { in: await this.getUserTeamIds(userId) } }, // Team knowledge bases
-          { organizationId: { in: await this.getUserOrganizationIds(userId) } }, // Organization knowledge bases
-          { isPublic: true }, // Public knowledge bases
-        ],
-        AND: knowledgeBaseWhere.length > 0 ? knowledgeBaseWhere : undefined,
+      // Get accessible knowledge base IDs
+      const accessibleKnowledgeBases = await prisma.knowledgeBase.findMany({
+        where: {
+          AND: [
+            knowledgeBaseWhere,
+            {
+              OR: [
+                { isPublic: true },
+                { ownerId: userId },
+                {
+                  teamId: {
+                    in: await this.getUserTeamIds(userId)
+                  }
+                },
+                {
+                  organizationId: {
+                    in: await this.getUserOrganizationIds(userId)
+                  }
+                }
+              ]
+            }
+          ]
+        },
+        select: { id: true }
+      });
+      
+      query.knowledgeBaseId = {
+        in: accessibleKnowledgeBases.map(kb => kb.id)
       };
     }
     
-    // Perform semantic search if OpenAI is configured
+    // Use RAG service for semantic search if available
     if (this.openai) {
       try {
-        // Generate query embedding
         const embeddingResponse = await this.openai.embeddings.create({
           model: "text-embedding-ada-002",
           input: validatedParams.query,
         });
         const queryEmbedding = embeddingResponse.data[0].embedding;
         
-        // Perform vector search in database
-        // Note: This is a placeholder for vector search logic
-        // Actual implementation depends on your database (e.g., using pgvector with Postgres)
-        // For now, we'll use a basic text search as fallback
-        
-        // Fallback to basic text search
-        const documents = await prisma.knowledgeDocument.findMany({
-          where: {
-            ...query,
-            OR: [
-              { title: { contains: validatedParams.query, mode: 'insensitive' } },
-              { content: { contains: validatedParams.query, mode: 'insensitive' } },
-              { tags: { hasSome: [validatedParams.query] } },
-            ],
-          },
-          take: validatedParams.limit,
-          orderBy: { updatedAt: 'desc' },
-        });
-        
-        return documents;
+        // Add vector similarity search
+        // Note: This assumes your database supports vector operations
+        // You might need to adjust this based on your database setup
+        query.embedding = {
+          similarity: {
+            vector: queryEmbedding,
+            threshold: 0.7
+          }
+        };
       } catch (error) {
-        console.error('Error in semantic search:', error);
+        console.error('Error generating query embedding:', error);
       }
     }
     
-    // Fallback to basic text search if OpenAI is not configured or failed
-    return prisma.knowledgeDocument.findMany({
-      where: {
-        ...query,
-        OR: [
-          { title: { contains: validatedParams.query, mode: 'insensitive' } },
-          { content: { contains: validatedParams.query, mode: 'insensitive' } },
-          { tags: { hasSome: [validatedParams.query] } },
-        ],
+    // Perform the search
+    const documents = await prisma.knowledgeDocument.findMany({
+      where: query,
+      include: {
+        knowledgeBase: true
       },
-      take: validatedParams.limit,
-      orderBy: { updatedAt: 'desc' },
+      take: validatedParams.limit
+    });
+    
+    // Filter out documents user doesn't have access to
+    const accessibleDocuments = await Promise.all(
+      documents.map(async doc => {
+        const hasAccess = await this.checkKnowledgeBaseAccess(doc.knowledgeBase, userId);
+        return hasAccess ? doc : null;
+      })
+    );
+    
+    return accessibleDocuments.filter((doc): doc is KnowledgeDocument & { knowledgeBase: KnowledgeBase } => doc !== null);
+  }
+
+  /**
+   * Get all knowledge bases accessible by a user
+   */
+  async getUserKnowledgeBases(userId: string): Promise<KnowledgeBaseWithDocuments[]> {
+    return prisma.knowledgeBase.findMany({
+      where: {
+        OR: [
+          { isPublic: true },
+          { ownerId: userId },
+          {
+            teamId: {
+              in: await this.getUserTeamIds(userId)
+            }
+          },
+          {
+            organizationId: {
+              in: await this.getUserOrganizationIds(userId)
+            }
+          }
+        ]
+      },
+      include: {
+        documents: true
+      }
     });
   }
 
   /**
-   * Get all knowledge bases a user has access to
+   * Get team member role
    */
-  async getUserKnowledgeBases(userId: string) {
-    // Get teams and organizations the user belongs to
-    const userTeamIds = await this.getUserTeamIds(userId);
-    const userOrgIds = await this.getUserOrganizationIds(userId);
-    
-    return prisma.knowledgeBase.findMany({
+  private async getTeamMemberRole(teamId: string, userId: string): Promise<string | null> {
+    const teams = await prisma.team.findMany({
       where: {
-        OR: [
-          { ownerId: userId }, // Personal knowledge bases
-          { teamId: { in: userTeamIds } }, // Team knowledge bases
-          { organizationId: { in: userOrgIds } }, // Organization knowledge bases
-          { isPublic: true }, // Public knowledge bases
-        ],
+        id: teamId,
+        members: {
+          some: {
+            userId: userId
+          }
+        }
       },
       include: {
-        _count: {
-          select: { documents: true },
-        },
-      },
-      orderBy: { updatedAt: 'desc' },
+        members: {
+          where: {
+            userId: userId
+          },
+          select: {
+            role: true
+          }
+        }
+      }
     });
+    
+    return teams[0]?.members[0]?.role ?? null;
+  }
+
+  /**
+   * Get organization member role
+   */
+  private async getOrganizationMemberRole(orgId: string, userId: string): Promise<string | null> {
+    const orgs = await prisma.organization.findMany({
+      where: {
+        id: orgId,
+        members: {
+          some: {
+            userId: userId
+          }
+        }
+      },
+      include: {
+        members: {
+          where: {
+            userId: userId
+          },
+          select: {
+            role: true
+          }
+        }
+      }
+    });
+    
+    return orgs[0]?.members[0]?.role ?? null;
+  }
+
+  /**
+   * Get all team IDs a user has access to
+   */
+  private async getUserTeamIds(userId: string): Promise<string[]> {
+    const teams = await prisma.team.findMany({
+      where: {
+        members: {
+          some: {
+            userId: userId
+          }
+        }
+      },
+      select: {
+        id: true
+      }
+    });
+    
+    return teams.map(team => team.id);
+  }
+
+  /**
+   * Get all organization IDs a user has access to
+   */
+  private async getUserOrganizationIds(userId: string): Promise<string[]> {
+    const orgs = await prisma.organization.findMany({
+      where: {
+        members: {
+          some: {
+            userId: userId
+          }
+        }
+      },
+      select: {
+        id: true
+      }
+    });
+    
+    return orgs.map(org => org.id);
   }
 
   // Helper methods for access control
@@ -449,60 +546,54 @@ export class KnowledgeBaseService {
    * Check if a user has access to a knowledge base
    */
   private async checkKnowledgeBaseAccess(
-    knowledgeBase: any, 
-    userId: string, 
+    knowledgeBase: KnowledgeBase,
+    userId: string,
     accessLevel: 'read' | 'write' | 'admin' = 'read'
   ): Promise<boolean> {
-    // Public knowledge bases are readable by everyone
-    if (accessLevel === 'read' && knowledgeBase.isPublic) {
+    // Public knowledge bases are readable by anyone
+    if (knowledgeBase.isPublic && accessLevel === 'read') {
       return true;
     }
-    
-    // Owner has all access levels
-    if (knowledgeBase.ownerId === userId) {
-      return true;
+
+    // Personal knowledge bases
+    if (knowledgeBase.type === 'personal') {
+      return knowledgeBase.ownerId === userId;
     }
-    
-    // Check team-based access
-    if (knowledgeBase.teamId) {
-      // Team owner/admin has write access, members have read access
-      const teamMember = await this.getTeamMemberRole(knowledgeBase.teamId, userId);
-      
-      if (!teamMember) {
-        return false;
+
+    // Team knowledge bases
+    if (knowledgeBase.type === 'team' && knowledgeBase.teamId) {
+      const role = await this.getTeamMemberRole(knowledgeBase.teamId, userId);
+      if (!role) return false;
+
+      switch (accessLevel) {
+        case 'read':
+          return true; // All team members can read
+        case 'write':
+          return ['admin', 'editor', 'contributor'].includes(role);
+        case 'admin':
+          return role === 'admin';
+        default:
+          return false;
       }
-      
-      if (accessLevel === 'admin' && teamMember !== 'admin') {
-        return false;
-      }
-      
-      if (accessLevel === 'write' && teamMember !== 'admin' && teamMember !== 'member') {
-        return false;
-      }
-      
-      return true;
     }
-    
-    // Check organization-based access
-    if (knowledgeBase.organizationId) {
-      // Org admins have write access, members have read access
-      const orgMember = await this.getOrganizationMemberRole(knowledgeBase.organizationId, userId);
-      
-      if (!orgMember) {
-        return false;
+
+    // Organization knowledge bases
+    if (knowledgeBase.type === 'organization' && knowledgeBase.organizationId) {
+      const role = await this.getOrganizationMemberRole(knowledgeBase.organizationId, userId);
+      if (!role) return false;
+
+      switch (accessLevel) {
+        case 'read':
+          return true; // All org members can read
+        case 'write':
+          return ['admin', 'editor'].includes(role);
+        case 'admin':
+          return role === 'admin';
+        default:
+          return false;
       }
-      
-      if (accessLevel === 'admin' && orgMember !== 'admin' && orgMember !== 'owner') {
-        return false;
-      }
-      
-      if (accessLevel === 'write' && orgMember === 'viewer') {
-        return false;
-      }
-      
-      return true;
     }
-    
+
     return false;
   }
 
@@ -520,92 +611,5 @@ export class KnowledgeBaseService {
   private async checkOrganizationAccess(orgId: string, userId: string): Promise<boolean> {
     const orgMember = await this.getOrganizationMemberRole(orgId, userId);
     return orgMember !== null;
-  }
-
-  /**
-   * Get user's role in a team
-   */
-  private async getTeamMemberRole(teamId: string, userId: string): Promise<string | null> {
-    const orgMember = await prisma.organizationMember.findFirst({
-      where: {
-        userId,
-        organization: {
-          teams: {
-            some: {
-              id: teamId,
-            },
-          },
-        },
-      },
-    });
-    
-    if (!orgMember) {
-      return null;
-    }
-    
-    const teamMember = await prisma.teamMember.findFirst({
-      where: {
-        teamId,
-        organizationMemberId: orgMember.id,
-      },
-    });
-    
-    return teamMember ? teamMember.role : null;
-  }
-
-  /**
-   * Get user's role in an organization
-   */
-  private async getOrganizationMemberRole(orgId: string, userId: string): Promise<string | null> {
-    const orgMember = await prisma.organizationMember.findFirst({
-      where: {
-        organizationId: orgId,
-        userId,
-      },
-    });
-    
-    return orgMember ? orgMember.role : null;
-  }
-
-  /**
-   * Get all team IDs a user belongs to
-   */
-  private async getUserTeamIds(userId: string): Promise<string[]> {
-    const teams = await prisma.team.findMany({
-      where: {
-        members: {
-          some: {
-            organizationMember: {
-              userId,
-            },
-          },
-        },
-      },
-      select: {
-        id: true,
-      },
-    });
-    
-    return teams.map(team => team.id);
-  }
-
-  /**
-   * Get all organization IDs a user belongs to
-   */
-  private async getUserOrganizationIds(userId: string): Promise<string[]> {
-    const orgs = await prisma.organization.findMany({
-      where: {
-        members: {
-          some: {
-            userId,
-          },
-        },
-      },
-      select: {
-        id: true,
-      },
-    });
-    
-    return orgs.map(org => org.id);
   }
 } 

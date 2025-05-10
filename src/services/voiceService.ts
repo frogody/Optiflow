@@ -1,14 +1,14 @@
-// @ts-nocheck - This file has some TypeScript issues that are hard to fix
-import { WorkflowAction } from '@/types/workflow';
-import { ChatCompletionMessage } from '@/types/ai';
 import { OpenAIService } from './OpenAIService';
+
+import { ChatCompletionMessage } from '@/types/ai';
+import { WorkflowAction, Position } from '@/types/workflow';
 
 interface VoiceCommandContext {
   selectedNodeId?: string;
   nodes: Array<{
     id: string;
     type: string;
-    position: { x: number; y: number };
+    position: Position;
   }>;
   edges: Array<{
     id: string;
@@ -21,7 +21,16 @@ interface ProcessVoiceCommandResult {
   response: string;
   actions: WorkflowAction[];
   intent?: string;
-  entities?: Record<string, any>;
+  entities?: Record<string, unknown>;
+}
+
+interface NodeEntity {
+  nodeType?: string;
+  nodeIds?: string[];
+  config?: {
+    key: string;
+    value: string;
+  };
 }
 
 const openai = new OpenAIService();
@@ -41,10 +50,10 @@ You should:
 3. Provide a natural language response
 4. Handle errors gracefully
 
-Example commands:;
-- "Add a webhook trigger";
-- "Connect the trigger to the HTTP action";
-- "Configure the delay for 5 minutes";
+Example commands:
+- "Add a webhook trigger"
+- "Connect the trigger to the HTTP action"
+- "Configure the delay for 5 minutes"
 - "Add a condition to check the response status"`;
 
 export async function processVoiceCommand(
@@ -53,7 +62,7 @@ export async function processVoiceCommand(
 ): Promise<ProcessVoiceCommandResult> {
   try {
     const messages: ChatCompletionMessage[] = [
-      { role: 'system', content: SYSTEM_PROMPT     },
+      { role: 'system', content: SYSTEM_PROMPT },
       {
         role: 'user',
         content: `Current workflow state:
@@ -65,17 +74,18 @@ User command: "${command}"`,
       },
     ];
 
-    const completion = await openai.createChatCompletion({ messages,
+    const completion = await openai.createChatCompletion({
+      messages,
       temperature: 0.7,
       max_tokens: 500,
-        });
+    });
 
     const response = completion.choices[0]?.message?.content || '';
 
     // Parse the response to extract actions
     const actions = parseActionsFromResponse(response);
 
-    // Extract intent and entities (you can enhance this using NLP libraries)
+    // Extract intent and entities
     const intent = determineIntent(command);
     const entities = extractEntities(command);
 
@@ -85,19 +95,21 @@ User command: "${command}"`,
       intent,
       entities,
     };
-  } catch (error) { console.error('Error processing voice command:', error);
+  } catch (error) {
+    console.error('Error processing voice command:', error);
     throw new Error('Failed to process voice command');
-      }
+  }
 }
 
 function parseActionsFromResponse(response: string): WorkflowAction[] {
   const actions: WorkflowAction[] = [];
   
-  // Example action patterns to look for in the response
-  const patterns = { addNode: /add (?:a |an )?(\w+)(?: node)?(?: at position (\d+),\s*(\d+))?/i,
+  // Action patterns to look for in the response
+  const patterns = {
+    addNode: /add (?:a |an )?(\w+)(?: node)?(?: at position (\d+),\s*(\d+))?/i,
     connectNodes: /connect (\w+) to (\w+)/i,
     updateNode: /configure (\w+) with (.*)/i,
-      };
+  };
 
   const lines = response.split('\n');
   
@@ -109,8 +121,8 @@ function parseActionsFromResponse(response: string): WorkflowAction[] {
         type: 'ADD_NODE',
         nodeType: addMatch[1].toLowerCase(),
         position: addMatch[2] && addMatch[3]
-          ? { x: parseInt(addMatch[2]), y: parseInt(addMatch[3])     }
-          : { x: 100, y: 100     }, // Default position
+          ? { x: parseInt(addMatch[2]), y: parseInt(addMatch[3]) }
+          : { x: 100, y: 100 }, // Default position
       });
       continue;
     }
@@ -118,21 +130,27 @@ function parseActionsFromResponse(response: string): WorkflowAction[] {
     // Check for connect nodes actions
     const connectMatch = line.match(patterns.connectNodes);
     if (connectMatch) {
-      actions.push({ type: 'CONNECT_NODES',
+      actions.push({
+        type: 'CONNECT_NODES',
         sourceId: connectMatch[1],
         targetId: connectMatch[2],
-          });
+      });
       continue;
     }
 
     // Check for update node actions
     const updateMatch = line.match(patterns.updateNode);
     if (updateMatch) {
-      actions.push({ type: 'UPDATE_NODE',
-        nodeId: updateMatch[1],
-        config: JSON.parse(updateMatch[2]),
-          });
-      continue;
+      try {
+        const config = JSON.parse(updateMatch[2]);
+        actions.push({
+          type: 'UPDATE_NODE',
+          nodeId: updateMatch[1],
+          config,
+        });
+      } catch (error) {
+        console.error('Failed to parse node configuration:', error);
+      }
     }
   }
 
@@ -148,8 +166,8 @@ function determineIntent(command: string): string {
   return 'unknown';
 }
 
-function extractEntities(command: string): Record<string, any> {
-  const entities: Record<string, any> = {};
+function extractEntities(command: string): NodeEntity {
+  const entities: NodeEntity = {};
 
   // Extract node types
   const nodeTypeMatch = command.match(/(?:add|create) (?:a |an )?(\w+)(?: node)?/i);
@@ -166,9 +184,10 @@ function extractEntities(command: string): Record<string, any> {
   // Extract configuration values
   const configMatch = command.match(/set (\w+) to (.+)/i);
   if (configMatch) {
-    entities.config = { key: configMatch[1],
+    entities.config = {
+      key: configMatch[1],
       value: configMatch[2],
-        };
+    };
   }
 
   return entities;

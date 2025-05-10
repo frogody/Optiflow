@@ -1,24 +1,24 @@
-// @ts-nocheck - This file has some TypeScript issues that are hard to fix
 'use client';
 
 import './page.css';
-import { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
+import {
+  ArrowRightIcon as ArrowRightIconOutline,
+  BellIcon as BellIconOutline,
+  BuildingOffice2Icon as BuildingOffice2IconOutline,
+  Cog6ToothIcon as Cog6ToothIconOutline,
+  DocumentTextIcon as DocumentTextIconOutline,
+  KeyIcon as KeyIconOutline,
+  ShieldCheckIcon as ShieldCheckIconOutline,
+  UserCircleIcon as UserCircleIconOutline
+} from '@heroicons/react/24/outline';
 import { motion } from 'framer-motion';
 import Link from 'next/link';
-import { useUserStore } from '@/lib/userStore';
-import { useThemeStore, ThemeType } from '@/lib/themeStore';
+import { useRouter } from 'next/navigation';
+import { useEffect, useState } from 'react';
 import toast from 'react-hot-toast';
-import {
-  UserCircleIcon,
-  BuildingOffice2Icon,
-  BellIcon,
-  KeyIcon,
-  ShieldCheckIcon,
-  DocumentTextIcon,
-  Cog6ToothIcon,
-  ArrowRightIcon
-} from '@heroicons/react/24/outline';
+
+import { ThemeType, useThemeStore } from '@/lib/themeStore';
+import { useUserStore } from '@/lib/userStore';
 
 interface UserSettings {
   notifications: {
@@ -43,7 +43,7 @@ const settingSections = [
     id: 'profile',
     name: 'Profile Settings',
     description: 'Manage your personal information, password, and active sessions',
-    icon: UserCircleIcon,
+    icon: UserCircleIconOutline,
     href: '/settings/profile',
     color: 'bg-[#134e4a]',
     iconColor: 'text-[#22D3EE]'
@@ -52,7 +52,7 @@ const settingSections = [
     id: 'organization',
     name: 'Organization Settings',
     description: 'Manage organization profile, members, and roles',
-    icon: BuildingOffice2Icon,
+    icon: BuildingOffice2IconOutline,
     href: '/settings/organization',
     color: 'bg-[#1e1b4b]',
     iconColor: 'text-[#A855F7]'
@@ -61,7 +61,7 @@ const settingSections = [
     id: 'notifications',
     name: 'Notification Preferences',
     description: 'Configure how and when you receive notifications',
-    icon: BellIcon,
+    icon: BellIconOutline,
     href: '/settings/notifications',
     color: 'bg-[#422006]',
     iconColor: 'text-[#F59E0B]'
@@ -70,7 +70,7 @@ const settingSections = [
     id: 'api-keys',
     name: 'API Keys',
     description: 'Generate and manage API keys for programmatic access',
-    icon: KeyIcon,
+    icon: KeyIconOutline,
     href: '/settings/api-keys',
     color: 'bg-[#0f172a]',
     iconColor: 'text-[#60A5FA]'
@@ -79,7 +79,7 @@ const settingSections = [
     id: 'security',
     name: 'Security Center',
     description: 'Protect your account with security features and monitoring',
-    icon: ShieldCheckIcon,
+    icon: ShieldCheckIconOutline,
     href: '/settings/security',
     color: 'bg-[#022c22]',
     iconColor: 'text-[#10B981]'
@@ -88,7 +88,7 @@ const settingSections = [
     id: 'data',
     name: 'Data & Privacy',
     description: 'Manage your data, export options, and account deletion',
-    icon: DocumentTextIcon,
+    icon: DocumentTextIconOutline,
     href: '/settings/data',
     color: 'bg-[#3f0d0d]',
     iconColor: 'text-[#F87171]'

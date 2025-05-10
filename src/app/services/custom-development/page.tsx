@@ -1,15 +1,14 @@
-// @ts-nocheck - This file has some TypeScript issues that are hard to fix
 'use client';
 
 import dynamic from 'next/dynamic';
 import Link from 'next/link';
 import { 
+  HiOutlineChartBar,
   HiOutlineCode,
   HiOutlineCog,
-  HiOutlineLightningBolt,
   HiOutlineDocumentText,
-  HiOutlineUserGroup,
-  HiOutlineChartBar
+  HiOutlineLightningBolt,
+  HiOutlineUserGroup
 } from 'react-icons/hi';
 
 const MotionDiv = dynamic(() => import('framer-motion').then(mod => mod.motion.div), { ssr: false, loading: () => (props: any) => <div {...props} /> });

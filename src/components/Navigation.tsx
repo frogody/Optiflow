@@ -1,18 +1,19 @@
-// @ts-nocheck - This file has some TypeScript issues that are hard to fix
 'use client';
 
-import { useState, useEffect } from 'react';
-import Link from 'next/link';
-import Image from 'next/image';
-import { useRouter, usePathname } from 'next/navigation';
-import { useUserStore } from '@/lib/userStore';
-import { useThemeStore } from '@/lib/themeStore';
-import { AnimatePresence, motion } from 'framer-motion';
 import { Transition } from '@headlessui/react';
+import { AnimatePresence, motion } from 'framer-motion';
 import Cookies from 'js-cookie';
+import Image from 'next/image';
+import Link from 'next/link';
+import { usePathname, useRouter } from 'next/navigation';
+import { signOut } from 'next-auth/react';
+import { useEffect, useState } from 'react';
+
 import LanguageSwitcher from './LanguageSwitcher';
 import TranslatedText from './TranslatedText';
-import { signOut } from 'next-auth/react';
+
+import { useThemeStore } from '@/lib/themeStore';
+import { useUserStore } from '@/lib/userStore';
 
 interface NavigationItem {
   name: string;
@@ -194,7 +195,7 @@ export default function Navigation() {
   return (
     <>
       <header 
-        className={ `bg-black/20 backdrop-blur-sm sticky top-0 z-50 dark:bg-black/20 light:bg-white/80 transition-all duration-300`    }
+        className="bg-black/20 backdrop-blur-sm sticky top-0 z-50 dark:bg-black/20 light:bg-white/80 transition-all duration-300"
         role="banner"
         aria-label="Main navigation"
       >
@@ -202,9 +203,9 @@ export default function Navigation() {
         <AnimatePresence>
           {error && (
             <motion.div
-              initial={{ height: 0, opacity: 0     }}
-              animate={{ height: 'auto', opacity: 1     }}
-              exit={{ height: 0, opacity: 0     }}
+              initial={{ height: 0, opacity: 0 }}
+              animate={{ height: 'auto', opacity: 1 }}
+              exit={{ height: 0, opacity: 0 }}
               className="bg-red-500/10 border-b border-red-500/20"
             >
               <div className="max-w-7xl mx-auto px-4 py-2 text-sm text-red-400">
@@ -217,8 +218,8 @@ export default function Navigation() {
         <div className="max-w-7xl mx-auto px-4">
           <nav className={`flex items-center justify-between ${navPadding}`}>
             {/* Logo */}
-            <button 
-              onClick={() => handleNavigation('/')}
+            <Link 
+              href="/"
               className="flex items-center space-x-2"
               aria-label="ISYNCSO Home"
               title="Go to home page"
@@ -226,15 +227,17 @@ export default function Navigation() {
               <div className="relative w-10 h-10">
                 <Image
                   src="/ISYNCSO_LOGO.png"
-                  alt=""
+                  alt="ISYNCSO Logo"
                   width={40}
                   height={40}
                   className="rounded"
                   priority
+                  loading="eager"
+                  unoptimized
                 />
               </div>
               <span className="text-lg font-medium dark:text-white light:text-gray-800 tracking-tight">ISYNCSO</span>
-            </button>
+            </Link>
 
             {/* Desktop Navigation */}
             <div className="hidden md:flex items-center space-x-3">
@@ -403,7 +406,7 @@ export default function Navigation() {
                 className="md:hidden inline-flex items-center justify-center p-3 rounded-md dark:text-white/80 dark:hover:text-white light:text-gray-700 light:hover:text-gray-900 dark:hover:bg-white/5 light:hover:bg-black/5 touch-manipulation"
                 onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
                 aria-controls="mobile-menu"
-                aria-expanded={isMobileMenuOpen}
+                {...(isMobileMenuOpen ? { 'aria-expanded': 'true' } : { 'aria-expanded': 'false' })}
                 aria-label="Open main menu"
                 title="Open main menu"
               >

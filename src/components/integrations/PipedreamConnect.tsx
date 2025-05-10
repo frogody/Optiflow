@@ -1,9 +1,10 @@
-// @ts-nocheck - This file has some TypeScript issues that are hard to fix
-import React, { useState, useCallback } from 'react';
 import { createFrontendClient } from '@pipedream/sdk/browser';
-import { Spinner } from '@/components/ui/Spinner';
-import { toast } from 'react-hot-toast';
 import { useSession } from 'next-auth/react';
+import React, { useCallback, useState } from 'react';
+import { toast } from 'react-hot-toast';
+
+import { Spinner } from '@/components/ui/Spinner';
+
 
 interface PipedreamConnectProps {
   app: string;

@@ -1,4 +1,3 @@
-// @ts-nocheck - This file has some TypeScript issues that are hard to fix
 declare module 'elevenlabs-node' {
   export interface VoiceSettings {
     stability: number;

@@ -1,9 +1,9 @@
 // This file makes it easier to import translations
-import en from './en';
-import nl from './nl';
 import de from './de';
-import fr from './fr';
+import en from './en';
 import es from './es';
+import fr from './fr';
+import nl from './nl';
 
 const translations = {
   en,

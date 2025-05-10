@@ -1,10 +1,10 @@
-// @ts-nocheck - This file has some TypeScript issues that are hard to fix
-import { mcpService } from '../mcp/MCPService';
-import { ClaudeService } from './ClaudeService';
 import { ClayService } from '../integrations/ClayService';
 import { HubspotService } from '../integrations/HubspotService';
-import { RateLimiter } from '../utils/RateLimiter';
+import { mcpService } from '../mcp/MCPService';
 import { Logger } from '../utils/Logger';
+import { RateLimiter } from '../utils/RateLimiter';
+
+import { ClaudeService } from './ClaudeService';
 
 interface AoraConfig { claudeApiKey: string;
   clayApiKey?: string;

@@ -1,18 +1,18 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import Link from 'next/link';
 import { 
-  PlayCircleIcon, 
+  ChevronRightIcon,
+  ClockIcon,
+  StarIcon as StarIconOutline
+} from '@heroicons/react/24/outline';
+import { 
+  DocumentDuplicateIcon, 
   PencilSquareIcon, 
-  DocumentDuplicateIcon,
+  PlayCircleIcon,
   StarIcon as StarIconSolid
 } from '@heroicons/react/24/solid';
-import { 
-  StarIcon as StarIconOutline,
-  ClockIcon,
-  ChevronRightIcon
-} from '@heroicons/react/24/outline';
+import Link from 'next/link';
+import { useEffect, useState } from 'react';
 
 export interface Workflow {
   id: string;

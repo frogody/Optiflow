@@ -1,7 +1,6 @@
-// @ts-nocheck - This file has some TypeScript issues that are hard to fix
 import { NextRequest, NextResponse } from 'next/server';
-import { z } from 'zod';
 import OpenAI from 'openai';
+import { z } from 'zod';
 
 // Define request validation schema
 const ConversationRequestSchema = z.object({

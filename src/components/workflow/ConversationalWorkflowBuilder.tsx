@@ -1,12 +1,13 @@
-// @ts-nocheck - This file has some TypeScript issues that are hard to fix
 'use client';
 
-import React, { useState, useEffect, useRef } from 'react';
-import { Node, Edge } from 'reactflow';
+import React, { useEffect, useRef, useState } from 'react';
+import { Edge, Node } from 'reactflow';
+
+import { WorkflowNodeCreator } from './WorkflowNodeCreator';
+
 import { Spinner } from '@/components/ui/Spinner';
 import { Toast } from '@/components/ui/Toast';
 import { validateWorkflow } from '@/utils/workflowValidation';
-import { WorkflowNodeCreator } from './WorkflowNodeCreator';
 
 interface ConversationalWorkflowBuilderProps {
   onWorkflowUpdate: (nodes: Node[], edges: Edge[]) => void;

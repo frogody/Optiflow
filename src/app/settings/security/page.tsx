@@ -1,21 +1,19 @@
 'use client';
 
-import { useState } from 'react';
 import {
-  ShieldCheckIcon,
-  FingerPrintIcon,
-  KeyIcon,
+  CheckCircleIcon,
   DevicePhoneMobileIcon,
   ExclamationTriangleIcon,
-  CheckCircleIcon,
+  FingerPrintIcon,
+  KeyIcon,
   LockClosedIcon,
-  UserGroupIcon,
   QrCodeIcon,
-  PlusIcon,
-  CheckIcon,
+  ShieldCheckIcon,
+  UserGroupIcon,
   XMarkIcon
 } from '@heroicons/react/24/outline';
 import Link from 'next/link';
+import { useState } from 'react';
 
 // Mock security status data
 const mockSecurityData = {

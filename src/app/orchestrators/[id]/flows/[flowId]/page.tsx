@@ -1,12 +1,12 @@
-// @ts-nocheck - This file has some TypeScript issues that are hard to fix
 'use client';
 
-import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { useUserStore } from '@/lib/userStore';
-import FlowDashboard from '@/components/FlowDashboard';
+import { useEffect } from 'react';
 
-export default function FlowPage({ params }: { params: { id: string; flowId: string     } }): JSX.Element {
+import FlowDashboard from '@/components/FlowDashboard.js';
+import { useUserStore } from '@/lib/userStore.js';
+
+export default function FlowPage({ params }: { params: { id: string; flowId: string     } }): React.ReactNode {
   const router = useRouter();
   const { currentUser } = useUserStore();
 

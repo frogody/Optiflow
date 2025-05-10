@@ -1,9 +1,8 @@
-// @ts-nocheck - This file has some TypeScript issues that are hard to fix
 'use client';
 
 import React, { memo } from 'react';
-import { Handle, Position, NodeProps } from 'reactflow';
 import { HiOutlineDatabase } from 'react-icons/hi';
+import { Handle, NodeProps, Position } from 'reactflow';
 
 export const DatabaseNode = memo(({ data, isConnectable }: NodeProps) => {
   return (

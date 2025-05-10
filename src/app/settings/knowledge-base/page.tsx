@@ -1,21 +1,21 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import { useSession } from 'next-auth/react';
 import { 
-  PlusIcon, 
-  FolderIcon, 
-  UserIcon, 
-  UserGroupIcon, 
   BuildingOfficeIcon, 
+  ChevronDownIcon, 
+  ChevronUpIcon, 
+  DocumentTextIcon, 
+  FolderIcon, 
   GlobeAltIcon, 
-  DocumentTextIcon,
-  TrashIcon,
   PencilIcon,
-  ChevronDownIcon,
-  ChevronUpIcon
+  PlusIcon,
+  TrashIcon,
+  UserGroupIcon,
+  UserIcon
 } from '@heroicons/react/24/outline';
 import Link from 'next/link';
+import { useSession } from 'next-auth/react';
+import { useEffect, useState } from 'react';
 import { toast } from 'react-hot-toast';
 
 // Types

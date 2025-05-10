@@ -1,11 +1,10 @@
-// @ts-nocheck - This file has some TypeScript issues that are hard to fix
 'use client';
 
-import { useState } from 'react';
 import { createFrontendClient } from '@pipedream/sdk/browser';
-import { FaSlack } from 'react-icons/fa';
 import { useSession } from 'next-auth/react';
+import { useState } from 'react';
 import { toast } from 'react-hot-toast';
+import { FaSlack } from 'react-icons/fa';
 
 interface SlackConnectorProps {
   className?: string;

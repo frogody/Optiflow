@@ -1,30 +1,32 @@
-// @ts-nocheck - This file has some TypeScript issues that are hard to fix
 'use client';
 
-import { useState, useCallback, useRef, useEffect } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
+import { toast } from 'react-hot-toast';
 import ReactFlow, {
-  ReactFlowProvider,
+  addEdge,
   Background,
+  Connection,
   Controls,
+  Edge,
   MiniMap,
   Node,
-  Edge,
-  useNodesState,
+  Panel,
+  ReactFlowProvider,
   useEdgesState,
-  addEdge,
-  Connection,
-  Panel
+  useNodesState
 } from 'reactflow';
+
 import 'reactflow/dist/style.css';
+import { AnimatedEdge, CustomEdge, DashedEdge, DottedEdge } from './edges/CustomEdge';
 import ActionNode from './nodes/ActionNode';
+import { aiNodeTypes } from './nodes/AINodes';
+import ConditionalNode from './nodes/ConditionalNode';
 import TriggerNode from './nodes/TriggerNode';
 import WaitNode from './nodes/WaitNode';
-import ConditionalNode from './nodes/ConditionalNode';
-import PipedreamConnector from '@/components/PipedreamConnector';
-import { toast } from 'react-hot-toast';
-import { CustomEdge, AnimatedEdge, DashedEdge, DottedEdge } from './edges/CustomEdge';
-import { aiNodeTypes } from './nodes/AINodes';
 import { nodeTypes as workflowNodeTypes } from './nodes/WorkflowNodes';
+
+import PipedreamConnector from '@/components/PipedreamConnector';
+
 
 // Register custom node types
 const nodeTypes = { 

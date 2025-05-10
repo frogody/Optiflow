@@ -1,4 +1,3 @@
-// @ts-nocheck - This file has some TypeScript issues that are hard to fix
 import NextAuth, { DefaultSession } from 'next-auth';
 
 declare module 'next-auth' {

@@ -1,7 +1,7 @@
-// @ts-nocheck - This file has some TypeScript issues that are hard to fix
-import React, { useState, useEffect } from 'react';
-import { usePipedreamConnect } from '@/lib/pipedream/usePipedreamConnect';
+import React, { useEffect, useState } from 'react';
 import { toast } from 'react-hot-toast';
+
+import { usePipedreamConnect } from '@/lib/pipedream/usePipedreamConnect';
 
 interface PipedreamConnectButtonProps { appSlug: string;
   buttonText?: string;

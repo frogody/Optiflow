@@ -1,15 +1,15 @@
 'use client';
 
-import { useState } from 'react';
 import {
-  DocumentTextIcon,
   ArrowDownTrayIcon,
-  EyeIcon,
+  CheckIcon,
   CreditCardIcon,
+  DocumentTextIcon,
+  EyeIcon,
   PlusIcon,
-  XMarkIcon,
-  CheckIcon
+  XMarkIcon
 } from '@heroicons/react/24/outline';
+import { useState } from 'react';
 
 // Mock data for demonstration purposes
 const mockInvoices = [

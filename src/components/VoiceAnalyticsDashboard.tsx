@@ -1,20 +1,21 @@
-// @ts-nocheck - This file has some TypeScript issues that are hard to fix
-import React, { useEffect, useState } from 'react';
+import { format } from 'date-fns';
 import { useSession } from 'next-auth/react';
+import React, { useEffect, useState } from 'react';
 import {
-  LineChart,
-  Line,
-  BarChart,
   Bar,
+  BarChart,
+  CartesianGrid,
+  Legend,
+  Line,
+  LineChart,
+  ResponsiveContainer,
+  Tooltip,
   XAxis,
   YAxis,
-  CartesianGrid,
-  Tooltip,
-  Legend,
-  ResponsiveContainer,
 } from 'recharts';
+
 import { VoiceMetrics } from '@/types/voice';
-import { format } from 'date-fns';
+
 
 interface TimeRange { start: Date;
   end: Date;

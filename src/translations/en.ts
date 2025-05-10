@@ -1,15 +1,20 @@
 const translations = {
   navigation: {
-    features: 'Features',
-    integrations: 'Integrations',
-    enterprise: 'Enterprise',
-    pricing: 'Pricing',
-    faq: 'FAQ',
     login: 'Log in',
-    signup: 'Sign Up',
+    signup: 'Sign up',
     dashboard: 'Dashboard',
     flows: 'Flows',
     connections: 'Connections',
+    features: 'Features',
+    pricing: 'Pricing',
+    faq: 'FAQ',
+    enterprise: 'Enterprise',
+    optiflow: 'Optiflow',
+    'voice-test': 'Voice Workflows',
+    'conversational-test': 'Conversational',
+    integrations: 'Integrations',
+    'ai-factory': 'AI Factory',
+    aicademy: 'AI Cademy'
   },
   footer: {
     product: 'Product',
@@ -72,6 +77,13 @@ const translations = {
     startFreeTrial: 'Start Free Trial',
     viewPricing: 'View Pricing',
   },
+  common: {
+    submit: 'Submit',
+    cancel: 'Cancel',
+    save: 'Save',
+    delete: 'Delete',
+    edit: 'Edit'
+  }
 };
 
 export default translations;

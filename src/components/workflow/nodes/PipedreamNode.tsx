@@ -1,9 +1,9 @@
-// @ts-nocheck - This file has some TypeScript issues that are hard to fix
-import React, { useState } from 'react';
-import { Handle, Position } from 'reactflow';
-import { HiOutlineCog } from 'react-icons/hi';
 import { motion } from 'framer-motion';
-import { NodeProps, NodeData } from '../types';
+import React, { useState } from 'react';
+import { HiOutlineCog } from 'react-icons/hi';
+import { Handle, Position } from 'reactflow';
+
+import { NodeData, NodeProps } from '../types';
 
 export default function PipedreamNode({ data, selected }: NodeProps) {
   const [isConfiguring, setIsConfiguring] = useState(false);

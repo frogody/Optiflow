@@ -1,8 +1,8 @@
-// @ts-nocheck - This file has some TypeScript issues that are hard to fix
 'use client';
 
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { HiOutlineMicrophone, HiOutlineStop } from 'react-icons/hi';
+
 import MicrophonePermission from '@/components/MicrophonePermission';
 
 interface InteractiveVoiceAgentProps { onWorkflowGenerated: (workflow: any) => void;

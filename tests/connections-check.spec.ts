@@ -1,4 +1,4 @@
-import { test, expect } from '@playwright/test';
+import { expect, test } from '@playwright/test';
 
 /**
  * Test suite to verify connectivity and service availability
@@ -80,7 +80,7 @@ test.describe('Service Connectivity Tests', () => {
       'USE_MOCK_OAUTH_SERVER'
     ];
     
-    let missingVars = [];
+    const missingVars = [];
     
     for (const envVar of envVars) {
       if (!process.env[envVar]) {

@@ -1,4 +1,3 @@
-// @ts-nocheck - This file has some TypeScript issues that are hard to fix
 import React, { useEffect, useState } from 'react';
 import { HiX } from 'react-icons/hi';
 

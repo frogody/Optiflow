@@ -6,7 +6,7 @@
  * audio tracks, and microphone state management with typesafe interfaces.
  */
 
-import { Room, RoomEvent, LocalParticipant, LocalAudioTrack, ConnectionState, ConnectionQuality } from 'livekit-client';
+import { ConnectionQuality, ConnectionState, LocalAudioTrack, LocalParticipant, Room, RoomEvent } from 'livekit-client';
 
 /**
  * Configuration options for LiveKit connection

@@ -1,12 +1,13 @@
-// @ts-nocheck - This file has some TypeScript issues that are hard to fix
 'use client';
 
 import { useState } from 'react';
-import { useUserStore } from '@/lib/userStore';
 import { useEffect } from 'react';
+
 // Import the real PipedreamConnectButton
-import PipedreamConnectButton from '@/components/PipedreamConnectButton';
 import { toast } from 'react-hot-toast';
+
+import PipedreamConnectButton from '@/components/PipedreamConnectButton';
+import { useUserStore } from '@/lib/userStore';
 
 export default function ConnectionsPage(): JSX.Element {
   const { currentUser } = useUserStore();

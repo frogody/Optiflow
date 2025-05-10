@@ -63,4 +63,4 @@ This document outlines the steps to integrate the Pipedream Connect example into
 - Day 1: Environment setup and server-side implementation
 - Day 2: Client-side implementation and UI integration
 - Day 3: Testing and deployment configuration
-- Day 4: Documentation and final adjustments 
+- Day 4: Documentation and final adjustments

@@ -1,22 +1,23 @@
-// @ts-nocheck - This file has some TypeScript issues that are hard to fix
 'use client';
 
-import { useState } from 'react';
-import { useRouter } from 'next/navigation';
-import Link from 'next/link';
-import { useUserStore } from '@/lib/userStore';
-import { SocialProvider } from '@/lib/auth';
-import Cookies from 'js-cookie';
-import Image from 'next/image';
 import { 
+  CheckCircleIcon, 
   EnvelopeIcon, 
-  LockClosedIcon, 
-  UserIcon, 
+  ExclamationCircleIcon, 
   EyeIcon, 
   EyeSlashIcon,
-  CheckCircleIcon,
-  ExclamationCircleIcon 
+  LockClosedIcon,
+  UserIcon 
 } from '@heroicons/react/24/outline';
+import Cookies from 'js-cookie';
+import Image from 'next/image';
+import Link from 'next/link';
+import { useRouter } from 'next/navigation';
+import { useState } from 'react';
+
+import { SocialProvider } from '@/lib/auth';
+import { useUserStore } from '@/lib/userStore';
+
 
 interface PasswordStrength {
   score: number;

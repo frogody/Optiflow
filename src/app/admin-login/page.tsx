@@ -1,11 +1,10 @@
-// @ts-nocheck - This file has some TypeScript issues that are hard to fix
 'use client';
 
-import { useState } from 'react';
-import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { signIn } from 'next-auth/react';
+import { useState } from 'react';
 import { toast } from 'react-hot-toast';
 
 export default function AdminLoginPage(): JSX.Element {

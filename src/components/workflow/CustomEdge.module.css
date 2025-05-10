@@ -1,0 +1,29 @@
+.edgePath {
+  stroke: #4f46e5;
+  transition: stroke-width 0.2s, stroke 0.2s;
+}
+
+.edgePathHovered {
+  stroke: #6366f1;
+}
+
+.dashed {
+  stroke-dasharray: 5,5;
+}
+
+.edgeLabel {
+  pointer-events: all;
+}
+
+.labelDiv {
+  opacity: 0.9;
+  transition: opacity 0.2s;
+}
+
+.labelDivHovered {
+  opacity: 1;
+}
+
+.edgeButton {
+  pointer-events: all;
+} 

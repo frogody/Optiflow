@@ -1,6 +1,5 @@
-// @ts-nocheck - This file has some TypeScript issues that are hard to fix
-import { VoiceCommand, VoiceInteraction, VoiceCommandResponse } from '@/types/voice';
 import { prisma } from '@/lib/prisma';
+import { VoiceCommand, VoiceCommandResponse, VoiceInteraction } from '@/types/voice';
 
 interface VoiceMetrics {
   totalCommands: number;

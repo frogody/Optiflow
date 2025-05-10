@@ -1,7 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { KnowledgeBaseService } from '@/services/KnowledgeBaseService';
 import { getServerSession } from 'next-auth';
+
 import { authOptions } from '@/lib/auth';
+import { KnowledgeBaseService } from '@/services/KnowledgeBaseService';
 
 // API endpoint to search the knowledge base
 export async function POST(req: NextRequest) {

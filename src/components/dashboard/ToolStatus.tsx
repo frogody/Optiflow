@@ -1,8 +1,8 @@
-// @ts-nocheck - This file has some TypeScript issues that are hard to fix
 'use client';
 
-import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { useEffect, useState } from 'react';
+
 import { useUserStore } from '@/lib/userStore';
 import { mcpService } from '@/services/mcp/MCPService';
 

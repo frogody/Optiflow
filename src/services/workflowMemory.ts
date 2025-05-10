@@ -1,4 +1,3 @@
-// @ts-nocheck - This file has some TypeScript issues that are hard to fix
 /**
  * Workflow Memory Service
  * 
@@ -13,7 +12,7 @@ export interface MemoryItem {
   nodeId: string;
   timestamp: number;
   type: 'input' | 'output' | 'state' | 'error';
-  content: any;
+  content: unknown;
 }
 
 export interface WorkflowMemoryOptions {

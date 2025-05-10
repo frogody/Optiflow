@@ -1,11 +1,9 @@
-// @ts-nocheck - This file has some TypeScript issues that are hard to fix
 'use client';
 
-import { useState, useRef } from 'react';
+import { CheckCircleIcon, QuestionMarkCircleIcon } from '@heroicons/react/24/outline';
 import { motion, useScroll, useTransform } from 'framer-motion';
 import Link from 'next/link';
-import { CheckIcon, XMarkIcon } from '@heroicons/react/20/solid';
-import { QuestionMarkCircleIcon, CheckCircleIcon } from '@heroicons/react/24/outline';
+import { useRef, useState } from 'react';
 
 // Enhanced aurora effect component
 const AuroraEffect = () => {

@@ -1,12 +1,13 @@
-// @ts-nocheck - This file has some TypeScript issues that are hard to fix
-import { useState, useEffect } from 'react';
+import { AnimatePresence, motion } from 'framer-motion';
+import { useEffect, useState } from 'react';
+import { toast } from 'react-hot-toast';
+
+import MCPContextDisplay from './MCPContextDisplay';
+
 import { useAgentOrchestrator } from '@/hooks/useAgentOrchestrator';
 import { useMCPContext } from '@/hooks/useMCPContext';
-import { Agent, Flow } from '@/services/AgentOrchestratorService';
 import { useUserStore } from '@/lib/userStore';
-import MCPContextDisplay from './MCPContextDisplay';
-import { AnimatePresence, motion } from 'framer-motion';
-import { toast } from 'react-hot-toast';
+import { Agent, Flow } from '@/services/AgentOrchestratorService';
 
 export default function AgentDashboard(): JSX.Element {
   const { currentUser } = useUserStore();

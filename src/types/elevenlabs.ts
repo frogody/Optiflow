@@ -1,4 +1,3 @@
-// @ts-nocheck - This file has some TypeScript issues that are hard to fix
 export interface ElevenLabsConfig { agentId: string;
   apiKey: string;
 }

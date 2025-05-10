@@ -1,6 +1,6 @@
-// @ts-nocheck - This file has some TypeScript issues that are hard to fix
-import { NextResponse } from 'next/server';
 import { hash } from 'bcrypt';
+import { NextResponse } from 'next/server';
+
 import prisma from '@/lib/prisma';
 
 export async function POST(request: Request) {

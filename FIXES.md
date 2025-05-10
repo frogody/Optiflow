@@ -48,10 +48,6 @@ Improves animation performance and cross-browser compatibility:
 node fix_animations.js
 ```
 
-#### TypeScript Ignore Fix (Temporary Measure)
-
-Adds `// @ts-nocheck` to the top of all TypeScript/JavaScript files to suppress parsing errors that might block other linters. This is a temporary workaround and the underlying issues should be fixed.
-
 ```bash
 node fix_typescript_ignore.js
 ```

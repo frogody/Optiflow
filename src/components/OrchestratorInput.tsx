@@ -1,10 +1,12 @@
-// @ts-nocheck - This file has some TypeScript issues that are hard to fix
-import React, { useState, useCallback } from 'react';
-import { VoiceCommandInput } from './VoiceCommandInput';
 import { MicrophoneIcon } from '@heroicons/react/24/solid';
-import { toast } from 'react-hot-toast';
-import { useVoiceStore } from '@/stores/voiceStore';
 import { useSession } from 'next-auth/react';
+import React, { useCallback, useState } from 'react';
+import { toast } from 'react-hot-toast';
+
+import { VoiceCommandInput } from './VoiceCommandInput';
+
+import { useVoiceStore } from '@/stores/voiceStore';
+
 
 interface OrchestratorInputProps {
   onCommand: (command: string) => void;

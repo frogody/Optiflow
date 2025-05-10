@@ -1,9 +1,8 @@
-// @ts-nocheck - This file has some TypeScript issues that are hard to fix
 'use client';
 
-import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { useRouter } from 'next/navigation';
+import { useState } from 'react';
 
 interface DashboardCardProps { title: string;
   description: string;

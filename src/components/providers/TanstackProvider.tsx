@@ -1,12 +1,11 @@
-// @ts-nocheck - This file has some TypeScript issues that are hard to fix
 'use client';
 
-import React from 'react';
 import {
   QueryClient,
   QueryClientProvider,
 } from '@tanstack/react-query';
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
+import React from 'react';
 
 export default function TanstackProvider({ children }: { children: React.ReactNode }): JSX.Element {
   // Use state to ensure QueryClient is only created once per component instance

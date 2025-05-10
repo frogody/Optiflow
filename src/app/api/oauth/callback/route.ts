@@ -1,5 +1,5 @@
-// @ts-nocheck - This file has some TypeScript issues that are hard to fix
 import { NextRequest, NextResponse } from 'next/server';
+
 import { PipedreamMCPService } from '@/services/PipedreamMCPService';
 
 export const dynamic = 'force-dynamic'; // Ensures the route is always dynamically rendered

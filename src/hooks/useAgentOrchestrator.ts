@@ -1,13 +1,13 @@
-// @ts-nocheck - This file has some TypeScript issues that are hard to fix
-import { useState, useEffect, useCallback } from 'react';
+import { useCallback, useEffect, useState } from 'react';
+import { toast } from 'react-hot-toast';
+
+import { useUserStore } from '@/lib/userStore';
 import {
-  AgentOrchestratorService,
   Agent,
+  AgentOrchestratorService,
   Flow,
 } from '@/services/AgentOrchestratorService';
 import { ModelContext } from '@/services/MCPContextService';
-import { useUserStore } from '@/lib/userStore';
-import { toast } from 'react-hot-toast';
 
 interface UseAgentOrchestratorOptions {
   agentId?: string;
@@ -62,7 +62,7 @@ export function useAgentOrchestrator({
     if (autoLoad) {
       loadAgents();
     }
-  }, [autoLoad, loadAgents]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [autoLoad, loadAgents]);
 
   // Select a different agent
   const selectAgent = useCallback(
@@ -75,7 +75,7 @@ export function useAgentOrchestrator({
       }
     },
     [agents]
-  ); // eslint-disable-line react-hooks/exhaustive-deps
+  );
 
   // Start the selected agent
   const startAgent = useCallback(async () => {
@@ -117,7 +117,7 @@ export function useAgentOrchestrator({
     } finally {
       setIsLoading(false);
     }
-  }, [orchestratorService, selectedAgent, currentUser, agents]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [orchestratorService, selectedAgent, currentUser, agents]);
 
   // Stop the selected agent
   const stopAgent = useCallback(async () => {
@@ -153,7 +153,7 @@ export function useAgentOrchestrator({
     } finally {
       setIsLoading(false);
     }
-  }, [orchestratorService, selectedAgent, agents]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [orchestratorService, selectedAgent, agents]);
 
   // Execute a specific flow
   const executeFlow = useCallback(
@@ -193,7 +193,7 @@ export function useAgentOrchestrator({
       }
     },
     [orchestratorService, selectedAgent, currentUser, loadAgents]
-  ); // eslint-disable-line react-hooks/exhaustive-deps
+  );
 
   // Create a new agent
   const createAgent = useCallback(
@@ -203,7 +203,7 @@ export function useAgentOrchestrator({
         const newAgent = await orchestratorService.createAgent(agent);
 
         // Update agents list
-        setAgents([...agents, newAgent]); // eslint-disable-line react-hooks/exhaustive-deps
+        setAgents([...agents, newAgent]);
 
         // Select the new agent
         setSelectedAgent(newAgent);
@@ -220,7 +220,7 @@ export function useAgentOrchestrator({
       }
     },
     [orchestratorService, agents]
-  ); // eslint-disable-line react-hooks/exhaustive-deps
+  );
 
   // Create a new flow for the selected agent
   const createFlow = useCallback(
@@ -252,7 +252,7 @@ export function useAgentOrchestrator({
       }
     },
     [orchestratorService, selectedAgent, loadAgents]
-  ); // eslint-disable-line react-hooks/exhaustive-deps;
+  );
 
   // Get the context model for the selected agent
   const getAgentContext =

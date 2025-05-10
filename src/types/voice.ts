@@ -1,5 +1,4 @@
-// @ts-nocheck - This file has some TypeScript issues that are hard to fix
-import { Workflow, WorkflowNode, WorkflowEdge } from '@prisma/client';
+import { Workflow, WorkflowEdge, WorkflowNode } from '@prisma/client';
 
 export type VoiceCommandStatus = 'pending' | 'processing' | 'completed' | 'failed';
 export type VoiceInteractionStatus = 'pending' | 'active' | 'completed' | 'failed';

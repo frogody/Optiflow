@@ -1,8 +1,8 @@
-// @ts-nocheck - This file has some TypeScript issues that are hard to fix
-import { useState, useEffect } from 'react';
-import { Handle, Position } from 'reactflow';
-import PipedreamManagedConnector from './PipedreamManagedConnector';
+import { useEffect, useState } from 'react';
 import { toast } from 'react-hot-toast';
+import { Handle, Position } from 'reactflow';
+
+import PipedreamManagedConnector from './PipedreamManagedConnector';
 
 interface AppAction {
   id: string;

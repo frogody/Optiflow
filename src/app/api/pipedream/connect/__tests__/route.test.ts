@@ -1,8 +1,8 @@
-// @ts-nocheck - This file has some TypeScript issues that are hard to fix
-import { POST } from '../route';
 import { createBackendClient } from '@pipedream/sdk/server';
 import { getServerSession } from 'next-auth';
 import { vi } from 'vitest';
+
+import { POST } from '../route';
 
 // Mock next-auth
 vi.mock('next-auth', () => ({ getServerSession: vi.fn() }));

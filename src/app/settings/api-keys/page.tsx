@@ -1,20 +1,18 @@
 'use client';
 
-import { useState } from 'react';
 import {
-  KeyIcon,
-  TrashIcon,
-  EyeIcon,
-  EyeSlashIcon,
-  ClipboardIcon,
+  ArrowPathIcon,
+  CalendarIcon,
   CheckIcon,
-  PlusIcon,
+  ClipboardIcon,
   ExclamationTriangleIcon,
   InformationCircleIcon,
+  KeyIcon,
+  PlusIcon,
+  TrashIcon,
   XMarkIcon,
-  CalendarIcon,
-  ArrowPathIcon,
 } from '@heroicons/react/24/outline';
+import { useState } from 'react';
 
 // Mock API keys data
 const mockApiKeys = [

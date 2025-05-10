@@ -1,15 +1,15 @@
 'use client';
 
-import { useState } from 'react';
 import {
+  ArrowPathIcon,
   BellIcon,
-  EnvelopeIcon,
   DevicePhoneMobileIcon,
-  SpeakerWaveIcon,
+  EnvelopeIcon,
   GlobeAltIcon,
   InformationCircleIcon,
-  ArrowPathIcon
+  SpeakerWaveIcon
 } from '@heroicons/react/24/outline';
+import { useState } from 'react';
 
 // Mock notification preferences data
 const mockNotificationChannels = [

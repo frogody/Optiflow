@@ -1,23 +1,23 @@
 'use client';
 
-import { useState } from 'react';
-import Link from 'next/link';
 import {
   ChatBubbleLeftRightIcon,
+  ChevronRightIcon,
+  FireIcon,
+  HandRaisedIcon,
   MagnifyingGlassIcon,
-  RocketLaunchIcon,
-  WrenchScrewdriverIcon,
   MicrophoneIcon,
+  PlusIcon,
   PuzzlePieceIcon,
   QuestionMarkCircleIcon,
+  RocketLaunchIcon,
   UserCircleIcon,
-  HandRaisedIcon,
-  FireIcon,
   UserGroupIcon,
-  PlusIcon,
-  ChevronRightIcon,
+  WrenchScrewdriverIcon,
 } from '@heroicons/react/24/outline';
 import { CheckBadgeIcon } from '@heroicons/react/24/solid';
+import Link from 'next/link';
+import { useState } from 'react';
 
 export default function CommunityForum() {
   const [searchQuery, setSearchQuery] = useState('');

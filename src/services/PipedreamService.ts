@@ -1,15 +1,16 @@
-// @ts-nocheck - This file has some TypeScript issues that are hard to fix
 // PipedreamService.ts
 // MOCK VERSION for development - replace with actual implementation
 
-import { Workflow, WorkflowNode, WorkflowEdge } from '@prisma/client';
+import { Workflow, WorkflowEdge, WorkflowNode } from '@prisma/client';
 
-export interface PipedreamConfig { environment?: 'development' | 'production';
+export interface PipedreamConfig {
+  environment?: 'development' | 'production';
   apiKey?: string;
   projectId?: string;
 }
 
-interface ConnectionStatus { status: 'connected' | 'disconnected' | 'error';
+export interface ConnectionStatus {
+  status: 'connected' | 'disconnected' | 'error';
   lastConnected?: Date;
   error?: string;
 }
@@ -22,15 +23,41 @@ export interface PipedreamIntegration {
   type: string;
 }
 
+export interface PipedreamWorkflow {
+  id: string;
+  name: string;
+  description?: string;
+  organization_id: string;
+  status: 'active' | 'inactive' | 'running' | 'stopped';
+}
+
+export interface PipedreamNode {
+  id: string;
+  type: string;
+  name: string;
+  config: Record<string, unknown>;
+  status?: string;
+}
+
+export interface PipedreamEdge {
+  id: string;
+  source: string;
+  target: string;
+  type: string;
+}
+
 export class PipedreamService {
   private static instance: PipedreamService;
-  private mockWorkflows: Map<string, any> = new Map();
-  private mockNodes: Map<string, any> = new Map();
-  private mockEdges: Map<string, any> = new Map();
+  private mockWorkflows: Map<string, PipedreamWorkflow>;
+  private mockNodes: Map<string, PipedreamNode>;
+  private mockEdges: Map<string, PipedreamEdge>;
   private config: PipedreamConfig;
 
   private constructor(config?: PipedreamConfig) {
     this.config = config || {};
+    this.mockWorkflows = new Map();
+    this.mockNodes = new Map();
+    this.mockEdges = new Map();
   }
 
   public static getInstance(config?: PipedreamConfig): PipedreamService {
@@ -43,7 +70,7 @@ export class PipedreamService {
     return PipedreamService.instance;
   }
 
-  async getApps(): Promise<any[]> {
+  async getApps(): Promise<PipedreamIntegration[]> {
     try {
       const response = await fetch('https://api.pipedream.com/v1/apps', {
         headers: {
@@ -58,7 +85,8 @@ export class PipedreamService {
 
       const data = await response.json();
       return data.data || [];
-    } catch (error) { console.error('Error fetching Pipedream apps:', error);
+    } catch (error) {
+      console.error('Error fetching Pipedream apps:', error);
       return []; // Return empty array in case of error
     }
   }
@@ -66,7 +94,7 @@ export class PipedreamService {
   async createWorkflow(workflow: Workflow): Promise<string> {
     try {
       if (process.env.NODE_ENV === 'development') {
-        const mockWorkflow = {
+        const mockWorkflow: PipedreamWorkflow = {
           id: `mock-workflow-${Date.now()}`,
           name: workflow.name,
           description: workflow.description || '',
@@ -95,12 +123,13 @@ export class PipedreamService {
 
       const data = await response.json();
       return data.id;
-    } catch (error) { console.error('Error creating workflow:', error);
+    } catch (error) {
+      console.error('Error creating workflow:', error);
       throw error;
     }
   }
 
-  async getWorkflows(): Promise<any[]> {
+  async getWorkflows(): Promise<PipedreamWorkflow[]> {
     try {
       if (process.env.NODE_ENV === 'development') {
         return Array.from(this.mockWorkflows.values());
@@ -119,25 +148,38 @@ export class PipedreamService {
 
       const data = await response.json();
       return data.workflows || [];
-    } catch (error) { console.error('Error fetching workflows:', error);
+    } catch (error) {
+      console.error('Error fetching workflows:', error);
       return []; // Return empty array in case of error
     }
   }
 
-  // Mock methods for development
   async addNode(workflowId: string, node: WorkflowNode): Promise<string> {
     const nodeId = `mock-node-${Date.now()}`;
-    this.mockNodes.set(nodeId, { ...node, id: nodeId });
+    const pipedreamNode: PipedreamNode = {
+      id: nodeId,
+      type: node.type,
+      name: node.name,
+      config: node.config as Record<string, unknown>,
+      status: 'created'
+    };
+    this.mockNodes.set(nodeId, pipedreamNode);
     return nodeId;
   }
 
   async connectNodes(workflowId: string, edge: WorkflowEdge): Promise<string> {
     const edgeId = `edge-${Date.now()}`;
-    this.mockEdges.set(edgeId, { ...edge, id: edgeId });
+    const pipedreamEdge: PipedreamEdge = {
+      id: edgeId,
+      source: edge.sourceId,
+      target: edge.targetId,
+      type: edge.type
+    };
+    this.mockEdges.set(edgeId, pipedreamEdge);
     return edgeId;
   }
 
-  async configureNode(workflowId: string, nodeId: string, config: any): Promise<void> {
+  async configureNode(workflowId: string, nodeId: string, config: Record<string, unknown>): Promise<void> {
     const node = this.mockNodes.get(nodeId);
     if (node) {
       this.mockNodes.set(nodeId, { ...node, config });
@@ -167,33 +209,35 @@ export class PipedreamService {
     try {
       const node = this.mockNodes.get(nodeId);
       if (node) {
-        return node.status;
+        return node.status || 'unknown';
       }
       throw new Error('Node not found');
-    } catch (error) { console.error('Error getting mock node status:', error);
+    } catch (error) {
+      console.error('Error getting mock node status:', error);
       throw new Error('Failed to get mock node status');
     }
   }
 
-  async getAvailableIntegrations(): Promise<Array<{ id: string; name: string }>> {
+  async getAvailableIntegrations(): Promise<PipedreamIntegration[]> {
     try {
       // Mock integrations
       return [
-        { id: 'hubspot', name: 'HubSpot' },
-        { id: 'gmail', name: 'Gmail' },
-        { id: 'slack', name: 'Slack' },
-        { id: 'github', name: 'GitHub' },
-        { id: 'n8n', name: 'n8n' },
+        { id: 'hubspot', name: 'HubSpot', version: '1.0.0', type: 'crm' },
+        { id: 'gmail', name: 'Gmail', version: '1.0.0', type: 'email' },
+        { id: 'slack', name: 'Slack', version: '1.0.0', type: 'communication' },
+        { id: 'github', name: 'GitHub', version: '1.0.0', type: 'development' },
+        { id: 'n8n', name: 'n8n', version: '1.0.0', type: 'automation' },
       ];
-    } catch (error) { console.error('Error getting mock integrations:', error);
+    } catch (error) {
+      console.error('Error getting mock integrations:', error);
       throw new Error('Failed to get mock integrations');
     }
   }
 
-  async getIntegrationConfig(integrationId: string): Promise<Record<string, any>> {
+  async getIntegrationConfig(integrationId: string): Promise<Record<string, unknown>> {
     try {
       // Mock integration configs
-      const configs: Record<string, Record<string, any>> = {
+      const configs: Record<string, Record<string, unknown>> = {
         hubspot: {
           apiKey: 'required',
           baseUrl: 'optional',
@@ -209,35 +253,44 @@ export class PipedreamService {
         },
         github: {
           accessToken: 'required',
-          webhookSecret: 'optional',
         },
         n8n: {
           apiKey: 'required',
           baseUrl: 'required',
         },
       };
-
       return configs[integrationId] || {};
-    } catch (error) { console.error('Error getting mock integration config:', error);
-      throw new Error('Failed to get mock integration config');
+    } catch (error) {
+      console.error('Error getting integration config:', error);
+      throw new Error('Failed to get integration config');
     }
   }
 
-  // Add methods for app connection status
-  async connectToApp(appName: string, userId: string) {
-    return { status: 'connected' as const };
+  async connectToApp(appName: string, userId: string): Promise<ConnectionStatus> {
+    return {
+      status: 'connected',
+      lastConnected: new Date()
+    };
   }
 
-  async getConnectionStatus(appName: string, userId: string) {
-    return { status: 'connected' as const };
+  async getConnectionStatus(appName: string, userId: string): Promise<ConnectionStatus> {
+    return {
+      status: 'connected',
+      lastConnected: new Date()
+    };
   }
 
-  async disconnectApp(appName: string, userId: string) {
-    return { status: 'disconnected' as const };
-  }
-
-  async makeApiRequest<T>(appName: string, userId: string, endpoint: string, method: string, data?: any): Promise<T> {
+  async disconnectApp(appName: string, userId: string): Promise<void> {
     // Mock implementation
-    return {} as T;
+  }
+
+  async makeApiRequest<T>(
+    appName: string,
+    userId: string,
+    endpoint: string,
+    method: string,
+    data?: Record<string, unknown>
+  ): Promise<T> {
+    throw new Error('Not implemented in mock version');
   }
 } 

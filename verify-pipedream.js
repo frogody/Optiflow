@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-var-requires */
 // Script to verify Pipedream Connect credentials and configuration
 require('dotenv').config();
 const axios = require('axios').default;

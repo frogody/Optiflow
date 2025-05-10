@@ -1,9 +1,9 @@
-// @ts-nocheck - This file has some TypeScript issues that are hard to fix
-import { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
-import { useUserStore } from '@/lib/userStore';
 import Image from 'next/image';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
+import { useEffect, useState } from 'react';
+
+import { useUserStore } from '@/lib/userStore';
 import { AoraAgent } from '@/services/agents/AoraAgent';
 import { mcpService } from '@/services/mcp/MCPService';
 

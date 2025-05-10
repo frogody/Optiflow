@@ -1,21 +1,21 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import Link from 'next/link';
 import { 
-  MagnifyingGlassIcon, 
   ArrowPathIcon, 
+  BoltIcon, 
+  ChevronDownIcon, 
+  ChevronUpIcon, 
   CreditCardIcon, 
-  CubeIcon, 
-  UserIcon, 
-  BoltIcon,
+  CubeIcon,
+  MagnifyingGlassIcon,
   MicrophoneIcon,
   PuzzlePieceIcon,
   QuestionMarkCircleIcon,
-  ChevronDownIcon,
-  ChevronUpIcon
+  UserIcon
 } from '@heroicons/react/24/outline';
-import { motion, AnimatePresence } from 'framer-motion';
+import { AnimatePresence, motion } from 'framer-motion';
+import Link from 'next/link';
+import { useEffect, useState } from 'react';
 
 // FAQ Item types
 type FAQCategory = 
@@ -59,7 +59,7 @@ const faqItems: FAQItem[] = [
   },
   {
     question: 'Do I need technical skills to use Optiflow?',
-    answer: 'No, Optiflow is designed for users of all technical backgrounds. Our visual workflow editor uses a simple drag-and-drop interface, and our AI assistant can even help you build workflows using natural language instructions. While technical knowledge can enable more complex workflows, it\'s not required to get started and achieve significant results.',
+    answer: "No, Optiflow is designed for users of all technical backgrounds. Our visual workflow editor uses a simple drag-and-drop interface, and our AI assistant can even help you build workflows using natural language instructions. While technical knowledge can enable more complex workflows, it's not required to get started and achieve significant results.",
     category: 'general',
   },
   {
@@ -81,7 +81,7 @@ const faqItems: FAQItem[] = [
   },
   {
     question: 'Can I switch between plans?',
-    answer: 'Yes, you can upgrade your plan at any time, and the changes will take effect immediately. When downgrading, the changes will apply at the end of your current billing cycle. If you upgrade mid-cycle, you\'ll be charged the prorated difference and receive the additional credits immediately.',
+    answer: "Yes, you can upgrade your plan at any time, and the changes will take effect immediately. When downgrading, the changes will apply at the end of your current billing cycle. If you upgrade mid-cycle, you'll be charged the prorated difference and receive the additional credits immediately.",
     category: 'billing',
   },
   {
@@ -91,7 +91,7 @@ const faqItems: FAQItem[] = [
   },
   {
     question: 'Are there discounts for annual billing?',
-    answer: 'Yes, we offer a 20% discount when you choose annual billing. You\'ll be billed for 12 months upfront and receive the full annual allocation of credits at the beginning of the billing cycle.',
+    answer: "Yes, we offer a 20% discount when you choose annual billing. You'll be billed for 12 months upfront and receive the full annual allocation of credits at the beginning of the billing cycle.",
     category: 'billing',
   },
   
@@ -103,7 +103,7 @@ const faqItems: FAQItem[] = [
   },
   {
     question: 'How can I reset my password?',
-    answer: 'To reset your password, click on the "Forgot password?" link on the login page. Enter your email address, and we\'ll send you a password reset link. For security reasons, this link is valid for 24 hours. If you\'re already logged in, you can change your password through your profile settings.',
+    answer: "To reset your password, click on the 'Forgot password?' link on the login page. Enter your email address, and we'll send you a password reset link. For security reasons, this link is valid for 24 hours. If you're already logged in, you can change your password through your profile settings.",
     category: 'account',
   },
   {
@@ -135,7 +135,7 @@ const faqItems: FAQItem[] = [
   },
   {
     question: 'Is there a limit to how complex my workflows can be?',
-    answer: 'While there\'s no strict limit on workflow complexity, performance considerations come into play with very large workflows. Pro and Enterprise plans support more complex workflows with higher action limits and computation resources. We recommend breaking very complex processes into multiple connected workflows for better maintainability and performance.',
+    answer: "While there's no strict limit on workflow complexity, performance considerations come into play with very large workflows. Pro and Enterprise plans support more complex workflows with higher action limits and computation resources. We recommend breaking very complex processes into multiple connected workflows for better maintainability and performance.",
     category: 'workflows',
   },
   {
@@ -152,7 +152,7 @@ const faqItems: FAQItem[] = [
   },
   {
     question: 'How do I set up Jarvis?',
-    answer: 'Jarvis is available on Pro and Enterprise plans. To set up Jarvis, go to Settings > Voice Agent and follow the setup wizard. You\'ll need to grant microphone permissions in your browser and complete a brief voice calibration process. You can customize Jarvis\'s settings, including wake word, voice style, and command preferences.',
+    answer: "Jarvis is available on Pro and Enterprise plans. To set up Jarvis, go to Settings > Voice Agent and follow the setup wizard. You'll need to grant microphone permissions in your browser and complete a brief voice calibration process. You can customize Jarvis's settings, including wake word, voice style, and command preferences.",
     category: 'voice-agent',
   },
   {
@@ -162,7 +162,7 @@ const faqItems: FAQItem[] = [
   },
   {
     question: 'Does Jarvis work in all languages?',
-    answer: 'Currently, Jarvis works primarily in English, with beta support for Spanish, French, German, and Japanese. We\'re continuously adding support for more languages. You can switch languages in the Voice Agent settings menu. Even within supported languages, Jarvis may have varying levels of accuracy based on accents and dialects.',
+    answer: "Currently, Jarvis works primarily in English, with beta support for Spanish, French, German, and Japanese. We're continuously adding support for more languages. You can switch languages in the Voice Agent settings menu. Even within supported languages, Jarvis may have varying levels of accuracy based on accents and dialects.",
     category: 'voice-agent',
   },
   
@@ -179,7 +179,7 @@ const faqItems: FAQItem[] = [
   },
   {
     question: 'What is Pipedream Connect?',
-    answer: 'Pipedream Connect is a feature that extends Optiflow\'s integration capabilities by connecting with the Pipedream platform. This gives you access to thousands of additional integrations and enables more complex integration scenarios. Pipedream Connect is available on all paid plans and provides a seamless way to leverage Pipedream\'s extensive connector library within your Optiflow workflows.',
+    answer: "Pipedream Connect is a feature that extends Optiflow's integration capabilities by connecting with the Pipedream platform. This gives you access to thousands of additional integrations and enables more complex integration scenarios. Pipedream Connect is available on all paid plans and provides a seamless way to leverage Pipedream's extensive connector library within your Optiflow workflows.",
     category: 'integrations',
   },
   {
@@ -330,9 +330,10 @@ export default function FAQPage() {
                 className="bg-[#18181B] border border-[#374151] rounded-lg overflow-hidden transition-colors hover:border-[#22D3EE]"
               >
                 <button
+                  type="button"
                   onClick={() => toggleItem(index)}
                   className="w-full px-6 py-4 flex items-center justify-between text-left"
-                  aria-expanded={expandedItems.includes(index) ? "true" : "false"}
+                  aria-expanded={expandedItems.includes(index)}
                 >
                   <h3 className="text-lg font-medium text-[#E5E7EB] pr-8">{item.question}</h3>
                   {expandedItems.includes(index) ? (
@@ -362,7 +363,7 @@ export default function FAQPage() {
                               Was this helpful?
                             </button>
                             <Link 
-                              href={`/help/${item.category}`} 
+                              href={`/help/${item.category}` as any} 
                               className="text-xs text-[#22D3EE] hover:text-[#06B6D4]"
                             >
                               Learn more

@@ -1,4 +1,3 @@
-// @ts-nocheck - This file has some TypeScript issues that are hard to fix
 import { motion } from 'framer-motion';
 
 interface LoadingProps { variant?: 'spinner' | 'dots' | 'pulse';

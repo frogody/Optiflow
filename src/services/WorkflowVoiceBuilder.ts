@@ -1,8 +1,18 @@
-// @ts-nocheck - This file has some TypeScript issues that are hard to fix
 import { ElevenLabsConfig, ElevenLabsTranscription } from '../types/elevenlabs';
+import { VoiceCommand, VoiceCommandType } from '../types/voice';
+import { Workflow } from '../types/workflow';
+
 import { ElevenLabsConversationalService } from './ElevenLabsConversationalService';
 import { VoiceCommandProcessor } from './VoiceCommandProcessor';
 import { WorkflowBuilder } from './WorkflowBuilder';
+
+interface VoiceCommandPayload {
+  type: VoiceCommandType;
+  stepId?: string;
+  sourceStepId?: string;
+  targetStepId?: string;
+  config?: Record<string, unknown>;
+}
 
 export class WorkflowVoiceBuilder {
   private elevenLabs: ElevenLabsConversationalService;
@@ -47,8 +57,7 @@ export class WorkflowVoiceBuilder {
       }
 
       // Generate/update workflow
-      const workflow =
-        await this.workflowBuilder.generateFromVoice(transcription);
+      const workflow = await this.workflowBuilder.generateFromVoice(transcription);
       if (workflow) {
         // Emit workflow update event or callback
         console.log('Workflow updated:', workflow);
@@ -63,21 +72,39 @@ export class WorkflowVoiceBuilder {
     }
   }
 
-  private async executeCommand(command: any): Promise<void> {
+  private async executeCommand(command: VoiceCommandPayload): Promise<void> {
     try {
       switch (command.type) {
         case 'create_step':
-          // Handle step creation
+          if (!command.config) {
+            throw new Error('Step configuration is required for creation');
+          }
+          await this.workflowBuilder.addStep(command.config);
           break;
+
         case 'connect_steps':
-          // Handle step connection
+          if (!command.sourceStepId || !command.targetStepId) {
+            throw new Error('Source and target step IDs are required for connection');
+          }
+          await this.workflowBuilder.connectSteps(command.sourceStepId, command.targetStepId);
           break;
+
         case 'configure_step':
-          // Handle step configuration
+          if (!command.stepId || !command.config) {
+            throw new Error('Step ID and configuration are required');
+          }
+          await this.workflowBuilder.configureStep(command.stepId, command.config);
           break;
+
         case 'delete_step':
-          // Handle step deletion
+          if (!command.stepId) {
+            throw new Error('Step ID is required for deletion');
+          }
+          await this.workflowBuilder.deleteStep(command.stepId);
           break;
+
+        default:
+          throw new Error(`Unsupported command type: ${command.type}`);
       }
     } catch (error) {
       console.error('Error executing command:', error);

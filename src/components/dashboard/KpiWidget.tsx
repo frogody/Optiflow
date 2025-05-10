@@ -1,12 +1,12 @@
 'use client';
 
-import { useState, useEffect } from 'react';
 import { 
   ChartBarIcon, 
   CreditCardIcon, 
-  PuzzlePieceIcon, 
-  MicrophoneIcon 
+  MicrophoneIcon, 
+  PuzzlePieceIcon 
 } from '@heroicons/react/24/outline';
+import { useEffect, useState } from 'react';
 
 export interface KpiData {
   workflowActivity: {

@@ -1,6 +1,5 @@
-// @ts-nocheck - This file has some TypeScript issues that are hard to fix
-import { useState, useCallback } from 'react';
-import { Node, Edge } from 'reactflow';
+import { useCallback, useState } from 'react';
+import { Edge, Node } from 'reactflow';
 
 interface WorkflowState {
   nodes: Node[];
@@ -21,7 +20,7 @@ interface UseWorkflowHistoryResult {
 export function useWorkflowHistory(
   initialNodes: Node[] = [], 
   initialEdges: Edge[] = [],
-  maxHistorySize: number = 50
+  maxHistorySize = 50
 ): UseWorkflowHistoryResult {
   // History stacks
   const [history, setHistory] = useState<WorkflowState[]>([{ nodes: initialNodes,

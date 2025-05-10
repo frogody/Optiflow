@@ -1,22 +1,23 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
-import Image from 'next/image';
-import Link from 'next/link';
 import { 
   ArrowLeftIcon,
+  ArrowPathIcon, 
   CheckCircleIcon, 
-  ExclamationTriangleIcon, 
-  XCircleIcon,
-  ArrowPathIcon,
   CheckIcon,
-  XMarkIcon,
   ClockIcon,
   DocumentTextIcon,
-  KeyIcon
+  ExclamationTriangleIcon,
+  KeyIcon,
+  XCircleIcon,
+  XMarkIcon
 } from '@heroicons/react/24/outline';
+import Image from 'next/image';
+import Link from 'next/link';
+import { useRouter } from 'next/navigation';
+import { useEffect, useState } from 'react';
 import { toast } from 'react-hot-toast';
+
 import PipedreamConnectButton from '@/components/PipedreamConnectButton';
 
 // Interfaces for our data models

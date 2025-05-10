@@ -1,8 +1,8 @@
-// @ts-nocheck - This file has some TypeScript issues that are hard to fix
+import { AccessToken } from 'livekit-server-sdk';
 import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth/next';
+
 import { authOptions } from '@/lib/auth';
-import { AccessToken } from 'livekit-server-sdk';
 
 export async function POST(req: NextRequest) {
   const session = await getServerSession(authOptions);

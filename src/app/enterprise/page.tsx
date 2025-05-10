@@ -1,16 +1,15 @@
-// @ts-nocheck - This file has some TypeScript issues that are hard to fix
 'use client';
 
-import { useState } from 'react';
 import { motion } from 'framer-motion';
 import Link from 'next/link';
+import { useState } from 'react';
 import { 
-  HiOutlineShieldCheck, 
-  HiOutlineScale,
+  HiOutlineCode, 
   HiOutlineDatabase,
-  HiOutlineSupport,
+  HiOutlineScale,
   HiOutlineServer,
-  HiOutlineCode
+  HiOutlineShieldCheck,
+  HiOutlineSupport
 } from 'react-icons/hi';
 
 export default function EnterprisePage(): JSX.Element {

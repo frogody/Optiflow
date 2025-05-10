@@ -1,6 +1,3 @@
-// @ts-nocheck - This file has some TypeScript issues that are hard to fix
-import { z } from 'zod';
-
 // Define validation schemas for workflow structures
 const WorkflowParameterSchema = z.record(z.unknown());
 

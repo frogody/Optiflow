@@ -1,15 +1,15 @@
 'use client';
 
-import { useState } from 'react';
-import Link from 'next/link';
 import { 
+  ChatBubbleLeftRightIcon, 
+  DocumentTextIcon, 
   EnvelopeIcon, 
-  PhoneIcon, 
-  MapPinIcon, 
-  QuestionMarkCircleIcon,
-  DocumentTextIcon,
-  ChatBubbleLeftRightIcon
+  MapPinIcon,
+  PhoneIcon,
+  QuestionMarkCircleIcon
 } from '@heroicons/react/24/outline';
+import Link from 'next/link';
+import { useState } from 'react';
 
 // Social media icons
 const SocialIcon = ({ href, label, children }: { href: string; label: string; children: React.ReactNode }) => (

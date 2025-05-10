@@ -1,8 +1,8 @@
-// @ts-nocheck - This file has some TypeScript issues that are hard to fix
 "use client";
 
-import PipedreamConnectButton from '@/components/PipedreamConnectButton';
 import { useState } from 'react';
+
+import PipedreamConnectButton from '@/components/PipedreamConnectButton';
 
 export default function SlackOnlyPipedreamTest(): JSX.Element {
   const [connectionId, setConnectionId] = useState<string | null>(null);

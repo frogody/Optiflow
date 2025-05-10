@@ -1,20 +1,20 @@
 'use client';
 
-import Image from 'next/image';
-import Link from 'next/link';
-import { motion } from 'framer-motion';
 import { ArrowRightIcon, CheckCircleIcon } from '@heroicons/react/24/outline';
 import { 
-  RocketLaunchIcon, 
-  LightBulbIcon, 
+  BriefcaseIcon, 
+  GlobeAltIcon, 
   HeartIcon, 
-  UserGroupIcon,
-  StarIcon,
-  SparklesIcon,
+  LightBulbIcon,
+  RocketLaunchIcon,
   ShieldCheckIcon,
-  GlobeAltIcon,
-  BriefcaseIcon
+  SparklesIcon,
+  StarIcon,
+  UserGroupIcon
 } from '@heroicons/react/24/outline';
+import { motion } from 'framer-motion';
+import Image from 'next/image';
+import Link from 'next/link';
 
 // Team data
 const teamMembers = [

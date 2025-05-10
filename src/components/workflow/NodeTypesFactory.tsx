@@ -1,8 +1,8 @@
-// @ts-nocheck - This file has some TypeScript issues that are hard to fix
 'use client';
 
 import { useMemo } from 'react';
 import { NodeTypes } from 'reactflow';
+
 import AIAgentNode from './AIAgentNode';
 import DefaultNode from './DefaultNode';
 

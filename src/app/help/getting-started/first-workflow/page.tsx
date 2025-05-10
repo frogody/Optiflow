@@ -1,17 +1,17 @@
 'use client';
 
-import { useState } from 'react';
-import Link from 'next/link';
-import Image from 'next/image';
 import {
   ArrowLeftIcon,
   ArrowRightIcon,
-  ClockIcon,
   BookmarkIcon,
   CheckCircleIcon,
-  InformationCircleIcon,
+  ClockIcon,
   ExclamationTriangleIcon,
+  InformationCircleIcon,
 } from '@heroicons/react/24/outline';
+import Image from 'next/image';
+import Link from 'next/link';
+import { useState } from 'react';
 
 export default function FirstWorkflowTutorial() {
   const [currentStep, setCurrentStep] = useState(1);

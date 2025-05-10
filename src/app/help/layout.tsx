@@ -1,23 +1,23 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import Link from 'next/link';
-import { usePathname } from 'next/navigation';
 import {
-  MagnifyingGlassIcon,
+  Bars3Icon,
   BookOpenIcon, 
-  WrenchScrewdriverIcon,
-  QuestionMarkCircleIcon,
-  RocketLaunchIcon,
-  MicrophoneIcon,
-  PuzzlePieceIcon,
-  CreditCardIcon,
-  UserCircleIcon,
   ChevronDownIcon,
   ChevronRightIcon,
-  Bars3Icon,
+  CreditCardIcon,
+  MagnifyingGlassIcon,
+  MicrophoneIcon,
+  PuzzlePieceIcon,
+  QuestionMarkCircleIcon,
+  RocketLaunchIcon,
+  UserCircleIcon,
+  WrenchScrewdriverIcon,
   XMarkIcon
 } from '@heroicons/react/24/outline';
+import Link from 'next/link';
+import { usePathname } from 'next/navigation';
+import { useEffect, useState } from 'react';
 
 // Define help center categories and their subcategories
 const helpCategories = [

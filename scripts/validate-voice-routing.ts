@@ -14,8 +14,9 @@
 
 import * as fs from 'fs';
 import * as path from 'path';
-import * as ts from 'typescript';
+
 import chalk from 'chalk';
+import * as ts from 'typescript';
 
 // Configuration
 const config = {

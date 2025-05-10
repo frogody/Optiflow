@@ -1,11 +1,12 @@
-// @ts-nocheck - This file has some TypeScript issues that are hard to fix
 'use client';
 
-import { useState, useEffect } from 'react';
 import { createFrontendClient } from '@pipedream/sdk/browser';
-import { useUserStore } from '@/lib/userStore';
-import { serverConnectTokenCreate, getAppInfo } from '@/lib/pipedream/server';
+import { useEffect, useState } from 'react';
 import { toast } from 'react-hot-toast';
+
+import { getAppInfo, serverConnectTokenCreate } from '@/lib/pipedream/server';
+import { useUserStore } from '@/lib/userStore';
+
 
 export interface ConnectResult { id: string;
     }

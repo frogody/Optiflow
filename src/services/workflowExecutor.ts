@@ -1,4 +1,3 @@
-// @ts-nocheck - This file has some TypeScript issues that are hard to fix
 /**
  * Workflow Executor Service
  * 
@@ -10,10 +9,12 @@
  * - RAG integration
  */
 
-import { Node, Edge } from 'reactflow';
-import { WorkflowSettings } from '@/components/workflow/WorkflowSettings';
-import WorkflowMemory, { getWorkflowMemory, MemoryItem } from './workflowMemory';
+import { Edge, Node } from 'reactflow';
+
 import ragService, { RetrievalRequest } from './ragService';
+import WorkflowMemory, { getWorkflowMemory, MemoryItem } from './workflowMemory';
+
+import { WorkflowSettings } from '@/components/workflow/WorkflowSettings.tsx';
 
 export type NodeStatus = 'idle' | 'running' | 'completed' | 'error' | 'waiting-approval';
 

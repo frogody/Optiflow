@@ -1,27 +1,26 @@
-// @ts-nocheck - This file has some TypeScript issues that are hard to fix
 'use client';
 
 import React, { useCallback } from 'react';
 import ReactFlow, {
-  Node,
-  Edge,
-  Connection,
   addEdge,
   Background,
+  Connection,
   Controls,
+  Edge,
   MiniMap,
-  useNodesState,
-  useEdgesState,
+  Node,
   NodeTypes,
+  useEdgesState,
+  useNodesState,
 } from 'reactflow';
 import 'reactflow/dist/style.css';
 
 // Import custom node types
-import { TriggerNode } from './nodes/TriggerNode';
 import { ActionNode } from './nodes/ActionNode';
-import { ConditionNode } from './nodes/ConditionNode';
 import { ApiNode } from './nodes/ApiNode';
+import { ConditionNode } from './nodes/ConditionNode';
 import { DatabaseNode } from './nodes/DatabaseNode';
+import { TriggerNode } from './nodes/TriggerNode';
 
 // Define node types
 const nodeTypes: NodeTypes = {

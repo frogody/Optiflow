@@ -1,5 +1,4 @@
-// @ts-nocheck - This file has some TypeScript issues that are hard to fix
-import { WorkflowCommand, CommandType } from '@/types/workflow';
+import { CommandType, WorkflowCommand } from '@/types/workflow';
 
 const COMMAND_PATTERNS = {
   CREATE_NODE: /(?:create|add) (?:a )?(?:new )?(\w+)(?: node)?/i,

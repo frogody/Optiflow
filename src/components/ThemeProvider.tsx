@@ -1,9 +1,9 @@
-// @ts-nocheck - This file has some TypeScript issues that are hard to fix
 'use client';
 
 import { useEffect } from 'react';
-import { useThemeStore } from '@/lib/themeStore';
 import React from 'react';
+
+import { useThemeStore } from '@/lib/themeStore.js';
 
 export default function ThemeProvider({ children }: { children: React.ReactNode }): JSX.Element {
   const { theme } = useThemeStore();

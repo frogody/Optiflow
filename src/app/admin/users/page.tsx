@@ -1,19 +1,19 @@
 'use client';
 
-import { useState } from 'react';
 import {
-  MagnifyingGlassIcon,
-  FunnelIcon,
   ArrowPathIcon,
-  UserPlusIcon,
+  CheckBadgeIcon,
+  EyeIcon,
+  FunnelIcon,
+  KeyIcon,
+  MagnifyingGlassIcon,
+  NoSymbolIcon,
   PencilIcon,
   TrashIcon,
-  KeyIcon,
-  EyeIcon,
   UserCircleIcon,
-  CheckBadgeIcon,
-  NoSymbolIcon
+  UserPlusIcon
 } from '@heroicons/react/24/outline';
+import { useState } from 'react';
 
 // Define User type
 interface User {

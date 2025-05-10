@@ -1,11 +1,12 @@
-// @ts-nocheck - This file has some TypeScript issues that are hard to fix
 import { PrismaAdapter } from "@next-auth/prisma-adapter";
-import { NextAuthOptions } from "next-auth";
-import GoogleProvider from "next-auth/providers/google";
-import CredentialsProvider from "next-auth/providers/credentials";
 import bcrypt from "bcryptjs";
-import { prisma } from "./prisma";
+import { NextAuthOptions } from "next-auth";
+import CredentialsProvider from "next-auth/providers/credentials";
+import GoogleProvider from "next-auth/providers/google";
 import { z } from "zod";
+
+import { prisma } from "./prisma";
+
 
 // User schema for validation
 const userSchema = z.object({ email: z.string().email(),

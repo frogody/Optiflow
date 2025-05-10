@@ -1,4 +1,3 @@
-// @ts-nocheck - This file has some TypeScript issues that are hard to fix
 /**
  * This file provides polyfills and utilities for working with WebSockets
  * in an isomorphic environment (works in both browser and Node.js)

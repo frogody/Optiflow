@@ -1,5 +1,5 @@
-// @ts-nocheck - This file has some TypeScript issues that are hard to fix
 import Link from 'next/link';
+
 import { Card } from '@/components/ui/Card';
 import { cn } from '@/lib/utils';
 

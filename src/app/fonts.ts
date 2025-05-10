@@ -1,4 +1,3 @@
-// @ts-nocheck - This file has some TypeScript issues that are hard to fix
 // Defining font variables for use with CSS variables
 // This approach works with Babel unlike the next/font import
 

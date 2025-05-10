@@ -1,7 +1,7 @@
-// @ts-nocheck - This file has some TypeScript issues that are hard to fix
-import { getServerSession } from 'next-auth';
-import { authOptions } from '@/lib/auth';
 import { NextResponse } from 'next/server';
+import { getServerSession } from 'next-auth';
+
+import { authOptions } from '@/lib/auth';
 
 export const dynamic = 'force-dynamic';
 

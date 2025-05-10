@@ -1,8 +1,7 @@
-// @ts-nocheck - This file has some TypeScript issues that are hard to fix
 'use client';
 
 import React from 'react';
-import { Handle, Position, NodeProps } from 'reactflow';
+import { Handle, NodeProps, Position } from 'reactflow';
 
 interface ConditionalNodeData {
   label: string;

@@ -1,9 +1,9 @@
-// @ts-nocheck - This file has some TypeScript issues that are hard to fix
 'use client';
 
-import { createRoot } from 'react-dom/client';
-import MicrophonePermission from '@/components/MicrophonePermission';
 import React, { useEffect } from 'react';
+import { createRoot } from 'react-dom/client';
+
+import MicrophonePermission from '@/components/MicrophonePermission.js';
 
 // Global reference to root to avoid multiple instances
 let rootInstance: ReturnType<typeof createRoot> | null = null;

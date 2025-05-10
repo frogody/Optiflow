@@ -1,4 +1,3 @@
-// @ts-nocheck - This file has some TypeScript issues that are hard to fix
 import React from 'react';
 
 interface MockScreenshotProps { type: 'connect-tools' | 'workflow-builder' | 'configure-trigger' | 'add-actions' | 'test-deploy';

@@ -1,10 +1,10 @@
-// @ts-nocheck - This file has some TypeScript issues that are hard to fix
-import { render, screen, fireEvent, waitFor } from '@testing-library/react';
-import { PipedreamConnect } from '../PipedreamConnect';
-import { toast } from 'react-hot-toast';
 import { connectAccount } from '@pipedream/sdk';
-import { vi } from 'vitest';
+import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { SessionProvider } from 'next-auth/react';
+import { toast } from 'react-hot-toast';
+import { vi } from 'vitest';
+
+import { PipedreamConnect } from '../PipedreamConnect';
 
 // Mock the Pipedream SDK
 vi.mock('@pipedream/sdk', () => ({ connectAccount: vi.fn()

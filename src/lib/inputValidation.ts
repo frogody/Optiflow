@@ -1,4 +1,3 @@
-// @ts-nocheck - This file has some TypeScript issues that are hard to fix
 import { z } from 'zod';
 
 /**
@@ -119,7 +118,7 @@ function containsScriptInjection(value: string): boolean { // Basic XSS detectio
   ];
   
   return xssPatterns.some(pattern => pattern.test(value));
-    }
+}
 
 /**
  * Sanitize a string (remove potentially dangerous characters)

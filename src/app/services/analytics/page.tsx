@@ -1,16 +1,17 @@
-// @ts-nocheck - This file has some TypeScript issues that are hard to fix
 'use client';
 
 import dynamic from 'next/dynamic';
 import Link from 'next/link';
 import { 
   HiOutlineChartBar,
-  HiOutlineLightningBolt,
   HiOutlineChartPie,
   HiOutlineCube,
-  HiOutlineTrendingUp,
-  HiOutlinePresentationChartLine
+  HiOutlineLightningBolt,
+  HiOutlinePresentationChartLine,
+  HiOutlineTrendingUp
 } from 'react-icons/hi';
+
+import styles from './styles.module.css';
 
 const MotionDiv = dynamic(() => import('framer-motion').then(mod => mod.motion.div), { ssr: false, loading: () => (props: any) => <div {...props} /> });
 
@@ -58,7 +59,7 @@ export default function AnalyticsPage(): JSX.Element {
   ];
 
   return (
-    <div className="min-h-screen text-white" style={{ background: 'linear-gradient(to bottom, #000000, #0A0A0A)'     }}>
+    <div className={`min-h-screen text-white ${styles.gradientBackground}`}>
       {/* Hero Section */}
       <section className="relative pt-32 pb-24 overflow-hidden">
         {/* Glow Effects */}

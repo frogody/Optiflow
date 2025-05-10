@@ -1,10 +1,11 @@
-// @ts-nocheck - This file has some TypeScript issues that are hard to fix
-import React, { useState, useEffect, useCallback } from 'react';
+import { Workflow, WorkflowEdge, WorkflowNode } from '@prisma/client';
+import React, { useCallback, useEffect, useState } from 'react';
+import { toast } from 'react-hot-toast';
+
 import { VoiceCommandInput } from './VoiceCommandInput';
+
 import { ConversationService } from '@/services/ConversationService';
 import { VoiceCommandResponse } from '@/types/voice';
-import { toast } from 'react-hot-toast';
-import { Workflow, WorkflowNode, WorkflowEdge } from '@prisma/client';
 
 interface ConversationalVoiceBuilderProps { initialWorkflow?: Workflow;
   onWorkflowUpdate?: (workflow: Partial<Workflow>) => void;

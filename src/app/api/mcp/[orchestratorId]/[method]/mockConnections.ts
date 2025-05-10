@@ -1,4 +1,3 @@
-// @ts-nocheck - This file has some TypeScript issues that are hard to fix
 // In-memory storage for mock connections
 const mockConnections: {
   [userId: string]: {

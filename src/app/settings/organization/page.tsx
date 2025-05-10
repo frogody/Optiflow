@@ -1,17 +1,17 @@
 'use client';
 
-import { useState } from 'react';
-import Image from 'next/image';
 import {
-  BuildingOffice2Icon,
-  UserGroupIcon,
-  ShieldCheckIcon,
-  PencilIcon,
-  CameraIcon,
-  UserPlusIcon,
-  UserMinusIcon,
   ArrowPathIcon,
+  BuildingOffice2Icon,
+  CameraIcon,
+  PencilIcon,
+  ShieldCheckIcon,
+  UserGroupIcon,
+  UserMinusIcon,
+  UserPlusIcon,
 } from '@heroicons/react/24/outline';
+import Image from 'next/image';
+import { useState } from 'react';
 
 // Mock organization data
 const mockOrg = {

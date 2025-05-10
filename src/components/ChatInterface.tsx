@@ -1,10 +1,10 @@
-// @ts-nocheck - This file has some TypeScript issues that are hard to fix
 'use client';
 
-import React, { useState, useCallback } from 'react';
+import React, { useCallback, useState } from 'react';
+
+import { useUserStore } from '@/lib/userStore';
 import { useWorkflowStore } from '@/lib/workflowStore';
 import { mcpService } from '@/services/mcp/MCPService';
-import { useUserStore } from '@/lib/userStore';
 
 interface Orchestrator { id: string;
   name: string;

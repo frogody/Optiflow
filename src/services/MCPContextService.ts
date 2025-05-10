@@ -1,19 +1,27 @@
-// @ts-nocheck - This file has some TypeScript issues that are hard to fix
 import { toast } from 'react-hot-toast';
 
 // Types
-export interface ModelContext { modelId: string;
+export interface ModelContext {
+  modelId: string;
   name: string;
   maxContextLength: number;
   currentUsage: number;
   contextSections: ContextSection[];
 }
 
-export interface ContextSection { id: string;
+export interface ContextSection {
+  id: string;
   name: string;
   type: 'system' | 'user' | 'assistant' | 'data' | 'tools';
   tokenCount: number;
   color: string;
+  content?: string;
+}
+
+export interface ContextSectionUpdate {
+  name?: string;
+  tokenCount?: number;
+  color?: string;
   content?: string;
 }
 
@@ -25,35 +33,40 @@ const MOCK_MODELS: ModelContext[] = [
     maxContextLength: 128000,
     currentUsage: 32500,
     contextSections: [
-      { id: 'system-1',
+      {
+        id: 'system-1',
         name: 'System',
         type: 'system',
         tokenCount: 6500,
         color: '#6366F1', // Indigo
         content: 'You are a helpful AI assistant focused on productivity...'
       },
-      { id: 'user-messages',
+      {
+        id: 'user-messages',
         name: 'User',
         type: 'user',
         tokenCount: 8200,
         color: '#10B981', // Green
         content: 'User messages requesting information and assistance...'
       },
-      { id: 'assistant-responses',
+      {
+        id: 'assistant-responses',
         name: 'Assistant',
         type: 'assistant',
         tokenCount: 10800,
         color: '#8B5CF6', // Purple
         content: 'Assistant responses providing solutions and information...'
       },
-      { id: 'data-1',
+      {
+        id: 'data-1',
         name: 'Data',
         type: 'data',
         tokenCount: 4500,
         color: '#F59E0B', // Amber
         content: 'Referenced data and documents...'
       },
-      { id: 'tools-1',
+      {
+        id: 'tools-1',
         name: 'Tools',
         type: 'tools',
         tokenCount: 2500,
@@ -87,7 +100,7 @@ const MOCK_MODELS: ModelContext[] = [
         type: 'assistant',
         tokenCount: 15000,
         color: '#8B5CF6', // Purple
-        content: 'Claude\'s detailed and helpful responses...'
+        content: "Claude's detailed and helpful responses..."
       },
       { id: 'data-2',
         name: 'Data',
@@ -199,30 +212,25 @@ export class MCPContextService {
     }
     
     try {
-      // Simulate optimization process
-      await new Promise(resolve => setTimeout(resolve, 1500));
-      
-      // Create a copy with reduced token usage
-      const updatedModel = { ...model };
-      
-      // Reduce each section by ~20%
-      updatedModel.contextSections = model.contextSections.map(section => ({ ...section,
-        tokenCount: Math.floor(section.tokenCount * 0.8)
+      // Simulate optimization by reducing token counts
+      const optimizedSections = model.contextSections.map(section => ({
+        ...section,
+        tokenCount: Math.floor(section.tokenCount * 0.8) // Reduce by 20%
       }));
       
-      // Recalculate total usage
-      updatedModel.currentUsage = updatedModel.contextSections.reduce(
-        (total, section) => total + section.tokenCount, 0
-      );
+      const optimizedModel: ModelContext = {
+        ...model,
+        contextSections: optimizedSections,
+        currentUsage: optimizedSections.reduce((sum, section) => sum + section.tokenCount, 0)
+      };
       
-      // Update in the map
-      this.models.set(modelId, updatedModel);
-      
-      toast.success(`Context optimized for ${model.name}`);
-      return updatedModel;
+      this.models.set(modelId, optimizedModel);
+      toast.success('Context optimized successfully');
+      return optimizedModel;
     } catch (error) {
-      toast.error(`Failed to optimize context: ${ error instanceof Error ? error.message : 'Unknown error'    }`);
-      return model;
+      const errorMessage = error instanceof Error ? error.message : 'Failed to optimize context';
+      toast.error(errorMessage);
+      return undefined;
     }
   }
   

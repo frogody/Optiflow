@@ -1,5 +1,5 @@
-// @ts-nocheck - This file has some TypeScript issues that are hard to fix
 import { NextResponse } from 'next/server';
+
 import { PipedreamService } from '@/services/PipedreamService';
 
 export async function GET() {

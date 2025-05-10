@@ -1,7 +1,7 @@
-// @ts-nocheck - This file has some TypeScript issues that are hard to fix
+import { Edge, Node } from 'reactflow';
 import { create } from 'zustand';
-import { Node, Edge } from 'reactflow';
-import { Workflow, WorkflowNode, WorkflowEdge } from '@/services/mcp/types';
+
+import { Workflow, WorkflowEdge, WorkflowNode } from '@/services/mcp/types';
 
 interface WorkflowState {
   workflow: Workflow | null;

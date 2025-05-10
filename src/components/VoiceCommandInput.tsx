@@ -1,7 +1,7 @@
-// @ts-nocheck - This file has some TypeScript issues that are hard to fix
-import React, { useState, useEffect } from 'react';
-import { useVoiceRecognition } from '@/hooks/useVoiceRecognition';
 import { MicrophoneIcon, StopIcon } from '@heroicons/react/24/solid';
+import React, { useEffect, useState } from 'react';
+
+import { useVoiceRecognition } from '@/hooks/useVoiceRecognition';
 
 interface VoiceCommandInputProps { onCommand: (command: string) => void;
   onError: (error: string) => void;

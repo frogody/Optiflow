@@ -1,5 +1,4 @@
-// @ts-nocheck - This file has some TypeScript issues that are hard to fix
-import { Node, Edge } from 'reactflow';
+import { Edge, Node } from 'reactflow';
 
 // Template for lead outreach workflow
 export const leadOutreachTemplate = {

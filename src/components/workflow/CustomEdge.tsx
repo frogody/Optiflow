@@ -1,9 +1,11 @@
-// @ts-nocheck - This file has some TypeScript issues that are hard to fix
 'use client';
 
-import { useState } from 'react';
-import { EdgeProps, getBezierPath, getMarkerEnd, MarkerType } from 'reactflow';
 import { TrashIcon } from '@heroicons/react/24/outline';
+import { useState } from 'react';
+import { getBezierPath, getMarkerEnd } from 'reactflow';
+import type { EdgeProps, MarkerType } from 'reactflow';
+
+import styles from './CustomEdge.module.css';
 
 export default function CustomEdge(props: EdgeProps) {
   const { id, sourceX, sourceY, sourcePosition, targetX, targetY, targetPosition, markerEnd, data, style } = props;
@@ -31,15 +33,10 @@ export default function CustomEdge(props: EdgeProps) {
     >
       <path
         id={id}
-        className="react-flow__edge-path"
+        className={`react-flow__edge-path ${styles['edgePath']} ${isHovered ? styles['edgePathHovered'] : ''} ${data?.dashed ? styles['dashed'] : ''}`}
         d={edgePath}
-        strokeWidth={ isHovered ? 3 : 2    }
+        strokeWidth={isHovered ? 3 : 2}
         markerEnd={markerEndId}
-        style={{ ...style,
-          stroke: isHovered ? '#6366f1' : '#4f46e5',
-          strokeDasharray: data?.dashed ? '5,5' : undefined,
-          transition: 'stroke-width 0.2s, stroke 0.2s',
-            }}
       />
 
       {/* Optional edge label */}
@@ -49,14 +46,10 @@ export default function CustomEdge(props: EdgeProps) {
           height={40}
           x={(sourceX + targetX) / 2 - 50}
           y={(sourceY + targetY) / 2 - 20}
-          className="react-flow__edge-label"
-          style={{ pointerEvents: 'all'     }}
+          className={`react-flow__edge-label ${styles['edgeLabel']}`}
         >
           <div
-            className="px-2 py-1 text-xs rounded-md bg-dark-100 text-white text-center border border-gray-700 shadow-md"
-            style={{ opacity: isHovered ? 1 : 0.9,
-              transition: 'opacity 0.2s'
-                }}
+            className={`px-2 py-1 text-xs rounded-md bg-dark-100 text-white text-center border border-gray-700 shadow-md ${styles['labelDiv']} ${isHovered ? styles['labelDivHovered'] : ''}`}
           >
             {edgeLabel}
           </div>
@@ -69,9 +62,8 @@ export default function CustomEdge(props: EdgeProps) {
           width={24}
           height={24}
           x={(sourceX + targetX) / 2 - 12}
-          y={ (sourceY + targetY) / 2 - 12 + (edgeLabel ? 30 : 0)    }
-          className="react-flow__edge-button"
-          style={{ pointerEvents: 'all'     }}
+          y={(sourceY + targetY) / 2 - 12 + (edgeLabel ? 30 : 0)}
+          className={`react-flow__edge-button ${styles['edgeButton']}`}
         >
           <button
             title="Delete edge"

@@ -1,4 +1,3 @@
-// @ts-nocheck - This file has some TypeScript issues that are hard to fix
 // PipedreamBrowserService.ts
 // MOCK VERSION for development - replace with actual implementation
 

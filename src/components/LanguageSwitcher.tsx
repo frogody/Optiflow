@@ -1,10 +1,9 @@
-// @ts-nocheck - This file has some TypeScript issues that are hard to fix
 'use client';
 
-import { useState, useRef, useEffect } from 'react';
+import Image from 'next/image';
 import { useTranslation } from 'next-i18next';
 import i18n from 'next-i18next.config';
-import Image from 'next/image';
+import { useEffect, useRef, useState } from 'react';
 
 interface LanguageOption { code: string;
   name: string;
@@ -77,10 +76,11 @@ export default function LanguageSwitcher(): JSX.Element {
   return (
     <div className="relative" ref={dropdownRef}>
       <button
+        type="button"
         className="flex items-center space-x-2 px-3 py-2 text-sm dark:text-white/90 dark:hover:text-white light:text-gray-700 light:hover:text-gray-900 rounded-full border border-transparent hover:border-white/10 hover:bg-white/5 transition-all duration-200"
         onClick={toggleDropdown}
         aria-haspopup="true"
-        aria-expanded={isOpen ? 'true' : 'false'}
+        {...(isOpen ? { 'aria-expanded': 'true' } : { 'aria-expanded': 'false' })}
       >
         <Image
           src={currentLanguage.flag}
@@ -108,6 +108,7 @@ export default function LanguageSwitcher(): JSX.Element {
         <div className="absolute right-0 mt-2 py-1 w-48 bg-black/90 backdrop-blur-md rounded-lg border border-white/10 shadow-lg z-10">
           {languages.map((lang) => (
             <button
+              type="button"
               key={lang.code}
               className={`w-full text-left px-4 py-2 text-sm flex items-center space-x-3 hover:bg-white/5 
                 ${ switchingTo === lang.code ? 'bg-blue-500/20 text-white' : ''    }

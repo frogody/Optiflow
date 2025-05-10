@@ -1,7 +1,7 @@
-// @ts-nocheck - This file has some TypeScript issues that are hard to fix
 'use client';
 
 import { motion } from 'framer-motion';
+
 import MCPConnectionsBrowser from '@/components/MCPConnectionsBrowser';
 
 export default function ConnectionsBrowserPage(): JSX.Element {

@@ -1,5 +1,5 @@
-// @ts-nocheck - This file has some TypeScript issues that are hard to fix
 import { WebSocket } from 'ws';
+
 import { websocketDataToStringAsync } from '../utils/websocket-polyfill';
 
 interface ConversationalOptions { agentId?: string;
@@ -57,7 +57,7 @@ export class ElevenLabsConversationalService {
   private timeoutId: NodeJS.Timeout | undefined = undefined;
   private resolvePromise!: (value: WorkflowResponse | PromiseLike<WorkflowResponse>) => void;
   private rejectPromise!: (reason?: any) => void;
-  private audioData: string = '';
+  private audioData = '';
   private fallbackWorkflow: WorkflowResponse | null = null;
   private transcriptionCallback?: (event: TranscriptionEvent) => void;
 

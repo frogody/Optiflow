@@ -1,19 +1,18 @@
-// @ts-nocheck - This file has some TypeScript issues that are hard to fix
 'use client';
 
-import { Fragment, useState } from 'react';
-import { Dialog, Transition, Disclosure, Switch } from '@headlessui/react';
+import { Dialog, Disclosure, Switch, Transition } from '@headlessui/react';
 import { 
-  Cog6ToothIcon, 
+  BeakerIcon, 
   BoltIcon, 
-  ChevronUpIcon,
-  DocumentTextIcon,
-  ShieldCheckIcon,
   BoltSlashIcon,
+  ChevronUpIcon,
   CloudIcon,
-  BeakerIcon,
-  InformationCircleIcon
+  Cog6ToothIcon,
+  DocumentTextIcon,
+  InformationCircleIcon,
+  ShieldCheckIcon
 } from '@heroicons/react/24/outline';
+import { Fragment, useState } from 'react';
 
 export interface WorkflowSettings { // Basic Info
   name: string;

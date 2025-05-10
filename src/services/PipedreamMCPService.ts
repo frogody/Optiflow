@@ -1,8 +1,7 @@
-// @ts-nocheck - This file has some TypeScript issues that are hard to fix
 // PipedreamMCPService.ts
 // Service for integrating with Pipedream MCP Platform
 
-import { uuidv4, delay } from '@/lib/utils';
+import { delay, uuidv4 } from '@/lib/utils';
 
 /**
  * Connection status for an app integrated with Pipedream
@@ -181,7 +180,7 @@ export class PipedreamMCPService {
   /**
    * Get available apps for integration
    */
-  public async getAvailableApps(forceRefresh: boolean = false): Promise<MCPAppInfo[]> {
+  public async getAvailableApps(forceRefresh = false): Promise<MCPAppInfo[]> {
     // In a real implementation, you would fetch this from the Pipedream API
     // Simulate a network request
     await delay(500);

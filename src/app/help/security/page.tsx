@@ -1,15 +1,15 @@
 'use client';
 
-import Link from 'next/link';
-import Image from 'next/image';
 import { 
-  ShieldCheckIcon, 
-  LockClosedIcon, 
-  ServerIcon, 
-  DocumentTextIcon,
-  ArrowTopRightOnSquareIcon,
-  CheckIcon
+  ArrowTopRightOnSquareIcon, 
+  CheckIcon, 
+  DocumentTextIcon, 
+  LockClosedIcon,
+  ServerIcon,
+  ShieldCheckIcon
 } from '@heroicons/react/24/outline';
+import Image from 'next/image';
+import Link from 'next/link';
 
 export default function SecurityPage() {
   return (

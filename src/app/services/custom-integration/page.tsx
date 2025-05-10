@@ -1,14 +1,13 @@
-// @ts-nocheck - This file has some TypeScript issues that are hard to fix
 'use client';
 
 import dynamic from 'next/dynamic';
 import Link from 'next/link';
 import { 
+  HiOutlineChartBar,
   HiOutlineCog,
+  HiOutlineLightningBolt,
   HiOutlinePuzzle,
   HiOutlineRefresh,
-  HiOutlineChartBar,
-  HiOutlineLightningBolt,
   HiOutlineShieldCheck
 } from 'react-icons/hi';
 

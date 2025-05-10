@@ -1,4 +1,4 @@
-import { test, expect, Page } from '@playwright/test';
+import { expect, Page, test } from '@playwright/test';
 
 /**
  * End-to-end test for the complete user workflow

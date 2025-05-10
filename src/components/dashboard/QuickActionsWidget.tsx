@@ -1,14 +1,14 @@
 'use client';
 
-import Link from 'next/link';
 import { 
-  PlusCircleIcon, 
-  PuzzlePieceIcon, 
+  Cog6ToothIcon, 
+  DocumentTextIcon, 
   MicrophoneIcon, 
-  DocumentTextIcon,
-  RocketLaunchIcon,
-  Cog6ToothIcon
+  PlusCircleIcon,
+  PuzzlePieceIcon,
+  RocketLaunchIcon
 } from '@heroicons/react/24/outline';
+import Link from 'next/link';
 
 interface QuickAction {
   id: string;

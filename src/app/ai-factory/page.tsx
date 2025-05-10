@@ -1,8 +1,9 @@
-// @ts-nocheck - This file has some TypeScript issues that are hard to fix
 'use client';
 
-import { useState, useEffect } from 'react';
 import Link from 'next/link';
+import { useEffect, useState } from 'react';
+
+import styles from './styles.module.css';
 
 export default function AIFactoryPage(): JSX.Element {
   const [idea, setIdea] = useState('');
@@ -23,14 +24,13 @@ export default function AIFactoryPage(): JSX.Element {
   // Handle mouse movement for interactive effects
   useEffect(() => {
     const handleMouseMove = (e: MouseEvent) => {
-      setCursorPosition({ x: e.clientX,
-        y: e.clientY
-          });
+      document.documentElement.style.setProperty('--cursor-x', `${e.clientX}px`);
+      document.documentElement.style.setProperty('--cursor-y', `${e.clientY}px`);
     };
     
     window.addEventListener('mousemove', handleMouseMove);
     return () => window.removeEventListener('mousemove', handleMouseMove);
-  }, []) // eslint-disable-line react-hooks/exhaustive-deps
+  }, []);
   
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -46,13 +46,7 @@ export default function AIFactoryPage(): JSX.Element {
   
   return (
     <div 
-      className="min-h-screen relative overflow-hidden bg-gradient-to-br from-black via-gray-950 to-black"
-      style={{
-        backgroundImage: `
-          radial-gradient(circle at ${cursorPosition.x}px ${cursorPosition.y}px, rgba(60, 223, 255, 0.07) 0%, transparent 15%),
-          linear-gradient(to bottom right, #000 0%, #05071a 40%, #000 100%)
-        `
-      }}
+      className={`min-h-screen relative overflow-hidden bg-gradient-to-br from-black via-gray-950 to-black ${styles['dynamicBackground']}`}
     >
       {/* Tech-inspired grid background */}
       <div className="absolute inset-0 z-0 tech-grid"></div>
@@ -83,7 +77,7 @@ export default function AIFactoryPage(): JSX.Element {
         {[...Array(30)].map((_, i) => (
           <div 
             key={i} 
-            className="digital-particle" 
+            className={styles['digitalParticle']}
             style={{
               '--size': `${Math.random() * 6 + 2}px`,
               '--top': `${Math.random() * 100}%`,
@@ -91,7 +85,7 @@ export default function AIFactoryPage(): JSX.Element {
               '--opacity': Math.random() * 0.7 + 0.3,
               '--speed': `${Math.random() * 15 + 5}s`,
               '--delay': `${Math.random() * 5}s`,
-              '--color': Math.random() > 0.5 ? '#3CDFFF' : '#4AFFD4',
+              '--color': Math.random() > 0.5 ? '#3CDFFF' : '#4AFFD4'
             } as React.CSSProperties}
           ></div>
         ))}

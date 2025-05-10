@@ -1,21 +1,33 @@
-// @ts-nocheck - This file has some TypeScript issues that are hard to fix
 import { Metadata } from 'next';
 import { Inter } from 'next/font/google';
-import { RootProviders } from '@/components/providers/RootProviders';
-import BrowserDetection from '@/components/BrowserDetection';
-import { initializeSentry } from '@/lib/monitoring/sentry';
 
-const inter = Inter({ subsets: ['latin']     });
+import BrowserDetection from '@/components/BrowserDetection';
+import { RootProviders } from '@/components/providers/RootProviders';
+import { initializeSentry } from '@/lib/monitoring/sentry';
+import '@/styles/globals.css';
+
+const inter = Inter({ 
+  subsets: ['latin'],
+  display: 'swap',
+  preload: true,
+  variable: '--font-inter',
+});
 
 export const metadata: Metadata = {
   title: 'Optiflow - Streamline Your Workflow Automation',
   description: 'Connect your apps and automate workflows with a powerful, easy-to-use integration platform.',
   manifest: '/manifest.json',
+  viewport: 'width=device-width, initial-scale=1, maximum-scale=1',
+  themeColor: '#000000',
   appleWebApp: {
-  capable: true,
+    capable: true,
     statusBarStyle: 'default',
     title: 'Optiflow',
-      },
+  },
+  icons: {
+    icon: '/favicon.ico',
+    apple: '/apple-touch-icon.png',
+  },
 };
 
 // Initialize Sentry in production environment
@@ -33,11 +45,11 @@ if (process.env.NODE_ENV === 'production') {
 
 export default function RootLayout({
   children,
-}: { children: React.ReactNode;
-    }) {
+}: {
+  children: React.ReactNode;
+}) {
   return (
-    <html lang="en" suppressHydrationWarning>
-      <head />
+    <html lang="en" suppressHydrationWarning className={inter.variable}>
       <body className={inter.className}>
         <BrowserDetection />
         <RootProviders>
@@ -50,7 +62,7 @@ export default function RootLayout({
           >
             {/* Dynamic announcements will be inserted here */}
           </div>
-          <main>{children}</main>
+          {children}
         </RootProviders>
       </body>
     </html>

@@ -1,15 +1,20 @@
 const translations = {
   navigation: {
-    features: 'Fonctionnalités',
-    integrations: 'Intégrations',
-    enterprise: 'Entreprise',
-    pricing: 'Tarification',
-    faq: 'FAQ',
     login: 'Connexion',
     signup: "S'inscrire",
     dashboard: 'Tableau de bord',
     flows: 'Flux',
     connections: 'Connexions',
+    features: 'Fonctionnalités',
+    pricing: 'Tarifs',
+    faq: 'FAQ',
+    enterprise: 'Entreprise',
+    optiflow: 'Optiflow',
+    'voice-test': 'Flux vocaux',
+    'conversational-test': 'Conversationnel',
+    integrations: 'Intégrations',
+    'ai-factory': 'AI Factory',
+    aicademy: 'AI Cademy'
   },
   footer: {
     product: 'Produit',
@@ -72,6 +77,13 @@ const translations = {
     startFreeTrial: "Démarrer l'Essai Gratuit",
     viewPricing: 'Voir les Tarifs',
   },
+  common: {
+    submit: 'Soumettre',
+    cancel: 'Annuler',
+    save: 'Enregistrer',
+    delete: 'Supprimer',
+    edit: 'Modifier'
+  }
 };
 
 export default translations;

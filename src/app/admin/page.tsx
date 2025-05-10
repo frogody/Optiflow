@@ -1,12 +1,12 @@
 'use client';
 
-import { useState } from 'react';
 import {
-  ArrowUpIcon,
   ArrowDownIcon,
-  ExclamationTriangleIcon,
-  CheckCircleIcon
+  ArrowUpIcon,
+  CheckCircleIcon,
+  ExclamationTriangleIcon
 } from '@heroicons/react/24/solid';
+import { useState } from 'react';
 
 export default function AdminDashboard() {
   // Dummy data for dashboard metrics

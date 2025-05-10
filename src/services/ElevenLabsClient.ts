@@ -1,16 +1,34 @@
-// @ts-nocheck - This file has some TypeScript issues that are hard to fix
-import { WebSocketHandler, Message } from './WebSocketHandler';
-import { ElevenLabsConfig, ElevenLabsTranscription, ElevenLabsAgentResponse } from '../types/elevenlabs';
+import { ElevenLabsAgentResponse, ElevenLabsConfig, ElevenLabsTranscription } from '../types/elevenlabs';
+
+import { Message, WebSocketHandler } from './WebSocketHandler';
+
+interface ElevenLabsCallbacks {
+  onTranscription?: (transcription: ElevenLabsTranscription) => void;
+  onAgentResponse?: (response: ElevenLabsAgentResponse) => void;
+  onError?: (error: Error) => void;
+}
+
+interface TranscriptionContent {
+  text?: string;
+  is_final?: boolean;
+  confidence?: number;
+}
+
+interface AgentResponseContent {
+  message?: string;
+  audio?: Uint8Array;
+}
+
+interface ErrorContent {
+  message?: string;
+}
 
 export class ElevenLabsClient {
   private wsHandler: WebSocketHandler;
   private config: ElevenLabsConfig;
-  private callbacks: { onTranscription?: (transcription: ElevenLabsTranscription) => void;
-    onAgentResponse?: (response: ElevenLabsAgentResponse) => void;
-    onError?: (error: Error) => void;
-      };
+  private callbacks: ElevenLabsCallbacks;
 
-  constructor(config: ElevenLabsConfig, callbacks: any) {
+  constructor(config: ElevenLabsConfig, callbacks: ElevenLabsCallbacks) {
     this.config = config;
     this.callbacks = callbacks;
     this.wsHandler = new WebSocketHandler(`wss://api.elevenlabs.io/v1/convai/conversation?agent_id=${config.agentId}`);
@@ -18,26 +36,28 @@ export class ElevenLabsClient {
   }
 
   private setupMessageHandlers(): void {
-    this.wsHandler.onMessage('transcription', (message: Message) => {
+    this.wsHandler.onMessage('transcription', (message: Message<TranscriptionContent>) => {
       if (this.callbacks.onTranscription && message.content) {
-        this.callbacks.onTranscription({ text: message.content.text || '',
+        this.callbacks.onTranscription({
+          text: message.content.text || '',
           isFinal: message.content.is_final || false,
           confidence: message.content.confidence || 0,
           timestamp: Date.now()
-            });
+        });
       }
     });
 
-    this.wsHandler.onMessage('agent_response', (message: Message) => {
+    this.wsHandler.onMessage('agent_response', (message: Message<AgentResponseContent>) => {
       if (this.callbacks.onAgentResponse && message.content) {
-        this.callbacks.onAgentResponse({ text: message.content.message || '',
+        this.callbacks.onAgentResponse({
+          text: message.content.message || '',
           audio: message.content.audio,
           timestamp: Date.now()
-            });
+        });
       }
     });
 
-    this.wsHandler.onMessage('error', (message: Message) => {
+    this.wsHandler.onMessage('error', (message: Message<ErrorContent>) => {
       if (this.callbacks.onError && message.content) {
         this.callbacks.onError(new Error(message.content.message || 'Unknown error'));
       }
@@ -55,8 +75,9 @@ export class ElevenLabsClient {
         }
       });
     } catch (error) {
-      if (this.callbacks.onError) { this.callbacks.onError(error instanceof Error ? error : new Error('Failed to start session'));
-          }
+      if (this.callbacks.onError) {
+        this.callbacks.onError(error instanceof Error ? error : new Error('Failed to start session'));
+      }
       throw error;
     }
   }
@@ -65,11 +86,14 @@ export class ElevenLabsClient {
     try {
       await this.wsHandler.send({
         type: 'audio',
-        content: { audio: audioData     }
+        content: {
+          audio: audioData
+        }
       });
     } catch (error) {
-      if (this.callbacks.onError) { this.callbacks.onError(error instanceof Error ? error : new Error('Failed to send audio'));
-          }
+      if (this.callbacks.onError) {
+        this.callbacks.onError(error instanceof Error ? error : new Error('Failed to send audio'));
+      }
       throw error;
     }
   }
@@ -81,8 +105,9 @@ export class ElevenLabsClient {
         content: { text }
       });
     } catch (error) {
-      if (this.callbacks.onError) { this.callbacks.onError(error instanceof Error ? error : new Error('Failed to send text'));
-          }
+      if (this.callbacks.onError) {
+        this.callbacks.onError(error instanceof Error ? error : new Error('Failed to send text'));
+      }
       throw error;
     }
   }
@@ -91,8 +116,9 @@ export class ElevenLabsClient {
     try {
       await this.wsHandler.close();
     } catch (error) {
-      if (this.callbacks.onError) { this.callbacks.onError(error instanceof Error ? error : new Error('Failed to close session'));
-          }
+      if (this.callbacks.onError) {
+        this.callbacks.onError(error instanceof Error ? error : new Error('Failed to close session'));
+      }
       throw error;
     }
   }

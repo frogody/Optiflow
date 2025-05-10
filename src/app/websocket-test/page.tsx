@@ -1,8 +1,8 @@
-// @ts-nocheck - This file has some TypeScript issues that are hard to fix
 'use client';
 
-import { useState, useEffect } from 'react';
 import WebSocket from 'isomorphic-ws';
+import { useEffect, useState } from 'react';
+
 import { createWebSocketOptions } from '../../lib/websocket-polyfill';
 
 export default function WebSocketTestPage(): JSX.Element {

@@ -1,7 +1,7 @@
-// @ts-nocheck - This file has some TypeScript issues that are hard to fix
 'use client';
 
 import { useState } from 'react';
+
 import PipedreamConnectButton from '@/components/PipedreamConnectButton';
 import { usePipedreamConnect } from '@/lib/pipedream/usePipedreamConnect';
 

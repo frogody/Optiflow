@@ -1,11 +1,10 @@
-// @ts-nocheck - This file has some TypeScript issues that are hard to fix
 'use client';
 
-import React, { useRef, useEffect } from 'react';
-import * as THREE from 'three';
+import { MeshDistortMaterial, Sphere } from '@react-three/drei';
 import { useFrame } from '@react-three/fiber';
 import { Canvas } from '@react-three/fiber';
-import { Sphere, MeshDistortMaterial } from '@react-three/drei';
+import React, { useEffect, useRef } from 'react';
+import * as THREE from 'three';
 
 interface LiquidGlobeProps {
   isAgentSpeaking: boolean;

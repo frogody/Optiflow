@@ -1,7 +1,7 @@
-// @ts-nocheck - This file has some TypeScript issues that are hard to fix
 'use client';
 
 import { useEffect } from 'react';
+
 import { applySafariDetection } from '@/utils/browserDetection';
 
 /**

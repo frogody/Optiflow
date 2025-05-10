@@ -1,14 +1,14 @@
-// @ts-nocheck - This file has some TypeScript issues that are hard to fix
 'use client';
 
-import { useEffect, useState } from 'react';
-import { useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
-import Link from 'next/link';
 import Image from 'next/image';
-import { useUserStore } from '@/lib/userStore';
-import { usePipedream } from '@/hooks/usePipedream';
+import Link from 'next/link';
+import { useRouter } from 'next/navigation';
+import { useEffect, useState } from 'react';
 import { toast } from 'react-hot-toast';
+
+import { usePipedream } from '@/hooks/usePipedream';
+import { useUserStore } from '@/lib/userStore';
 
 export default function ToolsContent(): JSX.Element {
   const router = useRouter();

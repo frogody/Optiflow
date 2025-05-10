@@ -1,6 +1,6 @@
-// @ts-nocheck - This file has some TypeScript issues that are hard to fix
 import { NextRequest, NextResponse } from 'next/server';
-import { getMockConnections, updateMockConnection } from './mockConnections';
+
+import { getMockConnections, updateMockConnection } from './mockConnections.js';
 
 export async function POST(
   request: NextRequest,

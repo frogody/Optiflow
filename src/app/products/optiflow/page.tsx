@@ -1,15 +1,14 @@
-// @ts-nocheck - This file has some TypeScript issues that are hard to fix
 'use client';
 
 import { motion } from 'framer-motion';
 import Link from 'next/link';
 import { 
-  HiOutlineLightningBolt,
-  HiOutlineCog,
   HiOutlineChartBar,
+  HiOutlineCog,
+  HiOutlineDocumentReport,
+  HiOutlineLightningBolt,
   HiOutlineServer,
-  HiOutlineShieldCheck,
-  HiOutlineDocumentReport
+  HiOutlineShieldCheck
 } from 'react-icons/hi';
 
 export default function OptiflowPage(): JSX.Element {

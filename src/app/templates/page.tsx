@@ -1,19 +1,20 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
-import Link from 'next/link';
-import Image from 'next/image';
 import { 
   ArrowLeftIcon,
-  MagnifyingGlassIcon,
   ArrowTopRightOnSquareIcon,
+  CheckBadgeIcon,
+  MagnifyingGlassIcon,
   StarIcon,
-  TagIcon,
-  CheckBadgeIcon
+  TagIcon
 } from '@heroicons/react/24/outline';
-import { WorkflowTemplate } from '@/types/workflow';
+import Image from 'next/image';
+import Link from 'next/link';
+import { useRouter } from 'next/navigation';
+import { useEffect, useState } from 'react';
 import { toast } from 'react-hot-toast';
+
+import { WorkflowTemplate } from '@/types/workflow';
 
 // Mock templates data
 const mockTemplates: WorkflowTemplate[] = [

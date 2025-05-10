@@ -1,12 +1,12 @@
-// @ts-nocheck - This file has some TypeScript issues that are hard to fix
 'use client';
 
-import { useState, useEffect } from 'react';
-import { useRouter, useParams } from 'next/navigation';
-import { useUserStore } from '@/lib/userStore';
 import { motion } from 'framer-motion';
 import Link from 'next/link';
+import { useParams, useRouter } from 'next/navigation';
+import { useEffect, useState } from 'react';
 import { toast } from 'react-hot-toast';
+
+import { useUserStore } from '@/lib/userStore.js';
 
 // Mock data for agent configuration - in a real app, this would come from an API
 interface AgentConfig {
@@ -125,8 +125,8 @@ const MODEL_OPTIONS = [
 
 export default function AgentConfigPage(): JSX.Element {
   const router = useRouter();
-  const params = useParams();
-  const agentId = params.agentId as string;
+  const params = useParams() || {};
+  const agentId = params['agentId'] as string;
   const { currentUser } = useUserStore();
 
   const [isLoading, setIsLoading] = useState(true);

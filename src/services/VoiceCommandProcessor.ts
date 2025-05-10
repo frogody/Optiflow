@@ -1,15 +1,29 @@
-// @ts-nocheck - This file has some TypeScript issues that are hard to fix
 import { ElevenLabsTranscription } from '../types/elevenlabs';
 
-interface WorkflowCommand { type: 'create_step' | 'connect_steps' | 'configure_step' | 'delete_step';
-  params: Record<string, any>;
+type CommandType = 'create_step' | 'connect_steps' | 'configure_step' | 'delete_step';
+type StepType = 'email' | 'qualification' | 'sql' | 'notification' | 'unknown';
+
+interface WorkflowCommand {
+  type: CommandType;
+  params: WorkflowCommandParams;
 }
 
+interface WorkflowCommandParams {
+  stepType?: StepType;
+  config?: Record<string, unknown>;
+  sourceId?: string;
+  targetId?: string;
+  stepId?: string;
+}
+
+type CommandHandler = (text: string) => Promise<WorkflowCommand>;
+
 export class VoiceCommandProcessor {
-  private commands = { 'create step': this.handleCreateStep,
-    'connect steps': this.handleConnectSteps,
-    'configure step': this.handleConfigureStep,
-    'delete step': this.handleDeleteStep
+  private commands: Record<string, CommandHandler> = {
+    'create step': this.handleCreateStep.bind(this),
+    'connect steps': this.handleConnectSteps.bind(this),
+    'configure step': this.handleConfigureStep.bind(this),
+    'delete step': this.handleDeleteStep.bind(this)
   };
 
   async processCommand(transcription: ElevenLabsTranscription): Promise<WorkflowCommand | null> {
@@ -100,10 +114,10 @@ export class VoiceCommandProcessor {
     };
   }
 
-  private extractStepType(text: string): string {
+  private extractStepType(text: string): StepType {
     // Implement step type extraction logic
     // Example: "create an email step" -> "email"
-    const stepTypes = ['email', 'qualification', 'sql', 'notification'];
+    const stepTypes: StepType[] = ['email', 'qualification', 'sql', 'notification'];
     const lowerText = text.toLowerCase();
     
     for (const type of stepTypes) {
@@ -115,7 +129,7 @@ export class VoiceCommandProcessor {
     return 'unknown';
   }
 
-  private extractStepConfig(text: string): Record<string, any> {
+  private extractStepConfig(text: string): Record<string, unknown> {
     // Implement configuration extraction logic
     // This would parse specific configuration parameters from the text
     return {};

@@ -1,15 +1,20 @@
 const translations = {
   navigation: {
-    features: 'Funktionen',
-    integrations: 'Integrationen',
-    enterprise: 'Unternehmen',
-    pricing: 'Preise',
-    faq: 'FAQ',
     login: 'Anmelden',
     signup: 'Registrieren',
     dashboard: 'Dashboard',
-    flows: 'Workflows',
+    flows: 'Flows',
     connections: 'Verbindungen',
+    features: 'Funktionen',
+    pricing: 'Preise',
+    faq: 'FAQ',
+    enterprise: 'Enterprise',
+    optiflow: 'Optiflow',
+    'voice-test': 'Sprachworkflows',
+    'conversational-test': 'Konversation',
+    integrations: 'Integrationen',
+    'ai-factory': 'AI Factory',
+    aicademy: 'AI Cademy'
   },
   footer: {
     product: 'Produkt',
@@ -72,6 +77,13 @@ const translations = {
     startFreeTrial: 'Kostenlose Testversion starten',
     viewPricing: 'Preise anzeigen',
   },
+  common: {
+    submit: 'Absenden',
+    cancel: 'Abbrechen',
+    save: 'Speichern',
+    delete: 'Löschen',
+    edit: 'Bearbeiten'
+  }
 };
 
 export default translations;

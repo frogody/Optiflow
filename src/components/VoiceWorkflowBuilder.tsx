@@ -1,12 +1,13 @@
-// @ts-nocheck - This file has some TypeScript issues that are hard to fix
 'use client';
 
 import React, { useCallback, useState } from 'react';
+import { toast } from 'sonner';
+
 import { VoiceCommandInput } from './VoiceCommandInput';
 import { FlowEditor } from './workflow/FlowEditor';
+
 import { parseCommand } from '@/lib/workflow/commandParser';
 import { CommandType, WorkflowCommand, WorkflowState } from '@/types/workflow';
-import { toast } from 'sonner';
 
 export default function VoiceWorkflowBuilder(): JSX.Element {
   const [workflowState, setWorkflowState] = useState<WorkflowState>({ currentWorkflow: null,

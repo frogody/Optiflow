@@ -1,8 +1,7 @@
-// @ts-nocheck - This file has some TypeScript issues that are hard to fix
 'use client';
 
 import Link from 'next/link';
-import { FaGithub, FaTwitter, FaLinkedin, FaDiscord } from 'react-icons/fa';
+import { FaDiscord, FaGithub, FaLinkedin, FaTwitter } from 'react-icons/fa';
 
 export default function Footer(): JSX.Element {
   const currentYear = new Date().getFullYear();

@@ -1,7 +1,7 @@
-// @ts-nocheck - This file has some TypeScript issues that are hard to fix
-import { useState, useEffect, useCallback } from 'react';
 import { createFrontendClient } from '@pipedream/sdk/browser';
+import { useCallback, useEffect, useState } from 'react';
 import { toast } from 'react-hot-toast';
+
 import { useUserStore } from '@/lib/userStore';
 
 interface UsePipedreamConnectOptions { onSuccess?: (accountId: string) => void;

@@ -1,7 +1,8 @@
 import '../styles/globals.css';
 import type { AppProps } from 'next/app';
-import VoiceOrb from '../components/VoiceOrb';
 import { appWithTranslation } from 'next-i18next';
+
+import VoiceOrb from '../components/VoiceOrb';
 
 function MyApp({ Component, pageProps }: AppProps) {
   // Handler for when the user speaks

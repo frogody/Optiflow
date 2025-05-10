@@ -1,8 +1,8 @@
-// @ts-nocheck - This file has some TypeScript issues that are hard to fix
 'use client';
 
-import { useState, useEffect, useRef } from 'react';
-import { ElevenLabsConversationalService, TranscriptionEvent } from '@/services/ElevenLabsConversationalService';
+import { useEffect, useRef, useState } from 'react';
+
+import { ElevenLabsConversationalService } from '@/services/ElevenLabsConversationalService';
 
 interface Message { role: 'user' | 'assistant';
   content: string;
@@ -400,7 +400,7 @@ export default function VoiceWorkflowPage(): JSX.Element {
         // If no conversation data, add a fallback message
         const fallbackMessage = data.name ? 
           `I've created the "${data.name}" workflow based on your request.` : 
-          'I\'ve created a workflow based on your request.';
+          "I've created a workflow based on your request.";
           
         setMessages(prev => [...prev, { role: 'assistant',
           content: fallbackMessage,

@@ -1,11 +1,10 @@
-// @ts-nocheck - This file has some TypeScript issues that are hard to fix
 'use client';
 
-import { useState, useEffect } from 'react';
-import { signIn, useSession } from 'next-auth/react';
-import { useRouter, useSearchParams } from 'next/navigation';
-import Link from 'next/link';
 import { motion } from 'framer-motion';
+import Link from 'next/link';
+import { useRouter, useSearchParams } from 'next/navigation';
+import { signIn, useSession } from 'next-auth/react';
+import { useEffect, useState } from 'react';
 
 export default function LoginForm(): JSX.Element {
   const { data: session, status     } = useSession();

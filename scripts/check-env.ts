@@ -1,9 +1,10 @@
 import { exec } from 'child_process';
-import { promisify } from 'util';
 import * as fs from 'fs';
 import * as path from 'path';
-import * as dotenv from 'dotenv';
 import readline from 'readline';
+import { promisify } from 'util';
+
+import * as dotenv from 'dotenv';
 
 const execAsync = promisify(exec);
 

@@ -1,22 +1,22 @@
 'use client';
 
+import {
+  AcademicCapIcon,
+  BookOpenIcon,
+  ChatBubbleBottomCenterTextIcon,
+  CpuChipIcon,
+  DocumentDuplicateIcon,
+  DocumentMagnifyingGlassIcon,
+  DocumentTextIcon,
+  LanguageIcon,
+  LightBulbIcon,
+  MusicalNoteIcon,
+  PhotoIcon,
+  PuzzlePieceIcon,
+  VideoCameraIcon
+} from '@heroicons/react/24/outline';
 import React from 'react';
 import { Handle, Position } from 'reactflow';
-import {
-  CpuChipIcon,
-  DocumentTextIcon,
-  ChatBubbleBottomCenterTextIcon,
-  DocumentMagnifyingGlassIcon,
-  PuzzlePieceIcon,
-  LanguageIcon,
-  PhotoIcon,
-  MusicalNoteIcon,
-  VideoCameraIcon,
-  LightBulbIcon,
-  AcademicCapIcon,
-  DocumentDuplicateIcon,
-  BookOpenIcon
-} from '@heroicons/react/24/outline';
 
 // Import base node style and structure
 import { BaseNode, nodeStyles } from './BaseNode';

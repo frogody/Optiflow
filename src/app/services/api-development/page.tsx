@@ -1,33 +1,31 @@
-// @ts-nocheck - This file has some TypeScript issues that are hard to fix
 'use client';
 
-import { useState } from 'react';
 import dynamic from 'next/dynamic';
 import Link from 'next/link';
+import { useState } from 'react';
 import { 
+  HiOutlineChartBar,
+  HiOutlineChartSquareBar,
+  HiOutlineChatAlt,
   HiOutlineCode,
   HiOutlineCog,
-  HiOutlineLightningBolt,
-  HiOutlineShieldCheck,
-  HiOutlineDocumentText,
-  HiOutlineScale,
-  HiOutlineTerminal,
-  HiOutlineClipboardCheck,
-  HiOutlineChartBar,
   HiOutlineCollection,
-  HiOutlineExclamationCircle,
-  HiOutlineChatAlt,
-  HiOutlinePhotograph,
   HiOutlineDocument,
+  HiOutlineDocumentText,
+  HiOutlineExclamationCircle,
+  HiOutlineLightningBolt,
   HiOutlineMicrophone,
+  HiOutlinePhotograph,
+  HiOutlineScale,
+  HiOutlineShieldCheck,
   HiOutlineStar,
-  HiOutlineChartSquareBar
+  HiOutlineTerminal
 } from 'react-icons/hi';
 
-const MotionDiv = dynamic(() => import('framer-motion').then(mod => mod.motion.div), { ssr: false, loading: () => (props: any) => <div {...props} /> });
+const MotionDiv = dynamic(() => import('framer-motion').then(mod => mod.motion.div), { ssr: false, loading: () => <div /> });
 
 export default function APIDevPage(): JSX.Element {
-  const [selectedEndpoint, setSelectedEndpoint] = useState('prediction');
+  const [selectedEndpoint, setSelectedEndpoint] = useState<keyof typeof endpoints>('prediction');
   const [selectedLanguage, setSelectedLanguage] = useState('python');
 
   const endpoints = {
@@ -39,7 +37,7 @@ export default function APIDevPage(): JSX.Element {
       request: `{
   "model": "gpt-4",
   "input": {
-    "text": "Your input text here",
+    "text": "Your input text",
     "parameters": { "temperature": 0.7,
       "max_tokens": 150,
       "top_p": 0.9,
@@ -211,61 +209,148 @@ export default function APIDevPage(): JSX.Element {
   };
 
   const features = [
-    { title: "RESTful APIs",
+    {
+      title: "RESTful APIs",
       description: "Modern REST APIs with comprehensive endpoints for all AI operations, following OpenAPI specifications",
       icon: <HiOutlineCode className="w-8 h-8" />
-        },
-    { title: "Real-time Processing",
+    },
+    {
+      title: "Real-time Processing",
       description: "High-performance infrastructure with WebSocket support for real-time AI processing and streaming responses",
       icon: <HiOutlineLightningBolt className="w-8 h-8" />
-        },
-    { title: "Security & Auth",
+    },
+    {
+      title: "Security & Auth",
       description: "Enterprise-grade security with OAuth2, API keys, and RBAC support, plus automated security scanning",
       icon: <HiOutlineShieldCheck className="w-8 h-8" />
-        },
-    { title: "Auto-scaling",
+    },
+    {
+      title: "Auto-scaling",
       description: "Intelligent auto-scaling with predictive scaling policies and multi-region deployment options",
       icon: <HiOutlineCog className="w-8 h-8" />
-        },
-    { title: "Documentation",
+    },
+    {
+      title: "Documentation",
       description: "Interactive documentation with OpenAPI/Swagger support and code samples in multiple languages",
       icon: <HiOutlineDocumentText className="w-8 h-8" />
-        },
-    { title: "Rate Limiting",
+    },
+    {
+      title: "Rate Limiting",
       description: "Flexible rate limiting with burst support and fair usage policies across different tiers",
       icon: <HiOutlineScale className="w-8 h-8" />
-        },
-    { title: "Monitoring & Analytics",
+    },
+    {
+      title: "Monitoring & Analytics",
       description: "Real-time monitoring with detailed analytics, custom alerts, and performance insights",
       icon: <HiOutlineChartBar className="w-8 h-8" />
-        },
-    { title: "Version Control",
+    },
+    {
+      title: "Version Control",
       description: "API versioning support with backward compatibility and gradual rollout capabilities",
       icon: <HiOutlineCollection className="w-8 h-8" />
-        },
-    { title: "Error Handling",
+    },
+    {
+      title: "Error Handling",
       description: "Comprehensive error handling with detailed error messages and debugging support",
       icon: <HiOutlineExclamationCircle className="w-8 h-8" />
-        }
+    }
   ];
 
-  const sdkExamples = {
+  const sdkExamples: { [key: string]: { title: string; code: string } } = {
     python: {
-  title: "Python",
-      code: `from optiflow import Client\n\nclient = Client(api_key=\"your-api-key\")\n\n# Make a prediction\nresponse = client.predict(\n    text=\"Your input text\",\n    model=\"gpt-4\",\n    temperature=0.7\n)\n\nprint(f\"Prediction: {response.text}\")\nprint(f\"Confidence: {response.confidence}\")\n\n# Create a workflow\nworkflow = client.workflow.create(\n    name=\"document_processing\",\n    steps=[\n        {\n            \"type\": \"text_extraction\",\n            \"config\": { \"language\": \"en\"    }\n        },\n        {\n            \"type\": \"classification\",\n            \"config\": { \"model\": \"classifier-v2\"    }\n        }\n    ]\n)\n\n# Monitor the workflow\nstatus = workflow.wait()\nresults = workflow.get_results()`
+      title: "Python",
+      code: `from optiflow import Client
+
+client = Client(api_key="your-api-key")
+
+# Make a prediction
+response = client.predict(
+    text="Your input text",
+    model="gpt-4",
+    temperature=0.7
+)
+
+print(f"Prediction: {response.text}")
+print(f"Confidence: {response.confidence}")
+
+# Create a workflow
+workflow = client.workflow.create(
+    name="document_processing",
+    steps=[
+        {
+            type: "text_extraction",
+            config: { language: "en" }
+        },
+        {
+            type: "classification",
+            config: { model: "classifier-v2" }
+        }
+    ]
+)
+
+# Monitor the workflow
+status = workflow.wait()
+results = workflow.get_results()`
     },
     javascript: {
-  title: "JavaScript",
-      code: `import { OptiflowClient } from \'@optiflow/sdk\';\n\nconst client = new OptiflowClient({ apiKey: \'your-api-key\'\n    });\n\n// Make a prediction\nasync function getPrediction() {\n  try {\n    const response = await client.predict({ text: \'Your input text\',\n      model: \'gpt-4\',\n      temperature: 0.7\n        });\n\n    console.log(\'Prediction:\', response.text);\n    console.log(\'Confidence:\', response.confidence);\n  } catch (error) { console.error(\'Error:\', error.message);\n      }\n}\n\n// Create and monitor a workflow\nasync function runWorkflow() {\n  const workflow = await client.workflow.create({\n    name: \'document_processing\',\n    steps: [\n      {\n        type: \'text_extraction\',\n        config: { language: \'en\'     }\n      },\n      {\n        type: \'classification\',\n        config: { model: \'classifier-v2\'     }\n      }\n    ]\n  });\n\n  workflow.on(\'completed\', (results) => { console.log(\'Workflow completed:\', results);\n      });\n\n  workflow.on(\'error\', (error) => { console.error(\'Workflow error:\', error);\n      });\n}`
+      title: "JavaScript",
+      code: `import { OptiflowClient } from '@optiflow/sdk';
+
+const client = new OptiflowClient({ apiKey: 'your-api-key' });
+
+// Make a prediction
+async function getPrediction() {
+  try {
+    const response = await client.predict({ text: 'Your input text',
+      model: 'gpt-4',
+      temperature: 0.7
+    });
+
+    console.log('Prediction:', response.text);
+    console.log('Confidence:', response.confidence);
+  } catch (error) { console.error('Error:', error.message);
+  }
+}
+
+// Create and monitor a workflow
+async function runWorkflow() {
+  const workflow = await client.workflow.create({
+    name: 'document_processing',
+    steps: [
+      {
+        type: 'text_extraction',
+        config: { language: 'en' }
+      },
+      {
+        type: 'classification',
+        config: { model: 'classifier-v2' }
+      }
+    ]
+  });
+
+  workflow.on('completed', (results) => { console.log('Workflow completed:', results);
+  });
+
+  workflow.on('error', (error) => { console.error('Workflow error:', error);
+  });
+}`
     },
     curl: {
-  title: "cURL",
-      code: `# Make a prediction\ncurl -X POST https://api.optiflow.ai/v1/predict \\\n  -H \"Authorization: Bearer your-api-key\" \\\n  -H \"Content-Type: application/json\" \\\n  -d \'{\n    \"model\": \"gpt-4\",\n    \"input\": {\n      \"text\": \"Your input text\",\n      \"parameters\": { \"temperature\": 0.7\n          }\n    }\n  }\'\n\n# Create a workflow\ncurl -X POST https://api.optiflow.ai/v1/workflow \\\n  -H \"Authorization: Bearer your-api-key\" \\\n  -H \"Content-Type: application/json\" \\\n  -d \'{\n    \"workflow_name\": \"document_processing\",\n    \"steps\": [\n      {\n        \"type\": \"text_extraction\",\n        \"config\": { \"language\": \"en\"     }\n      },\n      {\n        \"type\": \"classification\",\n        \"config\": { \"model\": \"classifier-v2\"     }\n      }\n    ]\n  }\'`
+      title: "cURL",
+      code: `# Make a prediction
+curl -X POST https://api.optiflow.ai/v1/predict \
+  -H "Authorization: Bearer your-api-key" \
+  -H "Content-Type: application/json" \
+  -d '{\n    "model": "gpt-4",\n    "input": {\n      "text": "Your input text",\n      "parameters": { "temperature": 0.7 }\n    }\n  }'\n\n# Create a workflow
+curl -X POST https://api.optiflow.ai/v1/workflow \
+  -H "Authorization: Bearer your-api-key" \
+  -H "Content-Type: application/json" \
+  -d '{\n    "workflow_name": "document_processing",\n    "steps": [\n      {\n        "type": "text_extraction",\n        "config": { "language": "en" }\n      },\n      {\n        "type": "classification",\n        "config": { "model": "classifier-v2" }\n      }\n    ]\n  }'\n`
     }
   };
 
   return (
-    <div className="min-h-screen text-white" style={{ background: 'linear-gradient(to bottom, #000000, #0A0A0A)'     }}>
+    <div className="min-h-screen text-white" style={{ background: 'linear-gradient(to bottom, #000000, #0A0A0A)' }}>
       {/* Hero Section */}
       <section className="relative pt-32 pb-24 overflow-hidden">
         <div className="absolute w-[400px] h-[400px] rounded-full left-1/4 top-1/4 bg-[#3CDFFF] opacity-10 blur-[120px]" />
@@ -362,8 +447,8 @@ export default function APIDevPage(): JSX.Element {
                   {Object.entries(endpoints).map(([key, value]) => (
                     <button
                       key={key}
-                      onClick={() => setSelectedEndpoint(key)}
-                      className={`w-full text-left px-4 py-3 rounded-lg transition-all duration-300 ${ selectedEndpoint === key
+                      onClick={() => setSelectedEndpoint(key as keyof typeof endpoints)}
+                      className={`w-full text-left px-4 py-3 rounded-lg transition-all duration-300 ${ selectedEndpoint === key as keyof typeof endpoints
                           ? 'bg-[#3CDFFF]/10 border border-[#3CDFFF]/30 text-white'
                           : 'text-gray-400 hover:bg-white/5'
                           }`}
@@ -444,8 +529,8 @@ export default function APIDevPage(): JSX.Element {
                 </p>
                 <pre className="bg-black/50 rounded-lg p-4 overflow-x-auto">
                   <code className="text-sm text-gray-300">
-{ `Authorization: Bearer YOUR_API_KEY
-Content-Type: application/json`    }
+                    {`Authorization: Bearer YOUR_API_KEY
+Content-Type: application/json`}
                   </code>
                 </pre>
               </div>
@@ -471,18 +556,18 @@ Content-Type: application/json`    }
                 </h3>
                 <pre className="bg-black/50 rounded-lg p-4 overflow-x-auto">
                   <code className="text-sm text-gray-300">
-{`const response = await fetch('https://api.optiflow.ai/v1/predict', {
+                    {`const response = await fetch('https://api.optiflow.ai/v1/predict', {
   method: 'POST',
   headers: { 'Authorization': 'Bearer YOUR_API_KEY',
     'Content-Type': 'application/json'
-      },
-  body: JSON.stringify({,
-  model: 'gpt-4',
-    input: {,
-  text: 'Your input text',
-      parameters: { ,
-  temperature: 0.7
-          }
+  },
+  body: JSON.stringify({
+    model: 'gpt-4',
+    input: {
+      text: 'Your input text',
+      parameters: {
+        temperature: 0.7
+      }
     }
   })
 });
@@ -529,7 +614,7 @@ const data = await response.json();`}
             <div className="bg-black/30 backdrop-blur-sm rounded-xl border border-white/10 overflow-hidden">
               <pre className="p-6 overflow-x-auto">
                 <code className="text-sm text-gray-300">
-                  {sdkExamples[selectedLanguage].code}
+                  {(sdkExamples[selectedLanguage]?.code) ?? ''}
                 </code>
               </pre>
             </div>
@@ -554,34 +639,34 @@ const data = await response.json();`}
               { title: "Natural Language Processing",
                 description: "Build chatbots, content generators, and text analysis tools with our NLP endpoints",
                 icon: <HiOutlineChatAlt className="w-8 h-8" />
-                  },
+              },
               { title: "Computer Vision",
                 description: "Create image recognition, object detection, and visual search applications",
                 icon: <HiOutlinePhotograph className="w-8 h-8" />
-                  },
+              },
               { title: "Document Processing",
                 description: "Automate document analysis, extraction, and classification workflows",
                 icon: <HiOutlineDocument className="w-8 h-8" />
-                  },
+              },
               { title: "Voice & Speech",
                 description: "Implement speech recognition, synthesis, and voice-based interactions",
                 icon: <HiOutlineMicrophone className="w-8 h-8" />
-                  },
+              },
               { title: "Recommendation Systems",
                 description: "Build personalized recommendation engines for content and products",
                 icon: <HiOutlineStar className="w-8 h-8" />
-                  },
+              },
               { title: "Time Series Analysis",
                 description: "Develop forecasting and anomaly detection systems for time-series data",
                 icon: <HiOutlineChartSquareBar className="w-8 h-8" />
-                  }
+              }
             ].map((useCase, index) => (
               <MotionDiv
                 key={index}
-                initial={{ opacity: 0, y: 20     }}
-                whileInView={{ opacity: 1, y: 0     }}
-                transition={{ duration: 0.5, delay: index * 0.1     }}
-                viewport={{ once: true     }}
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, delay: index * 0.1 }}
+                viewport={{ once: true }}
                 className="bg-white/5 backdrop-blur-sm rounded-xl border border-white/10 p-6 hover:border-[#3CDFFF]/30 transition-all duration-300"
               >
                 <div className="text-[#3CDFFF] mb-4">

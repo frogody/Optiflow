@@ -1,9 +1,8 @@
-// @ts-nocheck - This file has some TypeScript issues that are hard to fix
 'use client';
 
+import { User } from '@prisma/client';
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
-import { User } from '@prisma/client';
 
 // Frontend user type matching our session types
 export interface FrontendUser {

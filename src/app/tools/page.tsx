@@ -1,11 +1,10 @@
-// @ts-nocheck - This file has some TypeScript issues that are hard to fix
 'use client';
 
-import { useState } from 'react';
-import { useSession } from 'next-auth/react';
 import { motion } from 'framer-motion';
-import Link from 'next/link';
 import dynamic from 'next/dynamic';
+import Link from 'next/link';
+import { useSession } from 'next-auth/react';
+import { useState } from 'react';
 
 const ToolsContent = dynamic(() => import('@/components/ToolsContent'), { ssr: false,
   loading: () => (

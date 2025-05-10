@@ -1,7 +1,6 @@
-// @ts-nocheck - This file has some TypeScript issues that are hard to fix
-import { useState, useEffect } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { AnimatePresence, motion } from 'framer-motion';
 import Image from 'next/image';
+import { useEffect, useState } from 'react';
 
 interface ConnectionModalProps { isOpen: boolean;
   onClose: () => void;

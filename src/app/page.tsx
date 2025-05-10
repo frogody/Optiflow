@@ -1,13 +1,12 @@
-// @ts-nocheck - This file has some TypeScript issues that are hard to fix
 'use client';
 
-import { useState, useEffect } from 'react';
-import Link from 'next/link';
-import Image from 'next/image';
+import { ArrowRightIcon, CheckCircleIcon, PlayCircleIcon } from '@heroicons/react/24/outline';
 import { motion } from 'framer-motion';
-import { ArrowRightIcon, PlayCircleIcon, CheckCircleIcon } from '@heroicons/react/24/outline';
-import { useRouter } from 'next/navigation';
 import Head from 'next/head';
+import Image from 'next/image';
+import Link from 'next/link';
+import { useRouter } from 'next/navigation';
+import { useEffect, useState } from 'react';
 
 // Define A/B testing variants for hero section
 const heroVariants = {

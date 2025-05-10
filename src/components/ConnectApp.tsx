@@ -1,5 +1,5 @@
-// @ts-nocheck - This file has some TypeScript issues that are hard to fix
 import { useState } from 'react';
+
 import { usePipedream } from '@/hooks/usePipedream';
 
 interface ConnectAppProps { appName: string;

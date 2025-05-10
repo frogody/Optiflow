@@ -1,8 +1,7 @@
-// @ts-nocheck - This file has some TypeScript issues that are hard to fix
 'use client';
 
 import { useRouter } from 'next/navigation';
-import { HiOutlineMicrophone, HiOutlineSave, HiOutlineCog } from 'react-icons/hi';
+import { HiOutlineCog, HiOutlineMicrophone, HiOutlineSave } from 'react-icons/hi';
 
 interface WorkflowHeaderProps { onOpenSettings: () => void;
   onSaveWorkflow?: () => void;

@@ -1,13 +1,13 @@
 'use client';
 
-import { useState, useEffect } from 'react';
 import { 
   CalendarIcon, 
   CheckCircleIcon, 
   ExclamationCircleIcon, 
-  InformationCircleIcon,
-  FunnelIcon
+  FunnelIcon,
+  InformationCircleIcon
 } from '@heroicons/react/24/outline';
+import { useEffect, useState } from 'react';
 
 export interface ActivityEvent {
   id: string;

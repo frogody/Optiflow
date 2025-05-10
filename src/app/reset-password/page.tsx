@@ -1,17 +1,17 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import { useSearchParams } from 'next/navigation';
-import Link from 'next/link';
-import Image from 'next/image';
 import { 
-  LockClosedIcon, 
-  EyeIcon, 
+  CheckCircleIcon, 
+  ExclamationCircleIcon, 
+  ExclamationTriangleIcon,
+  EyeIcon,
   EyeSlashIcon,
-  CheckCircleIcon,
-  ExclamationCircleIcon,
-  ExclamationTriangleIcon 
+  LockClosedIcon 
 } from '@heroicons/react/24/outline';
+import Image from 'next/image';
+import Link from 'next/link';
+import { useSearchParams } from 'next/navigation';
+import { useEffect, useState } from 'react';
 
 interface PasswordStrength {
   score: number;

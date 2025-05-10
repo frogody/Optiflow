@@ -1,20 +1,20 @@
 'use client';
 
-import { useState } from 'react';
-import Image from 'next/image';
 import {
-  UserCircleIcon,
-  CameraIcon,
-  PencilIcon,
-  KeyIcon,
-  DevicePhoneMobileIcon,
-  ComputerDesktopIcon,
   ArrowRightOnRectangleIcon,
-  ChevronDownIcon,
+  CameraIcon,
   CheckCircleIcon,
+  ChevronDownIcon,
+  ComputerDesktopIcon,
+  DevicePhoneMobileIcon,
+  KeyIcon,
+  PencilIcon,
+  UserCircleIcon,
   XMarkIcon,
 } from '@heroicons/react/24/outline';
+import Image from 'next/image';
 import Link from 'next/link';
+import { useState, useRef, useEffect } from 'react';
 
 // Mock user data for demonstration
 const mockUser = {
@@ -121,6 +121,13 @@ const apiKeys = [
   }
 ];
 
+export const viewport = {
+  width: 'device-width',
+  initialScale: 1,
+  maximumScale: 1,
+  themeColor: '#000000',
+};
+
 export default function ProfileSettings() {
   // State for form values
   const [formData, setFormData] = useState({
@@ -147,6 +154,9 @@ export default function ProfileSettings() {
 
   // State for expanding session details
   const [expandedSession, setExpandedSession] = useState<string | null>(null);
+  
+  // Ref for the quota progress bar
+  const quotaProgressBarRef = useRef<HTMLDivElement>(null);
   
   // Password visibility toggle
   const [showPasswords, setShowPasswords] = useState({
@@ -279,6 +289,13 @@ export default function ProfileSettings() {
     // and get back a URL to display the avatar
     alert('Avatar upload functionality would be implemented here.');
   };
+
+  // Effect to update progress bar width
+  useEffect(() => {
+    if (quotaProgressBarRef.current) {
+      quotaProgressBarRef.current.style.setProperty('--dynamic-width', `${apiUsageData.quotaUsed}%`);
+    }
+  }, [apiUsageData.quotaUsed]);
   
   return (
     <div>
@@ -744,8 +761,8 @@ export default function ProfileSettings() {
               
               <div className="h-2 w-full bg-[#374151] rounded-full overflow-hidden">
                 <div 
-                  className="h-full bg-[#22D3EE]" 
-                  style={{ width: `${apiUsageData.quotaUsed}%` }}
+                  ref={quotaProgressBarRef}
+                  className="h-full bg-[#22D3EE] width-from-var"
                 />
               </div>
               

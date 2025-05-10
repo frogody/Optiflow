@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-var-requires */
+/* eslint-env node */
 // vercel-build-fix.js
 // Script to fix common issues with Vercel deployments
 const fs = require('fs');

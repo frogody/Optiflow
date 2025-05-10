@@ -1,9 +1,9 @@
 'use client';
 
-import { useState } from 'react';
-import Link from 'next/link';
+import { CheckCircleIcon, EnvelopeIcon } from '@heroicons/react/24/outline';
 import Image from 'next/image';
-import { EnvelopeIcon, CheckCircleIcon } from '@heroicons/react/24/outline';
+import Link from 'next/link';
+import { useState } from 'react';
 
 export default function ForgotPassword() {
   const [email, setEmail] = useState('');

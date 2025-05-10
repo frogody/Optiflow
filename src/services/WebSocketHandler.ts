@@ -1,18 +1,31 @@
-// @ts-nocheck - This file has some TypeScript issues that are hard to fix
 import WebSocket from 'ws';
+
 import { Message } from '@/types/message';
+
+type MessageHandler = (data: unknown) => void;
+
+interface WebSocketConfig {
+  maxReconnectAttempts?: number;
+  reconnectDelay?: number;
+}
 
 export class WebSocketHandler {
   private ws: WebSocket | null = null;
-  private messageHandlers: Map<string, ((data: any) => void)[]> = new Map();
+  private messageHandlers: Map<string, MessageHandler[]> = new Map();
   private reconnectAttempts = 0;
-  private maxReconnectAttempts = 5;
-  private reconnectDelay = 1000;
+  private maxReconnectAttempts: number;
+  private reconnectDelay: number;
 
-  constructor(private url: string) {}
+  constructor(
+    private url: string,
+    config: WebSocketConfig = {}
+  ) {
+    this.maxReconnectAttempts = config.maxReconnectAttempts ?? 5;
+    this.reconnectDelay = config.reconnectDelay ?? 1000;
+  }
 
   public async connect(): Promise<void> {
-    return new Promise((resolve, reject) => {
+    return new Promise<void>((resolve, reject) => {
       try {
         this.ws = new WebSocket(this.url);
 
@@ -22,10 +35,10 @@ export class WebSocketHandler {
           resolve();
         };
 
-        this.ws.onmessage = (event) => {
+        this.ws.onmessage = (event: WebSocket.MessageEvent) => {
           try {
             const data = event.data.toString();
-            const message: Message = JSON.parse(data);
+            const message = JSON.parse(data) as Message;
             this.handleMessage(message);
           } catch (error) {
             console.error('Error parsing WebSocket message:', error);
@@ -37,27 +50,27 @@ export class WebSocketHandler {
           this.handleReconnect();
         };
 
-        this.ws.onerror = (error) => {
+        this.ws.onerror = (error: WebSocket.ErrorEvent) => {
           console.error('WebSocket error:', error);
-          reject(error);
+          reject(new Error('WebSocket connection error'));
         };
       } catch (error) {
-        reject(error);
+        reject(error instanceof Error ? error : new Error('Unknown connection error'));
       }
     });
   }
 
-  public addMessageHandler(type: string, handler: (data: any) => void): void {
+  public addMessageHandler(type: string, handler: MessageHandler): void {
     if (!this.messageHandlers.has(type)) {
       this.messageHandlers.set(type, []);
     }
-    this.messageHandlers.get(type)?.push(handler);
+    const handlers = this.messageHandlers.get(type);
+    if (handlers) {
+      handlers.push(handler);
+    }
   }
 
-  public removeMessageHandler(
-    type: string,
-    handler: (data: any) => void
-  ): void {
+  public removeMessageHandler(type: string, handler: MessageHandler): void {
     const handlers = this.messageHandlers.get(type);
     if (handlers) {
       const index = handlers.indexOf(handler);
@@ -67,17 +80,17 @@ export class WebSocketHandler {
     }
   }
 
-  public async send(data: any): Promise<void> {
+  public async send(data: unknown): Promise<void> {
     if (!this.ws || this.ws.readyState !== WebSocket.OPEN) {
       throw new Error('WebSocket is not connected');
     }
 
-    return new Promise((resolve, reject) => {
+    return new Promise<void>((resolve, reject) => {
       try {
         this.ws?.send(JSON.stringify(data));
         resolve();
       } catch (error) {
-        reject(error);
+        reject(error instanceof Error ? error : new Error('Failed to send message'));
       }
     });
   }

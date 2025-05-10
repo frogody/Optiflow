@@ -1,18 +1,18 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import { usePathname } from 'next/navigation';
-import Link from 'next/link';
 import {
-  UserCircleIcon,
-  BuildingOffice2Icon,
+  ArrowLeftIcon,
   BellIcon,
+  BuildingOffice2Icon,
+  Cog6ToothIcon,
+  DocumentTextIcon,
   KeyIcon,
   ShieldCheckIcon,
-  DocumentTextIcon,
-  Cog6ToothIcon,
-  ArrowLeftIcon
+  UserCircleIcon
 } from '@heroicons/react/24/outline';
+import Link from 'next/link';
+import { usePathname } from 'next/navigation';
+import { useEffect, useState } from 'react';
 
 export default function SettingsLayout({
   children,

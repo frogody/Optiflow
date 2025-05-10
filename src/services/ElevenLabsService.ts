@@ -1,4 +1,3 @@
-// @ts-nocheck - This file has some TypeScript issues that are hard to fix
 import { ElevenLabsClient } from 'elevenlabs';
 
 interface Voice {
@@ -7,187 +6,386 @@ interface Voice {
   category: string;
 }
 
-export class ElevenLabsService {
-  private api: any;
-  private defaultVoiceId: string;
-  private defaultModelId: string;
+interface Position {
+  x: number;
+  y: number;
+}
 
-  constructor() {
-    if (!process.env.ELEVENLABS_API_KEY) {
-      throw new Error('Missing required ELEVENLABS_API_KEY environment variable');
+interface NodeData {
+  label: string;
+  [key: string]: unknown;
+}
+
+interface WorkflowNode {
+  id: string;
+  type: 'trigger' | 'action' | 'conditional' | 'wait';
+  data: NodeData;
+  position: Position;
+}
+
+interface WorkflowEdge {
+  id: string;
+  source: string;
+  target: string;
+}
+
+interface Workflow {
+  nodes: WorkflowNode[];
+  edges: WorkflowEdge[];
+}
+
+interface ElevenLabsModel {
+  model_id: string;
+  name: string;
+  description: string;
+  token_cost: number;
+  supported_languages: string[];
+}
+
+interface VoiceGenerationOptions {
+  voice: string;
+  text: string;
+  model_id: string;
+  stability?: number;
+  similarity_boost?: number;
+  style?: number;
+  use_speaker_boost?: boolean;
+}
+
+interface VoiceGenerationError extends Error {
+  code?: string;
+  status?: number;
+  details?: Record<string, unknown>;
+}
+
+interface VoiceCommand {
+  text: string;
+  timestamp: Date;
+  confidence: number;
+  metadata?: Record<string, unknown>;
+}
+
+interface WorkflowProcessingResult {
+  workflow: Workflow;
+  status: 'success' | 'partial' | 'failed';
+  error?: string;
+  suggestions?: string[];
+}
+
+interface VoiceServiceConfig {
+  apiKey: string;
+  defaultVoiceId?: string;
+  defaultModelId?: string;
+  maxRetries?: number;
+  retryDelay?: number;
+}
+
+interface VoiceMetadata {
+  voiceId: string;
+  name: string;
+  category: string;
+  labels?: Record<string, string>;
+  previewUrl?: string;
+  settings?: {
+    stability: number;
+    similarity: number;
+    speakerBoost: boolean;
+  };
+}
+
+interface AudioGenerationOptions {
+  text: string;
+  voiceId?: string;
+  modelId?: string;
+  stability?: number;
+  similarity?: number;
+  speakerBoost?: boolean;
+  style?: number;
+}
+
+interface AudioGenerationResult {
+  audio: Uint8Array;
+  metadata: {
+    requestId: string;
+    timestamp: Date;
+    processingTime: number;
+    voiceId: string;
+    modelId: string;
+    textLength: number;
+    audioLength: number;
+  };
+}
+
+interface VoiceServiceError extends Error {
+  code: 'VOICE_NOT_FOUND' | 'MODEL_NOT_FOUND' | 'API_ERROR' | 'INVALID_REQUEST' | 'RATE_LIMIT';
+  status?: number;
+  retryable: boolean;
+  details?: Record<string, unknown>;
+}
+
+export class ElevenLabsService {
+  private api: ElevenLabsClient;
+  private config: Required<VoiceServiceConfig>;
+  private voiceCache: Map<string, VoiceMetadata> = new Map();
+  private modelCache: Map<string, ElevenLabsModel> = new Map();
+
+  constructor(config: VoiceServiceConfig) {
+    if (!config.apiKey) {
+      throw new Error('Missing required API key for ElevenLabs service');
     }
 
-    this.defaultVoiceId = process.env.ELEVENLABS_VOICE_ID || 'pNInz6obpgDQGcFmaJgB'; // Default to Adam voice if not specified
-    this.defaultModelId = process.env.ELEVENLABS_MODEL_ID || 'eleven_turbo_v2'; // Default to eleven_turbo_v2 if not specified
+    this.config = {
+      apiKey: config.apiKey,
+      defaultVoiceId: config.defaultVoiceId || 'pNInz6obpgDQGcFmaJgB',
+      defaultModelId: config.defaultModelId || 'eleven_turbo_v2',
+      maxRetries: config.maxRetries || 3,
+      retryDelay: config.retryDelay || 1000
+    };
 
-    this.api = new ElevenLabsClient({ apiKey: process.env.ELEVENLABS_API_KEY,
-        });
+    this.api = new ElevenLabsClient({
+      apiKey: this.config.apiKey
+    });
   }
 
-  /**
-   * Generate speech from text using ElevenLabs API
-   */
-  async textToSpeech(text: string, fallbackOnError = true): Promise<Uint8Array> {
+  private async retryWithExponentialBackoff<T>(
+    operation: () => Promise<T>,
+    retries: number = this.config.maxRetries
+  ): Promise<T> {
     try {
-      const voiceId = this.defaultVoiceId;
-      const modelId = this.defaultModelId;
+      return await operation();
+    } catch (error) {
+      if (retries === 0 || !this.isRetryableError(error)) {
+        throw this.normalizeError(error);
+      }
 
-      console.log(`ElevenLabs TTS: Using voice ID: ${voiceId}, model ID: ${modelId}`);
+      const delay = this.config.retryDelay * Math.pow(2, this.config.maxRetries - retries);
+      await new Promise(resolve => setTimeout(resolve, delay));
+      return this.retryWithExponentialBackoff(operation, retries - 1);
+    }
+  }
 
-      const audio = await this.api.generate({ voice: voiceId,
-        text: text,
-        model_id: modelId,
-          });
+  private isRetryableError(error: unknown): boolean {
+    if (error instanceof Error) {
+      const status = (error as any).response?.status;
+      return status === 429 || (status >= 500 && status < 600);
+    }
+    return false;
+  }
 
-      // Handle if the response is a ReadableStream
+  private normalizeError(error: unknown): VoiceServiceError {
+    const serviceError = new Error() as VoiceServiceError;
+    
+    if (error instanceof Error) {
+      serviceError.message = error.message;
+      serviceError.stack = error.stack;
+      
+      if (error.message.includes('voice_not_found')) {
+        serviceError.code = 'VOICE_NOT_FOUND';
+        serviceError.retryable = false;
+      } else if (error.message.includes('model_not_found')) {
+        serviceError.code = 'MODEL_NOT_FOUND';
+        serviceError.retryable = false;
+      } else if ((error as any).response?.status === 429) {
+        serviceError.code = 'RATE_LIMIT';
+        serviceError.retryable = true;
+      } else {
+        serviceError.code = 'API_ERROR';
+        serviceError.retryable = this.isRetryableError(error);
+      }
+      
+      serviceError.status = (error as any).response?.status;
+      serviceError.details = (error as any).response?.data;
+    } else {
+      serviceError.message = 'Unknown error occurred';
+      serviceError.code = 'API_ERROR';
+      serviceError.retryable = false;
+    }
+    
+    return serviceError;
+  }
+
+  async textToSpeech(
+    text: string,
+    options: Partial<AudioGenerationOptions> = {}
+  ): Promise<AudioGenerationResult> {
+    const startTime = Date.now();
+    const requestId = `req_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+
+    try {
+      const voiceId = options.voiceId || this.config.defaultVoiceId;
+      const modelId = options.modelId || this.config.defaultModelId;
+
+      console.log(`[ElevenLabs] Generating speech with voice ID: ${voiceId}, model ID: ${modelId}`);
+
+      const audio = await this.retryWithExponentialBackoff(() => 
+        this.api.generate({
+          voice: voiceId,
+          text: text,
+          model_id: modelId,
+          stability: options.stability,
+          similarity_boost: options.similarity,
+          style: options.style,
+          use_speaker_boost: options.speakerBoost
+        })
+      );
+
+      let audioData: Uint8Array;
       if (audio instanceof ReadableStream) {
-        // Convert the ReadableStream to a Uint8Array
         const reader = audio.getReader();
         const chunks: Uint8Array[] = [];
         
-        // eslint-disable-next-line no-constant-condition
         while (true) {
           const { done, value } = await reader.read();
           if (done) break;
           chunks.push(value);
         }
         
-        // Combine all chunks into a single Uint8Array
         const totalLength = chunks.reduce((acc, chunk) => acc + chunk.length, 0);
-        const result = new Uint8Array(totalLength);
+        audioData = new Uint8Array(totalLength);
         let offset = 0;
         
         for (const chunk of chunks) {
-          result.set(chunk, offset);
+          audioData.set(chunk, offset);
           offset += chunk.length;
         }
-        
-        return result;
+      } else {
+        audioData = new Uint8Array(audio);
       }
-      
-      // If it's already a Uint8Array or ArrayBuffer, return it
-      return audio;
-    } catch (error) {
-      console.error('Error in text-to-speech:', error);
-      
-      // If fallback is enabled and the error might be related to voice not found, try with a different voice
-      if (fallbackOnError && error instanceof Error && 
-          (error.message.includes('voice_not_found') || error.message.includes('Voice not found'))) {
-        console.log('Voice not found, trying with premade voice...');
-        
-        // List of reliable premade voices to try as fallbacks
-        const fallbackVoices = [
-          'pNInz6obpgDQGcFmaJgB', // Adam
-          'EXAVITQu4vr4xnSDxMaL',  // Rachel
-          '21m00Tcm4TlvDq8ikWAM',  // Nicole
-          'AZnzlk1XvdvUeBnXmlld',  // Domi
-          'MF3mGyEYCl7XYWbV9V6O'   // Elli
-        ];
-        
-        // Try each fallback voice until one works
-        for (const fallbackVoice of fallbackVoices) {
-          if (fallbackVoice === this.defaultVoiceId) continue; // Skip if it's the same as the failed voice
-          
-          try {
-            console.log(`Trying fallback voice ID: ${fallbackVoice}`);
-            const audio = await this.api.generate({ voice: fallbackVoice,
-              text: text,
-              model_id: this.defaultModelId,
-                });
-            
-            // Process the audio response as before
-            if (audio instanceof ReadableStream) {
-              const reader = audio.getReader();
-              const chunks: Uint8Array[] = [];
-              
-              // eslint-disable-next-line no-constant-condition
-              while (true) {
-                const { done, value } = await reader.read();
-                if (done) break;
-                chunks.push(value);
-              }
-              
-              const totalLength = chunks.reduce((acc, chunk) => acc + chunk.length, 0);
-              const result = new Uint8Array(totalLength);
-              let offset = 0;
-              
-              for (const chunk of chunks) {
-                result.set(chunk, offset);
-                offset += chunk.length;
-              }
-              
-              return result;
-            }
-            
-            return audio;
-          } catch (fallbackError) {
-            console.error(`Fallback voice ${fallbackVoice} failed:`, fallbackError);
-            // Continue to the next fallback voice
-          }
+
+      return {
+        audio: audioData,
+        metadata: {
+          requestId,
+          timestamp: new Date(),
+          processingTime: Date.now() - startTime,
+          voiceId,
+          modelId,
+          textLength: text.length,
+          audioLength: audioData.length
         }
+      };
+    } catch (error) {
+      throw this.normalizeError(error);
+    }
+  }
+
+  async getVoices(forceRefresh = false): Promise<VoiceMetadata[]> {
+    try {
+      if (!forceRefresh && this.voiceCache.size > 0) {
+        return Array.from(this.voiceCache.values());
       }
-      
-      // If all fallbacks fail or fallback is disabled, rethrow the original error
-      throw error;
+
+      const voices = await this.retryWithExponentialBackoff(() => 
+        this.api.voices.getAll()
+      );
+
+      this.voiceCache.clear();
+      voices.forEach(voice => {
+        this.voiceCache.set(voice.voice_id, {
+          voiceId: voice.voice_id,
+          name: voice.name,
+          category: voice.category,
+          labels: voice.labels,
+          previewUrl: voice.preview_url,
+          settings: voice.settings
+        });
+      });
+
+      return Array.from(this.voiceCache.values());
+    } catch (error) {
+      throw this.normalizeError(error);
+    }
+  }
+
+  async getModels(forceRefresh = false): Promise<ElevenLabsModel[]> {
+    try {
+      if (!forceRefresh && this.modelCache.size > 0) {
+        return Array.from(this.modelCache.values());
+      }
+
+      const models = await this.retryWithExponentialBackoff(() => 
+        this.api.models.getAll()
+      );
+
+      this.modelCache.clear();
+      models.forEach(model => {
+        this.modelCache.set(model.model_id, model);
+      });
+
+      return models;
+    } catch (error) {
+      throw this.normalizeError(error);
+    }
+  }
+
+  async validateVoiceId(voiceId: string): Promise<boolean> {
+    try {
+      const voices = await this.getVoices();
+      return voices.some(voice => voice.voiceId === voiceId);
+    } catch (error) {
+      throw this.normalizeError(error);
+    }
+  }
+
+  async validateModelId(modelId: string): Promise<boolean> {
+    try {
+      const models = await this.getModels();
+      return models.some(model => model.model_id === modelId);
+    } catch (error) {
+      throw this.normalizeError(error);
     }
   }
 
   /**
    * Process voice command and generate workflow
    */
-  async processVoiceCommand(command: string): Promise<any> {
+  async processVoiceCommand(command: string): Promise<WorkflowProcessingResult> {
     try {
+      const voiceCommand: VoiceCommand = {
+        text: command,
+        timestamp: new Date(),
+        confidence: 1.0
+      };
+
       // Mock workflow generation for now
-      const mockWorkflow = {
+      const mockWorkflow: Workflow = {
         nodes: [
           {
             id: '1',
             type: 'trigger',
-            data: { label: 'Start'     },
-            position: { x: 100, y: 100     },
+            data: { label: 'Voice Command Start', command: voiceCommand },
+            position: { x: 100, y: 100 },
           },
           {
             id: '2',
             type: 'action',
-            data: { label: 'Process Command'     },
-            position: { x: 300, y: 100     },
+            data: { label: 'Process Command', command: voiceCommand.text },
+            position: { x: 300, y: 100 },
           },
         ],
         edges: [
-          { id: 'e1-2',
+          {
+            id: 'e1-2',
             source: '1',
             target: '2',
-              },
+          },
         ],
       };
 
-      return mockWorkflow;
-    } catch (error) { console.error('Error processing voice command:', error);
-      throw error;
-        }
-  }
-
-  /**
-   * Get available voices from ElevenLabs
-   */
-  async getVoices(): Promise<Voice[]> {
-    try {
-      const voices = await this.api.voices.getAll();
-      return voices;
-    } catch (error) { console.error('Error getting voices:', error);
-      throw error;
-        }
-  }
-
-  /**
-   * Get available models from ElevenLabs
-   */
-  async getModels(): Promise<any[]> {
-    try {
-      const models = await this.api.models.getAll();
-      return models;
-    } catch (error) { console.error('Error getting models:', error);
-      throw error;
-        }
+      return {
+        workflow: mockWorkflow,
+        status: 'success'
+      };
+    } catch (error) {
+      console.error('Error processing voice command:', error);
+      return {
+        workflow: {
+          nodes: [],
+          edges: []
+        },
+        status: 'failed',
+        error: error instanceof Error ? error.message : 'Unknown error processing voice command'
+      };
+    }
   }
 } 

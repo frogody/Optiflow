@@ -1,12 +1,12 @@
 import {
-  UserCircleIcon,
-  KeyIcon,
   BellIcon,
+  BookOpenIcon,
   BuildingOfficeIcon,
-  ShieldCheckIcon,
   CreditCardIcon,
   DocumentTextIcon,
-  BookOpenIcon
+  KeyIcon,
+  ShieldCheckIcon,
+  UserCircleIcon
 } from '@heroicons/react/24/outline';
 
 const settingsNavItems = [

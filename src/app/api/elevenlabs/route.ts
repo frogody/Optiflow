@@ -1,8 +1,8 @@
-// @ts-nocheck - This file has some TypeScript issues that are hard to fix
-import { NextRequest, NextResponse } from 'next/server';
-import { ElevenLabsService } from '@/services/ElevenLabsService';
-import { AIService } from '@/services/AIService';
 import { Anthropic } from '@anthropic-ai/sdk';
+import { NextRequest, NextResponse } from 'next/server';
+
+import { AIService } from '@/services/AIService';
+import { ElevenLabsService } from '@/services/ElevenLabsService';
 
 // Create a single instance of the service to reuse
 let elevenLabsService: ElevenLabsService | null = null;
@@ -84,9 +84,10 @@ export async function POST(request: NextRequest) {
           envVars: Object.keys(process.env).filter(key => key.includes('ANTHROPIC') || key.includes('ELEVENLABS')),
           nodeEnv: process.env.NODE_ENV,
           modelMap: {
-  CLAUDE_3_5_SONNET: 'claude-3-5-sonnet-20241022',
+            CLAUDE_3_7_SONNET: 'claude-3-7-sonnet-20250219',
+            CLAUDE_3_5_SONNET: 'claude-3-5-sonnet-20241022',
             CLAUDE_INSTANT: 'claude-instant-1.2'
-              }
+          }
         };
         
         // Test the Anthropic client directly
@@ -99,7 +100,7 @@ export async function POST(request: NextRequest) {
           
           const anthropic = new Anthropic({
             apiKey,
-            defaultHeaders: { 'anthropic-version': '2023-06-01',
+            defaultHeaders: { 'anthropic-version': '2024-02-19',
               'Content-Type': 'application/json'
                 }
           });
@@ -109,19 +110,22 @@ export async function POST(request: NextRequest) {
           // Try a simple API call
           try {
             const response = await anthropic.messages.create({
-              model: 'claude-3-5-sonnet-20241022',
+              model: 'claude-3-7-sonnet-20250219',
               max_tokens: 10,
-              messages: [{ role: 'user', content: 'Hello'     }]
+              messages: [{ role: 'user', content: 'Hello' }],
+              thinking: { type: 'enabled', budget_tokens: 1000 }
             });
             
             debugData.apiCallSuccessful = true;
-            debugData.apiResponse = { id: response.id,
+            debugData.apiResponse = {
+              id: response.id,
               model: response.model,
-              contentType: response.content[0]?.type
-                };
+              contentTypes: response.content.map(c => c.type),
+              hasThinking: response.content.some(c => c.type === 'thinking')
+            };
           } catch (apiError) {
             debugData.apiCallError = apiError instanceof Error ? 
-              { message: apiError.message, name: apiError.name     } : 
+              { message: apiError.message, name: apiError.name } : 
               String(apiError);
           }
         } catch (error) { debugData.clientError = error instanceof Error ? error.message : String(error);
@@ -154,11 +158,17 @@ export async function POST(request: NextRequest) {
       case 'processVoiceCommand': {
         console.log('Generating new workflow from description');
         // Get model from request options or fall back to environment variable
-        const model = options?.model || process.env.ANTHROPIC_DEFAULT_MODEL || 'claude-3-5-sonnet-20241022';
-        console.log(`Using model: ${model}`);
+        const model = options?.model || process.env.ANTHROPIC_DEFAULT_MODEL || 'claude-3-7-sonnet-20250219';
+        const thinking = options?.thinking || { type: 'enabled', budget_tokens: 4000 };
+        console.log(`Using model: ${model} with thinking enabled`);
         
         try {
-          const workflow = await aiService.generateWorkflowFromDescription(text, context, model);
+          const workflow = await aiService.generateWorkflowFromDescription(
+            text,
+            context,
+            model,
+            thinking
+          );
           console.log('Generated workflow with name:', workflow.name);
           
           return NextResponse.json({ 
@@ -167,8 +177,9 @@ export async function POST(request: NextRequest) {
             generatedText: workflow.description || 'Generated workflow successfully',
             text: `I've created a workflow called "${workflow.name}". ${workflow.description}`,
             model: model,
+            thinking: thinking,
             debug: {
-  apiKey: process.env.ANTHROPIC_API_KEY ? `${process.env.ANTHROPIC_API_KEY.substring(0, 10)}...` : 'not set',
+              apiKey: process.env.ANTHROPIC_API_KEY ? `${process.env.ANTHROPIC_API_KEY.substring(0, 10)}...` : 'not set',
               envModel: process.env.ANTHROPIC_DEFAULT_MODEL || 'not set',
               requestedModel: model,
               elevenlabsKey: process.env.ELEVENLABS_API_KEY ? 'set' : 'not set',
@@ -182,8 +193,9 @@ export async function POST(request: NextRequest) {
             error: error instanceof Error ? error.message : 'Unknown error',
             text: `I encountered an error: ${ error instanceof Error ? error.message : 'Unknown error'    }`,
             model: model,
+            thinking: thinking,
             debug: {
-  apiKey: process.env.ANTHROPIC_API_KEY ? `${process.env.ANTHROPIC_API_KEY.substring(0, 10)}...` : 'not set',
+              apiKey: process.env.ANTHROPIC_API_KEY ? `${process.env.ANTHROPIC_API_KEY.substring(0, 10)}...` : 'not set',
               envModel: process.env.ANTHROPIC_DEFAULT_MODEL || 'not set',
               requestedModel: model,
               elevenlabsKey: process.env.ELEVENLABS_API_KEY ? 'set' : 'not set',

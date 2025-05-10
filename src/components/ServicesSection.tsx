@@ -1,14 +1,13 @@
-// @ts-nocheck - This file has some TypeScript issues that are hard to fix
 import { motion } from 'framer-motion';
+import Link from 'next/link';
 import {
+  HiOutlineAcademicCap,
+  HiOutlineChartBar,
+  HiOutlineCode,
+  HiOutlineCog,
   HiOutlineLightningBolt,
   HiOutlineShieldCheck,
-  HiOutlineChartBar,
-  HiOutlineCog,
-  HiOutlineCode,
-  HiOutlineAcademicCap,
 } from 'react-icons/hi';
-import Link from 'next/link';
 
 const services = [
   {

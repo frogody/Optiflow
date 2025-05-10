@@ -1,9 +1,9 @@
-// @ts-nocheck - This file has some TypeScript issues that are hard to fix
 // Import our environment fix module first
 import '../../../../lib/pipedream/fix-env';
 
 import { NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
+
 import { authOptions } from '@/lib/auth';
 import { serverConnectTokenCreate } from '@/lib/pipedream/server';
 

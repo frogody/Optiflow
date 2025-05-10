@@ -1,9 +1,9 @@
-// @ts-nocheck - This file has some TypeScript issues that are hard to fix
 'use client';
 
+import { CogIcon, WrenchScrewdriverIcon } from '@heroicons/react/24/outline';
 import { useState } from 'react';
 import { Handle, Position } from 'reactflow';
-import { WrenchScrewdriverIcon, CogIcon } from '@heroicons/react/24/outline';
+
 import AIAgentConfig, { AIAgentConfigData } from './AIAgentConfig';
 
 interface AIAgentNodeProps {

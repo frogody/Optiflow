@@ -1,28 +1,27 @@
-// @ts-nocheck - This file has some TypeScript issues that are hard to fix
 'use client';
 
-import { useState } from 'react';
-import { useReactFlow } from 'reactflow';
 import { 
-  DocumentTextIcon, 
-  EnvelopeIcon, 
-  ClockIcon, 
-  WrenchScrewdriverIcon,
-  UserIcon,
+  ArrowPathIcon, 
+  ArrowsPointingOutIcon, 
+  BeakerIcon, 
+  CalendarIcon,
+  ChartBarIcon,
   ChatBubbleLeftRightIcon,
-  DocumentDuplicateIcon,
-  ArrowPathIcon,
-  ArrowsPointingOutIcon,
-  TableCellsIcon,
-  BeakerIcon,
+  ClockIcon,
   CodeBracketIcon,
   CpuChipIcon,
-  ChartBarIcon,
+  DocumentDuplicateIcon,
+  DocumentTextIcon,
+  EnvelopeIcon,
   FolderIcon,
   PaperAirplaneIcon,
-  CalendarIcon,
-  ServerIcon
+  ServerIcon,
+  TableCellsIcon,
+  UserIcon,
+  WrenchScrewdriverIcon
 } from '@heroicons/react/24/outline';
+import { useState } from 'react';
+import { useReactFlow } from 'reactflow';
 
 // Node types available in the palette
 const nodeTypes = [

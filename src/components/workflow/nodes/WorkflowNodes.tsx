@@ -1,7 +1,5 @@
 'use client';
 
-import React from 'react';
-import { Handle, Position } from 'reactflow';
 import {
   // Core icons
   PlayIcon,
@@ -38,6 +36,8 @@ import {
   AdjustmentsHorizontalIcon,
   FunnelIcon
 } from '@heroicons/react/24/outline';
+import React from 'react';
+import { Handle, Position } from 'reactflow';
 
 // Shared styles for all nodes
 const nodeStyles = {

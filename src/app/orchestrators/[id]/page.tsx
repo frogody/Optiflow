@@ -1,12 +1,12 @@
-// @ts-nocheck - This file has some TypeScript issues that are hard to fix
 'use client';
 
-import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { useUserStore } from '@/lib/userStore';
-import Dashboard from '@/components/Dashboard';
+import { useEffect } from 'react';
 
-export default function OrchestratorPage({ params }: { params: { id: string     } }): JSX.Element {
+import Dashboard from '@/components/Dashboard.js';
+import { useUserStore } from '@/lib/userStore.js';
+
+export default function OrchestratorPage({ params }: { params: { id: string     } }): React.ReactNode {
   const router = useRouter();
   const { currentUser } = useUserStore();
 

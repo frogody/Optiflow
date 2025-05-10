@@ -1,4 +1,3 @@
-// @ts-nocheck - This file has some TypeScript issues that are hard to fix
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server'
 import { getToken } from 'next-auth/jwt'

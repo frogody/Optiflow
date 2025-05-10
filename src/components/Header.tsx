@@ -1,8 +1,7 @@
-// @ts-nocheck - This file has some TypeScript issues that are hard to fix
 'use client';
 
-import React from 'react';
 import Image from 'next/image';
+import React from 'react';
 
 interface HeaderProps { isAdvancedMode: boolean;
   onToggleMode: () => void;

@@ -1,24 +1,24 @@
-// @ts-nocheck - This file has some TypeScript issues that are hard to fix
 'use client';
 
-import { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
+import { 
+  ArrowPathIcon, 
+  BoltIcon, 
+  ChartBarIcon,
+  CheckCircleIcon,
+  ClockIcon,
+  ExclamationTriangleIcon,
+  MagnifyingGlassIcon,
+  PlusCircleIcon,
+  XCircleIcon
+} from '@heroicons/react/24/outline';
+import { motion } from 'framer-motion';
 import Image from 'next/image';
 import Link from 'next/link';
-import { motion } from 'framer-motion';
-import { 
-  CheckCircleIcon, 
-  ExclamationTriangleIcon, 
-  XCircleIcon,
-  MagnifyingGlassIcon,
-  ArrowPathIcon,
-  PlusCircleIcon,
-  ClockIcon,
-  ChartBarIcon,
-  BoltIcon
-} from '@heroicons/react/24/outline';
-import PipedreamConnectButton from '@/components/PipedreamConnectButton';
+import { useRouter } from 'next/navigation';
+import { useState } from 'react';
 import { toast } from 'react-hot-toast';
+
+import PipedreamConnectButton from '@/components/PipedreamConnectButton';
 
 // Interface for integration items
 interface Integration {

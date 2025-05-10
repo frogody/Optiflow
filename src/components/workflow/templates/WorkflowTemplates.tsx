@@ -1,17 +1,17 @@
 'use client';
 
 import { 
-  EnvelopeIcon, 
+  ArrowPathIcon, 
   BellAlertIcon, 
+  ChatBubbleLeftRightIcon, 
   ClockIcon, 
   CloudIcon, 
   DocumentIcon, 
-  GlobeAltIcon, 
-  ArrowPathIcon,
-  ChatBubbleLeftRightIcon,
-  TableCellsIcon,
+  EnvelopeIcon,
+  GlobeAltIcon,
+  MegaphoneIcon,
   RocketLaunchIcon,
-  MegaphoneIcon
+  TableCellsIcon
 } from '@heroicons/react/24/outline';
 
 // Template Node type

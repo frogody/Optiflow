@@ -1,9 +1,9 @@
-// @ts-nocheck - This file has some TypeScript issues that are hard to fix
 'use client';
 
+import { CheckIcon, CogIcon, XMarkIcon } from '@heroicons/react/24/outline';
 import { useState } from 'react';
 import { Handle, Position } from 'reactflow';
-import { CogIcon, CheckIcon, XMarkIcon } from '@heroicons/react/24/outline';
+
 import DefaultNodeConfig, { DefaultNodeData } from './DefaultNodeConfig';
 
 interface DefaultNodeProps {

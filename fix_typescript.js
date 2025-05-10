@@ -12,9 +12,9 @@
  * Usage: node fix_typescript.js
  */
 
+const { execSync } = require('child_process');
 const fs = require('fs');
 const path = require('path');
-const { execSync } = require('child_process');
 
 // Configuration
 const DIRECTORIES_TO_SCAN = [

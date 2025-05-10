@@ -1,4 +1,3 @@
-// @ts-nocheck - This file has some TypeScript issues that are hard to fix
 import { NextResponse } from 'next/server';
 
 export async function GET() {

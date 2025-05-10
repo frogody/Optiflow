@@ -1,7 +1,6 @@
-// @ts-nocheck - This file has some TypeScript issues that are hard to fix
 import { motion } from 'framer-motion';
 import Image from 'next/image';
-import { FaLinkedin, FaTwitter, FaGithub } from 'react-icons/fa';
+import { FaGithub, FaLinkedin, FaTwitter } from 'react-icons/fa';
 
 const teamMembers = [
   {

@@ -1,4 +1,4 @@
-import { test, expect } from '@playwright/test';
+import { expect, test } from '@playwright/test';
 
 test('Vercel deployment basic accessibility test', async ({ page }) => {
   // Navigate to the deployed app

@@ -1,11 +1,13 @@
-// @ts-nocheck - This file has some TypeScript issues that are hard to fix
-import { useState, useEffect } from 'react';
-import { usePipedreamBrowser } from '@/hooks/usePipedreamBrowser';
-import Image from 'next/image';
 import { motion } from 'framer-motion';
-import { toast } from 'react-hot-toast';
-import ConnectionModal from './ConnectionModal';
+import Image from 'next/image';
 import { useRouter } from 'next/navigation';
+import { useEffect, useState } from 'react';
+import { toast } from 'react-hot-toast';
+
+import ConnectionModal from './ConnectionModal';
+
+import { usePipedreamBrowser } from '@/hooks/usePipedreamBrowser';
+
 
 interface MCPApp {
   name: string;

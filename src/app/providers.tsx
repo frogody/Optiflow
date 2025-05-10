@@ -1,9 +1,9 @@
-// @ts-nocheck - This file has some TypeScript issues that are hard to fix
 'use client';
 
-import { LanguageProvider } from '@/lib/languageContext';
-import { ReactNode } from 'react';
 import { SessionProvider } from 'next-auth/react';
+import { ReactNode } from 'react';
+
+import { LanguageProvider } from '@/lib/languageContext';
 
 interface ProvidersProps {
   children: ReactNode;
