@@ -2,7 +2,7 @@ import { createFrontendClient } from '@pipedream/sdk/browser';
 import { useCallback, useEffect, useState } from 'react';
 import { toast } from 'react-hot-toast';
 
-import { useUserStore } from '@/lib/userStore';
+import { useUserStore } from '../userStore.js';
 
 interface UsePipedreamConnectOptions { onSuccess?: (accountId: string) => void;
   onError?: (error: Error) => void;
@@ -33,7 +33,7 @@ export function usePipedreamConnect(options: UsePipedreamConnectOptions = {}) {
         setError(null);
         console.log('Initializing Pipedream client...');
         
-        if (!process.env.NEXT_PUBLIC_PIPEDREAM_CLIENT_ID) {
+        if (!process.env['NEXT_PUBLIC_PIPEDREAM_CLIENT_ID']) {
           throw new Error('Missing Pipedream client ID in environment variables');
         }
         
