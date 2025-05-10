@@ -5,8 +5,8 @@ import { useEffect } from 'react';
 
 import { simpleValue } from './testSimpleImport.js';
 
-import FlowDashboard from '@/components/FlowDashboard.js';
-import { useUserStore } from '@/lib/userStore.js';
+import FlowDashboard from '@/components/FlowDashboard';
+import { useUserStore } from '@/lib/userStore';
 
 export default function FlowPage({ params }: { params: { id: string; flowId: string     } }): React.ReactNode {
   const router = useRouter();

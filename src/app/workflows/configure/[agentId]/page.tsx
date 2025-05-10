@@ -6,7 +6,7 @@ import { useParams, useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { toast } from 'react-hot-toast';
 
-import { useUserStore } from '@/lib/userStore.js';
+import { useUserStore } from '@/lib/userStore';
 
 // Mock data for agent configuration - in a real app, this would come from an API
 interface AgentConfig {

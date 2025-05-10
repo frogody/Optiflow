@@ -64,6 +64,13 @@ const nextConfig = {
       '@': path.resolve(__dirname, './src'),
     };
 
+    // Add module resolution optimizations
+    config.resolve.extensions = [
+      ...config.resolve.extensions,
+      '.ts',
+      '.tsx',
+    ];
+
     // Optimize bundle size
     if (!dev && !isServer) {
       config.optimization.splitChunks = {
