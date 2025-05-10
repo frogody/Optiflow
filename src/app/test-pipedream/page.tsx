@@ -1,16 +1,16 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
-import PipedreamConnectButton from '@/components/PipedreamConnectButton';
-import { usePipedreamConnect } from '@/lib/pipedream/usePipedreamConnect';
+import PipedreamConnectButton from '@/components/PipedreamConnectButton.js'; // Assuming .js for now
+import { usePipedreamConnect } from '@/lib/pipedream/usePipedreamConnect.js'; // Assuming .js for now
 
-export default function TestPipedreamPage(): JSX.Element {
+// Component to handle the actual Pipedream connection logic and UI, only rendered client-side
+function PipedreamConnectionUI() {
   const [selectedApp, setSelectedApp] = useState('slack');
   const [connectionId, setConnectionId] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   
-  // Common service providers
   const services = [
     { id: 'slack', name: 'Slack'     },
     { id: 'gmail', name: 'Gmail'     },
@@ -19,29 +19,28 @@ export default function TestPipedreamPage(): JSX.Element {
     { id: 'airtable', name: 'Airtable'     }
   ];
   
-  // Use our hook directly for more control
-  const {
-    connectService,
-    isConnecting,
-    isInitializing,
-    isReady
+  const { 
+    connectService, 
+    isConnecting, 
+    isInitializing, 
+    isReady 
   } = usePipedreamConnect({
     onSuccess: (accountId) => {
       setConnectionId(accountId);
       setError(null);
+      console.log('Pipedream connected successfully with ID:', accountId);
     },
     onError: (err) => {
       setError(err.message);
       setConnectionId(null);
+      console.error('Pipedream connection error:', err.message);
     }
   });
   
-  // Handle app selection
   const handleAppChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     setSelectedApp(e.target.value);
   };
   
-  // Handle manual connect button click
   const handleConnectClick = async () => {
     try {
       await connectService(selectedApp);
@@ -58,14 +57,12 @@ export default function TestPipedreamPage(): JSX.Element {
     <div className="max-w-3xl mx-auto p-6">
       <h1 className="text-2xl font-bold mb-6">Pipedream Connect Test</h1>
       
-      {/* Status info */}
       <div className="bg-gray-50 p-4 rounded-md mb-6">
         <div>Status: { isInitializing ? 'Initializing...' : isReady ? 'Ready' : 'Not ready'    }</div>
         {connectionId && <div className="text-green-600 mt-2">Connected! ID: {connectionId}</div>}
         {error && <div className="text-red-600 mt-2">Error: {error}</div>}
       </div>
       
-      {/* Manual connection */}
       <div className="bg-white shadow rounded-lg p-6 mb-6">
         <h2 className="text-lg font-semibold mb-4">Manual Connection</h2>
         <div className="flex gap-4 mb-4">
@@ -92,7 +89,6 @@ export default function TestPipedreamPage(): JSX.Element {
         </div>
       </div>
       
-      {/* Button component test */}
       <div className="bg-white shadow rounded-lg p-6">
         <h2 className="text-lg font-semibold mb-4">Button Component Test</h2>
         <div className="space-y-3">
@@ -116,4 +112,18 @@ export default function TestPipedreamPage(): JSX.Element {
       </div>
     </div>
   );
+}
+
+export default function TestPipedreamPage(): JSX.Element {
+  const [isClient, setIsClient] = useState(false);
+
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
+
+  if (!isClient) {
+    return <div>Loading Pipedream Test Page...</div>; // Or null
+  }
+
+  return <PipedreamConnectionUI />;
 } 
