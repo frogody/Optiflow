@@ -1,5 +1,3 @@
-const { i18n } = require('./next-i18next.config');
-
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
@@ -45,8 +43,13 @@ const nextConfig = {
     // Remove console.log in production
     removeConsole: process.env.NODE_ENV === 'production',
   },
-  // Add i18n configuration
-  i18n,
+  // Inlined i18n configuration
+  i18n: {
+    defaultLocale: 'en',
+    locales: ['en', 'nl', 'de', 'fr', 'es'],
+  },
+  // reloadOnPrerender from next-i18next.config.js (assuming it should be at top level of nextConfig)
+  reloadOnPrerender: process.env.NODE_ENV === 'development',
   // Add webpack configuration for better optimization
   webpack: (config, { dev, isServer }) => {
     // Optimize bundle size
@@ -113,6 +116,6 @@ const nextConfig = {
       ],
     },
   ],
-}
+};
 
-module.exports = nextConfig
+export default nextConfig
