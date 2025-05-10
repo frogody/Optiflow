@@ -3,11 +3,12 @@ import { useCallback, useEffect, useState } from 'react';
 import { toast } from 'react-hot-toast';
 
 // eslint-disable-next-line
-import { useUserStore } from '../userStore';
+import { useUserStore } from '../userStore.js';
 
-interface UsePipedreamConnectOptions { onSuccess?: (accountId: string) => void;
+interface UsePipedreamConnectOptions {
+  onSuccess?: (accountId: string) => void;
   onError?: (error: Error) => void;
-    }
+}
 
 /**
  * React hook for handling Pipedream Connect OAuth integrations
