@@ -100,7 +100,7 @@ const values = [
   {
     icon: ShieldCheckIcon,
     title: 'Integrity',
-    description: 'We're committed to ethical practices, transparency in our operations, and being worthy of our users' trust.'
+    description: 'We\'re committed to ethical practices, transparency in our operations, and being worthy of our users\' trust.'
   },
   {
     icon: GlobeAltIcon,

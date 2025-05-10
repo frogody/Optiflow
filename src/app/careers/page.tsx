@@ -46,7 +46,7 @@ const jobOpenings = [
     department: 'Design',
     location: 'San Francisco, CA',
     type: 'Full-time',
-    description: 'We're seeking a talented Product Designer to create intuitive and delightful user experiences for our workflow automation platform.',
+    description: 'We\'re seeking a talented Product Designer to create intuitive and delightful user experiences for our workflow automation platform.',
     responsibilities: [
       'Design user interfaces for web and mobile applications that are both beautiful and functional',
       'Create wireframes, prototypes, and high-fidelity designs',
@@ -55,7 +55,7 @@ const jobOpenings = [
       'Help establish and maintain our design system'
     ],
     requirements: [
-      'Bachelor's degree in Design, HCI, or related field',
+      'Bachelor\'s degree in Design, HCI, or related field',
       '3+ years of product design experience, preferably for SaaS or enterprise products',
       'Strong portfolio demonstrating UX/UI design skills',
       'Proficiency in design tools like Figma, Sketch, or Adobe Creative Suite',
@@ -78,7 +78,7 @@ const jobOpenings = [
       'Identify opportunities for customers to expand their use of our platform'
     ],
     requirements: [
-      'Bachelor's degree or equivalent practical experience',
+      'Bachelor\'s degree or equivalent practical experience',
       '3+ years of experience in customer success, account management, or similar roles',
       'Strong interpersonal and communication skills',
       'Problem-solving mindset and ability to work in a fast-paced environment',
@@ -92,7 +92,7 @@ const jobOpenings = [
     department: 'Engineering',
     location: 'Remote',
     type: 'Full-time',
-    description: 'We're looking for a Full Stack Developer to help build and maintain our web applications and services.',
+    description: 'We\'re looking for a Full Stack Developer to help build and maintain our web applications and services.',
     responsibilities: [
       'Develop and maintain features across our full stack',
       'Write clean, maintainable, and efficient code',
@@ -101,7 +101,7 @@ const jobOpenings = [
       'Participate in code reviews and contribute to engineering best practices'
     ],
     requirements: [
-      'Bachelor's degree in Computer Science or equivalent experience',
+      'Bachelor\'s degree in Computer Science or equivalent experience',
       '3+ years of experience in full stack development',
       'Proficiency in JavaScript/TypeScript, React, Node.js, and modern front-end frameworks',
       'Experience with databases (SQL and NoSQL)',
@@ -115,7 +115,7 @@ const jobOpenings = [
     department: 'Marketing',
     location: 'San Francisco, CA',
     type: 'Full-time',
-    description: 'Join our marketing team to help drive awareness and adoption of Optiflow's automation platform.',
+    description: 'Join our marketing team to help drive awareness and adoption of Optiflow\'s automation platform.',
     responsibilities: [
       'Develop and execute marketing campaigns across various channels',
       'Create compelling content for our website, blog, and social media',
@@ -124,7 +124,7 @@ const jobOpenings = [
       'Analyze marketing metrics and optimize strategies'
     ],
     requirements: [
-      'Bachelor's degree in Marketing, Communications, or related field',
+      'Bachelor\'s degree in Marketing, Communications, or related field',
       '4+ years of B2B marketing experience, preferably in SaaS',
       'Strong writing and content creation skills',
       'Experience with marketing automation and CRM tools',
@@ -305,6 +305,7 @@ export default function CareersPage() {
               value={departmentFilter}
               onChange={(e) => setDepartmentFilter(e.target.value)}
               className="w-full md:w-auto px-4 py-2 bg-[#18181B] border border-[#374151] rounded-md text-[#E5E7EB] focus:outline-none focus:ring-2 focus:ring-[#22D3EE] focus:border-transparent"
+              aria-label="Filter by department"
             >
               {departments.map((dept) => (
                 <option key={dept} value={dept}>{dept}</option>
