@@ -19,5 +19,10 @@
       "src": "/(.*)",
       "dest": "/$1"
     }
-  ]
+  ],
+  "github": {
+    "enabled": true,
+    "silent": true
+  },
+  "framework": "nextjs"
 } 
