@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 
-import { getPipedreamConfig } from '@/lib/pipedream/config.js';
+import { getPipedreamConfig } from '../../../../../lib/pipedream/config.js';
 
 export async function GET(
   request: Request,

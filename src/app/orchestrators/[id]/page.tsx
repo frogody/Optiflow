@@ -3,8 +3,8 @@
 import { useRouter } from 'next/navigation';
 import { useEffect } from 'react';
 
-import Dashboard from '@/components/Dashboard.js';
-import { useUserStore } from '@/lib/userStore.js';
+import Dashboard from '../../../components/Dashboard.js';
+import { useUserStore } from '../../../lib/userStore.js';
 
 export default function OrchestratorPage({ params }: { params: { id: string     } }): React.ReactNode {
   const router = useRouter();

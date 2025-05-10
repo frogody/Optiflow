@@ -2,8 +2,8 @@
 
 import { useEffect, useState } from 'react';
 
-import { useLanguage } from '@/lib/languageContext.js';
-import translations from '@/translations/index.js';
+import { useLanguage } from '../lib/languageContext.js';
+import translations from '../translations/index.js';
 
 interface TranslatedTextProps { textKey: string;
   fallback?: string;
