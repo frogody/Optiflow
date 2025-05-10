@@ -1,4 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<svg width="512" height="512" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg">
-    <path fill="#0F9D58" d="M512 256c0 141.4-114.6 256-256 256S0 397.4 0 256 114.6 0 256 0s256 114.6 256 256zM128 128v256h256V128H128zm32 32h192v32H160v-32zm0 64h64v32h-64v-32zm96 0h96v32h-96v-32zm-96 64h64v32h-64v-32zm96 0h96v32h-96v-32zm-96 64h64v32h-64v-32zm96 0h96v32h-96v-32z"/>
-</svg>
