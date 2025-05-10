@@ -9,6 +9,16 @@ import Link from 'next/link';
 import { useUserStore } from '@/lib/userStore';
 import { useThemeStore, ThemeType } from '@/lib/themeStore';
 import toast from 'react-hot-toast';
+import {
+  UserCircleIcon,
+  BuildingOffice2Icon,
+  BellIcon,
+  KeyIcon,
+  ShieldCheckIcon,
+  DocumentTextIcon,
+  Cog6ToothIcon,
+  ArrowRightIcon
+} from '@heroicons/react/24/outline';
 
 interface UserSettings {
   notifications: {
@@ -26,6 +36,64 @@ interface UserSettings {
   showAdvancedOptions: boolean;
       }
 }
+
+// Setting sections data
+const settingSections = [
+  {
+    id: 'profile',
+    name: 'Profile Settings',
+    description: 'Manage your personal information, password, and active sessions',
+    icon: UserCircleIcon,
+    href: '/settings/profile',
+    color: 'bg-[#134e4a]',
+    iconColor: 'text-[#22D3EE]'
+  },
+  {
+    id: 'organization',
+    name: 'Organization Settings',
+    description: 'Manage organization profile, members, and roles',
+    icon: BuildingOffice2Icon,
+    href: '/settings/organization',
+    color: 'bg-[#1e1b4b]',
+    iconColor: 'text-[#A855F7]'
+  },
+  {
+    id: 'notifications',
+    name: 'Notification Preferences',
+    description: 'Configure how and when you receive notifications',
+    icon: BellIcon,
+    href: '/settings/notifications',
+    color: 'bg-[#422006]',
+    iconColor: 'text-[#F59E0B]'
+  },
+  {
+    id: 'api-keys',
+    name: 'API Keys',
+    description: 'Generate and manage API keys for programmatic access',
+    icon: KeyIcon,
+    href: '/settings/api-keys',
+    color: 'bg-[#0f172a]',
+    iconColor: 'text-[#60A5FA]'
+  },
+  {
+    id: 'security',
+    name: 'Security Center',
+    description: 'Protect your account with security features and monitoring',
+    icon: ShieldCheckIcon,
+    href: '/settings/security',
+    color: 'bg-[#022c22]',
+    iconColor: 'text-[#10B981]'
+  },
+  {
+    id: 'data',
+    name: 'Data & Privacy',
+    description: 'Manage your data, export options, and account deletion',
+    icon: DocumentTextIcon,
+    href: '/settings/data',
+    color: 'bg-[#3f0d0d]',
+    iconColor: 'text-[#F87171]'
+  }
+];
 
 export default function SettingsPage(): JSX.Element {
   const router = useRouter();
@@ -175,7 +243,7 @@ export default function SettingsPage(): JSX.Element {
                 Settings
               </h1>
               <p className="text-white/70 dark:text-white/70 light:text-gray-600">
-                Configure your account and notification preferences
+                Manage your account, organization, security, and preferences
               </p>
             </div>
             <Link href="/dashboard" className="px-4 py-2 text-white/80 dark:text-white/80 light:text-gray-700 bg-white/5 dark:bg-white/5 light:bg-black/5 hover:bg-white/10 dark:hover:bg-white/10 light:hover:bg-black/10 rounded-lg border border-white/10 dark:border-white/10 light:border-black/10 transition-all duration-300">

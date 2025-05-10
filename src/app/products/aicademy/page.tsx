@@ -3,7 +3,6 @@
 
 import { motion } from 'framer-motion';
 import Link from 'next/link';
-import Image from 'next/image';
 import {
   HiOutlineAcademicCap,
   HiOutlineUserGroup,
@@ -11,7 +10,6 @@ import {
   HiOutlineLightBulb,
   HiOutlineChartBar,
   HiOutlineClipboardCheck,
-  HiOutlineChevronRight,
   HiOutlineBookOpen,
   HiOutlinePuzzle,
   HiOutlineChatAlt2,

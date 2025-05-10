@@ -23,20 +23,38 @@ import ConditionalNode from './nodes/ConditionalNode';
 import PipedreamConnector from '@/components/PipedreamConnector';
 import { toast } from 'react-hot-toast';
 import { CustomEdge, AnimatedEdge, DashedEdge, DottedEdge } from './edges/CustomEdge';
+import { aiNodeTypes } from './nodes/AINodes';
+import { nodeTypes as workflowNodeTypes } from './nodes/WorkflowNodes';
 
 // Register custom node types
-const nodeTypes = { action: ActionNode,
+const nodeTypes = { 
+  action: ActionNode,
   trigger: TriggerNode,
   wait: WaitNode,
-  conditional: ConditionalNode
-    };
+  conditional: ConditionalNode,
+  // Add AI node types
+  ...aiNodeTypes,
+  // Add other workflow node types
+  ...workflowNodeTypes
+};
 
 // Add new edge types
-const edgeTypes = { default: CustomEdge,
+const edgeTypes = { 
+  default: CustomEdge,
   animated: AnimatedEdge,
   dashed: DashedEdge,
   dotted: DottedEdge
-    };
+};
+
+// Define a list of node categories for better organization
+const nodeCategories = [
+  { id: 'triggers', name: 'Triggers', icon: '🔌' },
+  { id: 'actions', name: 'Actions', icon: '⚙️' },
+  { id: 'ai', name: 'AI Processing', icon: '🧠' },
+  { id: 'control', name: 'Control Flow', icon: '🔀' },
+  { id: 'data', name: 'Data Handling', icon: '📊' },
+  { id: 'integrations', name: 'Integrations', icon: '🔄' }
+];
 
 interface ConnectionRules {
   [key: string]: {
@@ -51,7 +69,14 @@ const connectionRules: ConnectionRules = {
   'api': { allowedTargets: ['process-data', 'database', 'send-email', 'conditional'], maxConnections: 2 },
   'database': { allowedTargets: ['process-data', 'api', 'send-email', 'conditional'], maxConnections: 2 },
   'send-email': { allowedTargets: ['process-data', 'api', 'database'], maxConnections: 1 },
-  'conditional': { allowedTargets: ['*'], maxConnections: 2 }
+  'conditional': { allowedTargets: ['*'], maxConnections: 2 },
+  // Add rules for AI nodes
+  'textGeneration': { allowedTargets: ['*'], maxConnections: 1 },
+  'chatCompletion': { allowedTargets: ['*'], maxConnections: 1 },
+  'imageGeneration': { allowedTargets: ['*'], maxConnections: 1 },
+  'documentExtraction': { allowedTargets: ['*'], maxConnections: 1 },
+  'classification': { allowedTargets: ['*'], maxConnections: 2 },
+  'translation': { allowedTargets: ['*'], maxConnections: 1 },
 };
 
 // Add edge customization options
@@ -70,55 +95,168 @@ interface FlowEditorProps {
 
 // Define a list of available apps that can be integrated
 const availableApps = [
-  { id: 'slack', name: 'Slack', category: 'messaging', icon: '🔷'     },
-  { id: 'gmail', name: 'Gmail', category: 'email', icon: '📧'     },
-  { id: 'salesforce', name: 'Salesforce', category: 'crm', icon: '☁️'     },
-  { id: 'hubspot', name: 'HubSpot', category: 'crm', icon: '🟠'     },
-  { id: 'linkedin', name: 'LinkedIn', category: 'social', icon: '🔵'     },
-  { id: 'twitter', name: 'Twitter', category: 'social', icon: '🐦'     },
-  { id: 'github', name: 'GitHub', category: 'development', icon: '🐙'     },
-  { id: 'stripe', name: 'Stripe', category: 'payment', icon: '💳'     },
-  { id: 'shopify', name: 'Shopify', category: 'ecommerce', icon: '🛍️'     },
-  { id: 'notion', name: 'Notion', category: 'productivity', icon: '📝'     },
-  { id: 'airtable', name: 'Airtable', category: 'database', icon: '📊'     },
-  { id: 'google_sheets', name: 'Google Sheets', category: 'spreadsheet', icon: '📊'     },
-  { id: 'zapier', name: 'Zapier', category: 'automation', icon: '⚡'     },
-  { id: 'monday', name: 'Monday.com', category: 'project', icon: '📅'     },
-  { id: 'asana', name: 'Asana', category: 'project', icon: '📋'     }
+  { id: 'slack', name: 'Slack', category: 'messaging', icon: '🔷' },
+  { id: 'gmail', name: 'Gmail', category: 'email', icon: '📧' },
+  { id: 'salesforce', name: 'Salesforce', category: 'crm', icon: '☁️' },
+  { id: 'hubspot', name: 'HubSpot', category: 'crm', icon: '🟠' },
+  { id: 'linkedin', name: 'LinkedIn', category: 'social', icon: '🔵' },
+  { id: 'twitter', name: 'Twitter', category: 'social', icon: '🐦' },
+  { id: 'github', name: 'GitHub', category: 'development', icon: '🐙' },
+  { id: 'stripe', name: 'Stripe', category: 'payment', icon: '💳' },
+  { id: 'shopify', name: 'Shopify', category: 'ecommerce', icon: '🛍️' },
+  { id: 'notion', name: 'Notion', category: 'productivity', icon: '📝' },
+  { id: 'airtable', name: 'Airtable', category: 'database', icon: '📊' },
+  { id: 'google_sheets', name: 'Google Sheets', category: 'spreadsheet', icon: '📊' },
+  { id: 'zapier', name: 'Zapier', category: 'automation', icon: '⚡' },
+  { id: 'monday', name: 'Monday.com', category: 'project', icon: '📅' },
+  { id: 'asana', name: 'Asana', category: 'project', icon: '📋' },
+  // AI Services
+  { id: 'openai', name: 'OpenAI', category: 'ai', icon: '🧠' },
+  { id: 'anthropic', name: 'Anthropic', category: 'ai', icon: '🤖' },
+  { id: 'elevenlabs', name: 'ElevenLabs', category: 'ai', icon: '🔊' },
+  { id: 'huggingface', name: 'HuggingFace', category: 'ai', icon: '🤗' }
 ];
 
 // Define node templates
 const nodeTemplates = [
-  { type: 'trigger',
+  // Triggers
+  { 
+    type: 'trigger',
     label: 'Extract Webpage Text',
     description: 'Extract text content from a webpage URL',
     icon: '🌐',
-    category: 'data'
-      },
-  { type: 'action',
+    category: 'triggers'
+  },
+  { 
+    type: 'scheduleTrigger',
+    label: 'Schedule',
+    description: 'Trigger workflow on a schedule',
+    icon: '⏰',
+    category: 'triggers'
+  },
+  { 
+    type: 'webhookTrigger',
+    label: 'Webhook',
+    description: 'Trigger workflow from external HTTP requests',
+    icon: '🔗',
+    category: 'triggers'
+  },
+  
+  // Actions
+  { 
+    type: 'email',
     label: 'Send Email',
     description: 'Send an email using connected email provider',
     icon: '📧',
-    category: 'communication'
-      },
-  { type: 'action',
-    label: 'First Outreach Email',
-    description: 'Send the first outreach email in a sequence',
-    icon: '✉️',
-    category: 'communication'
-      },
-  { type: 'wait',
-    label: 'Wait Three Days',
+    category: 'actions'
+  },
+  { 
+    type: 'httpRequest',
+    label: 'HTTP Request',
+    description: 'Make an HTTP request to an external API',
+    icon: '🌐',
+    category: 'actions'
+  },
+  { 
+    type: 'slack',
+    label: 'Slack Message',
+    description: 'Send a message to a Slack channel',
+    icon: '💬',
+    category: 'actions'
+  },
+  
+  // AI Nodes
+  { 
+    type: 'textGeneration',
+    label: 'Text Generation',
+    description: 'Generate text using an AI model',
+    icon: '📝',
+    category: 'ai',
+    model: 'gpt-4-turbo'
+  },
+  { 
+    type: 'chatCompletion',
+    label: 'Chat Completion',
+    description: 'Generate a response based on conversation history',
+    icon: '💬',
+    category: 'ai',
+    model: 'claude-3-opus-20240229'
+  },
+  { 
+    type: 'summarization',
+    label: 'Text Summarization',
+    description: 'Create concise summaries of longer text',
+    icon: '📄',
+    category: 'ai'
+  },
+  { 
+    type: 'translation',
+    label: 'Translation',
+    description: 'Translate text between languages',
+    icon: '🌍',
+    category: 'ai'
+  },
+  { 
+    type: 'imageGeneration',
+    label: 'Image Generation',
+    description: 'Generate images from text descriptions',
+    icon: '🖼️',
+    category: 'ai',
+    model: 'dall-e-3'
+  },
+  { 
+    type: 'textToSpeech',
+    label: 'Text to Speech',
+    description: 'Convert text to natural-sounding speech',
+    icon: '🔊',
+    category: 'ai'
+  },
+  { 
+    type: 'documentExtraction',
+    label: 'Document Extraction',
+    description: 'Extract structured data from documents',
+    icon: '📑',
+    category: 'ai'
+  },
+  
+  // Control Flow
+  { 
+    type: 'wait',
+    label: 'Wait',
     description: 'Pause the workflow for a specified time period',
     icon: '⏱️',
-    category: 'timing'
-      },
-  { type: 'conditional',
-    label: 'AI Agent',
-    description: 'Process data with an AI agent to make decisions',
-    icon: '🤖',
-    category: 'intelligence'
-      }
+    category: 'control'
+  },
+  { 
+    type: 'condition',
+    label: 'Condition',
+    description: 'Branch workflow based on a condition',
+    icon: '🔀',
+    category: 'control'
+  },
+  { 
+    type: 'loop',
+    label: 'Loop',
+    description: 'Repeat actions for each item in a list',
+    icon: '🔄',
+    category: 'control'
+  },
+  
+  // Data Handling
+  { 
+    type: 'transformData',
+    label: 'Transform Data',
+    description: 'Modify, filter, or reformat data',
+    icon: '🔄',
+    category: 'data'
+  },
+  { 
+    type: 'database',
+    label: 'Database',
+    description: 'Read or write data to a database',
+    icon: '💾',
+    category: 'data'
+  }
 ];
 
 // Check if an app is already connected (in development mode)
@@ -136,9 +274,10 @@ const isAppConnected = (appId: string): boolean => {
     
     const connections = JSON.parse(connectionsStr);
     return connections.some((conn: any) => conn.app === appId);
-  } catch (error) { console.error('Error checking app connection status:', error);
+  } catch (error) { 
+    console.error('Error checking app connection status:', error);
     return false;
-      }
+  }
 };
 
 export default function FlowEditor() {
@@ -148,13 +287,15 @@ export default function FlowEditor() {
   const [connectedApps, setConnectedApps] = useState<string[]>([]);
   const [selectedNode, setSelectedNode] = useState<Node | null>(null);
   const [showSidebar, setShowSidebar] = useState(true);
+  const [activeCategory, setActiveCategory] = useState('triggers');
   const reactFlowWrapper = useRef<HTMLDivElement>(null);
   const [reactFlowInstance, setReactFlowInstance] = useState<any>(null);
-  const [edgeCustomization, setEdgeCustomization] = useState<EdgeCustomization>({ type: 'default',
+  const [edgeCustomization, setEdgeCustomization] = useState<EdgeCustomization>({ 
+    type: 'default',
     color: '#6366f1',
     width: 2,
     animated: false
-      });
+  });
 
   // Load connected apps on mount
   useEffect(() => {
@@ -175,8 +316,9 @@ export default function FlowEditor() {
         
         // Update state with connected apps
         setConnectedApps(appIds);
-      } catch (error) { console.error('Error loading connected apps:', error);
-          }
+      } catch (error) { 
+        console.error('Error loading connected apps:', error);
+      }
     };
     
     loadConnectedApps();
@@ -196,7 +338,7 @@ export default function FlowEditor() {
     if (!rules) return;
 
     // Validate connection
-    if (!rules.allowedTargets.includes(targetNode.type)) {
+    if (!rules.allowedTargets.includes(targetNode.type) && !rules.allowedTargets.includes('*')) {
       console.warn(`Connection not allowed: ${sourceType} -> ${targetNode.type}`);
       return;
     }
@@ -215,11 +357,12 @@ export default function FlowEditor() {
       id: `${connection.source}-${connection.target}`,
       source: connection.source,
       target: connection.target,
-      type: 'default',
+      type: edgeCustomization.type,
       data: {
-        label: '',
-        color: '#b1b1b7',
-        width: 2,
+        label: edgeCustomization.label || '',
+        color: edgeCustomization.color,
+        width: edgeCustomization.width,
+        animated: edgeCustomization.animated
       },
     };
 
@@ -290,9 +433,10 @@ export default function FlowEditor() {
           const template = nodeTemplates.find(t => t.label === templateId);
           
           if (template) {
-            const position = reactFlowInstance.screenToFlowPosition({ x: event.clientX - reactFlowBounds.left,
+            const position = reactFlowInstance.screenToFlowPosition({ 
+              x: event.clientX - reactFlowBounds.left,
               y: event.clientY - reactFlowBounds.top,
-                });
+            });
             
             const newNode: Node = {
               id: `${template.type}-${Date.now()}`,
@@ -302,7 +446,9 @@ export default function FlowEditor() {
                 label: template.label,
                 description: template.description,
                 icon: template.icon,
-                category: template.category
+                category: template.category,
+                model: template.model,
+                config: {}
               },
             };
 
@@ -331,6 +477,11 @@ export default function FlowEditor() {
   const onDragStart = (event: React.DragEvent, templateId: string) => {
     event.dataTransfer.setData('application/reactflow/template', templateId);
     event.dataTransfer.effectAllowed = 'move';
+  };
+
+  // Get filtered templates based on active category
+  const getFilteredTemplates = () => {
+    return nodeTemplates.filter(template => template.category === activeCategory);
   };
 
   // Add edge customization controls
@@ -393,11 +544,31 @@ export default function FlowEditor() {
       {/* Sidebar with node templates and connected apps */}
       {showSidebar && (
         <div className="w-64 bg-dark-50 border-r border-dark-100 overflow-y-auto flex flex-col">
+          {/* Node categories */}
+          <div className="p-4 border-b border-dark-100">
+            <div className="flex flex-wrap gap-2">
+              {nodeCategories.map((category) => (
+                <button
+                  key={category.id}
+                  className={`px-3 py-1 text-xs rounded-full flex items-center gap-1 ${
+                    activeCategory === category.id
+                      ? 'bg-primary text-white'
+                      : 'bg-dark-100 text-white/80 hover:bg-dark-200'
+                  }`}
+                  onClick={() => setActiveCategory(category.id)}
+                >
+                  <span>{category.icon}</span>
+                  <span>{category.name}</span>
+                </button>
+              ))}
+            </div>
+          </div>
+          
           {/* Node templates */}
-          <div className="p-4">
-            <h3 className="text-white/80 text-sm font-semibold mb-2">Actions</h3>
+          <div className="p-4 overflow-y-auto">
+            <h3 className="text-white/80 text-sm font-semibold mb-2">Templates</h3>
             <div className="space-y-2">
-              {nodeTemplates.map((template) => (
+              {getFilteredTemplates().map((template) => (
                 <div
                   key={template.label}
                   className="bg-dark-100 hover:bg-dark-200 cursor-move p-3 rounded-md text-white/90"
@@ -408,6 +579,14 @@ export default function FlowEditor() {
                     <span className="text-lg">{template.icon}</span>
                     <span>{template.label}</span>
                   </div>
+                  {template.description && (
+                    <p className="text-white/60 text-xs mt-1">{template.description}</p>
+                  )}
+                  {template.model && (
+                    <div className="mt-1 text-xs bg-dark-200 text-primary rounded-full px-2 py-0.5 inline-block">
+                      {template.model}
+                    </div>
+                  )}
                 </div>
               ))}
             </div>
@@ -417,7 +596,9 @@ export default function FlowEditor() {
           <div className="p-4 border-t border-dark-100 mt-auto">
             <h3 className="text-white/80 text-sm font-semibold mb-2">Connected Apps</h3>
             <div className="space-y-2">
-              {availableApps.map((app) => (
+              {availableApps
+                .filter(app => activeCategory === 'ai' ? app.category === 'ai' : app.category !== 'ai')
+                .map((app) => (
                 <div
                   key={app.id}
                   className="flex items-center justify-between bg-dark-100 p-2 rounded-md"
@@ -451,7 +632,7 @@ export default function FlowEditor() {
               onClick={() => setShowSidebar(!showSidebar)}
               className="text-white/80 hover:text-white p-1"
             >
-              { showSidebar ? '◀' : '▶'    }
+              { showSidebar ? '◀' : '▶' }
             </button>
             <h2 className="text-white font-medium">Workflow Editor</h2>
           </div>
@@ -484,66 +665,66 @@ export default function FlowEditor() {
               <Controls className="bg-dark-100 text-white border-dark-200" />
               <MiniMap
                 nodeColor={(node) => {
-                  switch (node.type) { case 'trigger':
-                      return '#3b82f6';
+                  switch (node.type) { 
+                    case 'trigger':
+                    case 'scheduleTrigger': 
+                    case 'webhookTrigger':
+                    case 'eventTrigger':
+                      return '#FF7F50'; // Coral
                     case 'action':
-                      return '#10b981';
+                    case 'email':
+                    case 'httpRequest':
+                    case 'slack':
+                      return '#06b6d4'; // Cyan
                     case 'wait':
-                      return '#f59e0b';
+                    case 'delay':
+                      return '#f59e0b'; // Amber
                     case 'conditional':
-                      return '#8b5cf6';
+                    case 'condition':
+                    case 'switch':
+                    case 'loop':
+                      return '#a855f7'; // Purple
+                    case 'textGeneration':
+                    case 'chatCompletion':
+                    case 'summarization':
+                    case 'translation':
+                    case 'imageGeneration':
+                    case 'textToSpeech':
+                    case 'documentExtraction':
+                      return '#8b5cf6'; // Violet
                     default:
-                      return '#6b7280';
-                      }
+                      return '#6b7280'; // Gray
+                  }
                 }}
                 maskColor="rgba(0, 0, 0, 0.1)"
                 className="bg-dark-100 border-dark-200"
               />
-              <Background color="#334155" gap={16} />
+              <Background gap={20} size={1} />
               <EdgeCustomizationPanel />
+              {selectedNode && (
+                <Panel position="top-right" className="bg-dark-100 p-4 rounded-lg shadow-lg max-w-md">
+                  <h3 className="text-white font-medium mb-2">Node Properties</h3>
+                  <div className="text-white/80 text-sm">
+                    <p><strong>Type:</strong> {selectedNode.type}</p>
+                    <p><strong>Label:</strong> {selectedNode.data.label}</p>
+                    {selectedNode.data.description && (
+                      <p><strong>Description:</strong> {selectedNode.data.description}</p>
+                    )}
+                    {selectedNode.data.model && (
+                      <p><strong>Model:</strong> {selectedNode.data.model}</p>
+                    )}
+                  </div>
+                  <button
+                    className="mt-2 bg-dark-200 text-white/80 hover:text-white px-2 py-1 rounded text-xs"
+                    onClick={() => setSelectedNode(null)}
+                  >
+                    Close
+                  </button>
+                </Panel>
+              )}
             </ReactFlow>
           </ReactFlowProvider>
         </div>
-
-        {/* Node configuration panel */}
-        {selectedNode && (
-          <div className="w-full h-64 bg-dark-100 border-t border-dark-200 p-4 overflow-y-auto">
-            <div className="flex justify-between items-center mb-4">
-              <h3 className="text-white font-medium">Configure: {selectedNode.data.label}</h3>
-              <button 
-                onClick={() => setSelectedNode(null)}
-                className="text-white/60 hover:text-white"
-              >
-                ✕
-              </button>
-            </div>
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <label className="block text-white/80 text-sm">Name</label>
-                <input 
-                  type="text" 
-                  className="w-full bg-dark-200 border border-dark-300 rounded p-2 text-white"
-                  defaultValue={selectedNode.data.label}
-                  title="Node Name"
-                  placeholder="Node Name"
-                />
-              </div>
-              <div className="space-y-2">
-                <label className="block text-white/80 text-sm">Type</label>
-                <select 
-                  className="w-full bg-dark-200 border border-dark-300 rounded p-2 text-white"
-                  defaultValue={selectedNode.type}
-                  title="Node Type"
-                >
-                  <option value="trigger">Trigger</option>
-                  <option value="action">Action</option>
-                  <option value="wait">Wait</option>
-                  <option value="conditional">Conditional</option>
-                </select>
-              </div>
-            </div>
-          </div>
-        )}
       </div>
     </div>
   );

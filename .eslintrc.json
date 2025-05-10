@@ -2,9 +2,16 @@
   "extends": [
     "next/core-web-vitals",
     "plugin:@typescript-eslint/recommended",
+    "plugin:jsx-a11y/recommended",
+    "plugin:tailwindcss/recommended",
     "prettier"
   ],
-  "plugins": ["@typescript-eslint"],
+  "plugins": [
+    "@typescript-eslint",
+    "jsx-a11y",
+    "tailwindcss",
+    "simple-import-sort"
+  ],
   "parser": "@typescript-eslint/parser",
   "rules": {
     "@typescript-eslint/no-unused-vars": "warn",
@@ -15,7 +22,18 @@
     "react/display-name": "off",
     "prefer-const": "warn",
     "no-var": "warn",
-    "@typescript-eslint/ban-ts-comment": "off"
+    "@typescript-eslint/ban-ts-comment": "off",
+    "simple-import-sort/imports": "warn",
+    "simple-import-sort/exports": "warn",
+    "jsx-a11y/aria-role": "error",
+    "jsx-a11y/aria-props": "error",
+    "jsx-a11y/aria-proptypes": "error",
+    "jsx-a11y/role-has-required-aria-props": "error",
+    "jsx-a11y/role-supports-aria-props": "error",
+    "jsx-a11y/tabindex-no-positive": "warn",
+    "jsx-a11y/no-noninteractive-tabindex": "warn",
+    "tailwindcss/classnames-order": "warn",
+    "tailwindcss/no-custom-classname": "warn"
   },
   "ignorePatterns": [
     "node_modules",
@@ -34,7 +52,20 @@
     {
       "files": ["*.tsx", "*.ts"],
       "rules": {
-        "@typescript-eslint/ban-ts-comment": "off"
+        "@typescript-eslint/ban-ts-comment": "off",
+        "simple-import-sort/imports": [
+          "warn",
+          {
+            "groups": [
+              ["^react", "^next", "^@?\\w"],
+              ["^@/"],
+              ["^\\.\\.(?!/?$)", "^\\.\\./?$"],
+              ["^\\./(?=.*/)(?!/?$)", "^\\.(?!/?$)", "^\\./?$"],
+              ["^.+\\.s?css$"],
+              ["^\\u0000"]
+            ]
+          }
+        ]
       }
     }
   ],
@@ -45,5 +76,11 @@
       "jsx": true
     },
     "project": "./tsconfig.json"
+  },
+  "settings": {
+    "tailwindcss": {
+      "callees": ["clsx", "cn", "classNames"],
+      "config": "tailwind.config.js"
+    }
   }
 }

@@ -4,19 +4,8 @@
 import { useState, useRef } from 'react';
 import { motion, useScroll, useTransform } from 'framer-motion';
 import Link from 'next/link';
-import { useUserStore } from '@/lib/userStore';
-import { HiOutlineLightningBolt, HiOutlineCube, HiOutlineSparkles } from 'react-icons/hi';
-import { cn } from '@/lib/utils';
-
-interface PricingTier { name: string;
-  price: string;
-  description: string;
-  features: string[];
-  products: string[];
-  cta: string;
-  popular?: boolean;
-  icon: any;
-    }
+import { CheckIcon, XMarkIcon } from '@heroicons/react/20/solid';
+import { QuestionMarkCircleIcon, CheckCircleIcon } from '@heroicons/react/24/outline';
 
 // Enhanced aurora effect component
 const AuroraEffect = () => {
@@ -73,9 +62,88 @@ const GradientOrb = ({ delay = 0, size = 600, color = 'blue' }) => {
   );
 };
 
+// Plan feature comparison data
+const planFeatures = {
+  core: [
+    { name: "Workflow Automation", included: true },
+    { name: "Third-party Integrations", included: true, limit: "15 integrations" },
+    { name: "Voice Agent Access", included: false },
+    { name: "API Access", included: false },
+    { name: "Custom Workflows", included: true, limit: "Up to 10 workflows" },
+    { name: "Execution History", included: true, retention: "7 days" },
+    { name: "Email Support", included: true },
+    { name: "Priority Support", included: false },
+    { name: "Team Collaboration", included: false },
+    { name: "Advanced Analytics", included: false },
+    { name: "Custom Branding", included: false },
+    { name: "Audit Logs", included: false },
+  ],
+  pro: [
+    { name: "Workflow Automation", included: true },
+    { name: "Third-party Integrations", included: true, limit: "Unlimited" },
+    { name: "Voice Agent Access", included: true, limit: "Basic commands" },
+    { name: "API Access", included: true },
+    { name: "Custom Workflows", included: true, limit: "Up to 50 workflows" },
+    { name: "Execution History", included: true, retention: "30 days" },
+    { name: "Email Support", included: true },
+    { name: "Priority Support", included: true },
+    { name: "Team Collaboration", included: true, limit: "Up to 5 members" },
+    { name: "Advanced Analytics", included: true },
+    { name: "Custom Branding", included: false },
+    { name: "Audit Logs", included: true, retention: "30 days" },
+  ],
+  enterprise: [
+    { name: "Workflow Automation", included: true },
+    { name: "Third-party Integrations", included: true, limit: "Unlimited" },
+    { name: "Voice Agent Access", included: true, limit: "Advanced commands" },
+    { name: "API Access", included: true },
+    { name: "Custom Workflows", included: true, limit: "Unlimited" },
+    { name: "Execution History", included: true, retention: "1 year" },
+    { name: "Email Support", included: true },
+    { name: "Priority Support", included: true, extra: "Dedicated account manager" },
+    { name: "Team Collaboration", included: true, limit: "Unlimited" },
+    { name: "Advanced Analytics", included: true },
+    { name: "Custom Branding", included: true },
+    { name: "Audit Logs", included: true, retention: "1 year" },
+  ]
+};
+
+// Credit consumption details
+const creditConsumption = [
+  { action: "Standard workflow execution", credits: 1, description: "Each time a workflow runs" },
+  { action: "API call", credits: 2, description: "External API calls within workflows" },
+  { action: "Voice command processing", credits: 5, description: "Each voice interaction with Jarvis" },
+  { action: "Data processing (per GB)", credits: 10, description: "Processing large datasets" },
+  { action: "AI-powered analysis", credits: 15, description: "Using AI to analyze or generate content" },
+];
+
+// FAQ data
+const faqs = [
+  {
+    question: "What are credits and how do they work?",
+    answer: "Credits are Optiflow's currency for resource usage. They allow for flexible consumption of different resources like workflow executions, API calls, and voice processing. Credits are consumed based on the specific actions you perform in the platform."
+  },
+  {
+    question: "What happens if I run out of credits?",
+    answer: "If you exhaust your monthly credits, you can purchase additional credit packs that never expire. Your workflows will continue to run without interruption. You can also set up auto-refill to automatically purchase credits when your balance drops below a threshold."
+  },
+  {
+    question: "Can I change plans at any time?",
+    answer: "Yes, you can upgrade your plan at any time and the changes will take effect immediately. When downgrading, the changes will apply at the end of your current billing cycle. Unused credits will roll over when upgrading."
+  },
+  {
+    question: "Is there a free trial available?",
+    answer: "Yes, we offer a 14-day free trial of our Pro plan with 500 credits included. No credit card is required to start the trial. At the end of your trial, you can choose to subscribe to any of our plans."
+  },
+  {
+    question: "How does the annual discount work?",
+    answer: "When you choose annual billing, you save 20% compared to monthly billing. You'll be billed for 12 months upfront, and receive the annual allocation of credits at the beginning of the billing cycle."
+  }
+];
+
 export default function PricingPage(): JSX.Element {
-  const [isAnnual, setIsAnnual] = useState(true);
-  const { currentUser } = useUserStore();
+  const [annualBilling, setAnnualBilling] = useState(true);
+  const [showCreditInfo, setShowCreditInfo] = useState(false);
   const containerRef = useRef(null);
   const { scrollYProgress } = useScroll({ target: containerRef,
     offset: ["start start", "end end"]
@@ -83,68 +151,9 @@ export default function PricingPage(): JSX.Element {
 
   const y = useTransform(scrollYProgress, [0, 1], [0, 200]);
 
-  const pricingTiers = [
-    { name: 'Starter',
-      price: isAnnual ? '$29/mo' : '$39/mo',
-      description: 'Perfect for individuals and small teams getting started with automation',
-      icon: HiOutlineSparkles,
-      products: ['AI Factory'],
-      features: [
-        'Up to 5 active workflows',
-        'Basic workflow templates',
-        'Community support',
-        'Standard integrations',
-        'Basic analytics'
-      ],
-      cta: 'Get Started',
-      popular: false
-        },
-    { name: 'Growth',
-      price: isAnnual ? '$79/mo' : '$99/mo',
-      description: 'Ideal for growing businesses with advanced automation needs',
-      icon: HiOutlineLightningBolt,
-      products: [
-        'AI Factory',
-        'AI Academy'
-      ],
-      features: [
-        'Up to 20 users',
-        'Advanced workflow automation',
-        'Premium integrations',
-        'Priority support',
-        '50 GB storage',
-        'Advanced API access',
-        'Custom workflows',
-        'Analytics dashboard'
-      ],
-      cta: 'Get Started',
-      popular: true
-        },
-    { name: 'Custom Solutions',
-      price: 'Contact us',
-      description: 'Enterprise-grade solutions for large organizations',
-      icon: HiOutlineCube,
-      products: [
-        'AI Factory',
-        'AI Academy',
-        'Enterprise Suite'
-      ],
-      features: [
-        'Unlimited users',
-        'Custom workflow development',
-        'Enterprise integrations',
-        'Dedicated support',
-        'Unlimited storage',
-        'Full API access',
-        'Custom development',
-        'Advanced security',
-        'SLA guarantee',
-        'Training & onboarding'
-      ],
-      cta: 'Contact Sales',
-      popular: false
-        }
-  ];
+  const getPrice = (basePrice: number) => {
+    return annualBilling ? Math.round(basePrice * 0.8) : basePrice;
+  };
 
   return (
     <div ref={containerRef} className="min-h-screen bg-black text-white relative overflow-hidden">
@@ -228,19 +237,19 @@ export default function PricingPage(): JSX.Element {
 
           {/* Billing Toggle */}
           <div className="flex items-center justify-center gap-4 mb-16">
-            <span className={`text-lg ${ !isAnnual ? 'text-[#3CDFFF]' : 'text-white/60'    }`}>
+            <span className={`text-lg ${ !annualBilling ? 'text-[#3CDFFF]' : 'text-white/60'    }`}>
               Monthly
             </span>
             <motion.button
               whileHover={{ scale: 1.05     }}
               whileTap={{ scale: 0.95     }}
-              onClick={() => setIsAnnual(!isAnnual)}
+              onClick={() => setAnnualBilling(!annualBilling)}
               className="relative w-20 h-10 bg-gradient-to-r from-[#3CDFFF]/20 to-[#4AFFD4]/20 rounded-full p-1 transition-colors duration-200 ease-in-out backdrop-blur-xl border border-[#3CDFFF]/20"
             >
               <motion.div
                 layout
                 className="absolute w-8 h-8 bg-gradient-to-r from-[#3CDFFF] to-[#4AFFD4] rounded-full"
-                animate={{ x: isAnnual ? 40 : 0,
+                animate={{ x: annualBilling ? 40 : 0,
                     }}
                 transition={{ type: "spring",
                   stiffness: 700,
@@ -248,7 +257,7 @@ export default function PricingPage(): JSX.Element {
                     }}
               />
             </motion.button>
-            <span className={`text-lg ${ isAnnual ? 'text-[#3CDFFF]' : 'text-white/60'    }`}>
+            <span className={`text-lg ${ annualBilling ? 'text-[#3CDFFF]' : 'text-white/60'    }`}>
               Annual
               <span className="ml-2 text-[#4AFFD4] text-sm">Save 20%</span>
             </span>
@@ -256,174 +265,431 @@ export default function PricingPage(): JSX.Element {
 
           {/* Pricing Tiers */}
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-24">
-            {pricingTiers.map((tier, index) => (
-              <motion.div
-                key={tier.name}
-                initial={{ opacity: 0, y: 20     }}
-                animate={{ opacity: 1, y: 0     }}
-                transition={{ duration: 0.5, delay: index * 0.1     }}
-                className={`relative p-8 rounded-2xl backdrop-blur-xl border group hover:scale-105 transition-transform duration-300 ${ tier.popular
-                    ? 'border-[#3CDFFF] bg-gradient-to-b from-[#3CDFFF]/10 to-transparent'
-                    : 'border-white/10 bg-white/5 hover:border-[#3CDFFF]/50'
-                    }`}
-              >
-                {tier.popular && (
-                  <div className="absolute -top-4 left-1/2 transform -translate-x-1/2">
-                    <span className="bg-gradient-to-r from-[#3CDFFF] to-[#4AFFD4] text-black text-sm px-4 py-1 rounded-full font-medium">
-                      Most Popular
-                    </span>
-                  </div>
+            {/* Core Plan */}
+            <motion.div
+              key="core"
+              initial={{ opacity: 0, y: 20     }}
+              animate={{ opacity: 1, y: 0     }}
+              transition={{ duration: 0.5, delay: 0.1     }}
+              className={`relative p-8 rounded-2xl backdrop-blur-xl border group hover:scale-105 transition-transform duration-300 ${ !annualBilling
+                  ? 'border-[#3CDFFF] bg-gradient-to-b from-[#3CDFFF]/10 to-transparent'
+                  : 'border-white/10 bg-white/5 hover:border-[#3CDFFF]/50'
+                  }`}
+            >
+              <div className="flex items-center justify-center mb-6">
+                <div className={ `w-16 h-16 rounded-full flex items-center justify-center bg-gradient-to-r from-[#3CDFFF]/20 to-[#4AFFD4]/20 group-hover:from-[#3CDFFF]/30 group-hover:to-[#4AFFD4]/30 transition-colors duration-300`    }>
+                  <HiOutlineSparkles className="w-8 h-8 text-[#3CDFFF]" />
+                </div>
+              </div>
+
+              <h3 className="text-2xl font-bold text-white mb-2 text-center">Core</h3>
+              <div className="text-4xl font-bold mb-4 text-center">
+                <span className="bg-clip-text text-transparent bg-gradient-to-r from-[#3CDFFF] to-[#4AFFD4]">
+                  ${getPrice(29)}
+                </span>
+                {annualBilling && (
+                  <span className="text-sm text-white/60 ml-2">per month, billed annually</span>
                 )}
+              </div>
+              <p className="text-white/80 mb-8 text-center h-12">Perfect for individuals and small projects</p>
 
-                <div className="flex items-center justify-center mb-6">
-                  <div className={ `w-16 h-16 rounded-full flex items-center justify-center bg-gradient-to-r from-[#3CDFFF]/20 to-[#4AFFD4]/20 group-hover:from-[#3CDFFF]/30 group-hover:to-[#4AFFD4]/30 transition-colors duration-300`    }>
-                    <tier.icon className="w-8 h-8 text-[#3CDFFF]" />
-                  </div>
-                </div>
-
-                <h3 className="text-2xl font-bold text-white mb-2 text-center">{tier.name}</h3>
-                <div className="text-4xl font-bold mb-4 text-center">
-                  <span className="bg-clip-text text-transparent bg-gradient-to-r from-[#3CDFFF] to-[#4AFFD4]">
-                    {tier.price}
-                  </span>
-                  {isAnnual && tier.price !== 'Custom' && (
-                    <span className="text-sm text-white/60 ml-2">per month, billed annually</span>
-                  )}
-                </div>
-                <p className="text-white/80 mb-8 text-center h-12">{tier.description}</p>
-
-                {/* Products Included */}
-                <div className="mb-8 p-4 rounded-xl bg-white/5 border border-white/10">
-                  <h4 className="text-sm text-white/60 mb-3">Included Products:</h4>
-                  <ul className="space-y-2">
-                    {tier.products.map((product) => (
-                      <li key={product} className="text-[#3CDFFF]">
-                        {product}
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-
-                {/* Features */}
-                <ul className="space-y-4 mb-8">
-                  {tier.features.map((feature) => (
-                    <li
-                      key={feature}
-                      className={`flex items-start ${ feature.includes('Advanced') ? 'text-[#4AFFD4]' : 'text-white/80'
-                          }`}
-                    >
-                      <svg
-                        className={`w-5 h-5 mr-3 mt-1 ${ feature.includes('Advanced') ? 'text-[#4AFFD4]' : 'text-[#3CDFFF]'
-                            }`}
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth="2"
-                          d="M5 13l4 4L19 7"
-                        />
-                      </svg>
-                      {feature}
+              {/* Products Included */}
+              <div className="mb-8 p-4 rounded-xl bg-white/5 border border-white/10">
+                <h4 className="text-sm text-white/60 mb-3">Included Products:</h4>
+                <ul className="space-y-2">
+                  {planFeatures.core.map((feature) => (
+                    <li key={feature.name} className="text-[#3CDFFF]">
+                      {feature.name}
                     </li>
                   ))}
                 </ul>
+              </div>
 
-                <motion.div
-                  whileHover={{ scale: 1.05     }}
-                  whileTap={{ scale: 0.95     }}
-                >
-                  <Link
-                    href={ tier.cta === 'Contact Sales' ? '/contact' : '/signup'    }
-                    className={`block w-full py-4 px-6 rounded-xl text-center font-medium transition-all duration-300 ${ tier.popular
-                        ? 'bg-gradient-to-r from-[#3CDFFF] to-[#4AFFD4] text-black hover:shadow-lg hover:shadow-[#3CDFFF]/20'
-                        : 'bg-gradient-to-r from-[#3CDFFF]/20 to-[#4AFFD4]/20 text-white hover:from-[#3CDFFF]/30 hover:to-[#4AFFD4]/30'
+              {/* Features */}
+              <ul className="space-y-4 mb-8">
+                {planFeatures.core.map((feature, idx) => (
+                  <li
+                    key={idx}
+                    className={`flex items-start ${ feature.included ? 'text-[#4AFFD4]' : 'text-white/80'
                         }`}
                   >
-                    {tier.cta}
-                  </Link>
-                </motion.div>
+                    <svg
+                      className={`w-5 h-5 mr-3 mt-1 ${ feature.included ? 'text-[#4AFFD4]' : 'text-[#3CDFFF]'
+                          }`}
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth="2"
+                        d="M5 13l4 4L19 7"
+                      />
+                    </svg>
+                    {feature.name}
+                    {feature.limit && <span className="block text-xs text-white/60 ml-2">{feature.limit}</span>}
+                    {feature.retention && <span className="block text-xs text-white/60 ml-2">Retention: {feature.retention}</span>}
+                  </li>
+                ))}
+              </ul>
+
+              <motion.div
+                whileHover={{ scale: 1.05     }}
+                whileTap={{ scale: 0.95     }}
+              >
+                <Link
+                  href="/signup?plan=core"
+                  className={`block w-full py-4 px-6 rounded-xl text-center font-medium transition-all duration-300 ${ !annualBilling
+                      ? 'bg-gradient-to-r from-[#3CDFFF] to-[#4AFFD4] text-black hover:shadow-lg hover:shadow-[#3CDFFF]/20'
+                      : 'bg-gradient-to-r from-[#3CDFFF]/20 to-[#4AFFD4]/20 text-white hover:from-[#3CDFFF]/30 hover:to-[#4AFFD4]/30'
+                      }`}
+                >
+                  Get Started
+                </Link>
               </motion.div>
-            ))}
+            </motion.div>
+
+            {/* Pro Plan */}
+            <motion.div
+              key="pro"
+              initial={{ opacity: 0, y: 20     }}
+              animate={{ opacity: 1, y: 0     }}
+              transition={{ duration: 0.5, delay: 0.2     }}
+              className={`relative p-8 rounded-2xl backdrop-blur-xl border group hover:scale-105 transition-transform duration-300 ${ annualBilling
+                  ? 'border-[#3CDFFF] bg-gradient-to-b from-[#3CDFFF]/10 to-transparent'
+                  : 'border-white/10 bg-white/5 hover:border-[#3CDFFF]/50'
+                  }`}
+            >
+              <div className="absolute -top-4 left-1/2 transform -translate-x-1/2">
+                <span className="bg-gradient-to-r from-[#3CDFFF] to-[#4AFFD4] text-black text-sm px-4 py-1 rounded-full font-medium">
+                  Most Popular
+                </span>
+              </div>
+
+              <div className="flex items-center justify-center mb-6">
+                <div className={ `w-16 h-16 rounded-full flex items-center justify-center bg-gradient-to-r from-[#3CDFFF]/20 to-[#4AFFD4]/20 group-hover:from-[#3CDFFF]/30 group-hover:to-[#4AFFD4]/30 transition-colors duration-300`    }>
+                  <HiOutlineLightningBolt className="w-8 h-8 text-[#3CDFFF]" />
+                </div>
+              </div>
+
+              <h3 className="text-2xl font-bold text-white mb-2 text-center">Pro</h3>
+              <div className="text-4xl font-bold mb-4 text-center">
+                <span className="bg-clip-text text-transparent bg-gradient-to-r from-[#3CDFFF] to-[#4AFFD4]">
+                  ${getPrice(99)}
+                </span>
+                {annualBilling && (
+                  <span className="text-sm text-white/60 ml-2">per month, billed annually</span>
+                )}
+              </div>
+              <p className="text-white/80 mb-8 text-center h-12">For professionals and growing teams</p>
+
+              {/* Products Included */}
+              <div className="mb-8 p-4 rounded-xl bg-white/5 border border-white/10">
+                <h4 className="text-sm text-white/60 mb-3">Included Products:</h4>
+                <ul className="space-y-2">
+                  {planFeatures.pro.map((feature) => (
+                    <li key={feature.name} className="text-[#3CDFFF]">
+                      {feature.name}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+
+              {/* Features */}
+              <ul className="space-y-4 mb-8">
+                {planFeatures.pro.map((feature, idx) => (
+                  <li
+                    key={idx}
+                    className={`flex items-start ${ feature.included ? 'text-[#4AFFD4]' : 'text-white/80'
+                        }`}
+                  >
+                    <svg
+                      className={`w-5 h-5 mr-3 mt-1 ${ feature.included ? 'text-[#4AFFD4]' : 'text-[#3CDFFF]'
+                          }`}
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth="2"
+                        d="M5 13l4 4L19 7"
+                      />
+                    </svg>
+                    {feature.name}
+                    {feature.limit && <span className="block text-xs text-white/60 ml-2">{feature.limit}</span>}
+                    {feature.retention && <span className="block text-xs text-white/60 ml-2">Retention: {feature.retention}</span>}
+                    {feature.extra && <span className="block text-xs text-white/60 ml-2">{feature.extra}</span>}
+                  </li>
+                ))}
+              </ul>
+
+              <motion.div
+                whileHover={{ scale: 1.05     }}
+                whileTap={{ scale: 0.95     }}
+              >
+                <Link
+                  href="/signup?plan=pro"
+                  className={`block w-full py-4 px-6 rounded-xl text-center font-medium transition-all duration-300 ${ annualBilling
+                      ? 'bg-gradient-to-r from-[#3CDFFF] to-[#4AFFD4] text-black hover:shadow-lg hover:shadow-[#3CDFFF]/20'
+                      : 'bg-gradient-to-r from-[#3CDFFF]/20 to-[#4AFFD4]/20 text-white hover:from-[#3CDFFF]/30 hover:to-[#4AFFD4]/30'
+                      }`}
+                >
+                  Get Started
+                </Link>
+              </motion.div>
+            </motion.div>
+
+            {/* Enterprise Plan */}
+            <motion.div
+              key="enterprise"
+              initial={{ opacity: 0, y: 20     }}
+              animate={{ opacity: 1, y: 0     }}
+              transition={{ duration: 0.5, delay: 0.3     }}
+              className={`relative p-8 rounded-2xl backdrop-blur-xl border group hover:scale-105 transition-transform duration-300 ${ !annualBilling
+                  ? 'border-[#3CDFFF] bg-gradient-to-b from-[#3CDFFF]/10 to-transparent'
+                  : 'border-white/10 bg-white/5 hover:border-[#3CDFFF]/50'
+                  }`}
+            >
+              <div className="flex items-center justify-center mb-6">
+                <div className={ `w-16 h-16 rounded-full flex items-center justify-center bg-gradient-to-r from-[#3CDFFF]/20 to-[#4AFFD4]/20 group-hover:from-[#3CDFFF]/30 group-hover:to-[#4AFFD4]/30 transition-colors duration-300`    }>
+                  <HiOutlineCube className="w-8 h-8 text-[#3CDFFF]" />
+                </div>
+              </div>
+
+              <h3 className="text-2xl font-bold text-white mb-2 text-center">Enterprise</h3>
+              <div className="text-4xl font-bold mb-4 text-center">
+                <span className="bg-clip-text text-transparent bg-gradient-to-r from-[#3CDFFF] to-[#4AFFD4]">
+                  ${getPrice(299)}
+                </span>
+                {annualBilling && (
+                  <span className="text-sm text-white/60 ml-2">per month, billed annually</span>
+                )}
+              </div>
+              <p className="text-white/80 mb-8 text-center h-12">For organizations with advanced needs</p>
+
+              {/* Products Included */}
+              <div className="mb-8 p-4 rounded-xl bg-white/5 border border-white/10">
+                <h4 className="text-sm text-white/60 mb-3">Included Products:</h4>
+                <ul className="space-y-2">
+                  {planFeatures.enterprise.map((feature) => (
+                    <li key={feature.name} className="text-[#3CDFFF]">
+                      {feature.name}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+
+              {/* Features */}
+              <ul className="space-y-4 mb-8">
+                {planFeatures.enterprise.map((feature, idx) => (
+                  <li
+                    key={idx}
+                    className={`flex items-start ${ feature.included ? 'text-[#4AFFD4]' : 'text-white/80'
+                        }`}
+                  >
+                    <svg
+                      className={`w-5 h-5 mr-3 mt-1 ${ feature.included ? 'text-[#4AFFD4]' : 'text-[#3CDFFF]'
+                          }`}
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth="2"
+                        d="M5 13l4 4L19 7"
+                      />
+                    </svg>
+                    {feature.name}
+                    {feature.limit && <span className="block text-xs text-white/60 ml-2">{feature.limit}</span>}
+                    {feature.retention && <span className="block text-xs text-white/60 ml-2">Retention: {feature.retention}</span>}
+                    {feature.extra && <span className="block text-xs text-white/60 ml-2">{feature.extra}</span>}
+                  </li>
+                ))}
+              </ul>
+
+              <motion.div
+                whileHover={{ scale: 1.05     }}
+                whileTap={{ scale: 0.95     }}
+              >
+                <Link
+                  href="/contact?topic=enterprise"
+                  className={`block w-full py-4 px-6 rounded-xl text-center font-medium transition-all duration-300 ${ !annualBilling
+                      ? 'bg-gradient-to-r from-[#3CDFFF] to-[#4AFFD4] text-black hover:shadow-lg hover:shadow-[#3CDFFF]/20'
+                      : 'bg-gradient-to-r from-[#3CDFFF]/20 to-[#4AFFD4]/20 text-white hover:from-[#3CDFFF]/30 hover:to-[#4AFFD4]/30'
+                      }`}
+                >
+                  Contact Sales
+                </Link>
+              </motion.div>
+            </motion.div>
           </div>
 
-          {/* Enhanced FAQ Section */}
-          <motion.div
-            initial={{ opacity: 0     }}
-            whileInView={{ opacity: 1     }}
-            viewport={{ once: true     }}
-            transition={{ duration: 0.8     }}
-            className="max-w-4xl mx-auto text-left"
-          >
-            <h2 className="text-3xl font-bold text-center mb-12">
-              <span className="bg-clip-text text-transparent bg-gradient-to-r from-[#3CDFFF] to-[#4AFFD4]">
-                Frequently Asked Questions
-              </span>
-            </h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-              <motion.div
-                initial={{ opacity: 0, y: 20     }}
-                whileInView={{ opacity: 1, y: 0     }}
-                viewport={{ once: true     }}
-                transition={{ duration: 0.5     }}
-                className="p-6 rounded-xl bg-white/5 border border-white/10 backdrop-blur-xl"
+          {/* Credits Breakdown */}
+          <div className="mb-16">
+            <div className="flex items-center justify-between mb-6">
+              <h2 className="text-2xl font-bold text-[#E5E7EB]">Understanding Credits</h2>
+              <button 
+                onClick={() => setShowCreditInfo(!showCreditInfo)} 
+                className="text-[#22D3EE] hover:text-[#06B6D4] transition-colors text-sm font-medium"
               >
-                <h3 className="text-xl font-semibold text-[#3CDFFF] mb-4">
-                  What's included in the free trial?
-                </h3>
-                <p className="text-white/80">
-                  Start with our Scale plan free for 14 days. Get full access to AI Factory Pro, AI Academy Enterprise, and Integration Hub Pro features to evaluate our platform's capabilities.
-                </p>
-              </motion.div>
-
-              <motion.div
-                initial={{ opacity: 0, y: 20     }}
-                whileInView={{ opacity: 1, y: 0     }}
-                viewport={{ once: true     }}
-                transition={{ duration: 0.5, delay: 0.1     }}
-                className="p-6 rounded-xl bg-white/5 border border-white/10 backdrop-blur-xl"
-              >
-                <h3 className="text-xl font-semibold text-[#3CDFFF] mb-4">
-                  Can I customize my plan?
-                </h3>
-                <p className="text-white/80">
-                  Yes! Our Enterprise plan offers full customization of features, integrations, and support levels. Contact our sales team to create a plan that perfectly fits your needs.
-                </p>
-              </motion.div>
-
-              <motion.div
-                initial={{ opacity: 0, y: 20     }}
-                whileInView={{ opacity: 1, y: 0     }}
-                viewport={{ once: true     }}
-                transition={{ duration: 0.5, delay: 0.2     }}
-                className="p-6 rounded-xl bg-white/5 border border-white/10 backdrop-blur-xl"
-              >
-                <h3 className="text-xl font-semibold text-[#3CDFFF] mb-4">
-                  What kind of support do you offer?
-                </h3>
-                <p className="text-white/80">
-                  Each plan includes dedicated support levels, from community support in Growth to 24/7 dedicated support in Enterprise. Our team is here to ensure your success with our platform.
-                </p>
-              </motion.div>
-
-              <motion.div
-                initial={{ opacity: 0, y: 20     }}
-                whileInView={{ opacity: 1, y: 0     }}
-                viewport={{ once: true     }}
-                transition={{ duration: 0.5, delay: 0.3     }}
-                className="p-6 rounded-xl bg-white/5 border border-white/10 backdrop-blur-xl"
-              >
-                <h3 className="text-xl font-semibold text-[#3CDFFF] mb-4">
-                  How does billing work?
-                </h3>
-                <p className="text-white/80">
-                  Choose between monthly or annual billing. Annual plans save 20%. We accept all major credit cards, PayPal, and wire transfers for Enterprise plans. Upgrade or downgrade anytime.
-                </p>
-              </motion.div>
+                {showCreditInfo ? 'Hide details' : 'Show details'}
+              </button>
             </div>
-          </motion.div>
+            
+            {showCreditInfo && (
+              <div className="bg-[#18181B] border border-[#374151] rounded-lg overflow-hidden mb-6">
+                <div className="overflow-x-auto">
+                  <table className="min-w-full divide-y divide-[#374151]">
+                    <thead>
+                      <tr>
+                        <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-[#9CA3AF] uppercase tracking-wider">
+                          Action
+                        </th>
+                        <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-[#9CA3AF] uppercase tracking-wider">
+                          Credits
+                        </th>
+                        <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-[#9CA3AF] uppercase tracking-wider">
+                          Description
+                        </th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-[#374151]">
+                      {creditConsumption.map((item, idx) => (
+                        <tr key={idx} className={idx % 2 === 0 ? 'bg-[#1F2937]' : 'bg-[#18181B]'}>
+                          <td className="px-6 py-4 whitespace-nowrap text-sm text-[#E5E7EB]">
+                            {item.action}
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap text-sm text-[#E5E7EB]">
+                            {item.credits}
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap text-sm text-[#9CA3AF]">
+                            {item.description}
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            )}
+            
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              <div className="bg-[#18181B] border border-[#374151] rounded-lg p-6">
+                <h3 className="text-lg font-medium text-[#E5E7EB] mb-2">Need Additional Credits?</h3>
+                <p className="text-sm text-[#9CA3AF] mb-4">
+                  All plans include a monthly credit allocation. Need more? Purchase additional credits that never expire.
+                </p>
+                <div className="bg-[#1F2937] p-4 rounded-md">
+                  <div className="flex justify-between mb-2">
+                    <span className="text-[#9CA3AF]">500 credits</span>
+                    <span className="text-[#E5E7EB] font-medium">$19.99</span>
+                  </div>
+                  <div className="flex justify-between mb-2">
+                    <span className="text-[#9CA3AF]">1,000 credits</span>
+                    <span className="text-[#E5E7EB] font-medium">$34.99</span>
+                  </div>
+                  <div className="flex justify-between mb-2">
+                    <span className="text-[#9CA3AF]">5,000 credits</span>
+                    <span className="text-[#E5E7EB] font-medium">$149.99</span>
+                  </div>
+                  <div className="text-xs text-[#9CA3AF] mt-2">
+                    * Additional credit packs can be purchased at any time
+                  </div>
+                </div>
+              </div>
+              
+              <div className="bg-[#18181B] border border-[#374151] rounded-lg p-6">
+                <h3 className="text-lg font-medium text-[#E5E7EB] mb-2">Example Usage</h3>
+                <p className="text-sm text-[#9CA3AF] mb-4">
+                  Here's what you can do with the Pro plan's 2,000 monthly credits:
+                </p>
+                <ul className="space-y-2 text-sm">
+                  <li className="flex items-center">
+                    <CheckCircleIcon className="h-4 w-4 text-[#22D3EE] mr-2" />
+                    <span className="text-[#E5E7EB]">Run 1,000+ standard workflows</span>
+                  </li>
+                  <li className="flex items-center">
+                    <CheckCircleIcon className="h-4 w-4 text-[#22D3EE] mr-2" />
+                    <span className="text-[#E5E7EB]">Process 250+ voice commands</span>
+                  </li>
+                  <li className="flex items-center">
+                    <CheckCircleIcon className="h-4 w-4 text-[#22D3EE] mr-2" />
+                    <span className="text-[#E5E7EB]">Make 500+ API calls to external services</span>
+                  </li>
+                  <li className="flex items-center">
+                    <CheckCircleIcon className="h-4 w-4 text-[#22D3EE] mr-2" />
+                    <span className="text-[#E5E7EB]">Analyze 5+ GB of data</span>
+                  </li>
+                </ul>
+              </div>
+              
+              <div className="bg-[#18181B] border border-[#374151] rounded-lg p-6">
+                <h3 className="text-lg font-medium text-[#E5E7EB] mb-2">Enterprise Customization</h3>
+                <p className="text-sm text-[#9CA3AF] mb-4">
+                  Need a custom plan tailored to your organization's specific requirements?
+                </p>
+                <div className="space-y-2 text-sm">
+                  <div className="flex items-start">
+                    <CheckCircleIcon className="h-4 w-4 text-[#22D3EE] mt-0.5 mr-2" />
+                    <span className="text-[#E5E7EB]">Custom credit allocation</span>
+                  </div>
+                  <div className="flex items-start">
+                    <CheckCircleIcon className="h-4 w-4 text-[#22D3EE] mt-0.5 mr-2" />
+                    <span className="text-[#E5E7EB]">Volume discounts</span>
+                  </div>
+                  <div className="flex items-start">
+                    <CheckCircleIcon className="h-4 w-4 text-[#22D3EE] mt-0.5 mr-2" />
+                    <span className="text-[#E5E7EB]">Custom SLAs and support</span>
+                  </div>
+                  <div className="flex items-start">
+                    <CheckCircleIcon className="h-4 w-4 text-[#22D3EE] mt-0.5 mr-2" />
+                    <span className="text-[#E5E7EB]">On-premise deployment options</span>
+                  </div>
+                </div>
+                <Link 
+                  href="/enterprise"
+                  className="mt-4 text-[#22D3EE] hover:text-[#06B6D4] transition-colors inline-flex items-center text-sm font-medium"
+                >
+                  Learn more about Enterprise
+                </Link>
+              </div>
+            </div>
+          </div>
+
+          {/* FAQ Section */}
+          <div>
+            <h2 className="text-2xl font-bold text-[#E5E7EB] mb-8">Frequently Asked Questions</h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {faqs.map((faq, idx) => (
+                <div key={idx} className="bg-[#18181B] border border-[#374151] rounded-lg p-6">
+                  <h3 className="text-lg font-medium text-[#E5E7EB] mb-2 flex items-start">
+                    <QuestionMarkCircleIcon className="h-5 w-5 text-[#22D3EE] mt-0.5 mr-2 flex-shrink-0" />
+                    <span>{faq.question}</span>
+                  </h3>
+                  <p className="text-sm text-[#9CA3AF] ml-7">
+                    {faq.answer}
+                  </p>
+                </div>
+              ))}
+            </div>
+            
+            <div className="mt-10 text-center">
+              <p className="text-[#9CA3AF] mb-4">
+                Have more questions about our pricing or plans?
+              </p>
+              <Link 
+                href="/contact?topic=pricing" 
+                className="text-[#22D3EE] hover:text-[#06B6D4] transition-colors font-medium"
+              >
+                Contact our sales team
+              </Link>
+            </div>
+          </div>
         </motion.div>
       </main>
     </div>

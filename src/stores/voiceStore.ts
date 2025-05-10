@@ -109,6 +109,7 @@ export const useVoiceStore = create<VoiceState>()(
               ...message,
               id: Date.now().toString(),
               createdAt: new Date(),
+              voiceInteractionId: (message as any).voiceInteractionId || `vi_${Date.now()}_${Math.floor(Math.random()*10000)}`,
             },
           ],
         })),

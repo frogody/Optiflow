@@ -7,6 +7,14 @@ import { useUserStore } from '@/lib/userStore';
 import { motion } from 'framer-motion';
 import Link from 'next/link';
 import { toast } from 'react-hot-toast';
+import WorkflowList from '@/components/workflow/WorkflowList';
+import { Workflow, WorkflowFolder } from '@/types/workflow';
+import { 
+  PlusIcon, 
+  FolderPlusIcon,
+  FolderIcon, 
+  DocumentTextIcon 
+} from '@heroicons/react/24/outline';
 
 // Define types for agents and their capabilities
 interface AgentCapability { id: string;
@@ -142,14 +150,189 @@ const mockAgents: Agent[] = [
   }
 ];
 
-export default function Workflows(): JSX.Element {
+// Mock data for demonstration
+const mockWorkflows: Workflow[] = [
+  {
+    id: '1',
+    name: 'Lead Qualification Workflow',
+    description: 'Automatically qualify leads based on website activity and engagement metrics',
+    status: 'active',
+    triggerType: 'event',
+    createdAt: '2023-05-15T09:30:00Z',
+    updatedAt: '2023-10-20T14:45:00Z',
+    lastExecuted: '2023-10-21T08:12:00Z',
+    executionCount: 342,
+    successCount: 328,
+    failureCount: 14,
+    averageExecutionTime: 1240,
+    creditsConsumed: 684,
+    tags: ['sales', 'lead-gen', 'automation'],
+    folderId: 'sales'
+  },
+  {
+    id: '2',
+    name: 'Customer Onboarding Sequence',
+    description: 'Guide new customers through product setup and initial training with personalized emails and resources',
+    status: 'active',
+    triggerType: 'webhook',
+    createdAt: '2023-06-22T11:15:00Z',
+    updatedAt: '2023-10-18T16:30:00Z',
+    lastExecuted: '2023-10-21T09:45:00Z',
+    executionCount: 156,
+    successCount: 153,
+    failureCount: 3,
+    averageExecutionTime: 950,
+    creditsConsumed: 312,
+    tags: ['onboarding', 'customers', 'email'],
+    folderId: 'customer-success'
+  },
+  {
+    id: '3',
+    name: 'Weekly Sales Report',
+    description: 'Generate and distribute weekly sales performance reports to leadership team',
+    status: 'active',
+    triggerType: 'schedule',
+    createdAt: '2023-04-05T10:00:00Z',
+    updatedAt: '2023-09-30T12:00:00Z',
+    lastExecuted: '2023-10-16T06:00:00Z',
+    executionCount: 28,
+    successCount: 28,
+    failureCount: 0,
+    averageExecutionTime: 3420,
+    creditsConsumed: 84,
+    tags: ['reporting', 'sales', 'scheduled'],
+    folderId: 'reporting'
+  },
+  {
+    id: '4',
+    name: 'Support Ticket Triage',
+    description: 'Analyze incoming support tickets for severity and route to appropriate team members',
+    status: 'inactive',
+    triggerType: 'webhook',
+    createdAt: '2023-07-12T14:20:00Z',
+    updatedAt: '2023-10-05T09:15:00Z',
+    lastExecuted: '2023-10-04T15:30:00Z',
+    executionCount: 287,
+    successCount: 275,
+    failureCount: 12,
+    averageExecutionTime: 850,
+    creditsConsumed: 574,
+    tags: ['support', 'triage', 'automation'],
+    folderId: 'support'
+  },
+  {
+    id: '5',
+    name: 'Data Enrichment Pipeline',
+    description: 'Enhance customer profiles with third-party data from various sources',
+    status: 'error',
+    triggerType: 'manual',
+    createdAt: '2023-08-03T08:45:00Z',
+    updatedAt: '2023-10-10T11:30:00Z',
+    lastExecuted: '2023-10-10T11:35:00Z',
+    executionCount: 42,
+    successCount: 35,
+    failureCount: 7,
+    averageExecutionTime: 6800,
+    creditsConsumed: 210,
+    tags: ['data', 'enrichment', 'customers'],
+    folderId: 'data-ops'
+  },
+  {
+    id: '6',
+    name: 'Email Campaign Manager',
+    description: 'Orchestrate multi-step email marketing campaigns with dynamic content',
+    status: 'draft',
+    triggerType: 'schedule',
+    createdAt: '2023-09-18T13:10:00Z',
+    updatedAt: '2023-10-19T10:45:00Z',
+    executionCount: 0,
+    successCount: 0,
+    failureCount: 0,
+    averageExecutionTime: 0,
+    creditsConsumed: 0,
+    tags: ['marketing', 'email', 'campaigns'],
+    folderId: 'marketing'
+  },
+  {
+    id: '7',
+    name: 'Voice Order Processing',
+    description: 'Process and fulfill orders received through voice commands',
+    status: 'active',
+    triggerType: 'voice',
+    createdAt: '2023-09-05T15:25:00Z',
+    updatedAt: '2023-10-15T08:30:00Z',
+    lastExecuted: '2023-10-21T10:15:00Z',
+    executionCount: 126,
+    successCount: 120,
+    failureCount: 6,
+    averageExecutionTime: 1350,
+    creditsConsumed: 252,
+    tags: ['voice', 'orders', 'fulfillment'],
+  }
+];
+
+// Mock folders
+const mockFolders: WorkflowFolder[] = [
+  {
+    id: 'sales',
+    name: 'Sales',
+    description: 'Workflows for sales automation and lead processing',
+    workflowCount: 3,
+    createdAt: '2023-04-01T10:00:00Z',
+    updatedAt: '2023-09-15T14:30:00Z'
+  },
+  {
+    id: 'marketing',
+    name: 'Marketing',
+    description: 'Email campaigns and marketing automation workflows',
+    workflowCount: 5,
+    createdAt: '2023-04-02T11:00:00Z',
+    updatedAt: '2023-10-10T09:15:00Z'
+  },
+  {
+    id: 'support',
+    name: 'Support',
+    description: 'Customer support and ticket handling workflows',
+    workflowCount: 2,
+    createdAt: '2023-05-15T13:45:00Z',
+    updatedAt: '2023-09-20T16:00:00Z'
+  },
+  {
+    id: 'customer-success',
+    name: 'Customer Success',
+    description: 'Onboarding and customer retention workflows',
+    workflowCount: 4,
+    createdAt: '2023-06-10T09:30:00Z',
+    updatedAt: '2023-10-05T14:45:00Z'
+  },
+  {
+    id: 'reporting',
+    name: 'Reporting',
+    description: 'Automated report generation workflows',
+    workflowCount: 3,
+    createdAt: '2023-04-20T14:15:00Z',
+    updatedAt: '2023-09-12T11:30:00Z'
+  },
+  {
+    id: 'data-ops',
+    name: 'Data Operations',
+    description: 'Data processing and enrichment workflows',
+    workflowCount: 2,
+    createdAt: '2023-07-05T10:20:00Z',
+    updatedAt: '2023-10-01T08:45:00Z'
+  }
+];
+
+export default function WorkflowsPage() {
   const router = useRouter();
   const { currentUser } = useUserStore();
+  const [workflows, setWorkflows] = useState<Workflow[]>(mockWorkflows);
+  const [folders, setFolders] = useState<WorkflowFolder[]>(mockFolders);
+  const [selectedFolder, setSelectedFolder] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
-  const [agents, setAgents] = useState<Agent[]>(mockAgents);
-  const [configureAgentId, setConfigureAgentId] = useState<string | null>(null);
-  const [startingAgentId, setStartingAgentId] = useState<string | null>(null);
-
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [newFolderName, setNewFolderName] = useState('');
+  
   useEffect(() => {
     if (!currentUser) {
       router.push('/login');
@@ -158,222 +341,213 @@ export default function Workflows(): JSX.Element {
     setIsLoading(false);
   }, [currentUser, router]) // eslint-disable-line react-hooks/exhaustive-deps
 
-  const handleConfigureAgent = (agentId: string) => {
-    // In a real app, this would navigate to a configuration page
-    // For now, we'll just log and show a toast notification
-    console.log(`Configuring agent: ${agentId}`);
-    router.push(`/workflows/configure/${agentId}`);
+  // Filter workflows by selected folder
+  const filteredWorkflows = selectedFolder 
+    ? workflows.filter(w => w.folderId === selectedFolder)
+    : workflows;
+  
+  // Handlers
+  const handleActivateWorkflow = (id: string) => {
+    setWorkflows(prev => 
+      prev.map(w => 
+        w.id === id ? { ...w, status: 'active' } : w
+      )
+    );
+    toast.success('Workflow activated successfully');
   };
-
-  const handleStartAgent = (agentId: string) => {
-    // Set the agent as starting
-    setStartingAgentId(agentId);
+  
+  const handleDeactivateWorkflow = (id: string) => {
+    setWorkflows(prev => 
+      prev.map(w => 
+        w.id === id ? { ...w, status: 'inactive' } : w
+      )
+    );
+    toast.success('Workflow deactivated successfully');
+  };
+  
+  const handleDeleteWorkflow = (id: string) => {
+    // In a real application, you'd show a confirmation dialog first
+    setWorkflows(prev => prev.filter(w => w.id !== id));
+    toast.success('Workflow deleted successfully');
+  };
+  
+  const handleDuplicateWorkflow = (id: string) => {
+    const workflowToDuplicate = workflows.find(w => w.id === id);
+    if (!workflowToDuplicate) return;
     
-    // Simulate the agent starting process
-    setTimeout(() => {
-      setAgents(prevAgents => 
-        prevAgents.map(agent => 
-          agent.id === agentId 
-            ? { ...agent, status: 'running'     } 
-            : agent
-        )
-      );
-      setStartingAgentId(null);
-      
-      // Show toast notification
-      toast.success(`${agents.find(a => a.id === agentId)?.name} agent started successfully`);
-    }, 1500);
-  };
-
-  const handleStopAgent = (agentId: string) => {
-    // Set the agent as stopping (also using startingAgentId state for simplicity)
-    setStartingAgentId(agentId);
+    const duplicatedWorkflow: Workflow = {
+      ...workflowToDuplicate,
+      id: `${id}-copy-${Date.now()}`,
+      name: `${workflowToDuplicate.name} (Copy)`,
+      status: 'draft',
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+      executionCount: 0,
+      successCount: 0,
+      failureCount: 0,
+      creditsConsumed: 0
+    };
     
-    // Simulate the agent stopping process
-    setTimeout(() => {
-      setAgents(prevAgents => 
-        prevAgents.map(agent => 
-          agent.id === agentId 
-            ? { ...agent, status: 'idle'     } 
-            : agent
-        )
-      );
-      setStartingAgentId(null);
-      
-      // Show toast notification
-      toast.success(`${agents.find(a => a.id === agentId)?.name} agent stopped successfully`);
-    }, 1500);
+    setWorkflows(prev => [...prev, duplicatedWorkflow]);
+    toast.success('Workflow duplicated successfully');
   };
-
-  const getStatusColor = (status: Agent['status']) => {
-    switch (status) {
-      case 'running':
-        return 'bg-green-500';
-      case 'paused':
-        return 'bg-yellow-500';
-      case 'error':
-        return 'bg-red-500';
-      case 'idle':
-      default:
-        return 'bg-blue-500';
+  
+  const handleCreateFolder = () => {
+    if (!newFolderName.trim()) {
+      toast.error('Please enter a folder name');
+      return;
     }
+    
+    const newFolder: WorkflowFolder = {
+      id: `folder-${Date.now()}`,
+      name: newFolderName.trim(),
+      description: '',
+      workflowCount: 0,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString()
+    };
+    
+    setFolders(prev => [...prev, newFolder]);
+    setNewFolderName('');
+    setIsModalOpen(false);
+    toast.success('Folder created successfully');
   };
-
-  const getCategoryColor = (category: AgentCapability['category']) => {
-    switch (category) {
-      case 'data':
-        return 'bg-purple-500/20 text-purple-300';
-      case 'automation':
-        return 'bg-blue-500/20 text-blue-300';
-      case 'analysis':
-        return 'bg-teal-500/20 text-teal-300';
-      case 'communication':
-        return 'bg-orange-500/20 text-orange-300';
-      default:
-        return 'bg-white/10 text-white';
-    }
-  };
-
+  
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center min-h-screen">
-        <div className="loading-pulse gradient-text text-xl">Loading workflows...</div>
+      <div className="flex justify-center items-center min-h-screen bg-[#111111]">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-[#22D3EE]"></div>
       </div>
     );
   }
-
+  
   return (
-    <div className="pb-8">
-      {/* Neural Network Background */}
-      <div className="neural-bg"></div>
-      
-      <main className="max-w-7xl mx-auto px-4 py-8 relative z-10">
-        <div className="flex justify-between items-center mb-8">
+    <div className="min-h-screen bg-[#111111] text-[#E5E7EB] pb-12">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {/* Header */}
+        <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-8">
           <div>
-            <div className="flex items-center">
-              <h1 className="text-3xl font-bold gradient-text mr-4">
-                Workflows
-              </h1>
-              <Link href="/workflow-editor" className="action-button px-4 py-2 rounded-lg flex items-center">
-                <span className="mr-2">+</span> New Workflow
-              </Link>
-            </div>
-            <p className="text-white/70">Manage your AI agents and their automated workflows</p>
+            <h1 className="text-3xl font-bold text-[#22D3EE] mb-2">Workflows</h1>
+            <p className="text-[#9CA3AF]">Design, manage, and monitor your automation workflows</p>
           </div>
-          <button
-            onClick={() => router.push('/workflows/new')}
-            className="px-4 py-2 bg-gradient-to-r from-primary to-secondary text-white rounded-lg font-medium shadow-glow hover:shadow-glow-intense transition-all duration-300"
-          >
-            Create New Workflow
-          </button>
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          {agents.map((agent) => (
-            <motion.div
-              key={agent.id}
-              className="bg-dark-100/30 backdrop-blur-sm border border-white/10 rounded-xl overflow-hidden shadow-lg hover:border-white/20 transition-all duration-300"
-              whileHover={{ y: -5     }}
-              initial={{ opacity: 0, y: 20     }}
-              animate={{ opacity: 1, y: 0     }}
-              transition={{ duration: 0.3     }}
+          <div className="mt-4 md:mt-0 flex flex-wrap gap-3">
+            <Link
+              href="/templates"
+              className="inline-flex items-center px-4 py-2 border border-[#374151] rounded-md bg-[#18181B] text-[#E5E7EB] hover:bg-[#1E293B] transition-colors"
             >
-              <div className="p-6">
-                <div className="flex justify-between items-start mb-4">
-                  <div>
-                    <div className="flex items-center">
-                      <h2 className="text-xl font-bold text-white mr-2">{agent.name}</h2>
-                      <span className={`text-xs px-2 py-1 rounded-full ${getStatusColor(agent.status)} text-white uppercase`}>
-                        {agent.status}
-                      </span>
-                    </div>
-                    <p className="text-white/70 text-sm mt-1">{agent.description}</p>
-                  </div>
-                  <div className="text-right">
-                    <div className="text-2xl font-medium text-white">{agent.successRate}%</div>
-                    <div className="text-white/60 text-xs">Success Rate</div>
-                  </div>
-                </div>
-                
-                <div className="mb-4">
-                  <div className="text-white/80 text-sm mb-2">Connected Apps</div>
-                  <div className="flex flex-wrap gap-2">
-                    {agent.connectedApps.map((app) => (
-                      <span key={app} className="bg-white/10 text-white/80 text-xs px-2 py-1 rounded-full">
-                        {app}
-                      </span>
-                    ))}
-                  </div>
-                </div>
-                
-                <div className="mb-4">
-                  <div className="text-white/80 text-sm mb-2">Capabilities</div>
-                  <div className="flex flex-wrap gap-2">
-                    {agent.capabilities.map((capability) => (
-                      <span 
-                        key={capability.id} 
-                        className={`text-xs px-2 py-1 rounded-full ${getCategoryColor(capability.category)}`}
-                        title={capability.description}
-                      >
-                        {capability.name}
-                      </span>
-                    ))}
-                  </div>
-                </div>
-                
-                <div className="flex justify-between items-center mt-6">
-                  <div className="text-white/70 text-sm">
-                    <span className="font-medium text-white">{agent.activeFlows}</span> active flows
-                  </div>
-                  <div className="flex space-x-2">
-                    <button 
-                      onClick={() => handleConfigureAgent(agent.id)}
-                      className="px-3 py-1 bg-white/5 hover:bg-white/10 text-white text-sm rounded-lg border border-white/10 transition-all duration-200"
-                      disabled={configureAgentId === agent.id}
-                    >
-                      Configure
-                    </button>
-                    
-                    {agent.status === 'idle' ? (
-                      <button 
-                        onClick={() => handleStartAgent(agent.id)}
-                        disabled={startingAgentId === agent.id}
-                        className="px-3 py-1 bg-primary/90 hover:bg-primary text-white text-sm rounded-lg transition-all duration-200 flex items-center justify-center min-w-20"
-                      >
-                        { startingAgentId === agent.id ? (
-                          <span className="flex items-center">
-                            <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                              <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                              <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                            </svg>
-                            Starting
-                          </span>
-                        ) : "Start Agent"    }
-                      </button>
-                    ) : (
-                      <button 
-                        onClick={() => handleStopAgent(agent.id)}
-                        disabled={startingAgentId === agent.id}
-                        className="px-3 py-1 bg-red-500/90 hover:bg-red-500 text-white text-sm rounded-lg transition-all duration-200 flex items-center justify-center min-w-20"
-                      >
-                        { startingAgentId === agent.id ? (
-                          <span className="flex items-center">
-                            <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                              <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                              <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                            </svg>
-                            Stopping
-                          </span>
-                        ) : "Stop Agent"    }
-                      </button>
-                    )}
-                  </div>
-                </div>
-              </div>
-            </motion.div>
-          ))}
+              <DocumentTextIcon className="mr-2 h-5 w-5" />
+              Templates
+            </Link>
+            <button
+              onClick={() => setIsModalOpen(true)}
+              className="inline-flex items-center px-4 py-2 border border-[#374151] rounded-md bg-[#18181B] text-[#E5E7EB] hover:bg-[#1E293B] transition-colors"
+            >
+              <FolderPlusIcon className="mr-2 h-5 w-5" />
+              New Folder
+            </button>
+            <Link
+              href="/workflow-editor"
+              className="inline-flex items-center px-4 py-2 rounded-md bg-[#22D3EE] text-[#111111] hover:bg-[#06B6D4] transition-colors"
+            >
+              <PlusIcon className="mr-2 h-5 w-5" />
+              Create Workflow
+            </Link>
+          </div>
         </div>
-      </main>
+        
+        {/* Main Content Area */}
+        <div className="flex flex-col lg:flex-row">
+          {/* Folders Sidebar */}
+          <div className="w-full lg:w-64 mb-6 lg:mb-0 lg:mr-6">
+            <div className="bg-[#18181B] border border-[#374151] rounded-lg p-4">
+              <h2 className="text-lg font-medium text-[#E5E7EB] mb-4">Folders</h2>
+              
+              <ul className="space-y-2">
+                <li>
+                  <button
+                    onClick={() => setSelectedFolder(null)}
+                    className={`w-full text-left flex items-center px-3 py-2 rounded-md ${
+                      selectedFolder === null ? 'bg-[#1E293B] text-[#E5E7EB]' : 'text-[#9CA3AF] hover:bg-[#1E293B] hover:text-[#E5E7EB]'
+                    } transition-colors`}
+                  >
+                    <FolderIcon className="h-5 w-5 mr-2" />
+                    <span>All Workflows</span>
+                    <span className="ml-auto text-xs bg-[#374151] px-2 py-0.5 rounded-full">
+                      {workflows.length}
+                    </span>
+                  </button>
+                </li>
+                
+                {folders.map((folder) => (
+                  <li key={folder.id}>
+                    <button
+                      onClick={() => setSelectedFolder(folder.id)}
+                      className={`w-full text-left flex items-center px-3 py-2 rounded-md ${
+                        selectedFolder === folder.id ? 'bg-[#1E293B] text-[#E5E7EB]' : 'text-[#9CA3AF] hover:bg-[#1E293B] hover:text-[#E5E7EB]'
+                      } transition-colors`}
+                    >
+                      <FolderIcon className="h-5 w-5 mr-2" />
+                      <span className="truncate">{folder.name}</span>
+                      <span className="ml-auto text-xs bg-[#374151] px-2 py-0.5 rounded-full">
+                        {folder.workflowCount}
+                      </span>
+                    </button>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          </div>
+          
+          {/* Workflows List */}
+          <div className="flex-1">
+            <WorkflowList
+              workflows={filteredWorkflows}
+              onActivate={handleActivateWorkflow}
+              onDeactivate={handleDeactivateWorkflow}
+              onDelete={handleDeleteWorkflow}
+              onDuplicate={handleDuplicateWorkflow}
+            />
+          </div>
+        </div>
+      </div>
+      
+      {/* Create Folder Modal */}
+      {isModalOpen && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-[#18181B] rounded-lg p-6 max-w-md w-full border border-[#374151]">
+            <h3 className="text-xl font-bold text-[#E5E7EB] mb-4">Create New Folder</h3>
+            
+            <div className="mb-4">
+              <label htmlFor="folderName" className="block text-sm font-medium text-[#9CA3AF] mb-1">
+                Folder Name
+              </label>
+              <input
+                type="text"
+                id="folderName"
+                value={newFolderName}
+                onChange={(e) => setNewFolderName(e.target.value)}
+                className="w-full px-3 py-2 bg-[#111111] border border-[#374151] rounded-md text-[#E5E7EB] focus:outline-none focus:ring-2 focus:ring-[#22D3EE] focus:border-transparent"
+                placeholder="Enter folder name"
+              />
+            </div>
+            
+            <div className="flex justify-end space-x-3">
+              <button
+                onClick={() => setIsModalOpen(false)}
+                className="px-4 py-2 border border-[#374151] text-[#9CA3AF] rounded-md hover:text-[#E5E7EB] hover:border-[#6B7280] transition-colors"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleCreateFolder}
+                className="px-4 py-2 bg-[#22D3EE] text-[#111111] rounded-md hover:bg-[#06B6D4] transition-colors"
+              >
+                Create Folder
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 } 

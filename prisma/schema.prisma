@@ -31,6 +31,8 @@ model User {
   voiceInteractions VoiceInteraction[]
   sharedWorkflows   WorkflowShare[]      @relation("SharedWith")
   workflows         Workflow[]
+  knowledgeBases    KnowledgeBase[]
+  knowledgeDocuments KnowledgeDocument[]
 
   @@map("users")
 }
@@ -47,6 +49,7 @@ model Organization {
   members        OrganizationMember[]
   teams          Team[]
   workflows      Workflow[]
+  knowledgeBases KnowledgeBase[]
 
   @@map("organizations")
 }
@@ -191,6 +194,7 @@ model Team {
   members        TeamMember[]
   organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
   workflows      Workflow[]
+  knowledgeBases KnowledgeBase[]
 
   @@map("teams")
 }
@@ -425,4 +429,48 @@ model ConsultationRequest {
   updatedAt DateTime @updatedAt @map("updated_at")
 
   @@map("consultation_requests")
+}
+
+model KnowledgeBase {
+  id             String             @id @default(uuid())
+  name           String
+  description    String?
+  type           String             @default("personal") // personal, team, organization
+  ownerId        String?            @map("owner_id")
+  teamId         String?            @map("team_id")
+  organizationId String?            @map("organization_id")
+  createdAt      DateTime           @default(now()) @map("created_at")
+  updatedAt      DateTime           @updatedAt @map("updated_at")
+  isPublic       Boolean            @default(false) @map("is_public")
+  documents      KnowledgeDocument[]
+  owner          User?              @relation(fields: [ownerId], references: [id])
+  team           Team?              @relation(fields: [teamId], references: [id])
+  organization   Organization?      @relation(fields: [organizationId], references: [id])
+
+  @@index([type])
+  @@index([ownerId])
+  @@index([teamId])
+  @@index([organizationId])
+  @@map("knowledge_bases")
+}
+
+model KnowledgeDocument {
+  id              String        @id @default(uuid())
+  title           String
+  content         String        @db.Text
+  contentType     String        @default("text") @map("content_type") // text, markdown, html
+  metadata        Json?
+  knowledgeBaseId String        @map("knowledge_base_id")
+  createdAt       DateTime      @default(now()) @map("created_at") 
+  updatedAt       DateTime      @updatedAt @map("updated_at")
+  createdById     String        @map("created_by_id")
+  tags            String[]
+  embedding       Json?         // Vector embedding for semantic search
+  knowledgeBase   KnowledgeBase @relation(fields: [knowledgeBaseId], references: [id], onDelete: Cascade)
+  createdBy       User          @relation(fields: [createdById], references: [id])
+
+  @@index([knowledgeBaseId])
+  @@index([createdById])
+  @@index([contentType])
+  @@map("knowledge_documents")
 }

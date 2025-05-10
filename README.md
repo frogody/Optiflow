@@ -13,6 +13,9 @@ Optiflow is a modern platform for connecting and automating APIs and workflows w
 - Connect with popular services via OAuth
 - Execute workflows automatically or manually
 - AI-powered workflow recommendations
+- Voice-activated assistant using LiveKit for hands-free operation
+- Multi-tenant data layer with personal and organization knowledge bases
+- Accessibility features with ARIA support
 
 ## Tech Stack
 
@@ -20,6 +23,10 @@ Optiflow is a modern platform for connecting and automating APIs and workflows w
 - **State Management**: Zustand
 - **Authentication**: Custom implementation with bcrypt and cookies
 - **API Integration**: Pipedream SDK
+- **Voice Assistant**: LiveKit, ElevenLabs
+- **Database**: PostgreSQL with Prisma ORM
+- **Monitoring**: Pino logging, Sentry error tracking
+- **AI**: Claude (Anthropic) for natural language understanding
 - **Styling**: TailwindCSS with custom components
 
 ## Getting Started
@@ -185,6 +192,98 @@ Optiflow uses Pipedream SDK to connect to external services. For each integratio
 1. Configure connection in the Connections page
 2. Authenticate with the external service
 3. Use the connection in workflows
+
+## Voice Assistant Setup
+
+Optiflow features a powerful voice assistant that allows hands-free operation of the platform:
+
+1. Set up LiveKit for real-time communication:
+   - Create an account at [LiveKit Cloud](https://livekit.io)
+   - Create a new project and obtain API key and secret
+   - Update your `.env.local` with LiveKit credentials:
+   ```
+   LIVEKIT_API_KEY=your_api_key
+   LIVEKIT_API_SECRET=your_api_secret
+   LIVEKIT_URL=wss://your-livekit-instance.livekit.cloud
+   ```
+
+2. Configure ElevenLabs for speech synthesis:
+   - Create an account at [ElevenLabs](https://elevenlabs.io)
+   - Generate an API key and select a voice
+   - Update your `.env.local` with ElevenLabs credentials:
+   ```
+   ELEVENLABS_API_KEY=your_api_key
+   ELEVENLABS_VOICE_ID=your_selected_voice_id
+   ```
+
+3. Voice agent deployment:
+   - The voice agent server is automatically deployed with the main application
+   - Configuration happens through environment variables
+
+### Voice Commands
+
+Users can interact with Optiflow using voice commands such as:
+
+- "Go to dashboard"
+- "Create new workflow"
+- "Connect to Slack"
+- "Show my recent workflows"
+- "Send email to [contact]"
+
+For a complete guide on voice routing conventions, see [Voice Routing Conventions](docs/VOICE_ROUTING_CONVENTION.md).
+
+## Multi-Tenant Data Architecture
+
+Optiflow uses a multi-tenant architecture that enforces data isolation between organizations:
+
+- Row-level security via Prisma middleware
+- Personal and team knowledge bases
+- Organization-based permissions system
+
+For more details, see [DATABASE.md](DATABASE.md).
+
+## Development Workflow
+
+### Quality Gates
+
+Optiflow includes several quality gates to ensure code quality:
+
+```bash
+# Run lint checks
+npm run lint
+
+# Run voice routing validation
+npm run voice-check
+
+# Run bundle size analysis
+npm run build:analyze
+
+# Run all tests
+npm run test
+```
+
+### CI Pipeline
+
+Our GitHub Actions CI pipeline automatically runs the following checks:
+
+1. Linting and type checking
+2. Voice routing convention validation
+3. Unit and integration tests
+4. Bundle size analysis
+
+## Monitoring and Observability
+
+Optiflow includes built-in monitoring and observability features:
+
+- Sentry integration for error tracking
+- Pino logging with configurable log levels
+- Performance metrics for voice interactions and workflows
+
+Configure your monitoring in `.env.local`:
+```
+NEXT_PUBLIC_SENTRY_DSN=your_sentry_dsn
+LOG_LEVEL=info # trace, debug, info, warn, error, or fatal
+```
 
 ## License
 

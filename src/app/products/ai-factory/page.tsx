@@ -8,12 +8,6 @@ import {
   HiOutlineLightBulb,
   HiOutlineSparkles,
   HiOutlineChip,
-  HiOutlineHome,
-  HiOutlineTruck,
-  HiOutlineShoppingCart,
-  HiOutlineHeart,
-  HiOutlineAcademicCap,
-  HiOutlineOfficeBuilding,
   HiOutlineCube,
   HiOutlineCog,
   HiOutlineCode

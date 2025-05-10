@@ -1,0 +1,33 @@
+# Optiflow Code Ownership
+# https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/customizing-your-repository/about-code-owners
+
+# Default owners for everything in the repo
+* @optiflow/platform-team
+
+# Voice agent functionality
+/src/components/voice/ @optiflow/voice-team
+/src/lib/livekit.ts @optiflow/voice-team
+/voice-agent/ @optiflow/voice-team
+/agent-examples/ @optiflow/voice-team
+/agent-server/ @optiflow/voice-team
+/src/services/agents/ @optiflow/voice-team
+
+# Database and data layer
+/prisma/ @optiflow/data-team
+/src/lib/prisma.ts @optiflow/data-team
+
+# Workflows
+/src/components/workflow/ @optiflow/workflow-team
+
+# Integrations
+/src/lib/pipedream/ @optiflow/integration-team
+/src/services/integrations/ @optiflow/integration-team
+
+# Auth and security
+/src/lib/auth.ts @optiflow/security-team
+/src/app/api/auth/ @optiflow/security-team
+
+# DevOps and CI/CD
+/.github/workflows/ @optiflow/devops-team
+/scripts/ @optiflow/devops-team
+/vercel.json @optiflow/devops-team 

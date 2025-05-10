@@ -10,12 +10,10 @@ export default function SlackIntegrationPage(): JSX.Element {
   const [connectedAccount, setConnectedAccount] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
 
-  const handleAccountConnected = (accountId: string) => {
-    setConnectedAccount(accountId);
+  const handleAccountConnected = () => {
     toast.success('Slack connected successfully!');
-    
     // In a real app, you would save this connection to your backend
-    savingConnectionDemo(accountId);
+    savingConnectionDemo();
   };
 
   const handleConnectionError = (error: Error) => {
@@ -23,7 +21,7 @@ export default function SlackIntegrationPage(): JSX.Element {
   };
   
   // Demo function to simulate saving connection to backend
-  const savingConnectionDemo = (accountId: string) => {
+  const savingConnectionDemo = () => {
     setIsLoading(true);
     setTimeout(() => {
       setIsLoading(false);

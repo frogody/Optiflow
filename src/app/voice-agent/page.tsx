@@ -1,75 +1,102 @@
-// @ts-nocheck - This file has some TypeScript issues that are hard to fix
 "use client";
 import { useSession, signIn } from "next-auth/react";
-import { useRef, useState } from "react";
+import VoiceAgentClient from "@/components/voice/VoiceAgentClient";
+import { Suspense } from "react";
+import { toast } from "react-hot-toast";
 
 export default function VoiceAgentPage(): JSX.Element {
-  const { data: session, status     } = useSession();
-  const [listening, setListening] = useState(false);
-  const [messages, setMessages] = useState<{ from: "user" | "bot", text: string     }[]>([]);
-  const recognitionRef = useRef<any>(null);
+  const { data: session, status } = useSession();
 
-  function speak(text: string) {
-    if (typeof window !== "undefined" && "speechSynthesis" in window) {
-      const utterance = new window.SpeechSynthesisUtterance(text);
-      utterance.lang = "en-US";
-      window.speechSynthesis.speak(utterance);
-    }
+  if (status === "loading") {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-[#111111] text-[#E5E7EB]">
+        <div className="animate-pulse text-xl text-[#22D3EE]">Loading...</div>
+      </div>
+    );
   }
 
-  async function startRecognition() {
-    if (typeof window === "undefined" || !("webkitSpeechRecognition" in window || "SpeechRecognition" in window)) {
-      alert("Speech recognition not supported in this browser.");
-      return;
-    }
-    const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
-    const recognition = new SpeechRecognition();
-    recognition.lang = "en-US";
-    recognition.interimResults = false;
-    recognition.maxAlternatives = 1;
-
-    recognition.onresult = async (event: any) => {
-      const transcript = event.results[0][0].transcript;
-      setMessages(msgs => [...msgs, { from: "user", text: transcript     }]);
-      setListening(false);
-
-      // Send to API
-      const res = await fetch("/api/chat", {
-        method: "POST",
-        headers: { "Content-Type": "application/json"     },
-        body: JSON.stringify({ message: transcript     }),
-      });
-      const data = await res.json();
-      setMessages(msgs => [...msgs, { from: "bot", text: data.reply     }]);
-      speak(data.reply);
-    };
-
-    recognition.onerror = (e: any) => { setListening(false);
-      alert("Speech recognition error: " + e.error);
-        };
-
-    recognition.onend = () => setListening(false);
-
-    recognitionRef.current = recognition;
-    setListening(true);
-    recognition.start();
+  if (!session) {
+    return (
+      <div className="min-h-screen flex flex-col items-center justify-center p-4 bg-[#111111] text-[#E5E7EB]">
+        <h1 className="text-3xl font-bold mb-8 text-[#22D3EE]">Jarvis Voice Assistant</h1>
+        <div className="bg-[#18181B] shadow-lg rounded-lg p-8 max-w-md w-full border border-[#374151]">
+          <p className="mb-6 text-center text-[#D1D5DB]">
+            Please sign in to access the voice assistant.
+          </p>
+          <button
+            onClick={() => signIn()}
+            className="w-full py-3 bg-[#06B6D4] hover:bg-[#0EA5E9] text-[#111111] font-semibold rounded-md transition-colors"
+          >
+            Sign In
+          </button>
+        </div>
+      </div>
+    );
   }
 
-  if (status === "loading") return <div>Loading...</div>;
-  if (!session) return <button onClick={() => signIn()}>Sign in</button>;
-
+  // User is signed in
   return (
-    <div style={{ maxWidth: 600, margin: "40px auto", padding: 24, border: "1px solid #eee", borderRadius: 8     }}>
-      <h1>Voice Agent</h1>
-      <button onClick={startRecognition} disabled={listening} style={{ marginBottom: 16     }}>
-        { listening ? "Listening..." : "Speak"    }
-      </button>
-      <div id="chat-box" style={{ marginTop: 20     }}>
-        {messages.map((msg, i) => (
-          <div key={i} style={{ textAlign: msg.from === "user" ? "right" : "left", margin: "8px 0"     }}>
-            <b>{ msg.from === "user" ? "You" : "Bot"    }:</b> {msg.text}
+    <div className="min-h-screen bg-[#111111] text-[#E5E7EB] pt-8 pb-16">
+      <div className="container mx-auto p-4 max-w-4xl">
+        <div className="mb-8">
+          <h1 className="text-3xl font-bold mb-3 text-[#22D3EE]">Jarvis Voice Assistant</h1>
+          <p className="text-[#9CA3AF] text-lg max-w-3xl">
+            Your AI voice assistant for Optiflow. Use voice commands to control your workflows, 
+            get information, or execute actions through Pipedream integrations.
+          </p>
+        </div>
+        
+        <Suspense fallback={
+          <div className="w-full h-64 flex items-center justify-center bg-[#18181B] rounded-lg border border-[#374151] animate-pulse">
+            <p className="text-[#22D3EE]">Loading voice interface...</p>
           </div>
-        ))}
+        }>
+          <VoiceAgentClient className="mb-12" />
+        </Suspense>
+
+        <div className="grid md:grid-cols-2 gap-8 mt-12">
+          <div className="bg-[#18181B] shadow-lg rounded-lg p-6 border border-[#374151]">
+            <h2 className="text-xl font-semibold mb-6 text-[#22D3EE]">Example Commands</h2>
+            <ul className="space-y-4">
+              {[
+                "Send an email to my team about the project status",
+                "Create a task in Asana for the website redesign",
+                "What's on my calendar for tomorrow?",
+                "Summarize my recent notifications",
+                "Start a new workflow for customer onboarding"
+              ].map((command, i) => (
+                <li key={i} className="flex items-start">
+                  <span className="inline-block w-6 h-6 rounded-full bg-[#22D3EE] text-[#111111] flex items-center justify-center mr-3 font-medium text-sm shrink-0">
+                    {i + 1}
+                  </span>
+                  <span className="text-[#D1D5DB]">"{command}"</span>
+                </li>
+              ))}
+            </ul>
+          </div>
+          
+          <div className="bg-[#18181B] shadow-lg rounded-lg p-6 border border-[#374151]">
+            <h2 className="text-xl font-semibold mb-6 text-[#A855F7]">Tips</h2>
+            <ul className="space-y-4">
+              {[
+                "Speak clearly and at a moderate pace",
+                "Use natural language for your requests",
+                "Connect your services in Settings to enable more capabilities",
+                "You can type commands if you prefer not to speak",
+                "Say \"help\" to get assistance with commands"
+              ].map((tip, i) => (
+                <li key={i} className="flex items-start">
+                  <div className="w-6 h-6 rounded-full bg-[#A855F7] flex items-center justify-center mr-3 shrink-0">
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 text-[#111111]" viewBox="0 0 20 20" fill="currentColor">
+                      <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                    </svg>
+                  </div>
+                  <span className="text-[#D1D5DB]">{tip}</span>
+                </li>
+              ))}
+            </ul>
+          </div>
+        </div>
       </div>
     </div>
   );

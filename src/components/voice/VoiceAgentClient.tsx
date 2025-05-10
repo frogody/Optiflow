@@ -3,12 +3,17 @@
 
 import React from 'react';
 import type { FC } from 'react';
+import VoiceAgentInterface from './VoiceAgentInterface';
 
-interface VoiceAgentClientProps {}
+interface VoiceAgentClientProps {
+  className?: string;
+}
 
-const VoiceAgentClient: FC<VoiceAgentClientProps> = () => {
+const VoiceAgentClient: FC<VoiceAgentClientProps> = ({ className }) => {
   return (
-    <div>Voice Agent Widget Placeholder</div>
+    <div className={className}>
+      <VoiceAgentInterface />
+    </div>
   );
 };
 
