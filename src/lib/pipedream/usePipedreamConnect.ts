@@ -2,7 +2,8 @@ import { createFrontendClient } from '@pipedream/sdk/browser';
 import { useCallback, useEffect, useState } from 'react';
 import { toast } from 'react-hot-toast';
 
-import { useUserStore } from '../userStore.js';
+// eslint-disable-next-line
+import { useUserStore } from '../userStore';
 
 interface UsePipedreamConnectOptions { onSuccess?: (accountId: string) => void;
   onError?: (error: Error) => void;

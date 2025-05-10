@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { toast } from 'react-hot-toast';
 
-import { usePipedreamConnect } from '../lib/pipedream/usePipedreamConnect.js';
+import { usePipedreamConnect } from '../lib/pipedream/usePipedreamConnect.ts';
 
 interface PipedreamConnectButtonProps { appSlug: string;
   buttonText?: string;

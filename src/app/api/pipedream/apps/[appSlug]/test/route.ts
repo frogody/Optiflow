@@ -68,11 +68,4 @@ export async function POST(
       { status: 500     }
     );
   }
-}
-
-export async function POST() {
-  return NextResponse.json(
-    { error: 'Pipedream app test endpoint temporarily disabled to resolve build issues.' }, 
-    { status: 503 }
-  );
 } 
