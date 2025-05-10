@@ -20,7 +20,7 @@
     "deploy": "sh deploy.sh",
     "check-env": "ts-node scripts/check-env.ts || true",
     "generate-secret": "node scripts/generate-secret.js",
-    "vercel-build": "node vercel-build-fix.js && NODE_OPTIONS='--max_old_space_size=8192' npx prisma generate && next build",
+    "vercel-build": "NODE_OPTIONS='--max_old_space_size=8192' npx prisma generate && next build",
     "vercel-deploy": "vercel deploy --prod",
     "postinstall": "prisma generate",
     "db:migrate": "prisma migrate deploy",
