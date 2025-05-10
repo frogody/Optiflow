@@ -26,7 +26,8 @@ const nextConfig = {
     ignoreDuringBuilds: false,
     dirs: ['src'],
   },
-  swcMinify: true,
+  // swcMinify is true by default, explicit key might not be recognized or needed
+  // swcMinify: true, 
   experimental: {
     // Enable modern optimizations
     optimizeCss: true,
@@ -35,10 +36,11 @@ const nextConfig = {
     serverActions: {
       allowedOrigins: ['localhost:3000', 'optiflow.ai'],
     },
-    serverComponentsExternalPackages: ['@prisma/client'],
-    ppr: true,
+    // ppr: true, // Remove as it requires canary
     typedRoutes: true,
   },
+  // Moved from experimental
+  serverComponentsExternalPackages: ['@prisma/client'], 
   compiler: {
     // Remove console.log in production
     removeConsole: process.env.NODE_ENV === 'production',
@@ -48,8 +50,6 @@ const nextConfig = {
     defaultLocale: 'en',
     locales: ['en', 'nl', 'de', 'fr', 'es'],
   },
-  // reloadOnPrerender from next-i18next.config.js (assuming it should be at top level of nextConfig)
-  reloadOnPrerender: process.env.NODE_ENV === 'development',
   // Add webpack configuration for better optimization
   webpack: (config, { dev, isServer }) => {
     // Optimize bundle size
