@@ -40,16 +40,16 @@ const nextConfig = {
     typedRoutes: true,
   },
   // Moved from experimental
-  serverComponentsExternalPackages: ['@prisma/client'], 
+  // serverComponentsExternalPackages: ['@prisma/client'], // Removed, Next.js 15+ often handles this automatically
   compiler: {
     // Remove console.log in production
     removeConsole: process.env.NODE_ENV === 'production',
   },
-  // Inlined i18n configuration
-  i18n: {
-    defaultLocale: 'en',
-    locales: ['en', 'nl', 'de', 'fr', 'es'],
-  },
+  // i18n configuration removed as it's not supported with App Router
+  // i18n: {
+  //   defaultLocale: 'en',
+  //   locales: ['en', 'nl', 'de', 'fr', 'es'],
+  // },
   // Add webpack configuration for better optimization
   webpack: (config, { dev, isServer }) => {
     // Optimize bundle size
