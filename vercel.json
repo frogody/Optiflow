@@ -3,6 +3,12 @@
   "buildCommand": "npm run build",
   "framework": "nextjs",
   "installCommand": "npm install",
+  "env": {
+    "SKIP_ENV_VALIDATION": "1",
+    "SKIP_ESLINT": "1",
+    "NODE_OPTIONS": "--max_old_space_size=4096",
+    "NEXT_TELEMETRY_DISABLED": "1"
+  },
   "github": {
     "enabled": true,
     "silent": true
