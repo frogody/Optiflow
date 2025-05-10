@@ -1,5 +1,4 @@
-import { AccessToken } from 'livekit-server-sdk';
-import { AgentAPI, RoomServiceClient } from 'livekit-server-sdk';
+import { AccessToken, RoomServiceClient, AgentDispatchClient } from 'livekit-server-sdk';
 import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth/next';
 
@@ -25,7 +24,7 @@ export async function POST(req: NextRequest) {
   }
 
   try {
-    const { roomName = 'optiflow-jarvis-room' } = await req.json();
+    const { roomName = 'optiflow-jarvis-room', metadata } = await req.json();
     const userId = session.user.id;
 
     // Create room service client
@@ -45,46 +44,31 @@ export async function POST(req: NextRequest) {
       });
     }
 
-    // Initialize agent API client
-    const agentApi = new AgentAPI(livekitUrl, apiKey, apiSecret);
+    // Initialize agent dispatch client
+    const agentDispatchClient = new AgentDispatchClient(livekitUrl, apiKey, apiSecret);
 
     // Create identity for agent
     const agentIdentity = `agent-jarvis-${Date.now()}`;
 
-    // Create agent token
-    const at = new AccessToken(apiKey, apiSecret, {
-      identity: agentIdentity,
-      name: 'Jarvis',
-    });
-    at.addGrant({
-      room: roomName,
-      roomJoin: true,
-      canPublish: true,
-      canSubscribe: true,
-      canPublishData: true,
-    });
-
     // Dispatch agent to room
     console.log(`Dispatching agent ${agentIdentity} to room ${roomName}`);
     
-    // Determine the user's identity that the agent will be serving
-    const userIdentity = userId;
-
-    // Dispatch agent - the LiveKit agent service will handle this
-    const result = await agentApi.startAgent({
-      agentId: agentIdentity,
-      agentName: 'Jarvis',
-      roomName: roomName,
-      identity: agentIdentity,
-      roomToken: at.toJwt(),
-      participantId: userIdentity, // Target user's identity
-    });
+    // Adjusted to use createDispatch and its expected parameters
+    const dispatch = await agentDispatchClient.createDispatch(
+        roomName, 
+        'Jarvis', // Assuming 'Jarvis' is the registered agent_name 
+        {
+            metadata: JSON.stringify({ userId, ...(metadata || {}) }), // Pass userId and any other metadata
+            // participantIdentity: userIdentity, // If needed by your agent worker options
+        }
+    );
 
     return NextResponse.json({
       success: true,
       message: 'Agent dispatched successfully',
       roomName,
       agentIdentity,
+      dispatchId: dispatch.id, // Return dispatch ID
     });
   } catch (error: any) {
     console.error('Error dispatching agent:', error);
