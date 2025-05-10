@@ -333,7 +333,7 @@ export default function FAQPage() {
                   type="button"
                   onClick={() => toggleItem(index)}
                   className="w-full px-6 py-4 flex items-center justify-between text-left"
-                  aria-expanded={expandedItems.includes(index)}
+                  aria-expanded={!!expandedItems.includes(index)}
                 >
                   <h3 className="text-lg font-medium text-[#E5E7EB] pr-8">{item.question}</h3>
                   {expandedItems.includes(index) ? (

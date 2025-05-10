@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 
-import { getMockConnections, updateMockConnection } from './mockConnections.js';
+import { getMockConnections, updateMockConnection } from '../../../../../lib/mockConnections.js';
 
 export async function POST(
   request: NextRequest,
