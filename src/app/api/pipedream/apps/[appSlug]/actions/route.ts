@@ -1,5 +1,7 @@
 import { NextResponse } from 'next/server';
 
+// Original content commented out
+/*
 import { getPipedreamConfig } from '../../../../../lib/pipedream/config.js';
 
 export async function GET(
@@ -44,4 +46,12 @@ export async function GET(
       { status: 500 }
     );
   }
+}
+*/
+
+export async function GET() {
+  return NextResponse.json(
+    { error: 'Pipedream app actions endpoint temporarily disabled to resolve build issues.' }, 
+    { status: 503 }
+  );
 }
