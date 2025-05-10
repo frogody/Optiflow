@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 
-import { getPipedreamConfig } from '../../../../../lib/pipedream/config.js';
+import { getPipedreamConfig } from '../../../../../../lib/pipedream/config.js';
 // import { मानव } from '@/lib/db.js'; // Assuming this is a placeholder/example - Commenting out due to missing export, or incorrect named import
 
 export async function POST(
