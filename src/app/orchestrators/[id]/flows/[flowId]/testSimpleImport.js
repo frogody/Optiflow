@@ -1,0 +1,1 @@
+export const simpleValue = "Hello from simple module"; 

@@ -3,14 +3,17 @@
 import { useRouter } from 'next/navigation';
 import { useEffect } from 'react';
 
-import FlowDashboard from '../../../../../components/FlowDashboard.js';
-import { useUserStore } from '../../../../../lib/userStore.js';
+import { simpleValue } from './testSimpleImport.js';
+
+import FlowDashboard from '@/components/FlowDashboard.js';
+import { useUserStore } from '@/lib/userStore.js';
 
 export default function FlowPage({ params }: { params: { id: string; flowId: string     } }): React.ReactNode {
   const router = useRouter();
   const { currentUser } = useUserStore();
 
   useEffect(() => {
+    console.log(simpleValue);
     if (!currentUser) {
       router.push('/login');
     }
