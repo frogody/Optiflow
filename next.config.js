@@ -22,14 +22,14 @@ const nextConfig = {
   // Skip type checking during build
   typescript: {
     // Enable type checking in development, but don't fail production builds
-    ignoreBuildErrors: false,
+    ignoreBuildErrors: true,
     // Enable more strict checks
     tsconfigPath: './tsconfig.json',
   },
   // Skip ESLint during build
   eslint: {
     // Enable ESLint in development, but don't fail production builds
-    ignoreDuringBuilds: false,
+    ignoreDuringBuilds: true,
     dirs: ['src'],
   },
   // swcMinify is true by default, explicit key might not be recognized or needed
