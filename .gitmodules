@@ -1,3 +1,6 @@
 [submodule "agent-examples/reference-agent"]
 	path = agent-examples/reference-agent
 	url = https://github.com/livekit-examples/agents-examples-node.git
+[submodule "pipedream-connect-examples"]
+	path = pipedream-connect-examples
+	url = https://github.com/frogody/pipedream-connect-examples.git
