@@ -1,6 +1,9 @@
 import path from 'path';
 import { fileURLToPath } from 'url';
-import nextI18NextConfig from './next-i18next.config.js';
+
+// eslint-disable-next-line no-undef
+// eslint-disable-next-line @typescript-eslint/no-var-requires
+const nextI18NextConfig = require('./next-i18next.config.js');
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
