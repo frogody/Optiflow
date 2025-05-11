@@ -1,4 +1,4 @@
-import { MemoryClient } from 'mem0';
+import { MemoryClient } from '@mem0/vercel-ai-provider';
 
 const MEM0_API_KEY = process.env.MEM0_API_KEY || 'm0-CWV6grdzUFxwCK2TpCrVEa2lSBiXiuhFKeZJxCsd';
 
