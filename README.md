@@ -1,104 +1,84 @@
 # Optiflow
 
-Optiflow is a next-generation, AI-powered workflow and communication platform designed for seamless multi-user, multi-agent collaboration. It enables users to connect their favorite SaaS tools, orchestrate advanced automations, and interact with intelligent agents—all in real time, with robust voice and chat capabilities.
+Optiflow is redefining the future of work. As an AI-powered workflow and communication platform, Optiflow empowers teams and organizations to achieve more—faster, smarter, and with less friction. Imagine a world where your digital workspace is not just a tool, but an intelligent partner: orchestrating tasks, connecting your favorite SaaS tools, and enabling seamless collaboration between people and AI agents—all in real time.
 
 ---
 
-## 🚀 Overview
+## 🚀 Vision & Opportunity
 
-Optiflow brings together real-time communication, AI orchestration, and deep SaaS integrations to create a "Jarvis-like" assistant for modern teams. Each user gets a persistent, secure LiveKit room where they can interact with agents (LLMs), connect their own SaaS accounts (via Pipedream), and automate complex workflows with natural language.
+The modern workplace is fragmented. Teams juggle dozens of apps, communication channels, and manual processes. Optiflow unifies this chaos, transforming it into a single, intelligent experience. Our platform is designed for the next generation of digital teams—where automation, AI, and human creativity work hand-in-hand.
 
----
-
-## ✨ Features
-
-- **Persistent LiveKit Rooms:** Each user has a dedicated, secure room for voice and chat, with multi-user and multi-agent support.
-- **AI Agent Orchestration:** Agents (powered by Claude, OpenAI, etc.) can perform actions, remember context, and coordinate with other agents.
-- **Pipedream Connect Integrations:** Users can connect their own accounts for 30+ SaaS tools (Gmail, Slack, Salesforce, Notion, etc.) and automate actions securely.
-- **Memory & Context:** All conversations and actions are stored in Mem0, providing agents with persistent, context-aware memory.
-- **Modern Frontend:** A beautiful, responsive UI with a persistent voice agent orb, notifications, and easy access to settings and integrations.
-- **Production-Ready Security:** All sensitive operations are server-side, with robust access control and data privacy.
+- **Market-Ready:** Built for scale, security, and extensibility, Optiflow is ready to power startups, enterprises, and everything in between.
+- **Transformative Impact:** By automating the mundane and surfacing the meaningful, Optiflow frees teams to focus on what matters most: innovation, relationships, and results.
 
 ---
 
-## 🏗️ Architecture
+## ✨ What Makes Optiflow Different?
 
-- **Frontend:** Next.js (React), Tailwind CSS, LiveKit client, modern hooks and state management.
-- **Backend:** Next.js API routes, Prisma ORM (PostgreSQL), Pipedream SDK, Mem0 SDK, secure token and room management.
-- **Integrations:**
-  - **LiveKit:** Real-time audio/video rooms for each user.
-  - **Pipedream:** Secure, user-scoped API proxy for 2,500+ SaaS integrations.
-  - **Claude/LLMs:** Advanced agent orchestration and natural language understanding.
-  - **Mem0:** Persistent, multi-level memory for agents (user, team, org).
+- **Unified Collaboration:** Real-time voice, chat, and agent-powered interactions in a secure, persistent workspace.
+- **Intelligent Orchestration:** AI agents that understand context, remember your preferences, and take action—so you don't have to.
+- **Personalized Automation:** From sending emails and scheduling meetings to updating CRMs and managing projects, Optiflow automates it all, tailored to each user's connected accounts.
+- **Deep Integrations:** Effortlessly connect to the tools your business already uses—CRMs, productivity suites, communication platforms, cloud storage, calendars, and more.
+- **Persistent Memory:** Every conversation, preference, and workflow is remembered, enabling smarter, more proactive assistance over time.
+- **Enterprise-Grade Security:** Built with robust authentication, privacy, and compliance at its core.
 
 ---
 
-## 🔌 Supported Integrations (via Pipedream Connect)
+## 🌟 Use Cases
 
-- Gmail, Outlook, Google Drive, OneDrive, Slack, Microsoft Teams, Salesforce, Hubspot, Notion, Trello, Jira, LinkedIn, Mailchimp, Calendly, Monday, Figma, Product Hunt, WhatsApp Business, Clearbit, Zoho, and many more.
+- **Sales & Customer Success:** Instantly log calls, update pipelines, and trigger follow-ups—no manual entry required.
+- **Executive Productivity:** Schedule meetings, send messages, and manage tasks with a single voice command or chat.
+- **Team Collaboration:** Bring together people and AI agents to brainstorm, plan, and execute projects in real time.
+- **Support & Operations:** Automate ticketing, escalate issues, and keep everyone in the loop—without switching apps.
+- **Custom Workflows:** Design and deploy automations unique to your business, with no code required.
 
-See the [Pipedream Connected Accounts docs](https://pipedream.com/docs/integrations/connected-accounts) for the full list.
+---
+
+## 🧠 How It Works
+
+Optiflow's architecture is built for the future:
+
+- **Modular Orchestration:** A powerful backend orchestrator routes every request to the right agent or integration, handling context, memory, and intent.
+- **Persistent Mapping:** User workspaces, agent assignments, and integration connections are securely mapped and stored for reliability and continuity.
+- **Unified API Layer:** All integrations and automations are managed through a unified API, making it easy to add new services or agents as your business grows.
+- **Modern Frontend:** A beautiful, responsive interface provides a frictionless user experience across devices.
 
 ---
 
 ## 🛠️ Getting Started
 
 1. **Clone the repo:**
-   ```bash
+   ```sh
    git clone https://github.com/your-org/optiflow.git
    cd optiflow
    ```
 2. **Install dependencies:**
-   ```bash
+   ```sh
    npm install
+   # or
+   pnpm install
    ```
 3. **Configure environment:**
-   - Copy `.env.example` to `.env.local` and fill in your credentials (LiveKit, Pipedream, Mem0, etc.)
-4. **Run the app locally:**
-   ```bash
+   - Copy `.env.example` to `.env.local` and fill in your credentials.
+4. **Run locally:**
+   ```sh
    npm run dev
    ```
-5. **Database setup:**
-   - Run `npx prisma migrate dev` to set up the database schema.
+5. **Deploy:**
+   - Deploy to your favorite cloud platform with a single command.
 
 ---
 
-## 👤 User Experience
+## 🤝 Join the Movement
 
-- **Connect Integrations:** Go to your account settings, click "Connections," and link your SaaS accounts securely via Pipedream.
-- **Voice Agent:** Interact with your personal AI agent via the persistent orb in the UI. Ask it to perform actions, answer questions, or automate workflows.
-- **Multi-Agent, Multi-User:** Invite teammates, assign agents, and orchestrate complex tasks in real time.
-- **Memory:** All interactions are context-aware, with persistent memory for smarter, more helpful agents.
-
----
-
-## 🤖 Developer Notes
-
-- **Prisma models** define persistent room, user, agent, and connection mappings.
-- **API routes** are organized by feature (LiveKit, agent, Pipedream, etc.) and use server-side validation and security best practices.
-- **No legacy/mocks:** All integrations are real, production-ready, and database-backed.
-- **Testing:** See `/tests` for unit and e2e tests. Use Vitest for new tests.
-
----
-
-## 🤝 Contributing
-
-We welcome contributions! Please open issues or pull requests for bugs, features, or improvements. See `CONTRIBUTING.md` for guidelines.
+Optiflow is more than a product—it's a movement toward a smarter, more connected, and more human future of work. We welcome contributors, partners, and investors who share our vision. Please open issues or pull requests for new features, bug fixes, or improvements. See `CONTRIBUTING.md` for guidelines.
 
 ---
 
 ## 📄 License
 
-This project is licensed under the MIT License. See `LICENSE` for details.
+This project is licensed under the MIT License.
 
 ---
 
-## 📚 References
-- [Pipedream Connected Accounts](https://pipedream.com/docs/integrations/connected-accounts)
-- [LiveKit Docs](https://docs.livekit.io/)
-- [Prisma ORM](https://www.prisma.io/docs/)
-- [Mem0 SDK](https://mem0.com/)
-
----
-
-**Optiflow: The future of AI-powered, integrated teamwork.**
+For more information, visit our documentation or contact the team. Let's build the future of intelligent work—together.
