@@ -1,6 +1,8 @@
 'use client';
 
+import { Cog6ToothIcon } from '@heroicons/react/24/outline';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import React from 'react';
 import ReactFlow, {
   addEdge,
   Background,
@@ -32,9 +34,6 @@ import useNodeTypes from '@/components/workflow/NodeTypesFactory';
 import PipedreamAppNode from '@/components/workflow/PipedreamAppNode';
 import WorkflowHeader from '@/components/workflow/WorkflowHeader';
 import WorkflowSettingsPanel, { WorkflowSettings } from '@/components/workflow/WorkflowSettings';
-
-import { Cog6ToothIcon } from '@heroicons/react/24/outline';
-
 
 // Define a union type for node data
 type NodeDataType = { id?: string;

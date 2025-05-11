@@ -21,6 +21,8 @@ interface VoiceAgentInterfaceProps {
   className?: string;
 }
 
+const ORB_SIZE = 64;
+
 const VoiceAgentInterface: React.FC<VoiceAgentInterfaceProps> = ({ className }) => {
   const { data: session } = useSession();
   const [room, setRoom] = useState<Room | null>(null);
@@ -32,6 +34,13 @@ const VoiceAgentInterface: React.FC<VoiceAgentInterfaceProps> = ({ className }) 
   const [isAgentSpeaking, setIsAgentSpeaking] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [roomName, setRoomName] = useState<string>('');
+  const [minimized, setMinimized] = useState<boolean>(() => {
+    if (typeof window !== 'undefined') {
+      return localStorage.getItem('jarvis_minimized') === 'true';
+    }
+    return false;
+  });
+  const [unread, setUnread] = useState(false);
   
   const localAudioTrackRef = useRef<LocalAudioTrack | null>(null);
   const agentAudioTrackRef = useRef<RemoteAudioTrack | null>(null);
@@ -256,10 +265,61 @@ const VoiceAgentInterface: React.FC<VoiceAgentInterfaceProps> = ({ className }) 
       }
     };
   }, [room]);
-  
+
+  // Persist minimized state
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('jarvis_minimized', minimized ? 'true' : 'false');
+    }
+  }, [minimized]);
+
+  // Mark unread if agent responds while minimized
+  useEffect(() => {
+    if (minimized && agentResponse) {
+      setUnread(true);
+    }
+  }, [agentResponse, minimized]);
+
+  // Clear unread when expanded
+  useEffect(() => {
+    if (!minimized) setUnread(false);
+  }, [minimized]);
+
+  if (minimized) {
+    // Orb mode
+    return (
+      <div
+        className="fixed bottom-6 right-6 z-50 cursor-pointer"
+        style={{ width: ORB_SIZE, height: ORB_SIZE }}
+        onClick={() => setMinimized(false)}
+        title="Open Jarvis Voice Assistant"
+      >
+        <div className={`relative flex items-center justify-center w-full h-full rounded-full shadow-lg bg-gradient-to-br from-cyan-400 via-blue-600 to-purple-600 animate-pulse ${isListening ? 'ring-4 ring-cyan-300' : ''} ${isAgentSpeaking ? 'ring-4 ring-purple-400' : ''}`}
+        >
+          {/* Animated orb */}
+          <span className="absolute w-full h-full rounded-full bg-cyan-400 opacity-30 blur-xl animate-ping" />
+          <span className="relative z-10 w-10 h-10 rounded-full bg-gradient-to-br from-cyan-400 to-purple-600 shadow-inner" />
+          {/* Notification badge */}
+          {unread && (
+            <span className="absolute top-1 right-1 w-4 h-4 bg-pink-500 rounded-full border-2 border-white animate-bounce" />
+          )}
+        </div>
+      </div>
+    );
+  }
+
   return (
-    <div className={`bg-[#18181B] text-[#E5E7EB] shadow-lg rounded-lg p-6 border border-[#374151] ${className}`}>
-      <h2 className="text-xl font-bold mb-6 text-[#22D3EE]">Jarvis Voice Assistant</h2>
+    <div className={`bg-[#18181B] text-[#E5E7EB] shadow-lg rounded-lg p-6 border border-[#374151] ${className} fixed bottom-6 right-6 z-50 w-[360px] max-w-[90vw]`}>
+      <div className="flex items-center justify-between mb-2">
+        <h2 className="text-xl font-bold text-[#22D3EE]">Jarvis Voice Assistant</h2>
+        <button
+          onClick={() => setMinimized(true)}
+          className="ml-2 px-2 py-1 rounded hover:bg-[#22223B] text-[#A855F7] text-lg font-bold"
+          title="Minimize"
+        >
+          &minus;
+        </button>
+      </div>
       
       {error && <ErrorMessage message={error} onDismiss={clearError} />}
       

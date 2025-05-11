@@ -1,3 +1,4 @@
+/* eslint-env node */
 /* eslint-disable @typescript-eslint/no-var-requires */
 /**
  * Mock OAuth Server for Testing
@@ -23,10 +24,10 @@ const pendingAuthRequests = new Map();
 
 // Mock OAuth authorization page
 app.get('/mock-oauth/authorize', (req, res) => {
-  const { client_id, redirect_uri, state, scope, response_type } = req.query;
+  const { client_id, redirect_uri: _redirect_uri, state, scope, response_type: _response_type } = req.query;
   
   // Store the state for verification
-  pendingAuthRequests.set(state, { client_id, redirect_uri });
+  pendingAuthRequests.set(state, { client_id, redirect_uri: _redirect_uri });
 
   // Return a mock OAuth page
   res.send(`
@@ -47,19 +48,19 @@ app.get('/mock-oauth/authorize', (req, res) => {
           <p>An application is requesting access to your account:</p>
           <ul>
             <li>Client ID: ${client_id}</li>
-            <li>Redirect URI: ${redirect_uri}</li>
+            <li>Redirect URI: ${_redirect_uri}</li>
             <li>Scope: ${scope}</li>
           </ul>
           <form id="authForm" method="GET" action="/mock-oauth/approve">
             <input type="hidden" name="state" value="${state}" />
-            <input type="hidden" name="redirect_uri" value="${redirect_uri}" />
+            <input type="hidden" name="redirect_uri" value="${_redirect_uri}" />
             <button type="submit" class="btn">Approve</button>
             <button type="button" class="btn btn-deny" onclick="denyAccess()">Deny</button>
           </form>
         </div>
         <script>
           function denyAccess() {
-            const redirectUri = "${redirect_uri}";
+            const redirectUri = "${_redirect_uri}";
             window.location.href = redirectUri + "?error=access_denied&state=${state}";
           }
         </script>
@@ -70,7 +71,7 @@ app.get('/mock-oauth/authorize', (req, res) => {
 
 // Handle approvals
 app.get('/mock-oauth/approve', (req, res) => {
-  const { state, redirect_uri } = req.query;
+  const { state, redirect_uri: _redirect_uri } = req.query;
   
   // Verify state
   if (!pendingAuthRequests.has(state)) {
@@ -81,13 +82,13 @@ app.get('/mock-oauth/approve', (req, res) => {
   const authCode = `mock_auth_code_${Date.now()}`;
   
   // Redirect back to the client application
-  const redirectUrl = `${redirect_uri}?code=${authCode}&state=${state}`;
+  const redirectUrl = `${_redirect_uri}?code=${authCode}&state=${state}`;
   res.redirect(redirectUrl);
 });
 
 // Mock token endpoint
 app.post('/mock-oauth/token', (req, res) => {
-  const { code, client_id, client_secret, redirect_uri, grant_type } = req.body;
+  const { code, client_id, client_secret: _client_secret, redirect_uri: _redirect_uri, grant_type } = req.body;
   
   // Validate the request
   if (!code || !client_id || grant_type !== 'authorization_code') {

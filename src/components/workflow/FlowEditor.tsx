@@ -26,6 +26,7 @@ import WaitNode from './nodes/WaitNode';
 import { nodeTypes as workflowNodeTypes } from './nodes/WorkflowNodes';
 
 import PipedreamConnector from '@/components/PipedreamConnector';
+import { useUserStore } from '@/lib/userStore';
 
 
 // Register custom node types
@@ -261,25 +262,9 @@ const nodeTemplates = [
   }
 ];
 
-// Check if an app is already connected (in development mode)
-const isAppConnected = (appId: string): boolean => {
-  if (typeof window === 'undefined') return false;
-  
-  try {
-    // Get user ID from localStorage or use a default
-    const currentUser = JSON.parse(localStorage.getItem('user_store') || '{}');
-    const userId = currentUser?.state?.currentUser?.id || 'default-user';
-    
-    // Get connections from localStorage
-    const connectionsStr = localStorage.getItem(`mock_connections_${userId}`);
-    if (!connectionsStr) return false;
-    
-    const connections = JSON.parse(connectionsStr);
-    return connections.some((conn: any) => conn.app === appId);
-  } catch (error) { 
-    console.error('Error checking app connection status:', error);
-    return false;
-  }
+// Check if an app is already connected
+const isAppConnected = (appId: string, connectedApps: string[]): boolean => {
+  return connectedApps.includes(appId);
 };
 
 export default function FlowEditor() {
@@ -299,32 +284,25 @@ export default function FlowEditor() {
     animated: false
   });
 
+  const { currentUser } = useUserStore();
+  const userId = currentUser?.id ?? '';
+
   // Load connected apps on mount
   useEffect(() => {
-    const loadConnectedApps = () => {
-      if (typeof window === 'undefined') return;
-      
+    const fetchConnectedApps = async () => {
       try {
-        // Get user ID from localStorage or use a default
-        const currentUser = JSON.parse(localStorage.getItem('user_store') || '{}');
-        const userId = currentUser?.state?.currentUser?.id || 'default-user';
-        
-        // Get connections from localStorage
-        const connectionsStr = localStorage.getItem(`mock_connections_${userId}`);
-        if (!connectionsStr) return;
-        
-        const connections = JSON.parse(connectionsStr);
+        if (!userId) return;
+        const response = await fetch(`/api/livekit/connections?userId=${userId}`);
+        if (!response.ok) throw new Error('Failed to fetch connections');
+        const connections = await response.json();
         const appIds = connections.map((conn: any) => conn.app);
-        
-        // Update state with connected apps
         setConnectedApps(appIds);
-      } catch (error) { 
+      } catch (error) {
         console.error('Error loading connected apps:', error);
       }
     };
-    
-    loadConnectedApps();
-  }, []) // eslint-disable-line react-hooks/exhaustive-deps
+    fetchConnectedApps();
+  }, [userId]);
 
   // Enhanced connection validation
   const onConnect = (connection: Connection) => {
@@ -372,48 +350,31 @@ export default function FlowEditor() {
   };
 
   // Handle connecting an app
-  const handleConnectApp = (appId: string) => {
-    if (isAppConnected(appId)) {
+  const handleConnectApp = async (appId: string) => {
+    if (isAppConnected(appId, connectedApps)) {
       toast.success(`Already connected to ${appId}`);
       return;
     }
-
     toast.success(`Connecting to ${appId}...`);
-    
-    // Create a mock connection
-    setTimeout(() => {
-      try {
-        // Get user ID from localStorage or use a default
-        const currentUser = JSON.parse(localStorage.getItem('user_store') || '{}');
-        const userId = currentUser?.state?.currentUser?.id || 'default-user';
-        
-        // Get existing connections
-        const connectionsStr = localStorage.getItem(`mock_connections_${userId}`) || '[]';
-        const connections = JSON.parse(connectionsStr);
-        
-        // Add new connection
-        const app = availableApps.find(a => a.id === appId);
-        const newConnection = {
-          id: `mock-${appId}-${Date.now()}`,
+    try {
+      if (!userId) throw new Error('User not authenticated');
+      const app = availableApps.find(a => a.id === appId);
+      const response = await fetch('/api/livekit/connections', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          userId,
           app: appId,
           app_name: app?.name || appId,
-          created_at: new Date().toISOString(),
-          updated_at: new Date().toISOString()
-        };
-        
-        connections.push(newConnection);
-        
-        // Save updated connections
-        localStorage.setItem(`mock_connections_${userId}`, JSON.stringify(connections));
-        
-        // Update state
-        setConnectedApps(prev => [...prev, appId])
-        toast.success(`Successfully connected to ${appId}!`);
-      } catch (error) {
-        console.error('Error connecting to app:', error);
-        toast.error(`Failed to connect to ${appId}`);
-      }
-    }, 1500);
+        }),
+      });
+      if (!response.ok) throw new Error('Failed to add connection');
+      setConnectedApps(prev => [...prev, appId]);
+      toast.success(`Successfully connected to ${appId}!`);
+    } catch (error) {
+      console.error('Error connecting to app:', error);
+      toast.error(`Failed to connect to ${appId}`);
+    }
   };
 
   // Handle drag over for node drag & drop

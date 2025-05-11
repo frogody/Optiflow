@@ -474,3 +474,47 @@ model KnowledgeDocument {
   @@index([contentType])
   @@map("knowledge_documents")
 }
+
+model UserRoom {
+  id            Int      @id @default(autoincrement())
+  userId        String   @unique
+  roomName      String   @unique
+  createdAt     DateTime @default(now())
+  metadata      Json?
+  participants  Json?    // Array of user objects: [{ id, name, role, joinedAt }]
+  agents        Json?    // Array of agent objects: [{ id, capabilities, joinedAt }]
+  sessionHistory Json?   // Array of action logs: [{ actor, action, timestamp }]
+  orchestratorAssignments OrchestratorAssignment[]
+}
+
+model Agent {
+  id           String   @id @default(uuid())
+  name         String
+  identity     String   @unique
+  capabilities String[]
+  status       String   @default("active")
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  assignments  OrchestratorAssignment[]
+}
+
+model OrchestratorAssignment {
+  id        String   @id @default(uuid())
+  agentId   String
+  roomId    Int
+  role      String   // orchestrator, assistant, etc.
+  assignedAt DateTime @default(now())
+  agent     Agent    @relation(fields: [agentId], references: [id], onDelete: Cascade)
+  userRoom  UserRoom @relation(fields: [roomId], references: [id], onDelete: Cascade)
+}
+
+model PipedreamConnection {
+  id         String   @id @default(uuid())
+  userId     String
+  service    String
+  accountId  String
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@unique([userId, service])
+}

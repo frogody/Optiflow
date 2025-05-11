@@ -142,4 +142,45 @@ export async function PUT(req: NextRequest) {
       { status: 500     }
     );
   }
+}
+
+export async function DELETE(req: NextRequest) {
+  try {
+    // Get user from request (attached by middleware)
+    const user = (req as any).user;
+    if (!user || !user.id) {
+      return NextResponse.json(
+        { error: 'Unauthorized access' },
+        { status: 401 }
+      );
+    }
+    // Parse request body
+    const body = await req.json();
+    if (!body.id) {
+      return NextResponse.json(
+        { error: 'Connection ID is required' },
+        { status: 400 }
+      );
+    }
+    // Delete connection
+    await prisma.connection.delete({
+      where: {
+        id: body.id,
+        userId: user.id
+      }
+    });
+    return NextResponse.json({ success: true });
+  } catch (error: any) {
+    console.error('Error deleting connection:', error);
+    if (error.code === 'P2025') {
+      return NextResponse.json(
+        { error: 'Connection not found or access denied' },
+        { status: 403 }
+      );
+    }
+    return NextResponse.json(
+      { error: 'Failed to delete connection' },
+      { status: 500 }
+    );
+  }
 } 

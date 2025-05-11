@@ -1,11 +1,10 @@
 'use client';
 
 import { CheckCircleIcon, QuestionMarkCircleIcon } from '@heroicons/react/24/outline';
-import React from 'react';
-import { HiOutlineSparkles, HiOutlineLightningBolt, HiOutlineCube } from 'react-icons/hi';
 import { motion, useScroll, useTransform } from 'framer-motion';
 import Link from 'next/link';
-import { useRef, useState } from 'react';
+import React, { useRef, useState } from 'react';
+import { HiOutlineSparkles, HiOutlineLightningBolt, HiOutlineCube } from 'react-icons/hi';
 
 // Enhanced aurora effect component
 const AuroraEffect = () => {

@@ -5,6 +5,7 @@ import BrowserDetection from '@/components/BrowserDetection';
 import { RootProviders } from '@/components/providers/RootProviders';
 import { initializeSentry } from '@/lib/monitoring/sentry';
 import '@/styles/globals.css';
+import VoiceAgentInterface from '@/components/voice/VoiceAgentInterface';
 
 const inter = Inter({ 
   subsets: ['latin'],
@@ -63,6 +64,10 @@ export default function RootLayout({
             {/* Dynamic announcements will be inserted here */}
           </div>
           {children}
+          {/* Persistent Voice Agent Widget */}
+          <div style={{ position: 'fixed', bottom: 24, right: 24, zIndex: 50 }}>
+            <VoiceAgentInterface />
+          </div>
         </RootProviders>
       </body>
     </html>

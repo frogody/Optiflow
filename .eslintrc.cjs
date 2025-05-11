@@ -41,5 +41,13 @@ module.exports = {
   parserOptions: {
     ecmaVersion: 2020,
     sourceType: 'module'
-  }
+  },
+  overrides: [
+    {
+      files: ['*.js', '**/*.js'],
+      env: {
+        node: true
+      }
+    }
+  ]
 }

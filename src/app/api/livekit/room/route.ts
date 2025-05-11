@@ -1,8 +1,6 @@
-import { AccessToken } from 'livekit-server-sdk';
 import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth/next';
 import { prisma } from '@/lib/prisma';
-
 import { authOptions } from '@/lib/auth';
 
 export async function POST(req: NextRequest) {
@@ -10,19 +8,18 @@ export async function POST(req: NextRequest) {
   if (!session || !session.user?.id) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
-
-  const userId = session.user.id;
-  const { metadata, participant, action } = await req.json().catch(() => ({}));
-  // Find or create a persistent room for this user
-  let userRoom = await prisma.userRoom.findUnique({ where: { userId } });
+  const { userId, participant, agent, action, metadata } = await req.json().catch(() => ({}));
+  const targetUserId = userId || session.user.id;
+  let userRoom = await prisma.userRoom.findUnique({ where: { userId: targetUserId } });
   if (!userRoom) {
-    const roomName = `user-${userId}-${Date.now()}`;
+    const roomName = `user-${targetUserId}-${Date.now()}`;
     userRoom = await prisma.userRoom.create({
       data: {
-        userId,
+        userId: targetUserId,
         roomName,
         metadata: metadata || {},
         participants: participant ? [participant] : [],
+        agents: agent ? [agent] : [],
         sessionHistory: action ? [action] : []
       }
     });
@@ -30,8 +27,16 @@ export async function POST(req: NextRequest) {
     // Update participants
     let participants = Array.isArray(userRoom.participants) ? userRoom.participants : [];
     if (participant) {
+      // Add if not already present
       if (!participants.find((p: any) => p.id === participant.id)) {
         participants.push(participant);
+      }
+    }
+    // Update agents
+    let agents = Array.isArray(userRoom.agents) ? userRoom.agents : [];
+    if (agent) {
+      if (!agents.find((a: any) => a.id === agent.id)) {
+        agents.push(agent);
       }
     }
     // Update sessionHistory
@@ -42,39 +47,20 @@ export async function POST(req: NextRequest) {
     // Merge metadata
     let newMetadata = metadata ? { ...(userRoom.metadata || {}), ...metadata } : userRoom.metadata;
     userRoom = await prisma.userRoom.update({
-      where: { userId },
+      where: { userId: targetUserId },
       data: {
         participants,
+        agents,
         sessionHistory,
         metadata: newMetadata
       }
     });
   }
-  const room = userRoom.roomName;
-
-  const apiKey = process.env.LIVEKIT_API_KEY!;
-  const apiSecret = process.env.LIVEKIT_API_SECRET!;
-  const livekitUrl = process.env.LIVEKIT_URL!;
-
-  if (!apiKey || !apiSecret || !livekitUrl) {
-    return NextResponse.json(
-      { error: 'LiveKit env vars not set' },
-      { status: 500 }
-    );
-  }
-
-  const at = new AccessToken(apiKey, apiSecret, {
-    identity: userId,
-    ttl: 60 * 60, // 1 hour
-  });
-  at.addGrant({ room, roomJoin: true, canPublish: true, canSubscribe: true });
-
   return NextResponse.json({
-    token: at.toJwt(),
-    url: livekitUrl,
-    room,
+    roomName: userRoom.roomName,
     participants: userRoom.participants,
+    agents: userRoom.agents,
     sessionHistory: userRoom.sessionHistory,
     metadata: userRoom.metadata
   });
-}
+} 
