@@ -11,7 +11,7 @@ import MicrophonePermission from '@/components/MicrophonePermission';
 import { useUserStore } from '@/lib/userStore';
 
 
-interface VoiceAgentProps { onWorkflowGenerated: (workflow: any) => void;
+interface VoiceAgentProps { onWorkflowGenerated: (workflow: unknown) => void;
     }
 
 declare global {
@@ -30,7 +30,7 @@ export const VoiceAgent: React.FC<VoiceAgentProps> = ({ onWorkflowGenerated }) =
   const [audioSrc, setAudioSrc] = useState<string | null>(null);
   const [showPermissionDialog, setShowPermissionDialog] = useState(false);
   
-  const recognitionRef = useRef<any>(null);
+  const recognitionRef = useRef<unknown>(null);
   const audioRef = useRef<HTMLAudioElement>(null);
   
   const { refs, floatingStyles, context } = useFloating({ placement: 'bottom-end',
