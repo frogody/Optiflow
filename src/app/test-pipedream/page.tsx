@@ -1,8 +1,9 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { toast } from 'react-hot-toast';
 
-import PipedreamConnectButton from '../../components/PipedreamConnectButton.tsx';
+import PipedreamConnectButton from '@/components/PipedreamConnectButton';
 import { usePipedreamConnect } from '../../lib/pipedream/usePipedreamConnect.ts';
 
 // Component to handle the actual Pipedream connection logic and UI, only rendered client-side
@@ -113,6 +114,14 @@ function PipedreamConnectionUI() {
     </div>
   );
 }
+
+const handleConnectionSuccess = async (accountId: string) => {
+  // ... existing success handling logic ...
+};
+
+const onError = (error: Error) => {
+  toast.error(`Error connecting to Pipedream: ${error.message}`);
+};
 
 export default function TestPipedreamPage(): JSX.Element {
   const [isClient, setIsClient] = useState(false);

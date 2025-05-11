@@ -9,6 +9,42 @@ import { toast } from 'react-hot-toast';
 import PipedreamConnectButton from '@/components/PipedreamConnectButton';
 import { useUserStore } from '@/lib/userStore';
 
+const handleConnectionSuccess = async (accountId: string) => {
+  // For development, store in localStorage
+  if (!userId) return;
+  
+  try {
+    // Find the app that was just connected
+    const [, appSlug] = accountId.split('-');
+    const app = commonApps.find(a => a.slug === appSlug);
+    
+    if (!app) return;
+    
+    // Create a mock connection record
+    const newConnection = { id: accountId,
+      app: appSlug,
+      app_name: app.name,
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString()
+        };
+    
+    // Add to state
+    const updatedConnections = [...connections, newConnection];
+    setConnections(updatedConnections);
+    
+    // Save to localStorage
+    localStorage.setItem(`mock_connections_${userId}`, JSON.stringify(updatedConnections));
+    
+    toast.success(`Successfully connected to ${app.name}!`);
+  } catch (error) { console.error('Error saving mock connection:', error);
+    toast.error('Failed to save connection');
+      }
+};
+
+const onError = (error: Error) => {
+  toast.error(`Error connecting to Pipedream: ${error.message}`);
+};
+
 export default function ConnectionsPage(): JSX.Element {
   const { currentUser } = useUserStore();
   const userId = currentUser?.id || '';
@@ -39,42 +75,6 @@ export default function ConnectionsPage(): JSX.Element {
 
     loadMockConnections();
   }, [userId]) // eslint-disable-line react-hooks/exhaustive-deps
-
-  const handleConnectionSuccess = async (accountId: string) => {
-    // For development, store in localStorage
-    if (!userId) return;
-    
-    try {
-      // Find the app that was just connected
-      const [, appSlug] = accountId.split('-');
-      const app = commonApps.find(a => a.slug === appSlug);
-      
-      if (!app) return;
-      
-      // Create a mock connection record
-      const newConnection = { id: accountId,
-        app: appSlug,
-        app_name: app.name,
-        created_at: new Date().toISOString(),
-        updated_at: new Date().toISOString()
-          };
-      
-      // Add to state
-      const updatedConnections = [...connections, newConnection];
-      setConnections(updatedConnections);
-      
-      // Save to localStorage
-      localStorage.setItem(`mock_connections_${userId}`, JSON.stringify(updatedConnections));
-      
-      toast.success(`Successfully connected to ${app.name}!`);
-    } catch (error) { console.error('Error saving mock connection:', error);
-      toast.error('Failed to save connection');
-        }
-  };
-
-  const onError = (error: Error) => {
-    toast.error(`Error connecting to Pipedream: ${error.message}`);
-  };
 
   return (
     <div className="container mx-auto py-8 px-4 min-h-screen">
