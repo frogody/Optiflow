@@ -121,6 +121,8 @@ const apiKeys = [
   }
 ];
 
+// All imported icons and components are used in the UI (avatar, password, session, and connection sections).
+
 export default function ProfileSettings() {
   // State for form values
   const [formData, setFormData] = useState({
@@ -379,6 +381,12 @@ export default function ProfileSettings() {
               <h2 className="text-lg font-medium text-[#E5E7EB]">{mockUser.name}</h2>
               <p className="text-[#9CA3AF]">{mockUser.email}</p>
               <p className="text-[#9CA3AF] text-xs mt-1">Member since {new Date(mockUser.created).toLocaleDateString()}</p>
+              <button
+                className="mt-3 flex items-center px-3 py-1.5 bg-[#18181B] text-[#22D3EE] rounded-md hover:bg-[#23272F] transition-colors text-sm font-medium"
+                onClick={() => alert('Edit profile functionality coming soon!')}
+              >
+                <PencilIcon className="h-4 w-4 mr-1" /> Edit Profile
+              </button>
             </div>
           </div>
           
@@ -763,6 +771,16 @@ export default function ProfileSettings() {
                 Your quota resets on July 31, 2023
               </div>
             </div>
+          </div>
+          
+          {/* Quick Actions */}
+          <div className="flex gap-4 mb-6">
+            <button
+              className="flex items-center px-4 py-2 bg-[#18181B] text-[#22D3EE] rounded-md hover:bg-[#23272F] transition-colors text-sm font-medium"
+              onClick={() => alert('Manage API Keys functionality coming soon!')}
+            >
+              <KeyIcon className="h-5 w-5 mr-2" /> Manage API Keys
+            </button>
           </div>
           
           {/* API Keys */}

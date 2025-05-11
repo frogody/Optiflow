@@ -1,6 +1,6 @@
 'use client';
 
-// Original content commented out to bypass build errors
+// TODO: Restore the original FlowPage implementation below once build issues with FlowDashboard and user store are resolved. See commented code for intended logic.
 /*
 import { useRouter } from 'next/navigation';
 import { useEffect } from 'react';

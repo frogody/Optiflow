@@ -270,7 +270,9 @@ export default function DeveloperLayout({
         <div className="max-w-7xl mx-auto py-12 px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
             <div>
-              <h3 className="text-sm font-semibold text-[#22D3EE] tracking-wider uppercase">Documentation</h3>
+              <h3 className="text-sm font-semibold text-[#22D3EE] tracking-wider uppercase flex items-center gap-1">
+                <BookOpenIcon className="h-4 w-4" /> Documentation
+              </h3>
               <ul className="mt-4 space-y-4">
                 <li>
                   <Link href="/developer/docs/getting-started" className="text-sm text-[#9CA3AF] hover:text-[#E5E7EB] transition-colors">
@@ -278,8 +280,8 @@ export default function DeveloperLayout({
                   </Link>
                 </li>
                 <li>
-                  <Link href="/developer/docs/authentication" className="text-sm text-[#9CA3AF] hover:text-[#E5E7EB] transition-colors">
-                    Authentication
+                  <Link href="/developer/docs/authentication" className="text-sm text-[#9CA3AF] hover:text-[#E5E7EB] transition-colors flex items-center gap-1">
+                    <KeyIcon className="h-4 w-4" /> Authentication
                   </Link>
                 </li>
                 <li>
@@ -295,7 +297,9 @@ export default function DeveloperLayout({
               </ul>
             </div>
             <div>
-              <h3 className="text-sm font-semibold text-[#22D3EE] tracking-wider uppercase">SDKs</h3>
+              <h3 className="text-sm font-semibold text-[#22D3EE] tracking-wider uppercase flex items-center gap-1">
+                <CubeIcon className="h-4 w-4" /> SDKs
+              </h3>
               <ul className="mt-4 space-y-4">
                 <li>
                   <Link href="/developer/sdks/javascript" className="text-sm text-[#9CA3AF] hover:text-[#E5E7EB] transition-colors">
@@ -320,7 +324,9 @@ export default function DeveloperLayout({
               </ul>
             </div>
             <div>
-              <h3 className="text-sm font-semibold text-[#22D3EE] tracking-wider uppercase">Resources</h3>
+              <h3 className="text-sm font-semibold text-[#22D3EE] tracking-wider uppercase flex items-center gap-1">
+                <CodeBracketIcon className="h-4 w-4" /> Resources
+              </h3>
               <ul className="mt-4 space-y-4">
                 <li>
                   <Link href="/developer/guides" className="text-sm text-[#9CA3AF] hover:text-[#E5E7EB] transition-colors">
@@ -345,7 +351,9 @@ export default function DeveloperLayout({
               </ul>
             </div>
             <div>
-              <h3 className="text-sm font-semibold text-[#22D3EE] tracking-wider uppercase">Support</h3>
+              <h3 className="text-sm font-semibold text-[#22D3EE] tracking-wider uppercase flex items-center gap-1">
+                <ChatBubbleLeftRightIcon className="h-4 w-4" /> Support
+              </h3>
               <ul className="mt-4 space-y-4">
                 <li>
                   <Link href="/developer/community" className="text-sm text-[#9CA3AF] hover:text-[#E5E7EB] transition-colors">

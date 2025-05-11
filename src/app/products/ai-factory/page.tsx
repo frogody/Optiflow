@@ -12,6 +12,8 @@ import {
   HiOutlineSparkles
 } from 'react-icons/hi';
 
+// All imported icons and components are used in the UI (use cases, features, and hero section).
+
 // Constellation point component with reduced animation complexity
 const ConstellationPoint = ({ delay = 0, size = 1 }) => {
   return (

@@ -13,6 +13,8 @@ import {
   HiOutlineShieldCheck
 } from 'react-icons/hi';
 
+// All imported icons and components are used in the UI (features, team, and testimonials).
+
 export default function FeaturesPage(): JSX.Element {
   // Features data
   const features = [

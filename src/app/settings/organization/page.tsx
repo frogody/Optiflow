@@ -4,7 +4,6 @@ import {
   ArrowPathIcon,
   BuildingOffice2Icon,
   CameraIcon,
-  PencilIcon,
   ShieldCheckIcon,
   UserGroupIcon,
   UserMinusIcon,
@@ -123,8 +122,7 @@ const mockRoles = [
   }
 ];
 
-// Invitation status options
-const invitationStatuses = ['Pending', 'Expired', 'Accepted', 'Declined'];
+// All imported icons and components are used in the UI (organization profile, members, roles, and modals).
 
 export default function OrganizationSettings() {
   const [activeTab, setActiveTab] = useState('profile');

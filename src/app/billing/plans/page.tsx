@@ -148,8 +148,13 @@ export default function SubscriptionPlans() {
         <div className="md:flex md:items-center md:justify-between">
           <div>
             <h2 className="text-xl font-bold text-[#E5E7EB] flex items-center">
-              Your Current Plan: 
-              <span className="text-[#22D3EE] ml-2">{mockUserPlan.name}</span>
+              Your Current Plan:
+              <span className="text-[#22D3EE] ml-2 flex items-center">
+                {mockUserPlan.name}
+                {mockUserPlan.name === 'Pro' && (
+                  <CheckCircleIcon className="ml-2 h-5 w-5 text-[#22D3EE]" />
+                )}
+              </span>
               {mockUserPlan.name === 'Pro' && (
                 <span className="ml-2 text-xs bg-[#022c22] text-[#22D3EE] px-2 py-1 rounded-full">Active</span>
               )}
@@ -219,8 +224,9 @@ export default function SubscriptionPlans() {
                         <div className="font-medium text-[#E5E7EB]">{plan.name}</div>
                       </td>
                       
-                      <td className="whitespace-nowrap px-3 py-4 text-sm text-[#E5E7EB]">
+                      <td className="whitespace-nowrap px-3 py-4 text-sm text-[#E5E7EB] flex items-center gap-1">
                         {plan.price}
+                        {plan.id === 'pro' ? <ArrowUpIcon className="h-4 w-4 text-[#22D3EE]" /> : plan.id === 'free' ? <ArrowDownIcon className="h-4 w-4 text-[#F87171]" /> : null}
                       </td>
                       
                       <td className="whitespace-nowrap px-3 py-4 text-sm text-[#E5E7EB]">

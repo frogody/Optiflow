@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 
 // Removed import: import { getPipedreamConfig } from '../../../../../../lib/pipedream/config.js';
-// import { मानव } from '@/lib/db.js'; // Assuming this is a placeholder/example - Commenting out due to missing export, or incorrect named import
+// import { मानव } from '@/lib/db.js'; // TODO: Placeholder for future DB logic. Uncomment and implement when DB integration is needed.
 
 // --- Inlined PipedreamConfig and getPipedreamConfig logic ---
 interface PipedreamConfig { 

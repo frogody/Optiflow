@@ -279,19 +279,21 @@ export default function AboutPage() {
           <div className="max-w-4xl mx-auto">
             <h2 className="text-3xl font-bold mb-2 text-center">Our Values</h2>
             <p className="text-[#9CA3AF] text-center mb-12">The principles that guide everything we do</p>
-            
             <div className="grid md:grid-cols-2 gap-6">
-              {companyValues.map((value, index) => (
+              {values.map((value, index) => (
                 <motion.div
                   key={index}
-                  className="bg-[#18181B] p-6 rounded-lg border border-[#374151]"
+                  className="bg-[#18181B] p-6 rounded-lg border border-[#374151] flex items-start gap-4"
                   initial={{ opacity: 0, y: 20 }}
                   whileInView={{ opacity: 1, y: 0 }}
                   viewport={{ once: true }}
                   transition={{ delay: index * 0.1 }}
                 >
-                  <h3 className="text-xl font-medium text-[#22D3EE] mb-2">{value.title}</h3>
-                  <p className="text-[#9CA3AF]">{value.description}</p>
+                  <value.icon className="h-8 w-8 text-[#22D3EE] flex-shrink-0 mt-1" />
+                  <div>
+                    <h3 className="text-xl font-medium text-[#22D3EE] mb-2">{value.title}</h3>
+                    <p className="text-[#9CA3AF]">{value.description}</p>
+                  </div>
                 </motion.div>
               ))}
             </div>
@@ -433,7 +435,10 @@ export default function AboutPage() {
               </div>
               
               <div>
-                <div className="text-4xl md:text-5xl font-bold text-white mb-2">1M+</div>
+                <div className="text-4xl md:text-5xl font-bold text-white mb-2 flex items-center justify-center gap-2">
+                  1M+
+                  <CheckCircleIcon className="h-6 w-6 text-[#22D3EE]" title="Milestone reached" />
+                </div>
                 <div className="text-[#9CA3AF]">Workflows Run</div>
               </div>
             </div>

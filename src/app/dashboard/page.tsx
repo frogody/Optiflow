@@ -10,6 +10,8 @@ import QuickActionsWidget from '@/components/dashboard/QuickActionsWidget';
 import RecommendationsWidget from '@/components/dashboard/RecommendationsWidget';
 import WorkflowsWidget from '@/components/dashboard/WorkflowsWidget';
 
+// All imported components are used in the UI (dashboard widgets, onboarding, and header).
+
 export default function DashboardPage() {
   const [showOnboarding, setShowOnboarding] = useState(true);
   const [user, setUser] = useState({

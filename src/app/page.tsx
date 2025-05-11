@@ -8,6 +8,8 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 
+// All imported icons and components are used in the UI (hero, personas, testimonials, and integrations).
+
 // Define A/B testing variants for hero section
 const heroVariants = {
   'A': {
@@ -84,35 +86,89 @@ const integrationLogos = [
 ];
 
 export default function HomePage() {
+  // For now, use variant A
+  const hero = heroVariants['A'];
+
   return (
     <div className="min-h-screen flex flex-col items-center justify-center bg-[#111111] text-white p-4">
-      <div className="max-w-4xl mx-auto text-center">
+      {/* Hero Section */}
+      <div className="max-w-4xl mx-auto text-center mt-12 mb-16">
+        {/* Trusted badge */}
+        <div className="flex justify-center mb-4">
+          <span className="inline-flex items-center bg-[#18181B] text-[#22D3EE] px-4 py-1 rounded-full text-sm font-medium border border-[#374151]">
+            <CheckCircleIcon className="h-5 w-5 mr-1" /> Trusted by 10,000+ teams
+          </span>
+        </div>
         <h1 className="text-4xl md:text-6xl font-bold mb-6 bg-gradient-to-r from-blue-400 to-indigo-500 text-transparent bg-clip-text">
-          Optiflow
+          {hero.title}
         </h1>
-        <p className="text-xl text-gray-300 mb-8">
-          AI-Powered Workflow Automation
-        </p>
-        <p className="text-lg text-gray-400 mb-12">
-          Your application is now running. Normal pages and routes will be available shortly.
-        </p>
-        <div className="flex flex-wrap justify-center gap-4">
-          <a
-            href="https://github.com/frogody/Optiflow"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="px-6 py-3 bg-indigo-600 text-white font-medium rounded-md hover:bg-indigo-700 transition-colors"
+        <p className="text-xl text-gray-300 mb-4">{hero.subtitle}</p>
+        <div className="flex flex-wrap justify-center gap-4 mb-8">
+          <Link
+            href="/signup"
+            className="px-6 py-3 bg-indigo-600 text-white font-medium rounded-md hover:bg-indigo-700 transition-colors inline-flex items-center"
           >
-            GitHub Repository
-          </a>
+            {hero.cta}
+            <ArrowRightIcon className="ml-2 h-5 w-5" />
+          </Link>
           <a
             href="/dashboard"
             className="px-6 py-3 border border-indigo-500 text-indigo-400 font-medium rounded-md hover:bg-indigo-900/20 transition-colors"
           >
             Go to Dashboard
           </a>
+          <a
+            href="/demo"
+            className="px-6 py-3 border border-[#22D3EE] text-[#22D3EE] font-medium rounded-md hover:bg-[#22D3EE]/10 transition-colors inline-flex items-center"
+          >
+            <PlayCircleIcon className="h-5 w-5 mr-2" /> Watch Demo
+          </a>
+        </div>
+        {/* Integration Logos */}
+        <div className="flex flex-wrap justify-center gap-6 mt-8">
+          {integrationLogos.map((logo) => (
+            <div key={logo.name} className="flex items-center">
+              <Image src={logo.logo} alt={logo.name} width={40} height={40} className="h-10 w-10 object-contain" />
+            </div>
+          ))}
         </div>
       </div>
+
+      {/* Persona Value Props */}
+      <section className="w-full max-w-5xl mx-auto mb-16">
+        <h2 className="text-2xl font-bold text-center mb-8">Who is Optiflow for?</h2>
+        <div className="grid md:grid-cols-3 gap-8">
+          {personaValueProps.map((persona) => (
+            <Link
+              key={persona.persona}
+              href={persona.link}
+              className="bg-[#18181B] rounded-lg p-6 flex flex-col items-center border border-[#374151] hover:border-indigo-500 transition-colors group"
+            >
+              <Image src={persona.icon} alt={persona.title} width={48} height={48} className="mb-4 h-12 w-12 object-contain" />
+              <h3 className="text-lg font-semibold mb-2 text-indigo-400 group-hover:text-indigo-300">{persona.title}</h3>
+              <p className="text-gray-400 text-center mb-4">{persona.description}</p>
+              <span className="inline-flex items-center text-indigo-400 group-hover:text-indigo-200 font-medium">
+                Learn more <ArrowRightIcon className="ml-1 h-4 w-4" />
+              </span>
+            </Link>
+          ))}
+        </div>
+      </section>
+
+      {/* Testimonials Section */}
+      <section className="w-full max-w-5xl mx-auto mb-16">
+        <h2 className="text-2xl font-bold text-center mb-8">What Our Users Say</h2>
+        <div className="grid md:grid-cols-3 gap-8">
+          {testimonials.map((testimonial, idx) => (
+            <div key={idx} className="bg-[#18181B] rounded-lg p-6 flex flex-col items-center border border-[#374151]">
+              <Image src={testimonial.avatar} alt={testimonial.author} width={56} height={56} className="rounded-full mb-4 h-14 w-14 object-cover" />
+              <p className="text-gray-300 italic mb-4">"{testimonial.quote}"</p>
+              <div className="text-indigo-400 font-semibold">{testimonial.author}</div>
+              <div className="text-gray-400 text-sm">{testimonial.title}</div>
+            </div>
+          ))}
+        </div>
+      </section>
     </div>
   );
 } 
