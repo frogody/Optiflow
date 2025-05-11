@@ -4,8 +4,8 @@ import { useEffect, useState } from 'react';
 import { toast } from 'react-hot-toast';
 
 import PipedreamConnectButton from '../../components/PipedreamConnectButton';
-import { useUserStore } from '../../lib/userStore';
 import { getUserAccounts } from '../../lib/pipedream/server';
+import { useUserStore } from '../../lib/userStore';
 
 // Define a more specific type for the setConnections function
 interface Connection {

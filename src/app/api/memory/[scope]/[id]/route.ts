@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+
 import { Mem0MemoryService, MemoryScope } from '@/services/Mem0MemoryService';
 
 const mem0 = new Mem0MemoryService();

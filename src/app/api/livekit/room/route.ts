@@ -1,7 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth/next';
-import { prisma } from '@/lib/prisma';
+
 import { authOptions } from '@/lib/auth';
+import { prisma } from '@/lib/prisma';
 
 export async function POST(req: NextRequest) {
   const session = await getServerSession(authOptions);
@@ -25,7 +26,7 @@ export async function POST(req: NextRequest) {
     });
   } else {
     // Update participants
-    let participants = Array.isArray(userRoom.participants) ? userRoom.participants : [];
+    const participants = Array.isArray(userRoom.participants) ? userRoom.participants : [];
     if (participant) {
       // Add if not already present
       if (!participants.find((p: any) => p.id === participant.id)) {
@@ -33,19 +34,19 @@ export async function POST(req: NextRequest) {
       }
     }
     // Update agents
-    let agents = Array.isArray(userRoom.agents) ? userRoom.agents : [];
+    const agents = Array.isArray(userRoom.agents) ? userRoom.agents : [];
     if (agent) {
       if (!agents.find((a: any) => a.id === agent.id)) {
         agents.push(agent);
       }
     }
     // Update sessionHistory
-    let sessionHistory = Array.isArray(userRoom.sessionHistory) ? userRoom.sessionHistory : [];
+    const sessionHistory = Array.isArray(userRoom.sessionHistory) ? userRoom.sessionHistory : [];
     if (action) {
       sessionHistory.push(action);
     }
     // Merge metadata
-    let newMetadata = metadata ? { ...(userRoom.metadata || {}), ...metadata } : userRoom.metadata;
+    const newMetadata = metadata ? { ...(userRoom.metadata || {}), ...metadata } : userRoom.metadata;
     userRoom = await prisma.userRoom.update({
       where: { userId: targetUserId },
       data: {

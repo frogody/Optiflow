@@ -1,9 +1,10 @@
 import { AccessToken, RoomServiceClient, AgentDispatchClient } from 'livekit-server-sdk';
 import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth/next';
-import { prisma } from '@/lib/prisma';
 
 import { authOptions } from '@/lib/auth';
+import { prisma } from '@/lib/prisma';
+
 
 export async function POST(req: NextRequest) {
   // Check authentication
@@ -46,19 +47,19 @@ export async function POST(req: NextRequest) {
       });
     } else {
       // Update agents
-      let agents = Array.isArray(userRoom.agents) ? userRoom.agents : [];
+      const agents = Array.isArray(userRoom.agents) ? userRoom.agents : [];
       if (agent) {
         if (!agents.find((a: any) => a.id === agent.id)) {
           agents.push(agent);
         }
       }
       // Update sessionHistory
-      let sessionHistory = Array.isArray(userRoom.sessionHistory) ? userRoom.sessionHistory : [];
+      const sessionHistory = Array.isArray(userRoom.sessionHistory) ? userRoom.sessionHistory : [];
       if (action) {
         sessionHistory.push(action);
       }
       // Merge metadata
-      let newMetadata = metadata ? { ...(userRoom.metadata || {}), ...metadata } : userRoom.metadata;
+      const newMetadata = metadata ? { ...(userRoom.metadata || {}), ...metadata } : userRoom.metadata;
       userRoom = await prisma.userRoom.update({
         where: { userId: targetUserId },
         data: {
