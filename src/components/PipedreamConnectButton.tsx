@@ -18,7 +18,8 @@ const FALLBACK_CLIENT_ID = 'kWYR9dn6Vmk7MnLuVfoXx4jsedOcp83vBg6st3rWuiM';
  * A button component that handles Pipedream OAuth connections
  * using the usePipedreamConnect hook with improved error handling
  */
-export default function PipedreamConnectButton() {
+export default function PipedreamConnectButton(props: PipedreamConnectButtonProps) {
+  const { appSlug, buttonText, className, onSuccess, onError, retryOnError } = props;
   // Get OAuth App ID from environment and ensure it's properly formatted
   const envClientId = process.env.NEXT_PUBLIC_PIPEDREAM_CLIENT_ID?.trim();
   const oauthAppId = envClientId || FALLBACK_CLIENT_ID;

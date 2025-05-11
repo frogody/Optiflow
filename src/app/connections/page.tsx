@@ -147,7 +147,13 @@ export default function ConnectionsPage(): JSX.Element {
               <h3 className="text-lg font-semibold mb-4 text-dark-50 dark:text-white">
                 {app.name}
               </h3>
-              <PipedreamConnectButton />
+              <PipedreamConnectButton
+                appSlug={app.slug}
+                onSuccess={(accountId: string) =>
+                  handleConnectionSuccess(accountId, userId, connections, setConnections, commonApps)
+                }
+                onError={onError}
+              />
             </div>
           ))}
         </div>

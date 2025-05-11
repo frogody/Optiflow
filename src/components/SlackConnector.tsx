@@ -12,7 +12,7 @@ interface SlackConnectorProps {
   onError?: (error: Error) => void;
 }
 
-export default function SlackConnector() {
+export default function SlackConnector({ className, onSuccess, onError }: SlackConnectorProps) {
   const [isConnecting, setIsConnecting] = useState(false);
   const { data: session     } = useSession();
 
