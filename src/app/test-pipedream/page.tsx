@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 import { toast } from 'react-hot-toast';
 
 import PipedreamConnectButton from '@/components/PipedreamConnectButton';
-import { usePipedreamConnect } from '../../lib/pipedream/usePipedreamConnect.ts';
+import { usePipedreamConnect } from '@/lib/pipedream/usePipedreamConnect';
 
 // Component to handle the actual Pipedream connection logic and UI, only rendered client-side
 function PipedreamConnectionUI() {
@@ -26,12 +26,12 @@ function PipedreamConnectionUI() {
     isInitializing, 
     isReady 
   } = usePipedreamConnect({
-    onSuccess: (accountId) => {
+    onSuccess: (accountId: string) => {
       setConnectionId(accountId);
       setError(null);
       console.log('Pipedream connected successfully with ID:', accountId);
     },
-    onError: (err) => {
+    onError: (err: Error) => {
       setError(err.message);
       setConnectionId(null);
       console.error('Pipedream connection error:', err.message);
@@ -99,11 +99,11 @@ function PipedreamConnectionUI() {
               <PipedreamConnectButton
                 appSlug={service.id}
                 buttonText={`Connect ${service.name}`}
-                onSuccess={(id) => {
+                onSuccess={(id: string) => {
                   setConnectionId(id);
                   setError(null);
                 }}
-                onError={(err) => {
+                onError={(err: Error) => {
                   setError(err.message);
                 }}
               />
@@ -134,5 +134,7 @@ export default function TestPipedreamPage(): JSX.Element {
     return <div>Loading Pipedream Test Page...</div>; // Or null
   }
 
-  return <PipedreamConnectionUI />;
+  return (
+    <PipedreamConnectionUI />
+  );
 } 
