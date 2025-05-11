@@ -53,6 +53,7 @@
     "@livekit/agents-plugin-openai": "^0.9.1",
     "@livekit/components-react": "^2.9.3",
     "@livekit/components-styles": "^1.1.5",
+    "@mem0/vercel-ai-provider": "^1.0.3",
     "@next-auth/prisma-adapter": "^1.0.7",
     "@pipedream/sdk": "^1.5.5",
     "@prisma/client": "^5.22.0",
