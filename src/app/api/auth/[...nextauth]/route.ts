@@ -1,5 +1,5 @@
+import { NextResponse } from 'next/server';
 import NextAuth from 'next-auth';
-import { NextResponse } from 'next/server'; // Added for placeholder
 
 // Original content commented out
 /*

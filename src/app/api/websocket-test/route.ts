@@ -80,7 +80,7 @@ async function testWebSocketConnection() {
         settled = true;
         try {
           ws.close();
-        } catch {}
+        } catch {/* intentionally empty: ignore close errors */}
         reject(new Error('WebSocket connection timed out after 5 seconds'));
       }
     }, 5000);
@@ -99,7 +99,7 @@ async function testWebSocketConnection() {
           clearTimeout(timeoutId);
           try {
             ws.close();
-          } catch {}
+          } catch {/* intentionally empty: ignore close errors */}
           reject(error);
         }
       }
@@ -113,7 +113,7 @@ async function testWebSocketConnection() {
           clearTimeout(timeoutId);
           try {
             ws.close();
-          } catch {}
+          } catch {/* intentionally empty: ignore close errors */}
           resolve({
             success: true,
             data:
@@ -128,7 +128,7 @@ async function testWebSocketConnection() {
           clearTimeout(timeoutId);
           try {
             ws.close();
-          } catch {}
+          } catch {/* intentionally empty: ignore close errors */}
           reject(error);
         }
       }
@@ -141,7 +141,7 @@ async function testWebSocketConnection() {
         clearTimeout(timeoutId);
         try {
           ws.close();
-        } catch {}
+        } catch {/* intentionally empty: ignore close errors */}
         reject(new Error(`WebSocket error: ${error}`));
       }
     };
