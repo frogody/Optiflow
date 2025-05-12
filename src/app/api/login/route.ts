@@ -15,8 +15,8 @@ export async function POST(request: NextRequest) {
     // Validate input
     if (!email || !password) {
       return NextResponse.json(
-        { success: false, error: 'Email and password are required'     },
-        { status: 400     }
+        { success: false, error: 'Email and password are required' },
+        { status: 400 }
       );
     }
     
@@ -30,33 +30,36 @@ export async function POST(request: NextRequest) {
     // Authenticate user
     const user = await authenticateUser(email, password);
     
-    // Set auth cookie
-    cookies().set({ name: 'user-token',
+    // Set auth cookie - updated to use await with cookies()
+    const cookieStore = await cookies();
+    cookieStore.set({
+      name: 'user-token',
       value: user.id,
       httpOnly: true,
       path: '/',
       sameSite: 'lax',
       secure: process.env.NODE_ENV === 'production',
       maxAge: 60 * 60 * 24 * 7, // 1 week
-        });
+    });
     
     // Return success with user data (excluding sensitive info)
     return NextResponse.json({
       success: true,
       user: {
-  id: user.id,
+        id: user.id,
         email: user.email,
         name: user.name || 'User',
-          }
+      }
     });
   } catch (error) {
     console.error('API login error:', error);
     
     return NextResponse.json(
-      { success: false, 
-        error: error instanceof Error ? error.message : 'Authentication failed' 
-          },
-      { status: 401     }
+      { 
+        success: false, 
+        error: error instanceof Error ? error.message : 'Authentication failed'
+      },
+      { status: 401 }
     );
   }
 } 
