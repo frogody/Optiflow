@@ -79,6 +79,30 @@ const nextConfig = {
     
     return config;
   },
+
+  // Add experimental features for better client-side stability
+  experimental: {
+    // Optimize client-side navigation
+    optimizeCss: true,
+    // Improve client-side error handling
+    clientRouterFilter: true,
+    // Enable better error handling for client components
+    serverActions: {
+      bodySizeLimit: '2mb',
+    },
+    // Improve hydration stability
+    optimizePackageImports: ['@heroicons/react', '@react-icons/all-files'],
+  },
+
+  // Configure error handling and logging
+  onError: (err) => {
+    console.error('Next.js build error:', err);
+  },
+  logging: {
+    fetches: {
+      fullUrl: true,
+    },
+  },
 };
 
 export default nextConfig; 

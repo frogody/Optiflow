@@ -24,7 +24,11 @@ export function RootProviders({ children }: { children: React.ReactNode }) {
   
   // Initialize client-side features safely
   useEffect(() => {
+    let mounted = true;
+
     async function initializeFeatures() {
+      if (!mounted) return;
+
       try {
         // Initialize error handler first to catch any errors in other initializations
         console.log('Initializing error handler...');
@@ -34,6 +38,8 @@ export function RootProviders({ children }: { children: React.ReactNode }) {
         console.log('Initializing i18n...');
         await initI18n();
         
+        if (!mounted) return;
+
         // Mark client-side rendering as complete
         console.log('Client-side initialization complete');
         setIsClient(true);
@@ -42,11 +48,17 @@ export function RootProviders({ children }: { children: React.ReactNode }) {
         document.documentElement.classList.add('client-loaded');
       } catch (error) {
         console.error('Error initializing client-side features:', error);
-        setInitError(error instanceof Error ? error : new Error('Unknown initialization error'));
+        if (mounted) {
+          setInitError(error instanceof Error ? error : new Error('Unknown initialization error'));
+        }
       }
     }
 
     initializeFeatures();
+
+    return () => {
+      mounted = false;
+    };
   }, []);
 
   // If there was an initialization error, show an error message
@@ -84,26 +96,35 @@ export function RootProviders({ children }: { children: React.ReactNode }) {
     );
   }
 
+  // Wrap providers in error boundaries
   return (
-    <ThemeProvider
-      attribute="class"
-      defaultTheme="system"
-      enableSystem
-      disableTransitionOnChange
-    >
-      <SessionProvider>
-        <TanstackProvider>
-          <IconContext.Provider value={{ className: 'inline-block' }}>
-            <Suspense fallback={null}>
-              <SessionInitializer />
-              {isClient && <Navigation />}
-              {children}
-              <Analytics />
-              <Toaster position="bottom-right" />
-            </Suspense>
-          </IconContext.Provider>
-        </TanstackProvider>
-      </SessionProvider>
-    </ThemeProvider>
+    <ErrorBoundaryWrapper>
+      <ThemeProvider
+        attribute="class"
+        defaultTheme="system"
+        enableSystem
+        disableTransitionOnChange
+      >
+        <ErrorBoundaryWrapper>
+          <SessionProvider>
+            <ErrorBoundaryWrapper>
+              <TanstackProvider>
+                <ErrorBoundaryWrapper>
+                  <IconContext.Provider value={{ className: 'inline-block' }}>
+                    <Suspense fallback={null}>
+                      <SessionInitializer />
+                      {isClient && <Navigation />}
+                      {children}
+                      <Analytics />
+                      <Toaster position="bottom-right" />
+                    </Suspense>
+                  </IconContext.Provider>
+                </ErrorBoundaryWrapper>
+              </TanstackProvider>
+            </ErrorBoundaryWrapper>
+          </SessionProvider>
+        </ErrorBoundaryWrapper>
+      </ThemeProvider>
+    </ErrorBoundaryWrapper>
   );
 }

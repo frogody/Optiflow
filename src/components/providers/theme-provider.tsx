@@ -9,5 +9,25 @@ import * as React from 'react';
 
 // Use the imported ThemeProviderProps
 export function ThemeProvider({ children, ...props }: ThemeProviderProps) {
-  return <NextThemesProvider {...props}>{children}</NextThemesProvider>;
+  const [mounted, setMounted] = React.useState(false);
+
+  // Handle safe mounting
+  React.useEffect(() => {
+    try {
+      setMounted(true);
+    } catch (error) {
+      console.error('Error mounting theme provider:', error);
+    }
+  }, []);
+
+  // Prevent flash of incorrect theme
+  if (!mounted) {
+    return <>{children}</>;
+  }
+
+  return (
+    <NextThemesProvider {...props}>
+      {children}
+    </NextThemesProvider>
+  );
 }
