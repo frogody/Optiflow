@@ -21,7 +21,7 @@ async function main() {
 
   // ==================== Create Admin User ====================
   console.log('Creating admin user...');
-  const adminPassword = process.env.SEED_ADMIN_PASSWORD || 'Admin123!';
+  const adminPassword = process.env['SEED_ADMIN_PASSWORD'] || 'Admin123!';
   const passwordHash = await bcrypt.hash(adminPassword, 10);
   
   const adminUser = await prisma.user.upsert({
@@ -38,7 +38,7 @@ async function main() {
   
   // ==================== Create Demo User ====================
   console.log('Creating demo user...');
-  const demoPassword = process.env.SEED_DEMO_PASSWORD || 'Demo123!';
+  const demoPassword = process.env['SEED_DEMO_PASSWORD'] || 'Demo123!';
   const demoPasswordHash = await bcrypt.hash(demoPassword, 10);
   
   const demoUser = await prisma.user.upsert({
