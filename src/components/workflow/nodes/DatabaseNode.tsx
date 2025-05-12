@@ -44,3 +44,5 @@ export const DatabaseNode = memo(({ data, isConnectable }: NodeProps) => {
     </div>
   );
 });
+
+DatabaseNode.displayName = 'DatabaseNode';

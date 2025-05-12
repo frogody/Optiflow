@@ -1,11 +1,11 @@
+import { Button } from "@/components/ui/button"
+import { cn } from "@/lib/utils"
 import { useState } from "react"
 import { IoCheckmarkOutline, IoCopyOutline, IoLogoReact } from "react-icons/io5"
 import { SiTypescript } from "react-icons/si"
 import SyntaxHighlighter from "react-syntax-highlighter"
 import { githubGist } from "react-syntax-highlighter/dist/esm/styles/hljs"
 
-import { Button } from "@/components/ui/button"
-import { cn } from "@/lib/utils"
 
 const syntaxHighlighterTheme = {
   ...githubGist,

@@ -1,3 +1,4 @@
+import { cn } from "@/lib/utils"
 import { IoTerminalOutline } from "react-icons/io5"
 
 import { SectionHeader } from "./SectionHeader"
@@ -8,7 +9,6 @@ import {
   CollapsibleContent,
   CollapsibleTrigger,
 } from "@/components/ui/collapsible"
-import { cn } from "@/lib/utils"
 
 interface TerminalCollapsibleProps {
   isOpen: boolean

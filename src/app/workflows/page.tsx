@@ -6,7 +6,6 @@ import {
   FolderPlusIcon, 
   PlusIcon 
 } from '@heroicons/react/24/outline';
-import { motion } from 'framer-motion';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
@@ -34,122 +33,6 @@ interface Agent { id: string;
   activeFlows: number;
   successRate: number;
     }
-
-// Mock data for agents
-const mockAgents: Agent[] = [
-  {
-    id: 'aora-agent',
-    name: 'AORA',
-    description: 'Autonomous Outreach & Research Automation',
-    modelId: 'gpt-4o',
-    status: 'idle',
-    connectedApps: ['HubSpot', 'Gmail'],
-    capabilities: [
-      { id: 'data-sync',
-        name: 'Data Synchronization',
-        description: 'AORA includes decision-maker mapping capabilities and CRM data enrichment with verified insights.',
-        category: 'data'
-          },
-      { id: 'conflict-resolution',
-        name: 'Conflict Resolution',
-        description: 'Intelligently resolve data conflicts',
-        category: 'data'
-          }
-    ],
-    activeFlows: 3,
-    successRate: 98
-  },
-  {
-    id: 'close-agent',
-    name: 'CLOSE',
-    description: 'Conversational Lead Optimization & Smart Execution',
-    modelId: 'claude-3-sonnet-20240229',
-    status: 'idle',
-    connectedApps: ['Clay', 'HubSpot'],
-    capabilities: [
-      { id: 'lead-enrichment',
-        name: 'Lead Enrichment',
-        description: 'CLOSE incorporates prospect interaction analysis and buying signal identification.',
-        category: 'data'
-          },
-      { id: 'lead-scoring',
-        name: 'Lead Scoring',
-        description: 'Score leads based on likelihood to convert',
-        category: 'analysis'
-          }
-    ],
-    activeFlows: 2,
-    successRate: 95
-  },
-  {
-    id: 'launch-agent',
-    name: 'LAUNCH',
-    description: 'Learn & Adapt User Navigated Customer-Handoff',
-    modelId: 'gemini-pro',
-    status: 'idle',
-    connectedApps: ['n8n', 'HubSpot', 'Gmail'],
-    capabilities: [
-      { id: 'workflow-orchestration',
-        name: 'Workflow Orchestration',
-        description: 'LAUNCH incorporates personalized onboarding plan creation and technical setup automation.',
-        category: 'automation'
-          }
-    ],
-    activeFlows: 1,
-    successRate: 75
-  },
-  {
-    id: 'nova-agent',
-    name: 'NOVA',
-    description: 'Next-Gen Outreach & Value Automation',
-    modelId: 'claude-3-opus',
-    status: 'idle',
-    connectedApps: ['Slack', 'GitHub'],
-    capabilities: [
-      { id: 'performance-monitoring',
-        name: 'Performance Monitoring',
-        description: 'NOVA incorporates usage pattern monitoring and expansion opportunity detection.',
-        category: 'analysis'
-          }
-    ],
-    activeFlows: 2,
-    successRate: 89
-  },
-  {
-    id: 'peak-agent',
-    name: 'PEAK',
-    description: 'Proactive Engagement & Account Kinetics',
-    modelId: 'gpt-4-turbo',
-    status: 'idle',
-    connectedApps: ['Google Analytics', 'Tableau'],
-    capabilities: [
-      { id: 'data-analysis',
-        name: 'Data Analysis',
-        description: 'PEAK incorporates usage pattern analysis and growth potential prediction.',
-        category: 'analysis'
-          }
-    ],
-    activeFlows: 1,
-    successRate: 91
-  },
-  {
-    id: 'expand-agent',
-    name: 'EXPAND',
-    description: 'Ecosystem Xceleration & Predictive Analytics for New Domains',
-    modelId: 'claude-3-sonnet-20240229',
-    status: 'idle',
-    connectedApps: ['Salesforce', 'LinkedIn'],
-    capabilities: [
-      { id: 'market-analysis',
-        name: 'Market Analysis',
-        description: 'EXPAND incorporates market trend analysis and competitive landscape evaluation.',
-        category: 'analysis'
-          }
-    ],
-    activeFlows: 2,
-    successRate: 86
-  }
-];
 
 // Mock data for demonstration
 const mockWorkflows: Workflow[] = [

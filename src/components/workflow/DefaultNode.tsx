@@ -230,7 +230,7 @@ export default function DefaultNode({ data, selected, isConnectable, id }: Defau
                           { typeof value === 'boolean' 
                             ? (value ? 'Yes' : 'No')
                             : String(value).length > 15 
-                              ? String(value).substring(0, 12) + '...' 
+                              ? String(value).substring(0, 12) + '&hellip;'
                               : String(value)
                               }
                         </span>

@@ -89,9 +89,7 @@ export default function OnboardingSection({ userName, onClose }: OnboardingSecti
           <h2 className="text-2xl font-bold text-[#E5E7EB]">
             Welcome, {userName}!
           </h2>
-          <p className="text-[#9CA3AF] mt-1">
-            Let's get you started with Optiflow. Complete these steps to set up your automation workflow.
-          </p>
+          <p className="text-[#9CA3AF] mt-1">{`Let's get you started with Optiflow. Complete these steps to set up your automation workflow.`}</p>
         </div>
       </div>
 

@@ -57,3 +57,5 @@ export const ConditionNode = memo(({ data, isConnectable }: NodeProps) => {
     </div>
   );
 });
+
+ConditionNode.displayName = 'ConditionNode';

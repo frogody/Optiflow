@@ -1,10 +1,10 @@
 "use client";
 
+import { cn } from "@/lib/utils";
 import * as DialogPrimitive from "@radix-ui/react-dialog";
 import * as React from "react";
 import { IoClose } from "react-icons/io5";
 
-import { cn } from "@/lib/utils";
 
 const Dialog = DialogPrimitive.Root;
 

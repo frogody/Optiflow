@@ -37,3 +37,5 @@ export const TriggerNode = memo(({ data, isConnectable }: NodeProps) => {
     </div>
   );
 });
+
+TriggerNode.displayName = 'TriggerNode';

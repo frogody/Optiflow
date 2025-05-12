@@ -54,7 +54,7 @@ export const ConversationalWorkflowBuilder: React.FC<ConversationalWorkflowBuild
     const message = messages.find(m => m.workflowStep?.id === stepId);
     if (!message?.workflowStep) return;
 
-    setInputText(`Edit step "${message.workflowStep.title}": `);
+    setInputText(`Edit step &ldquo;${message.workflowStep.title}&rdquo;: `);
     setSelectedStep(stepId);
   };
 

@@ -7,8 +7,12 @@ import {
   MagnifyingGlassIcon,
   Squares2X2Icon,
   TableCellsIcon,
-  TagIcon
+  TagIcon,
+  PencilIcon,
+  StopIcon,
+  PlayIcon
 } from '@heroicons/react/24/outline';
+import Link from 'next/link';
 import { useMemo, useState } from 'react';
 
 import { TriggerType, Workflow, WorkflowStatus } from '@/types/workflow';

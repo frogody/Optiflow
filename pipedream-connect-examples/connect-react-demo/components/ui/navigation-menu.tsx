@@ -1,9 +1,9 @@
+import { cn } from "@/lib/utils"
 import * as NavigationMenuPrimitive from "@radix-ui/react-navigation-menu"
 import { cva } from "class-variance-authority"
 import * as React from "react"
 import { IoChevronDownOutline } from "react-icons/io5"
 
-import { cn } from "@/lib/utils"
 
 
 const NavigationMenu = React.forwardRef<

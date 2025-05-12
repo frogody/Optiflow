@@ -1,8 +1,8 @@
+import { Button } from "@/components/ui/button"
 import { selectStyles } from "@pipedream/connect-react"
 import { IoAddOutline } from "react-icons/io5"
 import Select from "react-select"
 
-import { Button } from "@/components/ui/button"
 import { Switch } from "@/components/ui/switch"
 
 interface FormSettingsSectionProps {

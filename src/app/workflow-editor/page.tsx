@@ -1,6 +1,5 @@
 'use client';
 
-import { Cog6ToothIcon } from '@heroicons/react/24/outline';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import React from 'react';
 import ReactFlow, {
@@ -242,18 +241,18 @@ const initialEdges: Edge<EdgeDataType>[] = [
 ];
 
 // Define node types
-const nodeTypes = { default: DefaultNode,
-  aiAgent: AIAgentNode,
-  pipedreamApp: PipedreamAppNode,
-  // ... other node types ...
-    };
+// const nodeTypes = { default: DefaultNode,
+//   aiAgent: AIAgentNode,
+//   pipedreamApp: PipedreamAppNode,
+//   // ... other node types ...
+//     };
 
 // A wrapper component that provides the ReactFlow context
 function WorkflowEditorContent() {
   // Get color mode manually since we don't need the theme provider
-  const isDarkMode = typeof window !== 'undefined' ? 
-    window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches : 
-    false;
+  // const isDarkMode = typeof window !== 'undefined' ? 
+  //   window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches : 
+  //   false;
     
   const reactFlowWrapper = useRef<HTMLDivElement>(null);
   
@@ -270,7 +269,7 @@ function WorkflowEditorContent() {
   const [settings, setSettings] = useState<WorkflowSettings>(initialWorkflowSettings);
 
   // State for tracking node being dragged from palette
-  const [nodeDragType, setNodeDragType] = useState<string | null>(null);
+  // const [nodeDragType, setNodeDragType] = useState<string | null>(null);
   
   // Load generated workflow from sessionStorage on component mount
   useEffect(() => {

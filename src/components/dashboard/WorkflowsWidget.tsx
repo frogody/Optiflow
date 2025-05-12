@@ -264,9 +264,9 @@ export default function WorkflowsWidget({ showFavorites = true }: WorkflowsWidge
       ) : (
         <div className="bg-[#18181B] border border-[#374151] rounded-lg p-8 text-center">
           {activeTab === 'favorites' ? (
-            <p className="text-[#9CA3AF]">You don't have any favorite workflows yet.</p>
+            <p className="text-[#9CA3AF]">{`You don't have any favorite workflows yet.`}</p>
           ) : (
-            <p className="text-[#9CA3AF]">You haven't created any workflows yet.</p>
+            <p className="text-[#9CA3AF]">{`You haven't created any workflows yet.`}</p>
           )}
           
           <Link 

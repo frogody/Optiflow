@@ -1,8 +1,8 @@
 "use client"
+import { cn } from "@/lib/utils"
 import { IoReorderThreeOutline } from "react-icons/io5"
 import * as ResizablePrimitive from "react-resizable-panels"
 
-import { cn } from "@/lib/utils"
 
 const ResizablePanelGroup = ({
   className,

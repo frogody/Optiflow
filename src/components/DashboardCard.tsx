@@ -49,7 +49,7 @@ const DashboardCard = ({ title, description, icon, link, color }: DashboardCardP
         <p className="text-gray-300 text-sm flex-grow">{description}</p>
         <div className="mt-4 flex justify-end">
           <span className="text-white text-sm opacity-75">
-            { isHovered ? 'View →' : 'View'    }
+            { isHovered ? 'View &rarr;' : 'View'    }
           </span>
         </div>
       </div>

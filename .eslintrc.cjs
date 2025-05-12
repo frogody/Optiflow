@@ -37,7 +37,28 @@ module.exports = {
     '@typescript-eslint/no-empty-function': 'warn',
     'no-case-declarations': 'warn',
     'no-constant-condition': 'warn',
-    'no-var': 'error'
+    'no-var': 'error',
+    'react/no-unescaped-entities': ['error', {
+      'forbid': [
+        {
+          'char': '>',
+          'alternatives': ['&gt;']
+        },
+        {
+          'char': '}',
+          'alternatives': ['&#125;']
+        }
+        // Exclude apostrophe and double quotes from the forbidden list
+        // {
+        //   'char': '"',
+        //   'alternatives': ['&quot;', '&ldquo;', '&#34;', '&rdquo;']
+        // },
+        // {
+        //   'char': "'",
+        //   'alternatives': ['&apos;', '&lsquo;', '&#39;', '&rsquo;']
+        // }
+      ]
+    }]
   },
   parserOptions: {
     ecmaVersion: 2020,

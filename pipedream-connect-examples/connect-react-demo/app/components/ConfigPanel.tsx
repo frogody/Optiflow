@@ -1,5 +1,6 @@
 "use client"
 
+import { cn } from "@/lib/utils"
 import { SelectApp, SelectComponent } from "@pipedream/connect-react"
 import { useId } from "react"
 import Select from "react-select"
@@ -15,7 +16,6 @@ import {
 } from "@/components/ui/tooltip"
 import { useAppState } from "@/lib/app-state"
 import {enableDebugging} from "@/lib/query-params";
-import { cn } from "@/lib/utils"
 
 function getTypeDescription(prop: {
   name: string

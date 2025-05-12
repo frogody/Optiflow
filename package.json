@@ -41,7 +41,7 @@
   },
   "dependencies": {
     "@11labs/client": "^0.1.3",
-    "@anthropic-ai/sdk": "^0.50.3",
+    "@anthropic-ai/sdk": "^0.24.0",
     "@auth/core": "^0.39.0",
     "@auth/prisma-adapter": "^2.8.0",
     "@aws-sdk/client-s3": "^3.787.0",

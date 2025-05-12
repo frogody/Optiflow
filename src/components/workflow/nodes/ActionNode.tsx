@@ -46,3 +46,5 @@ export const ActionNode = memo(({ data, isConnectable }: NodeProps) => {
     </div>
   );
 });
+
+ActionNode.displayName = 'ActionNode';

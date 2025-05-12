@@ -46,3 +46,5 @@ export const ApiNode = memo(({ data, isConnectable }: NodeProps) => {
     </div>
   );
 });
+
+ApiNode.displayName = 'ApiNode';
