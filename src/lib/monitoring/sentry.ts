@@ -206,16 +206,49 @@ export type {
   CaptureContext as SentryCaptureContext
 } from '@sentry/nextjs';
 
-class MockSentry {
-  init(options: any): void {
-    console.log('Mock Sentry initialized with options:', options);
-  }
+/**
+ * Mock Sentry implementation for local development
+ * This prevents errors with OpenTelemetry and other dependencies
+ */
 
-  setUser(user: any): void {
-    console.log('Mock Sentry user set:', user);
+// Mock the Sentry API
+const mockSentry = {
+  captureException: (error: Error) => {
+    console.error('[Mock Sentry] Captured exception:', error);
+    return 'mock-error-id';
+  },
+  captureMessage: (message: string) => {
+    console.log('[Mock Sentry] Captured message:', message);
+    return 'mock-message-id';
+  },
+  init: () => {
+    console.log('[Mock Sentry] Initialized');
+  },
+  flush: async () => {
+    console.log('[Mock Sentry] Flushed');
+    return true;
   }
+};
 
-  addBreadcrumb(breadcrumb: any): void {
-    console.log('Mock Sentry breadcrumb added:', breadcrumb);
-  }
+// Export a mock version of the Sentry API
+export { mockSentry as default };
+
+// Mock user monitoring functions
+export function monitorUser(userId: string, email?: string) {
+  console.log('[Mock Sentry] Monitoring user:', { userId, email });
+}
+
+// Mock error monitoring functions
+export function captureUserError(error: Error, userId?: string) {
+  console.error('[Mock Sentry] User error:', error, { userId });
+}
+
+// Mock Sentry trace function
+export function startSentryTransaction(name: string, operation: string) {
+  console.log('[Mock Sentry] Starting transaction:', { name, operation });
+  return {
+    finish: () => console.log('[Mock Sentry] Finished transaction:', { name }),
+    setTag: (key: string, value: string) => console.log('[Mock Sentry] Set tag:', { key, value }),
+    setData: (key: string, value: any) => console.log('[Mock Sentry] Set data:', { key, value })
+  };
 } 

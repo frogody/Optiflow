@@ -14,15 +14,17 @@ export interface FrontendUser {
 
 export interface ToolConnection {
   connected: boolean;
-  config?: { apiKey?: string;
+  config?: { 
+    apiKey?: string;
     endpoint?: string;
     [key: string]: any;
-      };
+  };
 }
 
-export interface OrchestratorConnection { status: 'connected' | 'error' | 'connecting';
+export interface OrchestratorConnection { 
+  status: 'connected' | 'error' | 'connecting';
   config?: any;
-    }
+}
 
 export interface UserEnvironment {
   userId: string;
@@ -45,6 +47,7 @@ export interface UserState {
   clearUser: () => void;
 }
 
+// Create the store with better error handling
 export const useUserStore = create<UserState>()(
   persist(
     (set, get) => ({
@@ -52,62 +55,160 @@ export const useUserStore = create<UserState>()(
       isLoading: true,
       environments: {},
       lastCheck: 0,
+      
+      // Update user with error handling
       setCurrentUser: (user) => {
-        console.log('Setting current user:', user ? user.email : 'null');
-        set({ currentUser: user, 
-          isLoading: false,
-          lastCheck: Date.now()
-            });
+        try {
+          console.log('Setting current user:', user ? user.email : 'null');
+          set({ 
+            currentUser: user, 
+            isLoading: false,
+            lastCheck: Date.now()
+          });
+        } catch (error) {
+          console.error('Error in setCurrentUser:', error);
+        }
       },
-      setLoading: (loading) => set({ isLoading: loading     }),
-      updateToolConnection: (userId, toolName, connection) => 
-        set((state) => ({
-          environments: {
-            ...state.environments,
-            [userId]: {
-              ...state.environments[userId],
-              userId,
-              toolConnections: { ...state.environments[userId]?.toolConnections,
-                [toolName]: connection
-                  }
+      
+      // Set loading state
+      setLoading: (loading) => {
+        try {
+          set({ isLoading: loading });
+        } catch (error) {
+          console.error('Error in setLoading:', error);
+        }
+      },
+      
+      // Update tool connection
+      updateToolConnection: (userId, toolName, connection) => {
+        try {
+          set((state) => ({
+            environments: {
+              ...state.environments,
+              [userId]: {
+                ...state.environments[userId],
+                userId,
+                toolConnections: { 
+                  ...state.environments[userId]?.toolConnections,
+                  [toolName]: connection
+                }
+              }
             }
-          }
-        })),
-      updateMcpConnection: (userId, orchestratorId, connection) =>
-        set((state) => ({
-          environments: {
-            ...state.environments,
-            [userId]: {
-              ...state.environments[userId],
-              userId,
-              mcpConnections: { ...state.environments[userId]?.mcpConnections,
-                [orchestratorId]: connection
-                  }
+          }));
+        } catch (error) {
+          console.error('Error in updateToolConnection:', error);
+        }
+      },
+      
+      // Update MCP connection
+      updateMcpConnection: (userId, orchestratorId, connection) => {
+        try {
+          set((state) => ({
+            environments: {
+              ...state.environments,
+              [userId]: {
+                ...state.environments[userId],
+                userId,
+                mcpConnections: { 
+                  ...state.environments[userId]?.mcpConnections,
+                  [orchestratorId]: connection
+                }
+              }
             }
-          }
-        })),
+          }));
+        } catch (error) {
+          console.error('Error in updateMcpConnection:', error);
+        }
+      },
+      
+      // Get environment
       getEnvironment: (userId) => {
-        const state = get();
-        return state.environments[userId] || null;
+        try {
+          const state = get();
+          return state.environments[userId] || null;
+        } catch (error) {
+          console.error('Error in getEnvironment:', error);
+          return null;
+        }
       },
+      
+      // Set user (alias for setCurrentUser)
       setUser: (user) => {
-        console.log('Setting user with setUser method:', user ? user.email : 'null');
-        set({ currentUser: user, 
-          isLoading: false,
-          lastCheck: Date.now()
+        try {
+          console.log('Setting user with setUser method:', user ? user.email : 'null');
+          set({ 
+            currentUser: user, 
+            isLoading: false,
+            lastCheck: Date.now()
+          });
+        } catch (error) {
+          console.error('Error in setUser:', error);
+          // Try to reset the store to a safe state
+          try {
+            set({ 
+              currentUser: null, 
+              isLoading: false
             });
+          } catch (innerError) {
+            console.error('Failed to reset user state after error:', innerError);
+          }
+        }
       },
+      
+      // Logout user
       logoutUser: () => {
-        console.log('Logging out user');
-        set({ currentUser: null, isLoading: false     });
+        try {
+          console.log('Logging out user');
+          set({ currentUser: null, isLoading: false });
+        } catch (error) {
+          console.error('Error in logoutUser:', error);
+        }
       },
-      clearUser: () => set({ currentUser: null, isLoading: false     }),
+      
+      // Clear user
+      clearUser: () => {
+        try {
+          set({ currentUser: null, isLoading: false });
+        } catch (error) {
+          console.error('Error in clearUser:', error);
+        }
+      },
     }),
     {
       name: 'user-store',
-      partialize: (state) => ({ currentUser: state.currentUser,
+      partialize: (state) => ({ 
+        currentUser: state.currentUser,
         lastCheck: state.lastCheck
-          }),
+      }),
+      // Add storage configuration for better Next.js 15 compatibility
+      storage: typeof window !== 'undefined' 
+        ? {
+            getItem: (name) => {
+              try {
+                const str = localStorage.getItem(name);
+                if (!str) return null;
+                return JSON.parse(str);
+              } catch (error) {
+                console.error(`Error getting item ${name} from localStorage:`, error);
+                return null;
+              }
+            },
+            setItem: (name, value) => {
+              try {
+                localStorage.setItem(name, JSON.stringify(value));
+              } catch (error) {
+                console.error(`Error setting item ${name} in localStorage:`, error);
+              }
+            },
+            removeItem: (name) => {
+              try {
+                localStorage.removeItem(name);
+              } catch (error) {
+                console.error(`Error removing item ${name} from localStorage:`, error);
+              }
+            }
+          }
+        : undefined
     }
   )
-); 
+);
