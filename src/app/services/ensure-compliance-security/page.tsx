@@ -2,8 +2,14 @@
 
 // Force dynamic rendering to avoid static generation issues
 export const dynamic = 'force-dynamic';
+// Disable cache to avoid static rendering issues
+export const revalidate = 0;
+
+// Force dynamic rendering to avoid static generation issues
 
 
+
+import dynamic from 'next/dynamic';
 import { useState, useEffect } from 'react';
 
 import Link from 'next/link';

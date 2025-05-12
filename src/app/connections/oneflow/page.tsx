@@ -3,6 +3,8 @@
 
 // Force dynamic rendering to avoid static generation issues
 export const dynamic = 'force-dynamic';
+// Disable cache to avoid static rendering issues
+export const revalidate = 0;
 
 import { motion } from 'framer-motion';
 import Link from 'next/link';
@@ -14,7 +16,13 @@ import { useOneflow } from '@/hooks/useOneflow';
 import { useUserStore } from '@/lib/userStore';
 
 
-export default function OneflowConnectionPage(): JSX.Element {
+export default function OneflowConnectionPage() {
+  // Use client-side only rendering to avoid hydration mismatches
+  const [isClient, setIsClient] = useState(false);
+  
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
   const { currentUser } = useUserStore();
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(true);
@@ -83,7 +91,19 @@ export default function OneflowConnectionPage(): JSX.Element {
   };
 
   if (isLoading) {
+    // Only render the full content on the client side to avoid React version conflicts
+  if (!isClient) {
     return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-100">
+        <div className="animate-pulse flex flex-col items-center">
+          <div className="h-12 w-64 bg-gray-300 rounded mb-4"></div>
+          <div className="h-6 w-96 bg-gray-300 rounded"></div>
+        </div>
+      </div>
+    );
+  }
+
+  return (
       <div className="flex items-center justify-center min-h-screen">
         <div className="loading-pulse gradient-text text-xl">Loading...</div>
       </div>

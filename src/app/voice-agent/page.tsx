@@ -2,17 +2,37 @@
 
 // Force dynamic rendering to avoid static generation issues
 export const dynamic = 'force-dynamic';
+// Disable cache to avoid static rendering issues
+export const revalidate = 0;
 
 import { signIn, useSession } from "next-auth/react";
 import { Suspense } from "react";
 
 import VoiceAgentClient from "@/components/voice/VoiceAgentClient";
 
-export default function VoiceAgentPage(): JSX.Element {
+export default function VoiceAgentPage() {
+  // Use client-side only rendering to avoid hydration mismatches
+  const [isClient, setIsClient] = useState(false);
+  
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
   const { data: session, status } = useSession();
 
   if (status === "loading") {
+    // Only render the full content on the client side to avoid React version conflicts
+  if (!isClient) {
     return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-100">
+        <div className="animate-pulse flex flex-col items-center">
+          <div className="h-12 w-64 bg-gray-300 rounded mb-4"></div>
+          <div className="h-6 w-96 bg-gray-300 rounded"></div>
+        </div>
+      </div>
+    );
+  }
+
+  return (
       <div className="min-h-screen flex items-center justify-center bg-[#111111] text-[#E5E7EB]">
         <div className="animate-pulse text-xl text-[#22D3EE]">Loading...</div>
       </div>

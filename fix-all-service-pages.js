@@ -10,7 +10,8 @@ const servicePages = [
   'src/app/services/security-compliance/page.tsx',
   'src/app/services/api-development/page.tsx',
   'src/app/services/audit-ai-data-tools/page.tsx',
-  'src/app/services/custom-integration/page.tsx' // Added custom-integration page
+  'src/app/services/custom-integration/page.tsx', // Added custom-integration page
+  'src/app/about/page.tsx' // Add about page that's also failing
 ];
 
 async function fixServicePage(filePath) {

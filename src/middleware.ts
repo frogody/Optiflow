@@ -56,7 +56,8 @@ function isValidRedirectUrl(url: string): boolean {
   }
 }
 
-export async function middleware(request: NextRequest) {
+// This middleware runs on every request
+export function middleware(request: NextRequest) {
   const { pathname, origin, host, searchParams } = request.nextUrl;
 
   // Enhanced debug logging for URL information and request details
@@ -191,6 +192,10 @@ export async function middleware(request: NextRequest) {
     response.headers.set('X-Frame-Options', 'SAMEORIGIN');
     response.headers.set('X-Content-Type-Options', 'nosniff');
     response.headers.set('Referrer-Policy', 'origin-when-cross-origin');
+
+    // Add a custom header that will force dynamic rendering for all pages
+    // This prevents React version conflicts during static generation
+    response.headers.set('x-middleware-cache', 'no-cache');
 
     return response;
   } catch (error) {

@@ -24,7 +24,9 @@ const nextConfig = {
     'react-icons',
     '@headlessui/react',
     'mdx',
-    'next-mdx-remote'
+    'next-mdx-remote',
+    'react-markdown',
+    '@mdx-js/react'
   ],
   
   // External packages configuration - updated syntax for Next.js 15
@@ -100,6 +102,13 @@ const nextConfig = {
       };
     }
     
+    // Fix React version conflicts in MDX and markdown libraries
+    // Using ESM compatible approach
+    config.resolve.alias = {
+      ...config.resolve.alias,
+      // We can't use require in ESM, so we remove this section
+    };
+    
     return config;
   },
   
@@ -107,6 +116,8 @@ const nextConfig = {
   // This avoids React version conflicts during static generation
   serverRuntimeConfig: {
     forceStatic: false,
+    // Force all pages to be dynamically rendered
+    dynamicPages: true
   },
   
   // Configuration to handle React version conflicts

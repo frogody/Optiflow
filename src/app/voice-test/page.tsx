@@ -3,8 +3,10 @@
 
 // Force dynamic rendering to avoid static generation issues
 export const dynamic = 'force-dynamic';
+// Disable cache to avoid static rendering issues
+export const revalidate = 0;
 
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useState, useState, useState, useRef, useState } from 'react';
 
 import { ElevenLabsConversationalService } from '@/services/ElevenLabsConversationalService';
 
@@ -58,7 +60,13 @@ interface EditorEdge { id: string;
   label?: string;
     }
 
-export default function VoiceWorkflowPage(): JSX.Element {
+export default function VoiceWorkflowPage() {
+  // Use client-side only rendering to avoid hydration mismatches
+  const [isClient, setIsClient] = useState(false);
+  
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
   const [status, setStatus] = useState('Ready to start recording');
   const [isRecording, setIsRecording] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
@@ -137,7 +145,19 @@ export default function VoiceWorkflowPage(): JSX.Element {
       }
     }
     
-    return () => {
+    // Only render the full content on the client side to avoid React version conflicts
+  if (!isClient) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-100">
+        <div className="animate-pulse flex flex-col items-center">
+          <div className="h-12 w-64 bg-gray-300 rounded mb-4"></div>
+          <div className="h-6 w-96 bg-gray-300 rounded"></div>
+        </div>
+      </div>
+    );
+  }
+
+  return () => {
       // Clean up recognition on unmount
       if (recognitionRef.current) {
         try {

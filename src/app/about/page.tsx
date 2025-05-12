@@ -1,8 +1,12 @@
 'use client';
 
+import { useState, useEffect } from 'react';
+
 
 // Force dynamic rendering to avoid static generation issues
 export const dynamic = 'force-dynamic';
+// Disable cache to avoid static rendering issues
+export const revalidate = 0;
 
 // Heroicons removed to prevent React version conflicts
 // Heroicons removed to prevent React version conflicts
@@ -20,8 +24,7 @@ const teamMembers = [
     imageFallback: '/team/placeholder.png',
     bio: 'Former Google product lead with 15+ years experience in workflow automation and AI. Sarah founded Optiflow to make enterprise-grade automation accessible to everyone.',
     linkedin: 'https://linkedin.com/in/',
-    twitter: 'https://twitter.com/'
-  },
+    twitter: 'https://twitter.com/' },
   {
     id: 2,
     name: 'Michael Rodriguez',
@@ -30,8 +33,7 @@ const teamMembers = [
     imageFallback: '/team/placeholder.png',
     bio: 'Ex-AWS engineering leader with deep expertise in distributed systems and API design. Michael leads our technical vision and architecture.',
     linkedin: 'https://linkedin.com/in/',
-    twitter: 'https://twitter.com/'
-  },
+    twitter: 'https://twitter.com/' },
   {
     id: 3,
     name: 'Aisha Johnson',
@@ -40,8 +42,7 @@ const teamMembers = [
     imageFallback: '/team/placeholder.png',
     bio: 'Product visionary who previously led teams at Slack and Stripe. Aisha is passionate about creating intuitive user experiences for complex workflows.',
     linkedin: 'https://linkedin.com/in/',
-    twitter: 'https://twitter.com/'
-  },
+    twitter: 'https://twitter.com/' },
   {
     id: 4,
     name: 'David Kim',
@@ -50,8 +51,7 @@ const teamMembers = [
     imageFallback: '/team/placeholder.png',
     bio: 'PhD in Machine Learning from MIT with experience at OpenAI. David leads our AI initiatives, including the Jarvis voice agent and workflow intelligence.',
     linkedin: 'https://linkedin.com/in/',
-    twitter: 'https://twitter.com/'
-  },
+    twitter: 'https://twitter.com/' },
   {
     id: 5,
     name: 'Lisa Patel',
@@ -60,8 +60,7 @@ const teamMembers = [
     imageFallback: '/team/placeholder.png',
     bio: 'Customer-obsessed leader who ensures our users get maximum value from Optiflow. Previously led support teams at Salesforce and Zendesk.',
     linkedin: 'https://linkedin.com/in/',
-    twitter: 'https://twitter.com/'
-  },
+    twitter: 'https://twitter.com/' },
   {
     id: 6,
     name: 'James Wilson',
@@ -70,8 +69,7 @@ const teamMembers = [
     imageFallback: '/team/placeholder.png',
     bio: 'Seasoned engineering leader with a track record of building reliable, scalable systems. James oversees our engineering teams and technical operations.',
     linkedin: 'https://linkedin.com/in/',
-    twitter: 'https://twitter.com/'
-  }
+    twitter: 'https://twitter.com/' }
 ];
 
 // Values data
@@ -79,28 +77,23 @@ const values = [
   {
     icon: SparklesIcon,
     title: 'Innovation',
-    description: 'We constantly push boundaries, embracing emerging technologies and fresh ideas to create solutions that anticipate tomorrow\'s challenges.'
-  },
+    description: 'We constantly push boundaries, embracing emerging technologies and fresh ideas to create solutions that anticipate tomorrow\'s challenges.' },
   {
     icon: UserGroupIcon,
     title: 'Customer-Centricity',
-    description: 'Our customers are at the heart of everything we build. We listen, learn, and evolve based on their needs and feedback.'
-  },
+    description: 'Our customers are at the heart of everything we build. We listen, learn, and evolve based on their needs and feedback.' },
   {
     icon: StarIcon,
     title: 'Simplicity',
-    description: 'We believe in making complex technology accessible. Our solutions are powerful yet intuitive, eliminating unnecessary complexity.'
-  },
+    description: 'We believe in making complex technology accessible. Our solutions are powerful yet intuitive, eliminating unnecessary complexity.' },
   {
     icon: ShieldCheckIcon,
     title: 'Integrity',
-    description: 'We\'re committed to ethical practices, transparency in our operations, and being worthy of our users\' trust.'
-  },
+    description: 'We\'re committed to ethical practices, transparency in our operations, and being worthy of our users\' trust.' },
   {
     icon: GlobeAltIcon,
     title: 'Collaboration',
-    description: 'We believe great ideas come from diverse perspectives working together. We foster an environment of open communication and teamwork.'
-  },
+    description: 'We believe great ideas come from diverse perspectives working together. We foster an environment of open communication and teamwork.' },
 ];
 
 // Company timeline
@@ -108,37 +101,43 @@ const timelineEvents = [
   {
     year: '2020',
     title: 'The Beginning',
-    description: 'Optiflow was founded in San Francisco by Sarah Chen and Michael Rodriguez with a mission to democratize workflow automation for businesses of all sizes.'
-  },
+    description: 'Optiflow was founded in San Francisco by Sarah Chen and Michael Rodriguez with a mission to democratize workflow automation for businesses of all sizes.' },
   {
     year: '2021',
     title: 'Seed Funding',
-    description: 'Raised $3.5M seed round led by Accel Ventures to build out the core platform and first integrations.'
-  },
+    description: 'Raised $3.5M seed round led by Accel Ventures to build out the core platform and first integrations.' },
   {
     year: '2022',
     title: 'Public Beta Launch',
-    description: 'Launched our public beta with support for 25+ integrations and visual workflow editor, attracting our first 1,000 users.'
-  },
+    description: 'Launched our public beta with support for 25+ integrations and visual workflow editor, attracting our first 1,000 users.' },
   {
     year: '2023',
     title: 'Series A & Enterprise Launch',
-    description: 'Secured $12M Series A funding and launched our Enterprise tier with advanced security features and dedicated support.'
-  },
+    description: 'Secured $12M Series A funding and launched our Enterprise tier with advanced security features and dedicated support.' },
   {
     year: '2024',
     title: 'Voice Agent & AI Factory',
-    description: 'Introduced Jarvis, our voice-controlled AI agent, and launched AI Factory to help businesses build custom AI solutions on top of Optiflow.'
-  },
+    description: 'Introduced Jarvis, our voice-controlled AI agent, and launched AI Factory to help businesses build custom AI solutions on top of Optiflow.' },
   {
     year: '2025',
     title: 'Global Expansion',
-    description: 'Opened offices in London and Singapore, expanding our team to 100+ employees serving customers in over 50 countries.'
-  }
+    description: 'Opened offices in London and Singapore, expanding our team to 100+ employees serving customers in over 50 countries.' }
 ];
 
 // Simple icon component to replace Heroicons
 const Icon = ({ name, className }) => {
+  // Only render the full content on the client side to avoid React version conflicts
+  if (!isClient) {
+    return (
+      <div className="min-h-screen text-white flex items-center justify-center" style={{ background: 'linear-gradient(to bottom, #000000, #0A0A0A)' }}>
+        <div className="animate-pulse flex flex-col items-center">
+          <div className="h-12 w-64 bg-gray-700 rounded mb-4"></div>
+          <div className="h-6 w-96 bg-gray-700 rounded"></div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className={`icon-placeholder ${name} ${className || ''}`}>
       <span className="sr-only">{name}</span>
@@ -146,7 +145,13 @@ const Icon = ({ name, className }) => {
   );
 };
 
-export default function AboutPage() {
+export default function AboutPage(): JSX.Element {
+  // Use client-side only rendering to avoid hydration mismatches
+  const [isClient, setIsClient] = useState(false);
+  
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
   return (
     <div className="bg-[#111111] text-[#E5E7EB]">
       {/* Hero Section */}
@@ -281,8 +286,7 @@ export default function AboutPage() {
                       <div className={`text-lg font-bold text-[#22D3EE] md:w-1/2 ${
                         index % 2 === 0 
                           ? 'md:pl-12 pl-10 md:pr-4 md:text-left' 
-                          : 'md:pr-12 pl-10 md:pl-4 md:text-right'
-                      }`}>
+                          : 'md:pr-12 pl-10 md:pl-4 md:text-right' }`}>
                         {event.year}
                       </div>
                       
@@ -290,8 +294,7 @@ export default function AboutPage() {
                       <div className={`md:w-1/2 pt-3 md:pt-0 ${
                         index % 2 === 0 
                           ? 'md:pr-12 pl-10 md:pl-4' 
-                          : 'md:pl-12 pl-10 md:pr-4'
-                      }`}>
+                          : 'md:pl-12 pl-10 md:pr-4' }`}>
                         <h3 className="text-xl font-medium text-white mb-2">{event.title}</h3>
                         <p className="text-[#9CA3AF]">{event.description}</p>
                       </div>

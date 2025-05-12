@@ -1,8 +1,12 @@
 'use client';
 
+import { useState, useEffect } from 'react';
+
 
 // Force dynamic rendering to avoid static generation issues
 export const dynamic = 'force-dynamic';
+// Disable cache to avoid static rendering issues
+export const revalidate = 0;
 
 import { motion } from 'framer-motion';
 import Link from 'next/link';
@@ -23,7 +27,13 @@ import {
   HiOutlineUsers,
 } from 'react-icons/hi';
 
-export default function AIcademyPage(): JSX.Element {
+export default function AIcademyPage() {
+  // Use client-side only rendering to avoid hydration mismatches
+  const [isClient, setIsClient] = useState(false);
+  
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
   const features = [
     { title: "Personalized Learning Paths",
       description: "Customized learning journeys tailored to individual skill levels and goals in AI and data science.",
@@ -99,6 +109,18 @@ export default function AIcademyPage(): JSX.Element {
       gradient: "from-orange-500 via-red-500 to-purple-500",
         },
   ];
+
+  // Only render the full content on the client side to avoid React version conflicts
+  if (!isClient) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-100">
+        <div className="animate-pulse flex flex-col items-center">
+          <div className="h-12 w-64 bg-gray-300 rounded mb-4"></div>
+          <div className="h-6 w-96 bg-gray-300 rounded"></div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <main className="min-h-screen text-white">
