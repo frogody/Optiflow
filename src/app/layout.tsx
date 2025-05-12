@@ -4,14 +4,9 @@ import { Inter } from 'next/font/google';
 import BrowserDetection from '@/components/BrowserDetection';
 import { RootProviders } from '@/components/providers/RootProviders';
 import ClientVoiceWrapper from '@/components/ClientVoiceWrapper';
+import ErrorBoundaryWrapper from '@/components/ErrorBoundaryWrapper';
 import { initializeSentry } from '@/lib/monitoring/sentry';
-import dynamic from 'next/dynamic';
 import '@/styles/globals.css';
-
-// Import error boundary with dynamic import to avoid SSR issues
-const ErrorBoundary = dynamic(() => import('@/components/ErrorBoundary'), {
-  ssr: false,
-});
 
 const inter = Inter({ 
   subsets: ['latin'],
@@ -80,9 +75,9 @@ export default function RootLayout({
           >
             {/* Dynamic announcements will be inserted here */}
           </div>
-          <ErrorBoundary>
+          <ErrorBoundaryWrapper>
             {children}
-          </ErrorBoundary>
+          </ErrorBoundaryWrapper>
           {/* Voice Agent Widget loaded via client component */}
           <ClientVoiceWrapper />
         </RootProviders>
