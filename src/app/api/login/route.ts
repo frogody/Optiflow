@@ -24,7 +24,14 @@ export async function POST(request: NextRequest) {
     
     // Ensure test user exists (for demo login)
     if (email === 'demo@optiflow.ai') {
-      await createTestUser();
+      if (process.env.NODE_ENV !== 'production') {
+        await createTestUser();
+      } else {
+        return NextResponse.json(
+          { success: false, error: 'Demo user login is disabled in production.' },
+          { status: 403 }
+        );
+      }
     }
     
     // Authenticate user
