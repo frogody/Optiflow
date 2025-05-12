@@ -3,11 +3,12 @@
 import React, { useCallback, useState } from 'react';
 import { toast } from 'sonner';
 
+import { parseCommand } from '@/lib/workflow/commandParser';
+import { CommandType, WorkflowCommand, WorkflowState } from '@/types/workflow';
+
 import { VoiceCommandInput } from './VoiceCommandInput';
 import { FlowEditor } from './workflow/FlowEditor';
 
-import { parseCommand } from '@/lib/workflow/commandParser';
-import { CommandType, WorkflowCommand, WorkflowState } from '@/types/workflow';
 
 export default function VoiceWorkflowBuilder(): JSX.Element {
   const [workflowState, setWorkflowState] = useState<WorkflowState>({ currentWorkflow: null,

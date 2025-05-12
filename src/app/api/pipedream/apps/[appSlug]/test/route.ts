@@ -27,13 +27,14 @@ const getPipedreamConfig_inline = (): PipedreamConfig => {
 };
 // --- End Inlined Logic ---
 
-export async function POST(
-  request: Request,
-  { params }: { params: { appSlug: string     } }
-) {
+export async function POST(request: Request) {
   try {
     const config = getPipedreamConfig_inline();
-    const { appSlug } = params;
+    // Extract appSlug from the URL path
+    const urlSegments = new URL(request.url).pathname.split('/');
+    // Find the index of 'apps' and get the next segment as appSlug
+    const appsIndex = urlSegments.findIndex(seg => seg === 'apps');
+    const appSlug = appsIndex !== -1 ? urlSegments[appsIndex + 1] : '';
     const { actionId, actionConfig } = await request.json();
 
     const response = await fetch(`https://api.pipedream.com/v1/apps/${appSlug}/actions/${actionId}/test`, {

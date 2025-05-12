@@ -9,11 +9,12 @@ import { usePathname, useRouter } from 'next/navigation';
 import { signOut } from 'next-auth/react';
 import { useEffect, useState } from 'react';
 
+import { useThemeStore } from '@/lib/themeStore';
+import { useUserStore } from '@/lib/userStore';
+
 import LanguageSwitcher from './LanguageSwitcher';
 import TranslatedText from './TranslatedText';
 
-import { useThemeStore } from '@/lib/themeStore';
-import { useUserStore } from '@/lib/userStore';
 
 interface NavigationItem {
   name: string;

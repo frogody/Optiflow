@@ -1,7 +1,8 @@
+import { WorkflowAction, Position } from '@/types/workflow';
+
 import { OpenAIService } from './OpenAIService';
 
 import { ChatCompletionMessage } from '@/types/ai';
-import { WorkflowAction, Position } from '@/types/workflow';
 
 interface VoiceCommandContext {
   selectedNodeId?: string;

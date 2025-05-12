@@ -2,9 +2,10 @@ import { KnowledgeBase, KnowledgeDocument, Prisma } from '@prisma/client';
 import { OpenAI } from 'openai';
 import { z } from 'zod';
 
+import { prisma } from '@/lib/prisma';
+
 import { RagService } from './ragService';
 
-import { prisma } from '@/lib/prisma';
 
 // Validation schemas
 const createKnowledgeBaseSchema = z.object({

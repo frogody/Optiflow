@@ -3,11 +3,12 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { Edge, Node } from 'reactflow';
 
-import { WorkflowNodeCreator } from './WorkflowNodeCreator';
 
 import { Spinner } from '@/components/ui/Spinner';
 import { Toast } from '@/components/ui/Toast';
 import { validateWorkflow } from '@/utils/workflowValidation';
+
+import { WorkflowNodeCreator } from './WorkflowNodeCreator';
 
 interface ConversationalWorkflowBuilderProps {
   onWorkflowUpdate: (nodes: Node[], edges: Edge[]) => void;

@@ -1,10 +1,11 @@
 // Import types from PipedreamService
 import { toast } from 'react-hot-toast';
 
+import { pipedreamConfig } from '@/config/pipedream';
+
 import { MCPContextService, ModelContext } from './MCPContextService';
 import { PipedreamService } from './PipedreamService';
 
-import { pipedreamConfig } from '@/config/pipedream';
 
 // Types for orchestration
 export interface Agent {

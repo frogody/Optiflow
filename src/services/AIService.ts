@@ -2,12 +2,13 @@ import { Anthropic } from '@anthropic-ai/sdk';
 import { Prisma } from '@prisma/client';
 import { z } from 'zod';
 
+import { prisma } from '@/lib/prisma';
+
 import { AIError } from '../errors/AIError';
 import { GeneratedWorkflow } from '../types/workflow';
 
 import { ClaudeWrapper, MODEL_MAP, ModelName, ThinkingConfig } from './ClaudeWrapper';
 
-import { prisma } from '@/lib/prisma';
 
 const claudeWrapper = new ClaudeWrapper();
 

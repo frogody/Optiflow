@@ -2,10 +2,11 @@ import { Workflow, WorkflowEdge, WorkflowNode } from '@prisma/client';
 import React, { useCallback, useEffect, useState } from 'react';
 import { toast } from 'react-hot-toast';
 
-import { VoiceCommandInput } from './VoiceCommandInput';
 
 import { ConversationService } from '@/services/ConversationService';
 import { VoiceCommandResponse } from '@/types/voice';
+
+import { VoiceCommandInput } from './VoiceCommandInput';
 
 interface ConversationalVoiceBuilderProps { initialWorkflow?: Workflow;
   onWorkflowUpdate?: (workflow: Partial<Workflow>) => void;

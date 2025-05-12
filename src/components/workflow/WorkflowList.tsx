@@ -11,9 +11,10 @@ import {
 } from '@heroicons/react/24/outline';
 import { useMemo, useState } from 'react';
 
+import { TriggerType, Workflow, WorkflowStatus } from '@/types/workflow';
+
 import WorkflowCard from './WorkflowCard';
 
-import { TriggerType, Workflow, WorkflowStatus } from '@/types/workflow';
 
 interface WorkflowListProps {
   workflows: Workflow[];

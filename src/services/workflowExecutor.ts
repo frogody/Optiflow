@@ -11,10 +11,11 @@
 
 import { Edge, Node } from 'reactflow';
 
+import { WorkflowSettings } from '@/components/workflow/WorkflowSettings.tsx';
+
 import ragService, { RetrievalRequest } from './ragService';
 import WorkflowMemory, { getWorkflowMemory, MemoryItem } from './workflowMemory';
 
-import { WorkflowSettings } from '@/components/workflow/WorkflowSettings.tsx';
 
 export type NodeStatus = 'idle' | 'running' | 'completed' | 'error' | 'waiting-approval';
 

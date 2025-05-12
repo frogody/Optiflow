@@ -1,5 +1,7 @@
 import axios from 'axios';
 
+import { useUserStore } from '@/lib/userStore';
+
 import { getMcpServers } from './config';
 import {
   MCPApplication,
@@ -11,7 +13,6 @@ import {
   WorkflowNode,
 } from './types';
 
-import { useUserStore } from '@/lib/userStore';
 
 type ConnectionStatus = 'active' | 'inactive' | 'error';
 

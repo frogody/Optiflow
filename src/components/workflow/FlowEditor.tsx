@@ -17,6 +17,9 @@ import ReactFlow, {
 } from 'reactflow';
 
 import 'reactflow/dist/style.css';
+import PipedreamConnector from '@/components/PipedreamConnector';
+import { useUserStore } from '@/lib/userStore';
+
 import { AnimatedEdge, CustomEdge, DashedEdge, DottedEdge } from './edges/CustomEdge';
 import ActionNode from './nodes/ActionNode';
 import { aiNodeTypes } from './nodes/AINodes';
@@ -25,8 +28,6 @@ import TriggerNode from './nodes/TriggerNode';
 import WaitNode from './nodes/WaitNode';
 import { nodeTypes as workflowNodeTypes } from './nodes/WorkflowNodes';
 
-import PipedreamConnector from '@/components/PipedreamConnector';
-import { useUserStore } from '@/lib/userStore';
 
 
 // Register custom node types

@@ -1,11 +1,12 @@
 module.exports = {
   parser: '@typescript-eslint/parser',
   extends: [
+    'next',
+    'next/core-web-vitals',
     'eslint:recommended',
-    'plugin:@typescript-eslint/recommended',
-    'plugin:react-hooks/recommended'
+    'plugin:@typescript-eslint/recommended'
   ],
-  plugins: ['@typescript-eslint', 'react-hooks', 'import'],
+  plugins: ['@typescript-eslint', 'import'],
   rules: {
     'import/order': ['error', {
       'groups': [

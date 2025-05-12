@@ -2,12 +2,13 @@ import { AnimatePresence, motion } from 'framer-motion';
 import { useEffect, useState } from 'react';
 import { toast } from 'react-hot-toast';
 
-import MCPContextDisplay from './MCPContextDisplay';
 
 import { useAgentOrchestrator } from '@/hooks/useAgentOrchestrator';
 import { useMCPContext } from '@/hooks/useMCPContext';
 import { useUserStore } from '@/lib/userStore';
 import { Agent, Flow } from '@/services/AgentOrchestratorService';
+
+import MCPContextDisplay from './MCPContextDisplay';
 
 export default function AgentDashboard(): JSX.Element {
   const { currentUser } = useUserStore();
