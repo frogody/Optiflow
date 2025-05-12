@@ -25,10 +25,21 @@ const initI18n = () => {
           detection: {
             order: ['cookie', 'localStorage', 'navigator'],
             caches: ['cookie', 'localStorage'],
+            // Modern configuration options
+            lookupCookie: 'i18nextLng',
+            lookupLocalStorage: 'i18nextLng',
+            cookieOptions: {
+              path: '/',
+              sameSite: 'strict',
+              secure: process.env.NODE_ENV === 'production',
+              expires: 365, // 1 year
+            },
           },
           react: {
             useSuspense: false,
           },
+          // Prevent deprecation warnings with new storage plugin
+          storage: window.localStorage,
         });
     } catch (error) {
       console.error('Error initializing i18n:', error);
