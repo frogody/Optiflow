@@ -1,8 +1,8 @@
 import '../styles/globals.css';
 import type { AppProps } from 'next/app';
+import { SessionProvider } from 'next-auth/react';
 import { appWithTranslation } from 'next-i18next';
 import { useEffect, useRef } from 'react';
-import { useSession, SessionProvider } from 'next-auth/react';
 
 import nextI18NextConfig from '../../next-i18next.config.cjs';
 import VoiceOrb from '../components/VoiceOrb';

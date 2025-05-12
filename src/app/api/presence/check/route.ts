@@ -1,8 +1,9 @@
+import Redis from 'ioredis';
 import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth/next';
 
-import Redis from 'ioredis';
 import { redis } from '../route';
+
 import { authOptions } from '@/lib/auth';
 
 const RATE_LIMIT = 60; // requests

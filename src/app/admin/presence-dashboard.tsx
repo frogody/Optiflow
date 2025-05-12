@@ -1,6 +1,6 @@
+import Redis from 'ioredis';
 import { getServerSession } from 'next-auth/next';
 import React from 'react';
-import Redis from 'ioredis';
 
 import { authOptions } from '@/lib/auth';
 

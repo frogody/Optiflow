@@ -1,7 +1,8 @@
 import { getServerSession } from 'next-auth/next';
-import { describe, it, expect, beforeAll, afterAll } from 'vitest';
-import request from 'supertest';
 import { createMocks } from 'node-mocks-http';
+import request from 'supertest';
+import { describe, it, expect, beforeAll, afterAll } from 'vitest';
+
 import checkHandler from './check/route';
 import handler from './route';
 
