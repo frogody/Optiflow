@@ -9,31 +9,35 @@ import { prisma } from "./prisma";
 
 
 // User schema for validation
-const userSchema = z.object({ email: z.string().email(),
+const userSchema = z.object({ 
+  email: z.string().email(),
   password: z.string().min(8),
   name: z.string().optional(),
-    });
+});
 
 const authOptions: NextAuthOptions = {
   adapter: PrismaAdapter(prisma),
   debug: process.env.NODE_ENV === 'development',
   logger: {
     error(code, metadata) {
-      console.error('[Auth Error]', { code,
+      console.error('[Auth Error]', { 
+        code,
         metadata,
         timestamp: new Date().toISOString()
-          });
+      });
     },
     warn(code) {
-      console.warn('[Auth Warning]', { code,
+      console.warn('[Auth Warning]', { 
+        code,
         timestamp: new Date().toISOString()
-          });
+      });
     },
     debug(code, metadata) {
-      console.log('[Auth Debug]', { code,
+      console.log('[Auth Debug]', { 
+        code,
         metadata,
         timestamp: new Date().toISOString()
-          });
+      });
     }
   },
   providers: [
@@ -51,33 +55,41 @@ const authOptions: NextAuthOptions = {
 
         try {
           const user = await prisma.user.findUnique({
-            where: { email: credentials.email     }
+            where: { email: credentials.email }
           });
 
-          if (!user || !user.passwordHash) { console.log('[Auth] User not found or no password:', credentials.email);
+          if (!user || !user.passwordHash) { 
+            console.log('[Auth] User not found or no password:', credentials.email);
             return null;
-              }
+          }
 
           const isValid = await bcrypt.compare(credentials.password, user.passwordHash);
           
-          if (!isValid) { console.log('[Auth] Invalid password for user:', credentials.email);
+          if (!isValid) { 
+            console.log('[Auth] Invalid password for user:', credentials.email);
             return null;
-              }
+          }
 
-          console.log('[Auth] Authentication successful:', { email: user.email, id: user.id     });
+          console.log('[Auth] Authentication successful:', { 
+            email: user.email, 
+            id: user.id 
+          });
           
-          return { id: user.id,
+          return { 
+            id: user.id,
             email: user.email,
             name: user.name
-              };
-        } catch (error) { console.error('[Auth] Authentication error:', error);
+          };
+        } catch (error) { 
+          console.error('[Auth] Authentication error:', error);
           return null;
-            }
+        }
       }
     }),
-    GoogleProvider({ clientId: process.env.GOOGLE_CLIENT_ID || '',
+    GoogleProvider({ 
+      clientId: process.env.GOOGLE_CLIENT_ID || '',
       clientSecret: process.env.GOOGLE_CLIENT_SECRET || '',
-        })
+    })
   ],
   pages: {
     signIn: '/login',
@@ -98,7 +110,7 @@ const authOptions: NextAuthOptions = {
         httpOnly: true,
         sameSite: 'lax',
         path: '/',
-        secure: true, // Always use secure cookies
+        secure: process.env.NODE_ENV === 'production',
         domain: process.env.NODE_ENV === 'production' 
           ? '.isyncso.com' 
           : undefined
@@ -107,64 +119,87 @@ const authOptions: NextAuthOptions = {
   },
   callbacks: {
     async jwt({ token, user, account, trigger }) {
-      console.log('[Auth] JWT Callback:', { event: trigger,
-        tokenId: token?.id, 
-        userId: user?.id,
-        accountType: account?.type,
-        expires: token?.exp,
-        issued: token?.iat,
-        timestamp: new Date().toISOString()
-          });
-      
-      if (user) {
-        token.id = user.id;
-        token.email = user.email;
-        token.name = user.name;
+      try {
+        console.log('[Auth] JWT Callback:', { 
+          event: trigger,
+          tokenId: token?.id, 
+          userId: user?.id,
+          accountType: account?.type,
+          expires: token?.exp,
+          issued: token?.iat,
+          timestamp: new Date().toISOString()
+        });
+        
+        // Only update the token if we have user data (during sign-in)
+        if (user && typeof user === 'object') {
+          token.id = user.id;
+          token.email = user.email;
+          token.name = user.name;
+        }
+        return token;
+      } catch (error) {
+        console.error('[Auth] JWT callback error:', error);
+        return token;
       }
-      return token;
     },
     async session({ session, token, trigger }) {
-      console.log('[Auth] Session Callback:', { event: trigger,
-        sessionUserId: session.user?.id, 
-        tokenId: token.id,
-        sessionExpiry: session.expires,
-        tokenExpiry: token.exp,
-        timestamp: new Date().toISOString()
-          });
-      
-      if (token && session.user) {
-        session.user.id = token.id as string;
-        session.user.email = token.email as string;
-        session.user.name = token.name as string;
+      try {
+        console.log('[Auth] Session Callback:', { 
+          event: trigger,
+          sessionUserId: session?.user?.id, 
+          tokenId: token?.id,
+          sessionExpiry: session?.expires,
+          tokenExpiry: token?.exp,
+          timestamp: new Date().toISOString()
+        });
+        
+        // Only update session if we have token data and session.user exists
+        if (token && typeof token === 'object' && session?.user && typeof session.user === 'object') {
+          session.user.id = token.id as string;
+          if (token.email) session.user.email = token.email as string;
+          if (token.name) session.user.name = token.name as string;
+        }
+        return session;
+      } catch (error) {
+        console.error('[Auth] Session callback error:', error);
+        return session;
       }
-      return session;
     },
     async redirect({ url, baseUrl }) {
-      console.log('[Auth] Redirect Callback:', { 
-        url, 
-        baseUrl,
-        nextAuthUrl: process.env.NEXTAUTH_URL,
-        timestamp: new Date().toISOString(),
-        urlObject: {
-          isRelative: url.startsWith('/'),
-          isSameOrigin: url.startsWith(baseUrl),
-          pathname: new URL(url.startsWith('/') ? `${baseUrl}${url}` : url).pathname
+      try {
+        console.log('[Auth] Redirect Callback:', { 
+          url, 
+          baseUrl,
+          nextAuthUrl: process.env.NEXTAUTH_URL,
+          timestamp: new Date().toISOString(),
+          urlObject: url ? {
+            isRelative: url.startsWith('/'),
+            isSameOrigin: url.startsWith(baseUrl),
+            pathname: new URL(url.startsWith('/') ? `${baseUrl}${url}` : url).pathname
+          } : null
+        });
+        
+        if (!url) return baseUrl;
+        
+        // Allow relative URLs
+        if (url.startsWith('/')) {
+          return `${baseUrl}${url}`;
         }
-      });
-      
-      // Allow relative URLs
-      if (url.startsWith('/')) {
-        return `${baseUrl}${url}`;
+        // Allow URLs from the same origin
+        else if (url.startsWith(baseUrl)) {
+          return url;
+        }
+        
+        return baseUrl;
+      } catch (error) {
+        console.error('[Auth] Redirect callback error:', error);
+        return baseUrl;
       }
-      // Allow URLs from the same origin
-      else if (url.startsWith(baseUrl)) {
-        return url;
-      }
-      
-      return baseUrl;
     }
-  }
-} as const;
+  },
+  // Add additional security for Next.js 15
+  secret: process.env.NEXTAUTH_SECRET || process.env.JWT_SECRET,
+};
 
 // Export authOptions as default and named export
 export { authOptions };

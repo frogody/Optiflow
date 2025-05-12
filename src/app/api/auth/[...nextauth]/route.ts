@@ -1,22 +1,6 @@
-import { NextResponse } from 'next/server';
+import NextAuth from "next-auth";
 
-// Original content commented out
-/*
-import { authOptions } from '../../../lib/auth.js';
+import { authOptions } from '@/lib/auth';
 
-// If NextAuth is an object with a default property due to ESM interop
-const NextAuthDefault = (NextAuth as any).default || NextAuth;
-const handler = NextAuthDefault(authOptions);
-
-export { handler as GET, handler as POST };
-*/
-
-const message = 'Auth endpoint temporarily disabled to resolve build issues.';
-
-export async function GET() {
-  return NextResponse.json({ error: message }, { status: 503 });
-}
-
-export async function POST() {
-  return NextResponse.json({ error: message }, { status: 503 });
-}
+// Use the handlers object for Next.js 15 compatibility
+export const { GET, POST } = NextAuth(authOptions);
