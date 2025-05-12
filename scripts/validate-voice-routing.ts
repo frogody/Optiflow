@@ -16,7 +16,6 @@ import * as fs from 'fs';
 import * as path from 'path';
 
 import chalk from 'chalk';
-import * as ts from 'typescript';
 
 // Configuration
 const config = {
@@ -51,13 +50,13 @@ interface ValidationResult {
 interface PageInfo {
   filePath: string;
   hasVoiceRoute: boolean;
-  voiceRouteValue?: string;
+  voiceRouteValue?: string | undefined;
 }
 
 interface IntentInfo {
   filePath: string;
   intentName: string;
-  routeValue?: string;
+  routeValue?: string | undefined;
 }
 
 interface WorkflowNodeInfo {
@@ -213,7 +212,7 @@ async function collectPages(): Promise<PageInfo[]> {
 }
 
 // Helper function to check if a file exports voiceRoute
-function checkForVoiceRoute(filePath: string): { hasVoiceRoute: boolean, voiceRouteValue?: string } {
+function checkForVoiceRoute(filePath: string): { hasVoiceRoute: boolean, voiceRouteValue?: string | undefined } {
   try {
     const content = fs.readFileSync(filePath, 'utf-8');
     

@@ -95,7 +95,7 @@ async function checkVercelEnv(): Promise<string[]> {
 
 async function addEnvToVercel(envVar: string): Promise<void> {
   try {
-    const { stdout } = await execAsync(`vercel env add ${envVar}`);
+    await execAsync(`vercel env add ${envVar}`);
     console.log(`Added ${envVar} to Vercel environment variables`);
   } catch (error) {
     console.error(`Error adding ${envVar} to Vercel:`, error);

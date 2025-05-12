@@ -10,10 +10,10 @@ async function main() {
 
   try {
     // Create a backup before migration (if DATABASE_URL is a PostgreSQL URL)
-    if (process.env.DATABASE_URL?.startsWith('postgresql://')) {
+    if (process.env['DATABASE_URL']?.startsWith('postgresql://')) {
       console.log('Creating database backup...');
       const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
-      const backupCommand = `pg_dump \${DATABASE_URL} > backup_\${timestamp}.sql`;
+      const backupCommand = `pg_dump \${process.env['DATABASE_URL']} > backup_${timestamp}.sql`;
       await execAsync(backupCommand);
       console.log('Database backup created successfully');
     }

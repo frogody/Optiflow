@@ -17,8 +17,8 @@ export default function AdminLoginPage(): JSX.Element {
     setError('');
     
     try {
-      const email = process.env.TEST_USER_EMAIL || 'demo@isyncso.com';
-      const password = process.env.TEST_USER_PASSWORD || 'password123';
+      const email = process.env['TEST_USER_EMAIL'] || 'demo@isyncso.com';
+      const password = process.env['TEST_USER_PASSWORD'] || 'password123';
       
       console.log('Admin login: Authenticating with test credentials...');
       const result = await signIn('credentials', { email,
@@ -80,7 +80,7 @@ export default function AdminLoginPage(): JSX.Element {
         </div>
         
         <div className="text-center text-xs text-gray-500 mt-8">
-          <p>Using test credentials: {process.env.TEST_USER_EMAIL || 'demo@isyncso.com'} / {process.env.TEST_USER_PASSWORD || 'password123'}</p>
+          <p>Using test credentials: {process.env['TEST_USER_EMAIL'] || 'demo@isyncso.com'} / {process.env['TEST_USER_PASSWORD'] || 'password123'}</p>
           <p>This page bypasses OAuth configuration for testing purposes.</p>
         </div>
       </div>

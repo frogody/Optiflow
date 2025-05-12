@@ -17,8 +17,11 @@ export async function POST(req: NextRequest) {
   await mem0.add('user', userId, [{ role: 'user', content: message }]);
 
   // 2. Retrieve context
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const userMem = await mem0.getAll('user', userId);
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const teamMem = teamId ? await mem0.getAll('team', teamId) : [];
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const orgMem = orgId ? await mem0.getAll('org', orgId) : [];
 
   // 3. Intent detection (Claude or LLM)

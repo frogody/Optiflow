@@ -1,10 +1,9 @@
 import Redis from 'ioredis';
 import { getServerSession } from 'next-auth/next';
-import React from 'react';
 
 import { authOptions } from '@/lib/auth';
 
-const redis = new Redis(process.env.REDIS_URL);
+const redis = new Redis(process.env['REDIS_URL'] || 'redis://localhost:6379');
 
 async function getAllUserPresence() {
   const keys = await redis.keys('user:*:presence');
@@ -14,8 +13,8 @@ async function getAllUserPresence() {
     const data = await redis.hgetall(key);
     users.push({
       userId,
-      lastActive: data.lastActive ? new Date(Number(data.lastActive)).toLocaleString() : 'N/A',
-      inactive: data.inactive === '1',
+      lastActive: data['lastActive'] ? new Date(Number(data['lastActive'])).toLocaleString() : 'N/A',
+      inactive: data['inactive'] === '1',
     });
   }
   return users;

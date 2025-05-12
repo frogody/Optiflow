@@ -3,8 +3,8 @@ import { OAuth2Client } from 'google-auth-library';
 // Helper function to get the base URL
 const getBaseUrl = () => {
   return (
-    process.env.NEXTAUTH_URL ||
-    (process.env.NODE_ENV === 'production'
+    process.env['NEXTAUTH_URL'] ||
+    (process.env['NODE_ENV'] === 'production'
       ? 'https://app.isyncso.com'
       : 'http://localhost:3000')
   );
@@ -12,8 +12,8 @@ const getBaseUrl = () => {
 
 // Create a new OAuth client using the credentials
 const client = new OAuth2Client(
-  process.env.GOOGLE_CLIENT_ID,
-  process.env.GOOGLE_CLIENT_SECRET,
+  process.env['GOOGLE_CLIENT_ID'],
+  process.env['GOOGLE_CLIENT_SECRET'],
   `${getBaseUrl()}/api/auth/callback/google`
 );
 

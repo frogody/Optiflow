@@ -11,7 +11,7 @@ import {
   UsersIcon
 } from '@heroicons/react/24/outline';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import { useSession } from 'next-auth/react';
 import { useEffect, useState } from 'react';
 
@@ -22,6 +22,7 @@ export default function AdminLayout({
 }) {
   const { data: session, status } = useSession();
   const router = useRouter();
+  const pathname = usePathname();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   // Check if user has admin access
@@ -69,7 +70,7 @@ export default function AdminLayout({
                   href={item.href}
                   className={`group flex items-center px-4 py-3 text-sm font-medium rounded-md transition-colors
                     ${
-                      router.pathname === item.href
+                      pathname === item.href
                         ? 'bg-[#1E293B] text-[#22D3EE] border-l-2 border-[#22D3EE]'
                         : 'text-[#9CA3AF] hover:bg-[#1E293B] hover:text-[#E5E7EB]'
                     }
@@ -78,7 +79,7 @@ export default function AdminLayout({
                   <item.icon
                     className={`mr-3 flex-shrink-0 h-5 w-5 
                       ${
-                        router.pathname === item.href
+                        pathname === item.href
                           ? 'text-[#22D3EE]'
                           : 'text-[#6B7280] group-hover:text-[#9CA3AF]'
                       }
@@ -136,7 +137,7 @@ export default function AdminLayout({
                   href={item.href}
                   className={`group flex items-center px-4 py-3 text-base font-medium rounded-md transition-colors
                     ${
-                      router.pathname === item.href
+                      pathname === item.href
                         ? 'bg-[#1E293B] text-[#22D3EE]'
                         : 'text-[#9CA3AF] hover:bg-[#1E293B] hover:text-[#E5E7EB]'
                     }
@@ -146,7 +147,7 @@ export default function AdminLayout({
                   <item.icon
                     className={`mr-3 flex-shrink-0 h-6 w-6 
                       ${
-                        router.pathname === item.href
+                        pathname === item.href
                           ? 'text-[#22D3EE]'
                           : 'text-[#6B7280] group-hover:text-[#9CA3AF]'
                       }

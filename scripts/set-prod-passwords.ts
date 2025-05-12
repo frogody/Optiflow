@@ -5,7 +5,7 @@ import * as bcrypt from 'bcrypt';
 const prisma = new PrismaClient({
   datasources: {
     db: {
-      url: process.env.PROD_DATABASE_URL || process.env.DATABASE_URL
+      url: process.env['PROD_DATABASE_URL'] || process.env['DATABASE_URL'] || ''
     }
   }
 });
@@ -13,7 +13,7 @@ const prisma = new PrismaClient({
 async function main() {
   const saltRounds = 10;
   // Use a more secure password for production
-  const testPassword = process.env.TEST_USER_PASSWORD || 'ProdTestPass123!';
+  const testPassword = process.env['TEST_USER_PASSWORD'] || 'ProdTestPass123!';
   const passwordHash = await bcrypt.hash(testPassword, saltRounds);
 
   // First create the users if they don't exist

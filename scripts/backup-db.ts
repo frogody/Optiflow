@@ -24,10 +24,10 @@ async function main() {
     const compressedFile = `${backupFile}.gz`;
 
     // Get database connection details from environment variables
-    const host = process.env.POSTGRES_HOST;
-    const user = process.env.POSTGRES_USER;
-    const database = process.env.PGDATABASE;
-    const password = process.env.PGPASSWORD;
+    const host = process.env['POSTGRES_HOST'];
+    const user = process.env['POSTGRES_USER'];
+    const database = process.env['PGDATABASE'];
+    const password = process.env['PGPASSWORD'];
 
     if (!host || !user || !database || !password) {
       console.error('Error: Missing required environment variables for database backup');
