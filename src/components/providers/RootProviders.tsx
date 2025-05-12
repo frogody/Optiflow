@@ -55,6 +55,9 @@ export function RootProviders({ children }: { children: React.ReactNode }) {
       }
     }
 
+    // Set isClient to true immediately to ensure Navigation is rendered
+    setIsClient(true);
+    
     initializeFeatures();
 
     return () => {

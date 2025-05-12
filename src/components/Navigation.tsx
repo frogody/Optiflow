@@ -193,6 +193,98 @@ export default function Navigation() {
   const logoSize = compactMode ? 'w-6 h-6' : 'w-7 h-7';
   const logoTextSize = compactMode ? 'text-sm' : 'text-base';
 
+  // Auth related buttons for non-logged in users
+  const renderAuthButtons = () => (
+    <div className="flex items-center space-x-3">
+      <button
+        onClick={() => handleNavigation('/login')}
+        className={`${buttonPadding} text-sm dark:text-white/90 dark:hover:text-white light:text-gray-700 light:hover:text-gray-900 rounded-full border border-transparent dark:hover:border-white/10 dark:hover:bg-white/5 light:hover:border-black/10 light:hover:bg-black/5 transition-all duration-200`}
+        aria-label="Log in"
+        title="Log in"
+      >
+        <TranslatedText textKey="navigation.login" fallback="Log in" />
+      </button>
+      <button
+        onClick={() => handleNavigation('/signup')}
+        className={`${buttonPadding} text-sm font-medium text-black rounded-full bg-gradient-to-r from-[#3CDFFF] to-[#4AFFD4] hover:opacity-90 transition-all duration-200`}
+        aria-label="Get Started"
+        title="Get Started"
+      >
+        <TranslatedText textKey="navigation.signup" fallback="Get Started" />
+      </button>
+    </div>
+  );
+
+  // User avatar and dropdown for logged-in users
+  const renderUserMenu = () => (
+    <div className="relative user-menu">
+      <button
+        onClick={handleUserMenuClick}
+        className="flex items-center space-x-2 text-sm focus:outline-none"
+        aria-label="Open user menu"
+        title="Open user menu"
+      >
+        {currentUser?.image ? (
+          <Image 
+            src={currentUser.image} 
+            alt="Profile" 
+            width={32} 
+            height={32} 
+            className="h-8 w-8 rounded-full border border-white/20"
+          />
+        ) : (
+          <div className="h-8 w-8 bg-gradient-to-r from-[#3CDFFF] to-[#4AFFD4] rounded-full flex items-center justify-center text-black font-medium">
+            {currentUser?.name?.charAt(0) || currentUser?.email?.charAt(0) || 'U'}
+          </div>
+        )}
+        <span className="hidden sm:inline">{currentUser?.name || currentUser?.email}</span>
+        <svg
+          className={`w-4 h-4 transition-transform ${isUserMenuOpen ? 'rotate-180' : ''}`}
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+        >
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+        </svg>
+      </button>
+
+      {/* User Menu Dropdown */}
+      {isUserMenuOpen && (
+        <div className="absolute right-0 mt-2 w-48 bg-black/90 backdrop-blur-md rounded-lg border border-white/10 shadow-lg z-50">
+          <div className="py-1">
+            {userNavigation.map((item) => (
+              <div key={item.name}>
+                {item.onClick ? (
+                  <button
+                    onClick={() => {
+                      item.onClick?.();
+                      setIsUserMenuOpen(false);
+                    }}
+                    className="w-full text-left px-4 py-2 text-sm dark:text-white/80 dark:hover:text-white dark:hover:bg-white/5 flex items-center"
+                  >
+                    <span className="w-5">{item.icon}</span>
+                    <span className="ml-2">{item.name}</span>
+                  </button>
+                ) : (
+                  <button
+                    onClick={() => {
+                      handleNavigation(item.href);
+                      setIsUserMenuOpen(false);
+                    }}
+                    className="w-full text-left px-4 py-2 text-sm dark:text-white/80 dark:hover:text-white dark:hover:bg-white/5 flex items-center"
+                  >
+                    <span className="w-5">{item.icon}</span>
+                    <span className="ml-2">{item.name}</span>
+                  </button>
+                )}
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+
   return (
     <>
       <header 
@@ -327,116 +419,31 @@ export default function Navigation() {
                 // Loading skeleton
                 <div className="h-8 w-24 bg-white/5 animate-pulse rounded-full" />
               ) : currentUser ? (
-                // User menu
-                <div className="relative user-menu">
-                  <button
-                    onClick={handleUserMenuClick}
-                    className="flex items-center space-x-2 text-sm focus:outline-none"
-                    aria-label="Open user menu"
-                    title="Open user menu"
-                  >
-                    <span>{currentUser.email}</span>
-                    <svg
-                      className={`w-4 h-4 transition-transform ${ isUserMenuOpen ? 'rotate-180' : ''    }`}
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                    </svg>
-                  </button>
-
-                  {/* User Menu Dropdown */}
-                  <Transition
-                    show={isUserMenuOpen}
-                    enter="transition ease-out duration-100"
-                    enterFrom="transform opacity-0 scale-95"
-                    enterTo="transform opacity-100 scale-100"
-                    leave="transition ease-in duration-75"
-                    leaveFrom="transform opacity-100 scale-100"
-                    leaveTo="transform opacity-0 scale-95"
-                  >
-                    <div className="absolute right-0 mt-2 w-48 rounded-md shadow-lg py-1 bg-white dark:bg-gray-800 ring-1 ring-black ring-opacity-5">
-                      {userNavigation.map((item) => (
-                        <a
-                          key={item.name}
-                          href={item.href}
-                          onClick={(e) => {
-                            e.preventDefault();
-                            if (item.onClick) {
-                              item.onClick();
-                            } else {
-                              setIsUserMenuOpen(false);
-                              router.push(item.href);
-                            }
-                          }}
-                          className="block px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700"
-                        >
-                          {item.icon && <span className="mr-2">{item.icon}</span>}
-                          {item.name}
-                        </a>
-                      ))}
-                    </div>
-                  </Transition>
-                </div>
+                // User profile avatar and menu
+                renderUserMenu()
               ) : (
-                // Auth buttons
-                <div className="flex items-center space-x-3">
-                  <button
-                    onClick={() => handleNavigation('/login')}
-                    className={`${buttonPadding} text-sm dark:text-white/90 dark:hover:text-white light:text-gray-700 light:hover:text-gray-900 rounded-full border border-transparent dark:hover:border-white/10 dark:hover:bg-white/5 light:hover:border-black/10 light:hover:bg-black/5 transition-all duration-200`}
-                    aria-label="Log in"
-                    title="Log in"
-                  >
-                    <TranslatedText textKey="navigation.login" fallback="Log in" />
-                  </button>
-                  <button
-                    onClick={() => handleNavigation('/signup')}
-                    className={`${buttonPadding} text-sm font-medium text-black rounded-full bg-gradient-to-r from-[#3CDFFF] to-[#4AFFD4] hover:opacity-90 transition-all duration-200`}
-                    aria-label="Sign up"
-                    title="Sign up"
-                  >
-                    <TranslatedText textKey="navigation.signup" fallback="Sign Up" />
-                  </button>
-                </div>
+                // Auth buttons for non-logged in users
+                renderAuthButtons()
               )}
 
               {/* Mobile menu button */}
               <button
-                type="button"
-                className="md:hidden inline-flex items-center justify-center p-3 rounded-md dark:text-white/80 dark:hover:text-white light:text-gray-700 light:hover:text-gray-900 dark:hover:bg-white/5 light:hover:bg-black/5 touch-manipulation"
                 onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-                aria-controls="mobile-menu"
-                {...(isMobileMenuOpen ? { 'aria-expanded': 'true' } : { 'aria-expanded': 'false' })}
-                aria-label="Open main menu"
-                title="Open main menu"
+                className="md:hidden flex items-center justify-center p-2 rounded-md border border-transparent dark:text-white/90 light:text-gray-700 dark:hover:border-white/10 dark:hover:bg-white/5 light:hover:border-black/10 light:hover:bg-black/5 transition-all duration-200"
+                aria-label={isMobileMenuOpen ? "Close menu" : "Open menu"}
+                title={isMobileMenuOpen ? "Close menu" : "Open menu"}
               >
-                <span className="sr-only">Open main menu</span>
-                <svg
-                  className={`${ isMobileMenuOpen ? 'hidden' : 'block'    } h-6 w-6`}
-                  stroke="currentColor"
-                  fill="none"
+                <svg 
+                  className="w-6 h-6" 
+                  fill="none" 
+                  stroke="currentColor" 
                   viewBox="0 0 24 24"
                 >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth="2"
-                    d="M4 6h16M4 12h16M4 18h16"
-                  />
-                </svg>
-                <svg
-                  className={`${ isMobileMenuOpen ? 'block' : 'hidden'    } h-6 w-6`}
-                  stroke="currentColor"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth="2"
-                    d="M6 18L18 6M6 6l12 12"
-                  />
+                  {isMobileMenuOpen ? (
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                  ) : (
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+                  )}
                 </svg>
               </button>
             </div>

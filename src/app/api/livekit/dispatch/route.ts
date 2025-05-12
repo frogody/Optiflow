@@ -5,6 +5,12 @@ import { getServerSession } from 'next-auth/next';
 import { authOptions } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 
+// Helper function to strip quotes from environment variables
+function cleanEnvVar(value: string | undefined): string {
+  if (!value) return '';
+  // Remove surrounding quotes if present
+  return value.replace(/^["'](.*)["']$/, '$1');
+}
 
 export async function POST(req: NextRequest) {
   // Check authentication
@@ -14,9 +20,9 @@ export async function POST(req: NextRequest) {
   }
 
   // Get configuration from environment variables
-  const apiKey = process.env.LIVEKIT_API_KEY!;
-  const apiSecret = process.env.LIVEKIT_API_SECRET!;
-  const livekitUrl = process.env.LIVEKIT_URL!;
+  const apiKey = cleanEnvVar(process.env.LIVEKIT_API_KEY);
+  const apiSecret = cleanEnvVar(process.env.LIVEKIT_API_SECRET);
+  const livekitUrl = cleanEnvVar(process.env.LIVEKIT_URL);
 
   if (!apiKey || !apiSecret || !livekitUrl) {
     return NextResponse.json(
@@ -70,6 +76,8 @@ export async function POST(req: NextRequest) {
       });
     }
     const roomName = userRoom.roomName;
+
+    console.log(`Using LiveKit credentials - API Key: ${apiKey.substring(0, 4)}... URL: ${livekitUrl}`);
 
     // Create room service client
     const roomService = new RoomServiceClient(livekitUrl, apiKey, apiSecret);

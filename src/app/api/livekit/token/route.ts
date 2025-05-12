@@ -5,6 +5,12 @@ import { getServerSession } from 'next-auth/next';
 import { authOptions } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 
+// Helper function to strip quotes from environment variables
+function cleanEnvVar(value: string | undefined): string {
+  if (!value) return '';
+  // Remove surrounding quotes if present
+  return value.replace(/^["'](.*)["']$/, '$1');
+}
 
 export async function POST(req: NextRequest) {
   const session = await getServerSession(authOptions);
@@ -53,9 +59,10 @@ export async function POST(req: NextRequest) {
   }
   const room = userRoom.roomName;
 
-  const apiKey = process.env.LIVEKIT_API_KEY!;
-  const apiSecret = process.env.LIVEKIT_API_SECRET!;
-  const livekitUrl = process.env.LIVEKIT_URL!;
+  // Clean environment variables to remove any quotes
+  const apiKey = cleanEnvVar(process.env.LIVEKIT_API_KEY);
+  const apiSecret = cleanEnvVar(process.env.LIVEKIT_API_SECRET);
+  const livekitUrl = cleanEnvVar(process.env.LIVEKIT_URL);
 
   if (!apiKey || !apiSecret || !livekitUrl) {
     return NextResponse.json(
@@ -64,6 +71,8 @@ export async function POST(req: NextRequest) {
     );
   }
 
+  console.log(`Creating token for room: ${room} with key length: ${apiKey.length} and secret length: ${apiSecret.length}`);
+  
   const at = new AccessToken(apiKey, apiSecret, {
     identity: userId,
     ttl: 60 * 60, // 1 hour
