@@ -5,6 +5,7 @@ import { SessionProvider } from 'next-auth/react';
 import { Suspense, useEffect, useState } from 'react';
 import { Toaster } from 'react-hot-toast';
 import { IconContext } from 'react-icons';
+import Link from 'next/link';
 
 import '@/styles/globals.css';
 
@@ -17,6 +18,23 @@ import { initializeErrorHandler } from '@/lib/error-handler';
 
 // Import Navigation normally - we'll control rendering with a state flag
 import Navigation from '@/components/Navigation';
+
+// Fallback minimal navigation component
+const MinimalNav = () => {
+  return (
+    <header className="sticky top-0 z-50 bg-black/20 backdrop-blur-sm">
+      <div className="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between">
+        <Link href="/" className="text-lg font-medium text-white">ISYNCSO</Link>
+        <Link 
+          href="/signup"
+          className="px-5 py-2 text-sm font-medium text-black rounded-full bg-gradient-to-r from-[#3CDFFF] to-[#4AFFD4] hover:opacity-90 transition-all duration-200"
+        >
+          Get Started
+        </Link>
+      </div>
+    </header>
+  );
+};
 
 export function RootProviders({ children }: { children: React.ReactNode }) {
   // Use state to track client-side rendering and initialization status
@@ -112,9 +130,10 @@ export function RootProviders({ children }: { children: React.ReactNode }) {
         <SessionProvider>
           <TanstackProvider>
             <IconContext.Provider value={{ className: 'inline-block' }}>
-              <Suspense fallback={null}>
+              <Suspense fallback={<MinimalNav />}>
                 <SessionInitializer />
                 {isClient && <Navigation />}
+                {!isClient && <MinimalNav />}
                 {children}
                 <Analytics />
                 <Toaster position="bottom-right" />
