@@ -12,7 +12,7 @@ interface State {
   error: Error | null;
 }
 
-class ErrorBoundary extends Component<Props, State> {
+export default class ErrorBoundary extends Component<Props, State> {
   constructor(props: Props) {
     super(props);
     this.state = {
@@ -22,40 +22,38 @@ class ErrorBoundary extends Component<Props, State> {
   }
 
   static getDerivedStateFromError(error: Error): State {
+    // Update state so the next render will show the fallback UI
     return {
       hasError: true,
       error
     };
   }
 
-  componentDidCatch(error: Error, errorInfo: ErrorInfo): void {
-    console.error('ErrorBoundary caught an error:', error, errorInfo);
-    
-    // You could also log to an error reporting service here
-    if (typeof window !== 'undefined' && window.Sentry) {
-      window.Sentry.captureException(error);
-    }
+  componentDidCatch(error: Error, info: ErrorInfo): void {
+    // You can log the error to an error reporting service
+    console.error('Error caught by ErrorBoundary:', error, info);
   }
 
   render(): ReactNode {
     if (this.state.hasError) {
-      if (this.props.fallback) {
-        return this.props.fallback;
-      }
-      
-      return (
-        <div className="flex min-h-screen flex-col items-center justify-center bg-gray-50 px-6 py-24 text-center">
-          <div className="rounded-lg bg-white p-8 shadow-xl">
-            <h2 className="mb-4 text-2xl font-bold text-red-600">Something went wrong</h2>
-            <p className="mb-4 text-gray-600">
-              We're sorry, but there was an error loading this page. Please try refreshing.
+      // You can render any custom fallback UI
+      return this.props.fallback || (
+        <div className="flex min-h-screen flex-col items-center justify-center bg-gray-50 dark:bg-gray-900 p-4">
+          <div className="w-full max-w-md p-6 bg-white dark:bg-gray-800 rounded-lg shadow-lg">
+            <h2 className="text-xl font-semibold text-red-600 dark:text-red-400 mb-4">
+              Something went wrong
+            </h2>
+            <p className="text-gray-700 dark:text-gray-300 mb-4">
+              We're sorry, but an error occurred while rendering this page.
             </p>
-            <pre className="mb-4 max-h-40 overflow-auto rounded bg-gray-100 p-4 text-left text-sm">
-              {this.state.error?.toString() || 'Unknown error'}
-            </pre>
+            <div className="bg-gray-100 dark:bg-gray-700 p-3 rounded overflow-auto max-h-32 mb-4">
+              <code className="text-sm text-gray-800 dark:text-gray-200">
+                {this.state.error?.message || "Unknown error"}
+              </code>
+            </div>
             <button
               onClick={() => window.location.reload()}
-              className="rounded bg-blue-600 px-4 py-2 font-medium text-white hover:bg-blue-700"
+              className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded transition-colors"
             >
               Refresh Page
             </button>
@@ -66,6 +64,4 @@ class ErrorBoundary extends Component<Props, State> {
 
     return this.props.children;
   }
-}
-
-export default ErrorBoundary; 
+} 
