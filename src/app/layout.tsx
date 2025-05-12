@@ -1,23 +1,11 @@
 import { Metadata, Viewport } from 'next';
 import { Inter } from 'next/font/google';
-import dynamic from 'next/dynamic';
 
 import { RootProviders } from '@/components/providers/RootProviders';
 import ErrorBoundaryWrapper from '@/components/ErrorBoundaryWrapper';
+import ClientComponentsLoader from '@/components/ClientComponentsLoader';
 import { initializeSentry } from '@/lib/monitoring/sentry';
 import '@/styles/globals.css';
-
-// Use dynamic imports for client components to ensure proper code splitting
-// and avoid "X is not a function" errors
-const BrowserDetection = dynamic(
-  () => import('@/components/BrowserDetection'),
-  { ssr: false }
-);
-
-const ClientVoiceWrapper = dynamic(
-  () => import('@/components/ClientVoiceWrapper'),
-  { ssr: false }
-);
 
 const inter = Inter({ 
   subsets: ['latin'],
@@ -86,16 +74,12 @@ export default function RootLayout({
             {/* Dynamic announcements will be inserted here */}
           </div>
           
-          {/* Browser detection - client only */}
-          <BrowserDetection />
-          
-          {/* Main content wrapped in error boundary */}
+          {/* Error boundary wrapped around all client components */}
           <ErrorBoundaryWrapper>
-            {children}
+            <ClientComponentsLoader>
+              {children}
+            </ClientComponentsLoader>
           </ErrorBoundaryWrapper>
-          
-          {/* Voice Agent Widget - client only */}
-          <ClientVoiceWrapper />
         </RootProviders>
       </body>
     </html>
