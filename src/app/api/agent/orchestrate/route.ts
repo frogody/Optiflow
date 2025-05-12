@@ -8,7 +8,8 @@ import { callPipedreamProxy } from '@/services/PipedreamProxyService';
 const mem0 = new Mem0MemoryService();
 
 export async function POST(req: NextRequest) {
-  const { userId, teamId, orgId, message } = await req.json();
+  // Use object destructuring with rest operator to ignore unused properties
+  const { userId, message, ...rest } = await req.json();
   if (!userId || !message) {
     return NextResponse.json({ error: 'Missing userId or message' }, { status: 400 });
   }
@@ -16,13 +17,12 @@ export async function POST(req: NextRequest) {
   // 1. Store user message in Mem0
   await mem0.add('user', userId, [{ role: 'user', content: message }]);
 
-  // 2. Retrieve context
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const userMem = await mem0.getAll('user', userId);
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const teamMem = teamId ? await mem0.getAll('team', teamId) : [];
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const orgMem = orgId ? await mem0.getAll('org', orgId) : [];
+  // 2. Retrieve context - commented out for now
+  // When implementing Claude, you can use these context variables
+  // const userMem = await mem0.getAll('user', userId);
+  // These would use values from the rest object:
+  // const teamMem = rest.teamId ? await mem0.getAll('team', rest.teamId) : [];
+  // const orgMem = rest.orgId ? await mem0.getAll('org', rest.orgId) : [];
 
   // 3. Intent detection (Claude or LLM)
   // Placeholder: Replace with real Claude call
