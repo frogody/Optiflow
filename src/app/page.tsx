@@ -3,10 +3,13 @@
 import { ArrowRightIcon, CheckCircleIcon, PlayCircleIcon } from '@heroicons/react/24/outline';
 import { motion } from 'framer-motion';
 import Head from 'next/head';
-import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
+import dynamic from 'next/dynamic';
+
+// Dynamically import Image to prevent hydration issues
+const Image = dynamic(() => import('next/image'), { ssr: false });
 
 // All imported icons and components are used in the UI (hero, personas, testimonials, and integrations).
 
@@ -88,6 +91,23 @@ const integrationLogos = [
 export default function HomePage() {
   // For now, use variant A
   const hero = heroVariants['A'];
+  const [isClient, setIsClient] = useState(false);
+  
+  // Set isClient to true once component mounts
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
+
+  if (!isClient) {
+    return <div className="min-h-screen flex flex-col items-center justify-center bg-[#111111] text-white p-4">
+      <div className="max-w-4xl mx-auto text-center mt-12 mb-16">
+        <h1 className="text-4xl md:text-6xl font-bold mb-6 bg-gradient-to-r from-blue-400 to-indigo-500 text-transparent bg-clip-text">
+          {hero.title}
+        </h1>
+        <p className="text-xl text-gray-300 mb-4">{hero.subtitle}</p>
+      </div>
+    </div>;
+  }
 
   return (
     <div className="min-h-screen flex flex-col items-center justify-center bg-[#111111] text-white p-4">
@@ -111,18 +131,18 @@ export default function HomePage() {
             {hero.cta}
             <ArrowRightIcon className="ml-2 h-5 w-5" />
           </Link>
-          <a
+          <Link
             href="/dashboard"
             className="px-6 py-3 border border-indigo-500 text-indigo-400 font-medium rounded-md hover:bg-indigo-900/20 transition-colors"
           >
             Go to Dashboard
-          </a>
-          <a
+          </Link>
+          <Link
             href="/demo"
             className="px-6 py-3 border border-[#22D3EE] text-[#22D3EE] font-medium rounded-md hover:bg-[#22D3EE]/10 transition-colors inline-flex items-center"
           >
             <PlayCircleIcon className="h-5 w-5 mr-2" /> Watch Demo
-          </a>
+          </Link>
         </div>
         {/* Integration Logos */}
         <div className="flex flex-wrap justify-center gap-6 mt-8">
