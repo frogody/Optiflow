@@ -1,31 +1,33 @@
-import Redis from 'ioredis';
-import { getServerSession } from 'next-auth/next';
+import { GetServerSideProps } from 'next';
+import { redis } from '@/lib/upstash';
 
-import { authOptions } from '@/lib/auth';
-
-const redis = new Redis(process.env['REDIS_URL'] || 'redis://localhost:6379');
-
-async function getAllUserPresence() {
+export const getServerSideProps: GetServerSideProps = async () => {
+  // Get all presence keys
   const keys = await redis.keys('user:*:presence');
   const users = [];
-  for (const key of keys) {
-    const userId = key.split(':')[1];
-    const data = await redis.hgetall(key);
-    users.push({
-      userId,
-      lastActive: data['lastActive'] ? new Date(Number(data['lastActive'])).toLocaleString() : 'N/A',
-      inactive: data['inactive'] === '1',
-    });
-  }
-  return users;
-}
 
-export default async function AdminPresenceDashboard() {
-  const session = await getServerSession(authOptions);
-  if (!session || session.user?.role !== 'admin') {
-    return <div>Unauthorized</div>;
+  // Fetch data for each user
+  for (const key of keys) {
+    const data = await redis.hgetall(key);
+    if (data) {
+      const userId = key.split(':')[1];
+      users.push({
+        userId,
+        lastActive: data.lastActive ? new Date(parseInt(data.lastActive)).toISOString() : null,
+        inactive: data.inactive === '1',
+      });
+    }
   }
-  const users = await getAllUserPresence();
+
+  return {
+    props: {
+      users,
+      timestamp: new Date().toISOString(),
+    },
+  };
+};
+
+export default function AdminPresenceDashboard({ users }) {
   return (
     <div style={{ padding: 32 }}>
       <h1>Presence Dashboard</h1>
@@ -41,7 +43,7 @@ export default async function AdminPresenceDashboard() {
           {users.map((u) => (
             <tr key={u.userId}>
               <td style={{ border: '1px solid #ccc', padding: 8 }}>{u.userId}</td>
-              <td style={{ border: '1px solid #ccc', padding: 8 }}>{u.lastActive}</td>
+              <td style={{ border: '1px solid #ccc', padding: 8 }}>{u.lastActive ? u.lastActive.split('T')[1].split('.')[0] : 'N/A'}</td>
               <td style={{ border: '1px solid #ccc', padding: 8 }}>{u.inactive ? 'Yes' : 'No'}</td>
             </tr>
           ))}

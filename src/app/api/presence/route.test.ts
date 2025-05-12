@@ -3,6 +3,7 @@ import { createMocks } from 'node-mocks-http';
 import request from 'supertest';
 import { describe, it, expect, beforeAll, afterAll } from 'vitest';
 
+import { redis } from '@/lib/upstash';
 import checkHandler from './check/route';
 import handler from './route';
 
