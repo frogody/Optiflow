@@ -64,17 +64,12 @@ export async function POST(req: NextRequest) {
   }
   const room = userRoom.roomName;
 
-  // Get environment variables and clean them properly
-  let apiKey = process.env.LIVEKIT_API_KEY || '';
-  let apiSecret = process.env.LIVEKIT_API_SECRET || '';
-  let livekitUrl = process.env.LIVEKIT_URL || '';
-  
-  // Remove quotes if present
-  apiKey = cleanEnvVar(apiKey);
-  apiSecret = cleanEnvVar(apiSecret);
-  livekitUrl = cleanEnvVar(livekitUrl);
+  // Get environment variables and clean them properly - simplified approach
+  const apiKey = cleanEnvVar(process.env.LIVEKIT_API_KEY || '');
+  const apiSecret = cleanEnvVar(process.env.LIVEKIT_API_SECRET || '');
+  const livekitUrl = cleanEnvVar(process.env.LIVEKIT_URL || '');
 
-  console.log(`LiveKit variables - API Key length: ${apiKey.length}, Secret length: ${apiSecret.length}, URL: ${livekitUrl}`);
+  console.log(`LiveKit variables - API Key: ${apiKey}, Secret length: ${apiSecret.length}, URL: ${livekitUrl}`);
 
   if (!apiKey || !apiSecret || !livekitUrl) {
     return NextResponse.json(
@@ -84,15 +79,22 @@ export async function POST(req: NextRequest) {
   }
 
   try {
-    // Create token
+    // Create and configure the token
     const at = new AccessToken(apiKey, apiSecret, {
       identity: userId,
       ttl: 60 * 60, // 1 hour
     });
-    at.addGrant({ room, roomJoin: true, canPublish: true, canSubscribe: true });
     
-    const token = at.toJwt();
-    console.log(`Generated token successfully for room: ${room}`);
+    at.addGrant({ 
+      room, 
+      roomJoin: true, 
+      canPublish: true, 
+      canSubscribe: true 
+    });
+    
+    // Generate the JWT token with await
+    const token = await at.toJwt();
+    console.log(`Generated token for room: ${room}, token length: ${token.length}`);
     
     return NextResponse.json({
       token,
@@ -105,7 +107,7 @@ export async function POST(req: NextRequest) {
   } catch (error) {
     console.error('Error generating LiveKit token:', error);
     return NextResponse.json(
-      { error: 'Failed to generate LiveKit token' },
+      { error: 'Failed to generate LiveKit token: ' + (error instanceof Error ? error.message : String(error)) },
       { status: 500 }
     );
   }
