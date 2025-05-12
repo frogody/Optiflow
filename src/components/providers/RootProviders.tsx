@@ -97,7 +97,7 @@ export function RootProviders({ children }: { children: React.ReactNode }) {
     );
   }
 
-  // Wrap providers in error boundaries
+  // Only one ErrorBoundaryWrapper at the top
   return (
     <ErrorBoundaryWrapper>
       <ThemeProvider
@@ -106,25 +106,19 @@ export function RootProviders({ children }: { children: React.ReactNode }) {
         enableSystem
         disableTransitionOnChange
       >
-        <ErrorBoundaryWrapper>
-          <SessionProvider>
-            <ErrorBoundaryWrapper>
-              <TanstackProvider>
-                <ErrorBoundaryWrapper>
-                  <IconContext.Provider value={{ className: 'inline-block' }}>
-                    <Suspense fallback={null}>
-                      <SessionInitializer />
-                      {isClient && <Navigation />}
-                      {children}
-                      <Analytics />
-                      <Toaster position="bottom-right" />
-                    </Suspense>
-                  </IconContext.Provider>
-                </ErrorBoundaryWrapper>
-              </TanstackProvider>
-            </ErrorBoundaryWrapper>
-          </SessionProvider>
-        </ErrorBoundaryWrapper>
+        <SessionProvider>
+          <TanstackProvider>
+            <IconContext.Provider value={{ className: 'inline-block' }}>
+              <Suspense fallback={null}>
+                <SessionInitializer />
+                {isClient && <Navigation />}
+                {children}
+                <Analytics />
+                <Toaster position="bottom-right" />
+              </Suspense>
+            </IconContext.Provider>
+          </TanstackProvider>
+        </SessionProvider>
       </ThemeProvider>
     </ErrorBoundaryWrapper>
   );

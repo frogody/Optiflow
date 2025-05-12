@@ -5,7 +5,6 @@ import Script from 'next/script';
 import BrowserDetection from '@/components/BrowserDetection';
 import { RootProviders } from '@/components/providers/RootProviders';
 import ClientVoiceWrapper from '@/components/ClientVoiceWrapper';
-import ErrorBoundaryWrapper from '@/components/ErrorBoundaryWrapper';
 import { initializeSentry } from '@/lib/monitoring/sentry';
 import { debugScript } from '@/lib/debug-script';
 import '@/styles/globals.css';
@@ -84,9 +83,7 @@ export default function RootLayout({
           >
             {/* Dynamic announcements will be inserted here */}
           </div>
-          <ErrorBoundaryWrapper>
-            {children}
-          </ErrorBoundaryWrapper>
+          {children}
           {/* Voice Agent Widget loaded via client component */}
           <ClientVoiceWrapper />
         </RootProviders>
