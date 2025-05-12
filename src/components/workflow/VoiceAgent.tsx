@@ -1,11 +1,9 @@
 'use client';
 
 import { flip, offset, shift, useFloating, useHover, useInteractions } from '@floating-ui/react';
-
-// LiveKit imports
-import { ConnectionState, LiveKitRoom, useConnectionState, useRoomContext } from '@livekit/components-react';
-import { createLocalTracks } from 'livekit-client';
-import React, { useEffect, useRef, useState } from 'react';
+import React from 'react';
+import { useEffect, useRef, useState } from 'react';
+import { LiveKitRoom, useConnectionState, useRoomContext, createLocalTracks, ConnectionState } from '@livekit/components-react';
 
 import MicrophonePermission from '@/components/MicrophonePermission';
 import { useUserStore } from '@/lib/userStore';

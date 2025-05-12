@@ -1,9 +1,10 @@
-import Redis from 'ioredis';
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth/next';
+
+import Redis from 'ioredis';
 import { authOptions } from '@/lib/auth';
 
-export const redis = new Redis(process.env.REDIS_URL!);
+export const redis = new Redis(process.env.REDIS_URL);
 
 const RATE_LIMIT = 60; // requests
 const RATE_LIMIT_WINDOW = 60; // seconds

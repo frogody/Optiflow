@@ -1,10 +1,10 @@
+import { getServerSession } from 'next-auth/next';
 import React from 'react';
 import Redis from 'ioredis';
-import { getServerSession } from 'next-auth/next';
 
 import { authOptions } from '@/lib/auth';
 
-const redis = new Redis(process.env.REDIS_URL!);
+const redis = new Redis(process.env.REDIS_URL);
 
 async function getAllUserPresence() {
   const keys = await redis.keys('user:*:presence');

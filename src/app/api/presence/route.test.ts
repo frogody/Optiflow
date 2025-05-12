@@ -1,7 +1,9 @@
 import { getServerSession } from 'next-auth/next';
-
-import { POST as presencePost, redis } from './route';
-import { POST as checkPost } from './check/route';
+import { describe, it, expect, beforeAll, afterAll } from 'vitest';
+import request from 'supertest';
+import { createMocks } from 'node-mocks-http';
+import checkHandler from './check/route';
+import handler from './route';
 
 jest.mock('next-auth/next');
 
@@ -20,7 +22,7 @@ describe('/api/presence endpoints', () => {
 
   it('should update presence for authenticated user', async () => {
     const req = { json: async () => ({ userId: mockUserId, inactive: false }) } as any;
-    const res = await presencePost(req);
+    const res = await handler(req);
     expect(res.status).toBe(200);
     const data = await res.json();
     expect(data.success).toBe(true);
@@ -31,13 +33,13 @@ describe('/api/presence endpoints', () => {
   it('should reject presence update for unauthenticated user', async () => {
     (getServerSession as jest.Mock).mockResolvedValue(null);
     const req = { json: async () => ({ userId: mockUserId, inactive: false }) } as any;
-    const res = await presencePost(req);
+    const res = await handler(req);
     expect(res.status).toBe(401);
   });
 
   it('should reject presence update for mismatched userId', async () => {
     const req = { json: async () => ({ userId: 'other-user', inactive: false }) } as any;
-    const res = await presencePost(req);
+    const res = await handler(req);
     expect(res.status).toBe(401);
   });
 
@@ -45,7 +47,7 @@ describe('/api/presence endpoints', () => {
     // Set presence first
     await redis.hmset(`user:${mockUserId}:presence`, { lastActive: Date.now().toString(), inactive: '0' });
     const req = { json: async () => ({ userId: mockUserId }) } as any;
-    const res = await checkPost(req);
+    const res = await checkHandler(req);
     expect(res.status).toBe(200);
     const data = await res.json();
     expect(data.inactive).toBe(false);
@@ -54,13 +56,13 @@ describe('/api/presence endpoints', () => {
   it('should reject presence check for unauthenticated user', async () => {
     (getServerSession as jest.Mock).mockResolvedValue(null);
     const req = { json: async () => ({ userId: mockUserId }) } as any;
-    const res = await checkPost(req);
+    const res = await checkHandler(req);
     expect(res.status).toBe(401);
   });
 
   it('should reject presence check for mismatched userId', async () => {
     const req = { json: async () => ({ userId: 'other-user' }) } as any;
-    const res = await checkPost(req);
+    const res = await checkHandler(req);
     expect(res.status).toBe(401);
   });
 }); 
