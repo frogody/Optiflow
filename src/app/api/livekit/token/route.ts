@@ -8,8 +8,12 @@ import { prisma } from '@/lib/prisma';
 // Helper function to strip quotes from environment variables
 function cleanEnvVar(value: string | undefined): string {
   if (!value) return '';
-  // Remove surrounding quotes if present
-  return value.replace(/^["'](.*)["']$/, '$1');
+  // Handle both double and single quotes with a better approach
+  if ((value.startsWith('"') && value.endsWith('"')) || 
+      (value.startsWith("'") && value.endsWith("'"))) {
+    return value.substring(1, value.length - 1);
+  }
+  return value;
 }
 
 export async function POST(req: NextRequest) {
@@ -19,11 +23,12 @@ export async function POST(req: NextRequest) {
   }
 
   const userId = session.user.id;
-  const { metadata, participant, action } = await req.json().catch(() => ({}));
+  const { metadata, participant, action, room: requestedRoom } = await req.json().catch(() => ({}));
+  
   // Find or create a persistent room for this user
   let userRoom = await prisma.userRoom.findUnique({ where: { userId } });
   if (!userRoom) {
-    const roomName = `user-${userId}-${Date.now()}`;
+    const roomName = requestedRoom || `user-${userId}-${Date.now()}`;
     userRoom = await prisma.userRoom.create({
       data: {
         userId,
@@ -59,10 +64,17 @@ export async function POST(req: NextRequest) {
   }
   const room = userRoom.roomName;
 
-  // Clean environment variables to remove any quotes
-  const apiKey = cleanEnvVar(process.env.LIVEKIT_API_KEY);
-  const apiSecret = cleanEnvVar(process.env.LIVEKIT_API_SECRET);
-  const livekitUrl = cleanEnvVar(process.env.LIVEKIT_URL);
+  // Get environment variables and clean them properly
+  let apiKey = process.env.LIVEKIT_API_KEY || '';
+  let apiSecret = process.env.LIVEKIT_API_SECRET || '';
+  let livekitUrl = process.env.LIVEKIT_URL || '';
+  
+  // Remove quotes if present
+  apiKey = cleanEnvVar(apiKey);
+  apiSecret = cleanEnvVar(apiSecret);
+  livekitUrl = cleanEnvVar(livekitUrl);
+
+  console.log(`LiveKit variables - API Key length: ${apiKey.length}, Secret length: ${apiSecret.length}, URL: ${livekitUrl}`);
 
   if (!apiKey || !apiSecret || !livekitUrl) {
     return NextResponse.json(
@@ -71,20 +83,30 @@ export async function POST(req: NextRequest) {
     );
   }
 
-  console.log(`Creating token for room: ${room} with key length: ${apiKey.length} and secret length: ${apiSecret.length}`);
-  
-  const at = new AccessToken(apiKey, apiSecret, {
-    identity: userId,
-    ttl: 60 * 60, // 1 hour
-  });
-  at.addGrant({ room, roomJoin: true, canPublish: true, canSubscribe: true });
-
-  return NextResponse.json({
-    token: at.toJwt(),
-    url: livekitUrl,
-    room,
-    participants: userRoom.participants,
-    sessionHistory: userRoom.sessionHistory,
-    metadata: userRoom.metadata
-  });
+  try {
+    // Create token
+    const at = new AccessToken(apiKey, apiSecret, {
+      identity: userId,
+      ttl: 60 * 60, // 1 hour
+    });
+    at.addGrant({ room, roomJoin: true, canPublish: true, canSubscribe: true });
+    
+    const token = at.toJwt();
+    console.log(`Generated token successfully for room: ${room}`);
+    
+    return NextResponse.json({
+      token,
+      url: livekitUrl,
+      room,
+      participants: userRoom.participants,
+      sessionHistory: userRoom.sessionHistory,
+      metadata: userRoom.metadata
+    });
+  } catch (error) {
+    console.error('Error generating LiveKit token:', error);
+    return NextResponse.json(
+      { error: 'Failed to generate LiveKit token' },
+      { status: 500 }
+    );
+  }
 }
