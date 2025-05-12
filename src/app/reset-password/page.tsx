@@ -11,7 +11,7 @@ import {
 import Image from 'next/image';
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, Suspense } from 'react';
 
 interface PasswordStrength {
   score: number;
@@ -25,7 +25,7 @@ interface PasswordStrength {
   };
 }
 
-export default function ResetPassword() {
+function ResetPasswordInner() {
   const searchParams = useSearchParams();
   const token = searchParams.get('token');
 
@@ -420,5 +420,13 @@ export default function ResetPassword() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function ResetPassword() {
+  return (
+    <Suspense>
+      <ResetPasswordInner />
+    </Suspense>
   );
 } 

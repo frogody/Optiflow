@@ -205,14 +205,6 @@ export default function Navigation() {
   const renderAuthButtons = () => (
     <div className="flex items-center space-x-3">
       <button
-        onClick={() => handleNavigation('/login')}
-        className={`${buttonPadding} text-sm dark:text-white/90 dark:hover:text-white light:text-gray-700 light:hover:text-gray-900 rounded-full border border-transparent dark:hover:border-white/10 dark:hover:bg-white/5 light:hover:border-black/10 light:hover:bg-black/5 transition-all duration-200`}
-        aria-label="Log in"
-        title="Log in"
-      >
-        <TranslatedText textKey="navigation.login" fallback="Log in" />
-      </button>
-      <button
         onClick={() => handleNavigation('/signup')}
         className={`${buttonPadding} text-sm font-medium text-black rounded-full bg-gradient-to-r from-[#3CDFFF] to-[#4AFFD4] hover:opacity-90 transition-all duration-200`}
         aria-label="Get Started"
@@ -425,8 +417,8 @@ export default function Navigation() {
 
               {/* Always render auth buttons when user is not logged in, regardless of loading state */}
               {userLoading ? (
-                // Show a simple placeholder during loading to prevent layout shift
-                <div className="h-8 w-24 bg-white/5 animate-pulse rounded-full" />
+                // Show nothing while loading
+                null
               ) : currentUser ? (
                 // User profile avatar and menu
                 renderUserMenu()
@@ -583,6 +575,21 @@ export default function Navigation() {
                   )}
                 </div>
               ))}
+              {currentUser ? null : (
+                <div className="md:hidden flex justify-center mt-4 mb-2">
+                  <button
+                    onClick={() => {
+                      handleNavigation('/signup');
+                      setIsMobileMenuOpen(false);
+                    }}
+                    className="w-full text-center py-2 px-4 text-base font-medium text-black rounded-full bg-gradient-to-r from-[#3CDFFF] to-[#4AFFD4] hover:opacity-90 transition-all duration-200"
+                    aria-label="Get Started"
+                    title="Get Started"
+                  >
+                    <TranslatedText textKey="navigation.signup" fallback="Get Started" />
+                  </button>
+                </div>
+              )}
             </div>
           </div>
         </Transition>

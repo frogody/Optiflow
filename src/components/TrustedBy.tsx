@@ -12,7 +12,7 @@ export function TrustedBy() {
   return (
     <div className="text-center">
       <h3 className="text-xl font-semibold mb-8">
-        Trusted by Global Enterprises
+        Coming soon
       </h3>
       <div className="grid grid-cols-2 md:grid-cols-5 gap-8 items-center justify-items-center opacity-75">
         {partners.map((partner) => (

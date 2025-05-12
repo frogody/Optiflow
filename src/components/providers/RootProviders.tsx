@@ -6,6 +6,7 @@ import { Suspense, useEffect, useState } from 'react';
 import { Toaster } from 'react-hot-toast';
 import { IconContext } from 'react-icons';
 import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 
 import '@/styles/globals.css';
 
@@ -57,6 +58,18 @@ export function RootProviders({ children }: { children: React.ReactNode }) {
   // Use state to track client-side rendering and initialization status
   const [isClient, setIsClient] = useState(false);
   const [initError, setInitError] = useState<Error | null>(null);
+  const pathname = typeof window !== 'undefined' ? window.location.pathname : '';
+
+  // List of dashboard-related routes to hide main nav
+  const hideNavRoutes = [
+    '/dashboard',
+    '/settings',
+    '/billing',
+    '/workflows',
+    '/connections',
+    '/profile',
+  ];
+  const shouldHideNav = hideNavRoutes.some((route) => pathname.startsWith(route));
   
   // Initialize client-side features safely
   useEffect(() => {
@@ -148,7 +161,8 @@ export function RootProviders({ children }: { children: React.ReactNode }) {
           <TanstackProvider>
             <IconContext.Provider value={{ className: 'inline-block' }}>
               <SessionInitializer />
-              {isClient ? <Navigation /> : <MinimalNav />}
+              {/* Only show Navigation if not on dashboard-related pages */}
+              {!shouldHideNav && (isClient ? <Navigation /> : <MinimalNav />)}
               {children}
               <Analytics />
               <Toaster position="bottom-right" />

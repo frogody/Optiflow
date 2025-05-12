@@ -20,10 +20,7 @@ export default function HeroSection() {
           transition={{ duration: 0.8, delay: 0.2 }}
           className="text-4xl md:text-6xl font-bold mb-6 text-white"
         >
-          AI Beyond Hype –{' '}
-          <span className="bg-gradient-to-r from-[#3CDFFF] to-[#4AFFD4] text-transparent bg-clip-text">
-            Built for Real Impact
-          </span>
+          The <span className="bg-gradient-to-r from-[#3CDFFF] to-[#4AFFD4] text-transparent bg-clip-text">Automation Platform</span> For Your <span className="bg-gradient-to-r from-[#3CDFFF] to-[#4AFFD4] text-transparent bg-clip-text">Workflow</span>
         </motion.h1>
 
         <motion.p
@@ -32,9 +29,7 @@ export default function HeroSection() {
           transition={{ duration: 0.8, delay: 0.4 }}
           className="text-lg md:text-xl text-gray-300 mb-8"
         >
-          We don't just advise—we ensure AI & Data solutions actually fit.
-          Cutting through the noise around AI adoption with strategic
-          integration and real results.
+          Connect your favorite tools, automate your workflows, and boost productivity with our AI-powered orchestration platform.
         </motion.p>
 
         <motion.div
