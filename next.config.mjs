@@ -66,11 +66,6 @@ const nextConfig = {
     ];
   },
   
-  // Improve error handling
-  onError(err) {
-    console.error('Next.js build error:', err);
-  },
-  
   // Webpack configuration
   webpack: (config, { isServer }) => {
     // Only use require() on the server for next-i18next
