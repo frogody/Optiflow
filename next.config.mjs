@@ -27,6 +27,14 @@ const nextConfig = {
   // Keep trailing slash consistent
   trailingSlash: false,
   
+  // Handle ESM externals appropriately
+  experimental: {
+    // Fix for common "X is not a function" errors when using dynamic imports
+    esmExternals: false,
+    // Explicitly optimizing React server components
+    serverComponentsExternalPackages: ['react', 'react-dom'],
+  },
+  
   // Configure security headers
   headers: async () => {
     return [
@@ -66,7 +74,7 @@ const nextConfig = {
     ];
   },
   
-  // Webpack configuration
+  // Enhanced webpack configuration
   webpack: (config, { isServer }) => {
     // Only use require() on the server for next-i18next
     if (!isServer) {
@@ -76,6 +84,13 @@ const nextConfig = {
         path: false,
       };
     }
+    
+    // Make sure React is properly resolved
+    config.resolve.alias = {
+      ...config.resolve.alias,
+      'react/jsx-runtime': require.resolve('react/jsx-runtime'),
+      'react/jsx-dev-runtime': require.resolve('react/jsx-dev-runtime'),
+    };
     
     return config;
   },

@@ -12,13 +12,28 @@ export default function ErrorBoundaryWrapper({
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
-    setMounted(true);
+    // Safely set mounted state in an effect
+    try {
+      setMounted(true);
+    } catch (error) {
+      console.error('Error setting mounted state:', error);
+    }
   }, []);
 
-  // Only render the error boundary on the client side
+  // During server-side rendering or initial hydration, return children wrapped in a fragment
+  // This ensures consistent behavior between server and client while avoiding hydration issues
   if (!mounted) {
-    return <>{children}</>;
+    return (
+      <>
+        {children}
+      </>
+    );
   }
 
-  return <ErrorBoundary>{children}</ErrorBoundary>;
+  // Once safely mounted on client-side, wrap with error boundary
+  return (
+    <ErrorBoundary>
+      {children}
+    </ErrorBoundary>
+  );
 } 

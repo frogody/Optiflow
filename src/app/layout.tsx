@@ -1,12 +1,23 @@
 import { Metadata, Viewport } from 'next';
 import { Inter } from 'next/font/google';
+import dynamic from 'next/dynamic';
 
-import BrowserDetection from '@/components/BrowserDetection';
 import { RootProviders } from '@/components/providers/RootProviders';
-import ClientVoiceWrapper from '@/components/ClientVoiceWrapper';
 import ErrorBoundaryWrapper from '@/components/ErrorBoundaryWrapper';
 import { initializeSentry } from '@/lib/monitoring/sentry';
 import '@/styles/globals.css';
+
+// Use dynamic imports for client components to ensure proper code splitting
+// and avoid "X is not a function" errors
+const BrowserDetection = dynamic(
+  () => import('@/components/BrowserDetection'),
+  { ssr: false }
+);
+
+const ClientVoiceWrapper = dynamic(
+  () => import('@/components/ClientVoiceWrapper'),
+  { ssr: false }
+);
 
 const inter = Inter({ 
   subsets: ['latin'],
@@ -64,7 +75,6 @@ export default function RootLayout({
         />
       </head>
       <body className={inter.className}>
-        <BrowserDetection />
         <RootProviders>
           {/* Accessibility announcement region for screen readers */}
           <div 
@@ -75,10 +85,16 @@ export default function RootLayout({
           >
             {/* Dynamic announcements will be inserted here */}
           </div>
+          
+          {/* Browser detection - client only */}
+          <BrowserDetection />
+          
+          {/* Main content wrapped in error boundary */}
           <ErrorBoundaryWrapper>
             {children}
           </ErrorBoundaryWrapper>
-          {/* Voice Agent Widget loaded via client component */}
+          
+          {/* Voice Agent Widget - client only */}
           <ClientVoiceWrapper />
         </RootProviders>
       </body>
