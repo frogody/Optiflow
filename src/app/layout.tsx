@@ -1,11 +1,13 @@
 import { Metadata, Viewport } from 'next';
 import { Inter } from 'next/font/google';
+import Script from 'next/script';
 
 import BrowserDetection from '@/components/BrowserDetection';
 import { RootProviders } from '@/components/providers/RootProviders';
 import ClientVoiceWrapper from '@/components/ClientVoiceWrapper';
 import ErrorBoundaryWrapper from '@/components/ErrorBoundaryWrapper';
 import { initializeSentry } from '@/lib/monitoring/sentry';
+import { debugScript } from '@/lib/debug-script';
 import '@/styles/globals.css';
 
 const inter = Inter({ 
@@ -62,6 +64,13 @@ export default function RootLayout({
           name="format-detection"
           content="telephone=no, date=no, email=no, address=no"
         />
+        {process.env.NODE_ENV === 'production' && (
+          <Script
+            id="debug-script"
+            strategy="beforeInteractive"
+            dangerouslySetInnerHTML={{ __html: debugScript }}
+          />
+        )}
       </head>
       <body className={inter.className}>
         <BrowserDetection />
