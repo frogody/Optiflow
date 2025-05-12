@@ -9,7 +9,6 @@ export default function AIFactoryPage(): JSX.Element {
   const [idea, setIdea] = useState('');
   const [submitted, setSubmitted] = useState(false);
   const [scrolled, setScrolled] = useState(false);
-  const [cursorPosition, setCursorPosition] = useState({ x: 0, y: 0     });
   
   // Handle scroll effects
   useEffect(() => {

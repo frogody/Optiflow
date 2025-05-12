@@ -20,6 +20,7 @@ from livekit.agents.utils import AudioEncoding
 from livekit.plugins import openai as openai_plugin
 from livekit.plugins import deepgram as deepgram_plugin
 from livekit.plugins import elevenlabs as elevenlabs_plugin
+import time
 
 load_dotenv()
 
@@ -44,6 +45,7 @@ ELEVENLABS_API_KEY = os.getenv("ELEVENLABS_API_KEY")
 ELEVENLABS_VOICE_ID = os.getenv("ELEVENLABS_VOICE_ID", "EXAVITQu4vr4xnSDxMaL")  # Default: "Josh"
 OPTIFLOW_BACKEND_URL = os.getenv("OPTIFLOW_BACKEND_URL")
 OPTIFLOW_BACKEND_API_KEY = os.getenv("OPTIFLOW_BACKEND_API_KEY")
+AGENT_EVENT_WEBHOOK_URL = os.getenv("AGENT_EVENT_WEBHOOK_URL")
 
 # --- Pipedream Tool Definition ---
 class PipedreamActionTool(lk_tools.Tool):
@@ -200,6 +202,27 @@ class KnowledgeBaseQueryTool(lk_tools.Tool):
                 "results": []
             })
 
+async def send_agent_event(event_type, user_id, room_id):
+    if not AGENT_EVENT_WEBHOOK_URL:
+        return
+    payload = {
+        "event_type": event_type,
+        "user_id": user_id,
+        "room_id": room_id,
+        "timestamp": int(time.time()),
+    }
+    try:
+        async with aiohttp.ClientSession() as client:
+            async with client.post(
+                AGENT_EVENT_WEBHOOK_URL,
+                json=payload,
+                headers={"Content-Type": "application/json"}
+            ) as resp:
+                if resp.status != 200:
+                    logger.error(f"Failed to send agent event webhook: {resp.status} {await resp.text()}")
+    except Exception as e:
+        logger.error(f"Error sending agent event webhook: {e}")
+
 class JarvisAgent(Agent):
     def __init__(self):
         super().__init__()
@@ -232,7 +255,45 @@ class JarvisAgent(Agent):
         
         logger.info("JarvisAgent fully initialized.")
 
+    async def poll_user_presence(self, user_id, room_id, session: AgentSession):
+        """Poll the Optiflow backend for user presence. If inactive, end the session."""
+        poll_interval = 30  # seconds
+        inactivity_limit = 10 * 60  # 10 minutes in seconds
+        last_active = time.time()
+        while True:
+            try:
+                async with aiohttp.ClientSession() as client:
+                    async with client.post(
+                        f"{OPTIFLOW_BACKEND_URL}/api/presence/check",
+                        json={"userId": user_id},
+                        headers={"Content-Type": "application/json"}
+                    ) as resp:
+                        data = await resp.json()
+                        if not data.get("inactive", False):
+                            last_active = time.time()
+                        else:
+                            # If inactive for more than inactivity_limit, end session
+                            if time.time() - last_active > inactivity_limit:
+                                logger.info(f"[AGENT LEAVE] User {user_id} inactive for over 10 minutes. Jarvis agent leaving room: {room_id}")
+                                await send_agent_event("agent_leave", user_id, room_id)
+                                # TODO: Send agent leave event to monitoring/analytics service
+                                await session.send_data(json.dumps({
+                                    "type": "agent_status",
+                                    "status": "leaving_room",
+                                    "reason": "user_inactive"
+                                }))
+                                await session.tts.synthesize("I'll be here when you return. Goodbye!")
+                                await session.close()
+                                return
+            except Exception as e:
+                logger.error(f"Error polling user presence: {e}")
+            await asyncio.sleep(poll_interval)
+
     async def _main_agent_loop(self, session: AgentSession):
+        user_id = session.participant.identity if session.participant else None
+        room_id = session.room.name if session.room else None
+        logger.info(f"[AGENT JOIN] Jarvis agent joining room: {room_id} for user: {user_id}")
+        await send_agent_event("agent_join", user_id, room_id)
         initial_prompt = (
             "You are Jarvis, a highly capable AI assistant for Optiflow. "
             "Your primary user is an Optiflow user who is using your voice interface. "
@@ -255,6 +316,11 @@ class JarvisAgent(Agent):
             "type": "agent_transcript", 
             "transcript": welcome_message
         }))
+        
+        # Start polling for user presence in the background
+        presence_task = None
+        if user_id and room_id:
+            presence_task = asyncio.create_task(self.poll_user_presence(user_id, room_id, session))
         
         # Main conversation loop
         user_input_audio_stream = await session.stt.stream()
@@ -313,6 +379,11 @@ class JarvisAgent(Agent):
                 # Also synthesize the error message
                 await session.tts.synthesize("I'm having trouble understanding you. Could you try again?")
                 break
+            finally:
+                if presence_task:
+                    presence_task.cancel()
+                logger.info(f"[AGENT LEAVE] Jarvis agent leaving room: {room_id} for user: {user_id}")
+                await send_agent_event("agent_leave", user_id, room_id)
 
     async def process_job(self, job: JobContext):
         logger.info(f"JarvisAgent processing job: {job.id} for participant: {job.participant.identity if job.participant else 'N/A'}")

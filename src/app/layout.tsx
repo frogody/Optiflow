@@ -3,9 +3,9 @@ import { Inter } from 'next/font/google';
 
 import BrowserDetection from '@/components/BrowserDetection';
 import { RootProviders } from '@/components/providers/RootProviders';
+import VoiceAgentInterface from '@/components/voice/VoiceAgentInterface';
 import { initializeSentry } from '@/lib/monitoring/sentry';
 import '@/styles/globals.css';
-import VoiceAgentInterface from '@/components/voice/VoiceAgentInterface';
 
 const inter = Inter({ 
   subsets: ['latin'],

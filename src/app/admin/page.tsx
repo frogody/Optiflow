@@ -6,7 +6,6 @@ import {
   CheckCircleIcon,
   ExclamationTriangleIcon
 } from '@heroicons/react/24/solid';
-import { useState } from 'react';
 
 export default function AdminDashboard() {
   // Dummy data for dashboard metrics

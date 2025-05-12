@@ -2,11 +2,7 @@
 
 import { ArrowRightIcon, CheckCircleIcon } from '@heroicons/react/24/outline';
 import { 
-  BriefcaseIcon, 
   GlobeAltIcon, 
-  HeartIcon, 
-  LightBulbIcon,
-  RocketLaunchIcon,
   ShieldCheckIcon,
   SparklesIcon,
   StarIcon,
@@ -109,28 +105,6 @@ const values = [
   },
 ];
 
-// Open positions
-const openPositions = [
-  {
-    title: 'Senior AI Engineer',
-    department: 'Engineering',
-    location: 'Remote',
-    type: 'Full-time'
-  },
-  {
-    title: 'Product Designer',
-    department: 'Design',
-    location: 'San Francisco, CA',
-    type: 'Full-time'
-  },
-  {
-    title: 'Customer Success Manager',
-    department: 'Customer Support',
-    location: 'Remote',
-    type: 'Full-time'
-  }
-];
-
 // Company timeline
 const timelineEvents = [
   {
@@ -162,30 +136,6 @@ const timelineEvents = [
     year: '2025',
     title: 'Global Expansion',
     description: 'Opened offices in London and Singapore, expanding our team to 100+ employees serving customers in over 50 countries.'
-  }
-];
-
-// Company values
-const companyValues = [
-  {
-    title: 'User-Centered Innovation',
-    description: 'We put users at the center of everything we build. Our product decisions are driven by real user needs and feedback.'
-  },
-  {
-    title: 'Radical Simplicity',
-    description: 'We believe powerful technology should be easy to use. We strive to make complex processes simple and intuitive.'
-  },
-  {
-    title: 'Continuous Improvement',
-    description: 'We embrace a culture of learning and iteration. Every day, we work to make our product, our processes, and ourselves better.'
-  },
-  {
-    title: 'Transparent Communication',
-    description: 'We believe in open, honest communication within our team and with our customers. We share both successes and challenges.'
-  },
-  {
-    title: 'Ethical AI Development',
-    description: 'We develop AI systems responsibly, with human oversight and clear principles for privacy, fairness, and transparency.'
   }
 ];
 
