@@ -64,7 +64,7 @@ export default function DashboardHeader({
             <div className="flex-shrink-0">
               <Link href="/dashboard" className="flex items-center">
                 <Image
-                  src="/logo-transparent.svg"
+                  src="/ISYNCSO_LOGO.png"
                   alt="SYNC"
                   width={120}
                   height={32}

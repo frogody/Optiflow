@@ -8,6 +8,8 @@ import {
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 
+import LoggedInLayout from '@/components/layouts/LoggedInLayout';
+
 export default function BillingLayout({
   children,
 }: {
@@ -22,8 +24,8 @@ export default function BillingLayout({
   ];
 
   return (
-    <div className="min-h-screen bg-[#111111] text-[#E5E7EB]">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+    <LoggedInLayout>
+      <div>
         <div className="mb-6">
           <h1 className="text-3xl font-bold text-[#22D3EE] mb-2">Billing & Subscription</h1>
           <p className="text-[#9CA3AF]">
@@ -64,6 +66,6 @@ export default function BillingLayout({
           {children}
         </div>
       </div>
-    </div>
+    </LoggedInLayout>
   );
 } 

@@ -80,7 +80,7 @@ const LoginPage = () => {
           {/* Logo */}
           <div className="flex justify-center mb-8">
             <Image 
-              src="/logo-transparent.svg" 
+              src="/ISYNCSO_LOGO.png" 
               alt="SYNC" 
               width={180} 
               height={60} 

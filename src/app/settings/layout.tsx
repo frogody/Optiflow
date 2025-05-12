@@ -14,6 +14,8 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useEffect, useState } from 'react';
 
+import LoggedInLayout from '@/components/layouts/LoggedInLayout';
+
 export default function SettingsLayout({
   children,
 }: {
@@ -50,8 +52,8 @@ export default function SettingsLayout({
   ];
 
   return (
-    <div className="min-h-screen bg-[#111111] text-[#E5E7EB]">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+    <LoggedInLayout>
+      <div className="max-w-7xl mx-auto">
         {/* Mobile menu toggle and back button */}
         <div className="flex items-center justify-between md:hidden mb-6">
           <Link href="/dashboard" className="flex items-center text-[#9CA3AF] hover:text-[#E5E7EB]">
@@ -102,6 +104,6 @@ export default function SettingsLayout({
           </main>
         </div>
       </div>
-    </div>
+    </LoggedInLayout>
   );
 } 

@@ -4,8 +4,8 @@ import { useEffect, useState } from 'react';
 import { CreditCardIcon, PuzzlePieceIcon, MicrophoneIcon, SparklesIcon } from '@heroicons/react/24/outline';
 
 import ActivityFeedWidget from '@/components/dashboard/ActivityFeedWidget';
-import DashboardHeader from '@/components/dashboard/DashboardHeader';
 import KpiWidget from '@/components/dashboard/KpiWidget';
+import LoggedInLayout from '@/components/layouts/LoggedInLayout';
 import OnboardingSection from '@/components/dashboard/OnboardingSection';
 import QuickActionsWidget from '@/components/dashboard/QuickActionsWidget';
 import RecommendationsWidget from '@/components/dashboard/RecommendationsWidget';
@@ -76,15 +76,8 @@ export default function DashboardPage() {
   };
 
   return (
-    <div className="bg-[#111111] min-h-screen">
-      {/* Dashboard Header */}
-      <DashboardHeader 
-        userName={user.name}
-        userEmail={user.email}
-        notificationCount={3}
-      />
-
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+    <LoggedInLayout>
+      <div>
         <div className="mb-6">
           <h1 className="text-3xl font-bold text-[#E5E7EB]">Dashboard</h1>
           <p className="text-[#9CA3AF] mt-1">Welcome back, {user.name}. Here's an overview of your workflow activity.</p>
@@ -237,6 +230,6 @@ export default function DashboardPage() {
           </div>
         </div>
       </div>
-    </div>
+    </LoggedInLayout>
   );
 } 

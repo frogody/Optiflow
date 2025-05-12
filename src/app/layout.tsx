@@ -27,8 +27,8 @@ export const metadata: Metadata = {
   title: 'SYNC - Automate Your Workflow',
   description: 'Connect your favorite tools, automate your workflows, and boost productivity with SYNC',
   icons: {
-    icon: '/favicon.svg',
-    apple: '/apple-icon.svg',
+    icon: '/ISYNCSO_LOGO.png',
+    apple: '/ISYNCSO_LOGO.png',
   },
   appleWebApp: {
     title: 'SYNC',
@@ -43,7 +43,7 @@ export const metadata: Metadata = {
     siteName: 'SYNC',
     images: [
       {
-        url: '/logo-transparent.svg',
+        url: '/ISYNCSO_LOGO.png',
         width: 512,
         height: 512,
         alt: 'SYNC Logo',

@@ -72,26 +72,7 @@ export async function connect(
   // Generate a unique room name if not provided
   const roomName = options.roomName || `optiflow-voice-${Date.now()}`;
   
-  // First, dispatch the agent to the room
-  try {
-    const dispatchResponse = await fetch('/api/livekit/dispatch', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ roomName })
-    });
-    
-    if (!dispatchResponse.ok) {
-      const errorData = await dispatchResponse.json();
-      throw new Error(`Failed to dispatch agent: ${errorData.error || dispatchResponse.statusText}`);
-    }
-  } catch (e: any) {
-    if (options.onError) {
-      options.onError(new Error(`Failed to dispatch agent: ${e.message}`));
-    }
-    throw e;
-  }
-  
-  // Now get a token for the user to join the room
+  // Get token and LiveKit URL first
   let token = '';
   let livekitUrl = '';
   try {
@@ -100,7 +81,7 @@ export async function connect(
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ 
         room: roomName,
-        identity: options.identity
+        identity: options.identity // User's identity
       })
     });
     
@@ -110,17 +91,34 @@ export async function connect(
     
     const tokenData = await tokenResponse.json();
     token = tokenData.token;
-    livekitUrl = tokenData.url;
+    livekitUrl = tokenData.url; // Make sure your token endpoint returns the URL
     
     if (!token || !livekitUrl) {
       throw new Error('Invalid LiveKit configuration received from server');
     }
   } catch (e: any) {
-    if (options.onError) {
-      options.onError(new Error(`Failed to get LiveKit token: ${e.message}`));
-    }
+    options.onError?.(new Error(`Failed to get LiveKit token: ${e.message}`));
     throw e;
   }
+  
+  // Dispatch the agent concurrently (fire-and-forget or handle promise separately)
+  fetch('/api/livekit/dispatch', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ roomName }) // Send the final room name
+  }).then(async dispatchResponse => {
+    if (!dispatchResponse.ok) {
+      const errorData = await dispatchResponse.json().catch(() => ({})); // Gracefully handle non-JSON errors
+      console.error(`Agent dispatch failed: ${errorData.error || dispatchResponse.statusText}`);
+      options.onError?.(new Error(`Agent dispatch failed: ${errorData.error || dispatchResponse.statusText}`));
+      // Optionally notify the user or attempt retry
+    } else {
+      console.log(`Agent dispatch request successful for room: ${roomName}`);
+    }
+  }).catch(e => {
+    console.error('Error dispatching agent:', e);
+    options.onError?.(new Error(`Failed to dispatch agent: ${e.message}`));
+  });
   
   // Create and configure room
   const room = new Room({
