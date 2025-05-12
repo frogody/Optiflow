@@ -1,8 +1,8 @@
-import { KnowledgeBase, KnowledgeDocument, Prisma } from '@prisma/client';
+import { KnowledgeBase, KnowledgeDocument, Prisma } from './internal';
 import { OpenAI } from 'openai';
 import { z } from 'zod';
 
-import { prisma } from '@/lib/prisma';
+import { prisma } from '../lib/prisma';
 
 import { RagService } from './ragService';
 

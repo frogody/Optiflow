@@ -1,4 +1,4 @@
-import { Workflow, WorkflowEdge, WorkflowNode } from '@prisma/client';
+import { Workflow, WorkflowEdge, WorkflowNode } from '../services/internal';
 import React, { useCallback, useEffect, useState } from 'react';
 import { toast } from 'react-hot-toast';
 

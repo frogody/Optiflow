@@ -1,6 +1,6 @@
-import { Workflow, WorkflowEdge, WorkflowNode } from '@prisma/client';
+import { Workflow, WorkflowEdge, WorkflowNode } from './internal';
 
-import { prisma } from '@/lib/prisma';
+import { prisma } from '../lib/prisma';
 import { ConversationMessage, VoiceCommandContext, VoiceCommandResponse } from '@/types/voice';
 
 interface CommandAnalysis {
