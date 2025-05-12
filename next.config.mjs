@@ -18,7 +18,8 @@ const nextConfig = {
   output: 'standalone',
   
   // External packages configuration - updated syntax for Next.js 15
-  serverExternalPackages: ['bcrypt'],
+  // Including React packages to avoid "is not a function" errors
+  serverExternalPackages: ['bcrypt', 'react', 'react-dom'],
   
   // Set a reasonable timeout for static page generation
   // Longer timeout allows more complex pages to be generated
@@ -26,14 +27,6 @@ const nextConfig = {
   
   // Keep trailing slash consistent
   trailingSlash: false,
-  
-  // Handle ESM externals appropriately
-  experimental: {
-    // Fix for common "X is not a function" errors when using dynamic imports
-    esmExternals: false,
-    // Explicitly optimizing React server components
-    serverComponentsExternalPackages: ['react', 'react-dom'],
-  },
   
   // Configure security headers
   headers: async () => {
@@ -74,9 +67,9 @@ const nextConfig = {
     ];
   },
   
-  // Enhanced webpack configuration
+  // Enhanced webpack configuration - ESM compatible version
   webpack: (config, { isServer }) => {
-    // Only use require() on the server for next-i18next
+    // Only apply fallbacks for client-side bundle
     if (!isServer) {
       config.resolve.fallback = {
         ...config.resolve.fallback,
@@ -85,11 +78,9 @@ const nextConfig = {
       };
     }
     
-    // Make sure React is properly resolved
+    // Add aliases without using require
     config.resolve.alias = {
       ...config.resolve.alias,
-      'react/jsx-runtime': require.resolve('react/jsx-runtime'),
-      'react/jsx-dev-runtime': require.resolve('react/jsx-dev-runtime'),
     };
     
     return config;
