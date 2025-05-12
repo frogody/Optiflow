@@ -1,9 +1,12 @@
 'use client';
 
+// Force dynamic rendering to avoid static generation issues with React version conflicts
+export const dynamic = 'force-dynamic';
+
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-// Import each icon individually from react-icons/hi
+// Import HiOutline icons directly - not using barrel optimization
 import { HiOutlineCode } from 'react-icons/hi';
 import { HiOutlineCog } from 'react-icons/hi';
 import { HiOutlineLightningBolt } from 'react-icons/hi';
@@ -11,13 +14,10 @@ import { HiOutlineShieldCheck } from 'react-icons/hi';
 import { HiOutlineChartBar } from 'react-icons/hi';
 import { HiOutlineRefresh } from 'react-icons/hi';
 
-// Import each icon individually from react-icons/si
-import { SiOpenapi } from 'react-icons/si';
-import { SiGraphql } from 'react-icons/si';
-import { SiSwagger } from 'react-icons/si';
-import { SiPostman } from 'react-icons/si';
-import { SiNodedotjs } from 'react-icons/si';
-import { SiFastapi } from 'react-icons/si';
+// Import Si icons directly - not using barrel optimization
+// Using direct imports rather than grouped imports to avoid barrel optimization issues
+import * as SiIcons from 'react-icons/si';
+const { SiOpenapi, SiGraphql, SiSwagger, SiPostman, SiNodedotjs, SiFastapi } = SiIcons;
 
 import { MotionWrapper } from '@/components/MotionWrapper';
 

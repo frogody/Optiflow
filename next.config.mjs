@@ -23,7 +23,19 @@ const nextConfig = {
   
   // Set a reasonable timeout for static page generation
   // Longer timeout allows more complex pages to be generated
-  staticPageGenerationTimeout: 300,
+  staticPageGenerationTimeout: 180,
+  
+  // Enhanced stability for build process
+  experimental: {
+    // Disable optimizeCss to prevent potential CSS issues
+    optimizeCss: false,
+    
+    // Improved hydration
+    optimizeFonts: true,
+    
+    // More stable JSX transformation
+    swcMinify: true
+  },
   
   // Keep trailing slash consistent
   trailingSlash: false,
