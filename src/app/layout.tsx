@@ -1,11 +1,17 @@
-import { Metadata } from 'next';
+import { Metadata, Viewport } from 'next';
 import { Inter } from 'next/font/google';
 
 import BrowserDetection from '@/components/BrowserDetection';
 import { RootProviders } from '@/components/providers/RootProviders';
 import ClientVoiceWrapper from '@/components/ClientVoiceWrapper';
 import { initializeSentry } from '@/lib/monitoring/sentry';
+import dynamic from 'next/dynamic';
 import '@/styles/globals.css';
+
+// Import error boundary with dynamic import to avoid SSR issues
+const ErrorBoundary = dynamic(() => import('@/components/ErrorBoundary'), {
+  ssr: false,
+});
 
 const inter = Inter({ 
   subsets: ['latin'],
@@ -14,20 +20,25 @@ const inter = Inter({
   variable: '--font-inter',
 });
 
+export const viewport: Viewport = {
+  width: 'device-width',
+  initialScale: 1,
+  maximumScale: 1,
+  themeColor: '#000000',
+};
+
 export const metadata: Metadata = {
   title: 'Optiflow - Streamline Your Workflow Automation',
   description: 'Connect your apps and automate workflows with a powerful, easy-to-use integration platform.',
   manifest: '/manifest.json',
-  viewport: 'width=device-width, initial-scale=1, maximum-scale=1',
-  themeColor: '#000000',
+  icons: {
+    icon: '/favicon.ico',
+    apple: '/apple-touch-icon.png',
+  },
   appleWebApp: {
     capable: true,
     statusBarStyle: 'default',
     title: 'Optiflow',
-  },
-  icons: {
-    icon: '/favicon.ico',
-    apple: '/apple-touch-icon.png',
   },
 };
 
@@ -69,7 +80,9 @@ export default function RootLayout({
           >
             {/* Dynamic announcements will be inserted here */}
           </div>
-          {children}
+          <ErrorBoundary>
+            {children}
+          </ErrorBoundary>
           {/* Voice Agent Widget loaded via client component */}
           <ClientVoiceWrapper />
         </RootProviders>
