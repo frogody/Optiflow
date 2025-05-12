@@ -1,6 +1,6 @@
 'use client';
 
-import dynamic from 'next/dynamic';
+import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { 
   HiOutlineChartBar,
@@ -10,10 +10,17 @@ import {
   HiOutlineRefresh,
   HiOutlineShieldCheck
 } from 'react-icons/hi';
+import { MotionWrapper } from '@/components/MotionWrapper';
 
-const MotionDiv = dynamic(() => import('framer-motion').then(mod => mod.motion.div), { ssr: false, loading: () => (props: any) => <div {...props} /> });
-
+// Client-side only rendering to avoid React version conflicts
 export default function CustomIntegrationPage(): JSX.Element {
+  // Use client-side only rendering to avoid hydration mismatches
+  const [isClient, setIsClient] = useState(false);
+  
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
+
   const features = [
     { title: "Seamless Integration",
       description: "Connect your existing tools and workflows without disrupting your operations.",
@@ -56,8 +63,20 @@ export default function CustomIntegrationPage(): JSX.Element {
         }
   ];
 
+  // Only render the full content on the client side to avoid React version conflicts
+  if (!isClient) {
+    return (
+      <div className="min-h-screen text-white flex items-center justify-center" style={{ background: 'linear-gradient(to bottom, #000000, #0A0A0A)' }}>
+        <div className="animate-pulse flex flex-col items-center">
+          <div className="h-12 w-64 bg-gray-700 rounded mb-4"></div>
+          <div className="h-6 w-96 bg-gray-700 rounded"></div>
+        </div>
+      </div>
+    );
+  }
+
   return (
-    <div className="min-h-screen text-white" style={{ background: 'linear-gradient(to bottom, #000000, #0A0A0A)'     }}>
+    <div className="min-h-screen text-white" style={{ background: 'linear-gradient(to bottom, #000000, #0A0A0A)' }}>
       {/* Hero Section */}
       <section className="relative pt-32 pb-24 overflow-hidden">
         {/* Glow Effects */}
@@ -65,10 +84,10 @@ export default function CustomIntegrationPage(): JSX.Element {
         <div className="absolute w-[400px] h-[400px] rounded-full right-1/4 bottom-1/3 bg-[#4AFFD4] opacity-10 blur-[120px]"></div>
         
         <div className="container mx-auto px-4 text-center relative z-10">
-          <MotionDiv
-            initial={{ opacity: 0, y: 30     }}
-            animate={{ opacity: 1, y: 0     }}
-            transition={{ duration: 0.8     }}
+          <MotionWrapper
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8 }}
             className="max-w-4xl mx-auto"
           >
             <h1 className="text-5xl md:text-6xl lg:text-7xl font-bold mb-8 tracking-tight">
@@ -96,7 +115,7 @@ export default function CustomIntegrationPage(): JSX.Element {
                 Learn More
               </Link>
             </div>
-          </MotionDiv>
+          </MotionWrapper>
         </div>
       </section>
 
@@ -114,12 +133,12 @@ export default function CustomIntegrationPage(): JSX.Element {
           
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             {features.map((feature, index) => (
-              <MotionDiv
+              <MotionWrapper
                 key={index}
-                initial={{ opacity: 0, y: 20     }}
-                whileInView={{ opacity: 1, y: 0     }}
-                transition={{ duration: 0.5, delay: index * 0.1     }}
-                viewport={{ once: true     }}
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, delay: index * 0.1 }}
+                viewport={{ once: true }}
                 className="feature-card p-6 rounded-xl border border-white/10 bg-white/5 backdrop-blur-sm relative overflow-hidden group hover:border-[#3CDFFF]/30 transition-all duration-300"
               >
                 <div className="text-[#3CDFFF] mb-4">
@@ -127,7 +146,7 @@ export default function CustomIntegrationPage(): JSX.Element {
                 </div>
                 <h3 className="text-xl font-semibold mb-3">{feature.title}</h3>
                 <p className="text-gray-300">{feature.description}</p>
-              </MotionDiv>
+              </MotionWrapper>
             ))}
           </div>
         </div>
@@ -149,12 +168,12 @@ export default function CustomIntegrationPage(): JSX.Element {
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
             {processSteps.map((step, index) => (
-              <MotionDiv
+              <MotionWrapper
                 key={index}
-                initial={{ opacity: 0, y: 20     }}
-                whileInView={{ opacity: 1, y: 0     }}
-                transition={{ duration: 0.5, delay: index * 0.1     }}
-                viewport={{ once: true     }}
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, delay: index * 0.1 }}
+                viewport={{ once: true }}
                 className="bg-white/5 backdrop-blur-sm rounded-xl p-6 border border-white/10 relative overflow-hidden group hover:border-[#3CDFFF]/30 transition-all duration-300"
               >
                 <div className="absolute -right-4 -top-4 w-24 h-24 rounded-full bg-[#3CDFFF] opacity-10 blur-xl group-hover:opacity-20 transition-all duration-500"></div>
@@ -166,7 +185,7 @@ export default function CustomIntegrationPage(): JSX.Element {
                   <h3 className="text-xl font-semibold mb-3">{step.title}</h3>
                   <p className="text-gray-300">{step.description}</p>
                 </div>
-              </MotionDiv>
+              </MotionWrapper>
             ))}
           </div>
         </div>
@@ -179,11 +198,11 @@ export default function CustomIntegrationPage(): JSX.Element {
         <div className="absolute w-[600px] h-[600px] rounded-full right-1/4 -bottom-1/2 bg-[#4AFFD4] opacity-10 blur-[120px]"></div>
         
         <div className="container mx-auto px-4 relative">
-          <MotionDiv 
-            initial={{ opacity: 0, y: 30     }}
-            whileInView={{ opacity: 1, y: 0     }}
-            transition={{ duration: 0.8     }}
-            viewport={{ once: true     }}
+          <MotionWrapper 
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8 }}
+            viewport={{ once: true }}
             className="max-w-4xl mx-auto text-center"
           >
             <h2 className="text-4xl md:text-5xl font-bold mb-8">
@@ -203,7 +222,7 @@ export default function CustomIntegrationPage(): JSX.Element {
             >
               Start Your Integration
             </Link>
-          </MotionDiv>
+          </MotionWrapper>
         </div>
       </section>
     </div>
