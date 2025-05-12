@@ -1,14 +1,21 @@
 import '../styles/globals.css';
 import type { AppProps } from 'next/app';
-import { SessionProvider } from 'next-auth/react';
+import { SessionProvider, useSession } from 'next-auth/react';
 import { appWithTranslation } from 'next-i18next';
 import { useEffect, useRef } from 'react';
+import dynamic from 'next/dynamic';
 
 import nextI18NextConfig from '../../next-i18next.config.cjs';
-import VoiceOrb from '../components/VoiceOrb';
 
-function MyApp({ Component, pageProps }: AppProps) {
-  const { data: session, status } = useSession();
+// Dynamically import VoiceOrb to ensure it only loads client-side
+const VoiceOrb = dynamic(() => import('../components/VoiceOrb'), {
+  ssr: false,
+});
+
+// Separate client component to handle session-dependent logic
+function ClientContent({ Component, pageProps }: AppProps) {
+  const { data: session } = useSession();
+  
   // Handler for when the user speaks
   const handleTranscript = async (t: string) => {
     // Use real userId if available
@@ -84,9 +91,18 @@ function MyApp({ Component, pageProps }: AppProps) {
   // --- End presence/heartbeat logic ---
 
   return (
-    <SessionProvider>
+    <>
       <Component {...pageProps} />
       <VoiceOrb onTranscript={handleTranscript} />
+    </>
+  );
+}
+
+// Main app component that wraps everything in the SessionProvider
+function MyApp(props: AppProps) {
+  return (
+    <SessionProvider session={props.pageProps.session}>
+      <ClientContent {...props} />
     </SessionProvider>
   );
 }
