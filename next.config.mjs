@@ -87,7 +87,7 @@ const nextConfig = {
     // Improve client-side error handling
     clientRouterFilter: true,
     // Enable better error handling for client components
-    serverActions: false,
+    serverActions: { enabled: false },
     // Improve hydration stability
     optimizePackageImports: ['@heroicons/react', '@react-icons/all-files'],
   },
