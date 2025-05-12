@@ -53,6 +53,36 @@ const nextConfig = {
   // Disable image optimization to avoid memory issues
   images: {
     unoptimized: true,
+    domains: ['localhost', 'app.isyncso.com', 'optiflow-nmyk05sho-isyncso.vercel.app'],
+  },
+  
+  // Handle static asset errors
+  async rewrites() {
+    return [
+      {
+        source: '/manifest.json',
+        destination: '/api/manifest',
+      },
+    ];
+  },
+  
+  // Improve error handling
+  onError(err) {
+    console.error('Next.js build error:', err);
+  },
+  
+  // Webpack configuration
+  webpack: (config, { isServer }) => {
+    // Only use require() on the server for next-i18next
+    if (!isServer) {
+      config.resolve.fallback = {
+        ...config.resolve.fallback,
+        fs: false,
+        path: false,
+      };
+    }
+    
+    return config;
   },
 };
 

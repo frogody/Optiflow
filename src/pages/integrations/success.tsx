@@ -1,7 +1,7 @@
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
 
-// Add "use client" directive
+// Client-side only component
 const IntegrationSuccess = () => {
   // Use state to track if component is mounted (client-side)
   const [mounted, setMounted] = useState(false);
@@ -26,10 +26,8 @@ const IntegrationSuccess = () => {
           Thank you for connecting your integration. You can now use voice
           commands to interact with this service.
         </p>
-        <Link href="/integrations">
-          <a className="inline-block px-6 py-2 rounded bg-gradient-to-r from-[#3CDFFF] to-[#4AFFD4] text-slate-900 font-semibold hover:from-[#4AFFD4] hover:to-[#3CDFFF]">
-            Back to Integrations
-          </a>
+        <Link href="/integrations" className="inline-block px-6 py-2 rounded bg-gradient-to-r from-[#3CDFFF] to-[#4AFFD4] text-slate-900 font-semibold hover:from-[#4AFFD4] hover:to-[#3CDFFF]">
+          Back to Integrations
         </Link>
       </div>
     </div>

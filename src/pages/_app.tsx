@@ -1,10 +1,12 @@
 import '../styles/globals.css';
 import type { AppProps } from 'next/app';
 import { SessionProvider, useSession } from 'next-auth/react';
-import { appWithTranslation } from 'next-i18next';
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import dynamic from 'next/dynamic';
 
+// Import custom i18n setup
+import '../lib/i18n';
+import { appWithTranslation } from 'next-i18next';
 import nextI18NextConfig from '../../next-i18next.config.cjs';
 
 // Dynamically import VoiceOrb to ensure it only loads client-side
@@ -15,19 +17,33 @@ const VoiceOrb = dynamic(() => import('../components/VoiceOrb'), {
 // Separate client component to handle session-dependent logic
 function ClientContent({ Component, pageProps }: AppProps) {
   const { data: session } = useSession();
+  const [isClient, setIsClient] = useState(false);
+  
+  // Only run client-side code after component mounts
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
   
   // Handler for when the user speaks
   const handleTranscript = async (t: string) => {
     // Use real userId if available
     const userId = session?.user?.id;
     if (!userId) return;
-    const res = await fetch('/api/agent/command', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ transcript: t, userId }),
-    });
-    const data = await res.json();
-    alert(data.confirmation);
+    
+    try {
+      const res = await fetch('/api/agent/command', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ transcript: t, userId }),
+      });
+      const data = await res.json();
+      
+      if (data.confirmation) {
+        alert(data.confirmation);
+      }
+    } catch (error) {
+      console.error('Error handling transcript:', error);
+    }
   };
 
   // --- Presence/heartbeat logic ---
@@ -40,18 +56,24 @@ function ClientContent({ Component, pageProps }: AppProps) {
 
   // Send presence to backend
   const sendPresence = async (inactive = false) => {
-    if (!userId) return;
-    await fetch('/api/presence', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ userId, inactive }),
-    });
-    isInactive.current = inactive;
+    if (!userId || !isClient) return;
+    
+    try {
+      await fetch('/api/presence', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ userId, inactive }),
+      });
+      isInactive.current = inactive;
+    } catch (error) {
+      console.error('Error sending presence:', error);
+    }
   };
 
   // Reset inactivity timer on user activity
   const resetInactivity = () => {
-    if (!userId) return;
+    if (!userId || !isClient) return;
+    
     if (inactivityTimer.current) clearTimeout(inactivityTimer.current);
     if (isInactive.current) sendPresence(false);
     isInactive.current = false;
@@ -61,24 +83,29 @@ function ClientContent({ Component, pageProps }: AppProps) {
   };
 
   useEffect(() => {
-    if (!userId) return;
+    if (!userId || !isClient) return;
+    
     // Start heartbeat
     heartbeatTimer.current = setInterval(() => {
       sendPresence(false);
     }, heartbeatInterval);
+    
     // Listen for user activity
     window.addEventListener('mousemove', resetInactivity);
     window.addEventListener('keydown', resetInactivity);
     window.addEventListener('touchstart', resetInactivity);
+    
     // Listen for tab close/hidden
     const handleVisibility = () => {
       if (document.hidden) sendPresence(true);
       else resetInactivity();
     };
     document.addEventListener('visibilitychange', handleVisibility);
+    
     // Initial presence
     sendPresence(false);
     resetInactivity();
+    
     return () => {
       if (heartbeatTimer.current) clearInterval(heartbeatTimer.current);
       if (inactivityTimer.current) clearTimeout(inactivityTimer.current);
@@ -87,13 +114,13 @@ function ClientContent({ Component, pageProps }: AppProps) {
       window.removeEventListener('touchstart', resetInactivity);
       document.removeEventListener('visibilitychange', handleVisibility);
     };
-  }, [userId]);
+  }, [userId, isClient]); // Only run when userId or isClient changes
   // --- End presence/heartbeat logic ---
 
   return (
     <>
       <Component {...pageProps} />
-      <VoiceOrb onTranscript={handleTranscript} />
+      {isClient && <VoiceOrb onTranscript={handleTranscript} />}
     </>
   );
 }
