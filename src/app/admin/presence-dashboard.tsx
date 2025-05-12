@@ -1,7 +1,8 @@
-import { getServerSession } from 'next-auth/next';
-import { authOptions } from '@/lib/auth';
-import Redis from 'ioredis';
 import React from 'react';
+import Redis from 'ioredis';
+import { getServerSession } from 'next-auth/next';
+
+import { authOptions } from '@/lib/auth';
 
 const redis = new Redis(process.env.REDIS_URL!);
 

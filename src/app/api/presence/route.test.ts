@@ -1,7 +1,7 @@
-import { createMocks } from 'node-mocks-http';
+import { getServerSession } from 'next-auth/next';
+
 import { POST as presencePost, redis } from './route';
 import { POST as checkPost } from './check/route';
-import { getServerSession } from 'next-auth/next';
 
 jest.mock('next-auth/next');
 
