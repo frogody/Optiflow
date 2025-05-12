@@ -87,7 +87,9 @@ const nextConfig = {
     // Improve client-side error handling
     clientRouterFilter: true,
     // Enable better error handling for client components
-    serverActions: true,
+    serverActions: {
+      allowedOrigins: ['localhost:3000', 'app.isyncso.com', 'optiflow-nmyk05sho-isyncso.vercel.app']
+    },
     // Improve hydration stability
     optimizePackageImports: ['@heroicons/react', '@react-icons/all-files'],
   },
