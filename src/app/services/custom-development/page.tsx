@@ -1,6 +1,6 @@
 'use client';
 
-import dynamic from 'next/dynamic';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { 
   HiOutlineChartBar,
@@ -10,10 +10,16 @@ import {
   HiOutlineLightningBolt,
   HiOutlineUserGroup
 } from 'react-icons/hi';
-
-const MotionDiv = dynamic(() => import('framer-motion').then(mod => mod.motion.div), { ssr: false, loading: () => (props: any) => <div {...props} /> });
+import { MotionWrapper } from '@/components/MotionWrapper';
 
 export default function CustomDevelopmentPage(): JSX.Element {
+  // Use client-side only rendering to avoid hydration mismatches
+  const [isClient, setIsClient] = useState(false);
+  
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
+
   // Features data
   const features = [
     { title: "Custom Integration",
@@ -45,17 +51,13 @@ export default function CustomDevelopmentPage(): JSX.Element {
   // Process steps
   const processSteps = [
     { title: "Discovery",
-      description: "Understanding your business needs and requirements."
-        },
+      description: "Understanding your business needs and requirements." },
     { title: "Planning",
-      description: "Creating a detailed plan for the custom solution."
-        },
+      description: "Creating a detailed plan for the custom solution." },
     { title: "Development",
-      description: "Building and testing the custom solution."
-        },
+      description: "Building and testing the custom solution." },
     { title: "Deployment",
-      description: "Deploying the solution and providing support."
-        }
+      description: "Deploying the solution and providing support." }
   ];
 
   // Only render the full content on the client side to avoid React version conflicts
@@ -71,7 +73,7 @@ export default function CustomDevelopmentPage(): JSX.Element {
   }
 
   return (
-    <div className="min-h-screen text-white" style={{ background: 'linear-gradient(to bottom, #000000, #0A0A0A)'     }}>
+    <div className="min-h-screen text-white" style={{ background: 'linear-gradient(to bottom, #000000, #0A0A0A)' }}>
       {/* Hero Section */}
       <section className="relative pt-32 pb-24 overflow-hidden">
         {/* Glow Effects */}
@@ -131,7 +133,7 @@ export default function CustomDevelopmentPage(): JSX.Element {
               <MotionWrapper
                 key={index}
                 initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0     }}
+                whileInView={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.5, delay: index * 0.1 }}
                 viewport={{ once: true }}
                 className="feature-card p-6 rounded-xl border border-white/10 bg-white/5 backdrop-blur-sm relative overflow-hidden group hover:border-[#3CDFFF]/30 transition-all duration-300"
@@ -167,7 +169,7 @@ export default function CustomDevelopmentPage(): JSX.Element {
               <MotionWrapper
                 key={index}
                 initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0     }}
+                whileInView={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.5, delay: index * 0.1 }}
                 viewport={{ once: true }}
                 className="bg-white/5 backdrop-blur-sm rounded-xl p-6 border border-white/10 relative overflow-hidden group hover:border-[#3CDFFF]/30 transition-all duration-300"
@@ -197,20 +199,13 @@ export default function CustomDevelopmentPage(): JSX.Element {
         <div className="container mx-auto px-4 relative">
           <MotionWrapper 
             initial={{ opacity: 0, y: 30 }}
-            whileInView={{ opacity: 1, y: 0     }}
+            whileInView={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8 }}
             viewport={{ once: true }}
             className="max-w-4xl mx-auto text-center"
           >
             <h2 className="text-4xl md:text-5xl font-bold mb-8">
-              Ready to Build Your{
-  // Use client-side only rendering to avoid hydration mismatches
-  const [isClient, setIsClient] = useState(false);
-  
-  useEffect(() => {
-    setIsClient(true);
-  }, []);
-" "}
+              Ready to Build Your{" "}
               <span className="bg-gradient-to-r from-[#3CDFFF] to-[#4AFFD4] text-transparent bg-clip-text">
                 Custom Solution?
               </span>

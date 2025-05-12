@@ -19,8 +19,7 @@ async function updateServicePage(filePath) {
     
     // Check if the file has already been updated
     if (content.includes('import { MotionWrapper }')) {
-      console.log(`  File ${filePath} already updated, skipping...`);
-      return;
+      console.log(`  File ${filePath} already updated, fixing formatting...`);
     }
     
     // Update imports
@@ -55,12 +54,24 @@ async function updateServicePage(filePath) {
       .replace(/<MotionDiv/g, '<MotionWrapper')
       .replace(/<\/MotionDiv>/g, '</MotionWrapper>');
     
-    // Clean up formatting for animations
+    // Clean up formatting for animations and style attributes
     updatedContent = updatedContent
       .replace(/initial={.*?}/g, match => match.replace(/\s+/g, ' '))
       .replace(/animate={.*?}/g, match => match.replace(/\s+/g, ' '))
       .replace(/transition={.*?}/g, match => match.replace(/\s+/g, ' '))
-      .replace(/viewport={.*?}/g, match => match.replace(/\s+/g, ' '));
+      .replace(/viewport={.*?}/g, match => match.replace(/\s+/g, ' '))
+      // Fix style attributes with extra spaces
+      .replace(/style={{.*?}}/g, match => match.replace(/\s+}/g, ' }'))
+      // Fix any potential issue with extra spaces in JSX attributes
+      .replace(/className=".*?"/g, match => match.replace(/\s+"/g, '"'))
+      .replace(/\( +</g, '(<')
+      .replace(/> +\)/g, '>)')
+      // Fix specific style attribute issues that are causing the build to fail
+      .replace(/style={{ background: 'linear-gradient\(to bottom, #000000, #0A0A0A\)'\s+}}/g, 
+               `style={{ background: 'linear-gradient(to bottom, #000000, #0A0A0A)' }}`)
+      // Remove any trailing spaces after quotes in style props
+      .replace(/'(\s+)}/g, "' }")
+      .replace(/"(\s+)}/g, '" }');
     
     // Write the updated file
     await fs.writeFile(filePath, updatedContent, 'utf8');
