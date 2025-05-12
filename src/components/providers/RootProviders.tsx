@@ -11,6 +11,7 @@ import '@/styles/globals.css';
 import TanstackProvider from '@/components/providers/TanstackProvider';
 import { ThemeProvider } from '@/components/providers/theme-provider';
 import { SessionInitializer } from '@/components/SessionInitializer';
+import ErrorBoundaryWrapper from '@/components/ErrorBoundaryWrapper';
 import { initI18n } from '@/lib/i18n';
 import { initializeErrorHandler } from '@/lib/error-handler';
 

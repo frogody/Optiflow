@@ -87,21 +87,9 @@ const nextConfig = {
     // Improve client-side error handling
     clientRouterFilter: true,
     // Enable better error handling for client components
-    serverActions: {
-      bodySizeLimit: '2mb',
-    },
+    serverActions: true,
     // Improve hydration stability
     optimizePackageImports: ['@heroicons/react', '@react-icons/all-files'],
-  },
-
-  // Configure error handling and logging
-  onError: (err) => {
-    console.error('Next.js build error:', err);
-  },
-  logging: {
-    fetches: {
-      fullUrl: true,
-    },
   },
 };
 
