@@ -6,7 +6,7 @@
  * audio tracks, and microphone state management with typesafe interfaces.
  */
 
-import { ConnectionQuality, ConnectionState, LocalAudioTrack, LocalParticipant, Room, RoomEvent } from 'livekit-client';
+import { ConnectionQuality, ConnectionState, LocalAudioTrack, LocalParticipant, Room, RoomEvent, createLocalAudioTrack } from 'livekit-client';
 
 /**
  * Configuration options for LiveKit connection
@@ -183,7 +183,7 @@ export async function connect(
     let localAudioTrack: LocalAudioTrack | undefined;
     
     try {
-      localAudioTrack = await Room.createLocalAudioTrack({
+      localAudioTrack = await createLocalAudioTrack({
         noiseSuppression: true,
         echoCancellation: true,
       });

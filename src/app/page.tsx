@@ -1,10 +1,10 @@
 'use client';
 
-import { ArrowRightIcon, CheckCircleIcon, PlayCircleIcon } from '@heroicons/react/24/outline';
-import Link from 'next/link';
 import { useEffect, useState } from 'react';
-import dynamic from 'next/dynamic';
+import Link from 'next/link';
+import { ArrowRightIcon, CheckCircleIcon, PlayCircleIcon } from '@heroicons/react/24/outline';
 import { motion } from 'framer-motion';
+import dynamic from 'next/dynamic';
 
 // Dynamically import components that could cause hydration issues
 const Image = dynamic(() => import('next/image'), { ssr: false });
@@ -22,6 +22,7 @@ const fadeIn = {
       ease: [0.1, 0.6, 0.3, 0.9]
     }
   })
+  
 };
 
 // Hero section data
@@ -36,7 +37,7 @@ const personaValueProps = [
   {
     persona: "developers",
     title: "Streamline Development Workflows",
-    description: "Automate CI/CD pipelines, code reviews, and deployment processes with Optiflow's developer-focused integrations.",
+    description: "Automate CI/CD pipelines, code reviews, and deployment processes with SYNC's developer-focused integrations.",
     icon: "/icons/code.svg",
     link: "/use-cases/developers",
     gradient: "from-blue-400 to-indigo-600"
@@ -62,13 +63,13 @@ const personaValueProps = [
 // Testimonials data
 const testimonials = [
   {
-    quote: "Optiflow has completely transformed how our team works. The voice commands make it incredibly easy to automate repetitive tasks.",
+    quote: "SYNC has completely transformed how our team works. The voice commands make it incredibly easy to automate repetitive tasks.",
     author: "Sarah Johnson",
     title: "CTO, TechNova",
     avatar: "/testimonials/sarah-johnson.jpg"
   },
   {
-    quote: "We've cut our workflow setup time by 70% since implementing Optiflow. The integrations with our existing tools made adoption seamless.",
+    quote: "We've cut our workflow setup time by 70% since implementing SYNC. The integrations with our existing tools made adoption seamless.",
     author: "Michael Chen",
     title: "Head of Marketing, GrowthLabs",
     avatar: "/testimonials/michael-chen.jpg"
@@ -98,22 +99,26 @@ const features = [
   {
     title: "Voice-Controlled Workflows",
     description: "Manage your workflows with natural language voice commands for hands-free operation",
-    icon: "🎤"
+    icon: "🎤",
+    color: "from-blue-500 to-cyan-400"
   },
   {
     title: "AI-Powered Automation",
     description: "Leverage cutting-edge AI models to enhance your automation with intelligence",
-    icon: "🧠"
+    icon: "🧠",
+    color: "from-purple-500 to-indigo-500"
   },
   {
     title: "Seamless Integrations",
     description: "Connect with 100+ services and tools through our easy-to-use integration platform",
-    icon: "🔗"
+    icon: "🔗",
+    color: "from-green-500 to-emerald-400"
   },
   {
     title: "Visual Workflow Editor",
     description: "Design complex workflows with our intuitive drag-and-drop interface",
-    icon: "✨"
+    icon: "✨",
+    color: "from-orange-500 to-amber-400"
   }
 ];
 
@@ -322,20 +327,28 @@ export default function HomePage() {
                   variants={fadeIn}
                   initial="hidden"
                   animate="visible"
-                  className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-xl p-6 hover:bg-white/10 transition-colors"
+                  className="feature-card p-8 rounded-2xl border border-white/10 bg-white/5 backdrop-blur-sm relative overflow-hidden group hover:border-[#3CDFFF]/50 hover:bg-white/10 transition-all duration-300 hover:scale-[1.02] hover:shadow-2xl"
                 >
-                  <div className="text-4xl mb-4">{feature.icon}</div>
-                  <h3 className="text-xl font-semibold mb-3 text-white">{feature.title}</h3>
-                  <p className="text-gray-400">{feature.description}</p>
+                  <div className={`absolute -right-20 -top-20 w-60 h-60 rounded-full bg-gradient-to-r ${feature.color} opacity-10 blur-3xl group-hover:opacity-30 transition-all duration-500`}></div>
+                  
+                  <div className="relative z-10">
+                    <div className="mb-6 text-4xl transform group-hover:scale-110 transition-transform duration-300">{feature.icon}</div>
+                    <h3 className="text-xl font-semibold mb-3 text-white group-hover:text-[#3CDFFF] transition-colors duration-300">{feature.title}</h3>
+                    <p className="text-gray-400 group-hover:text-white/80 transition-colors duration-300">{feature.description}</p>
+                  </div>
                 </MotionDiv>
               ) : (
                 <div
                   key={feature.title}
-                  className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-xl p-6"
+                  className="feature-card p-8 rounded-2xl border border-white/10 bg-white/5 backdrop-blur-sm relative overflow-hidden group hover:border-[#3CDFFF]/50 hover:bg-white/10 transition-all duration-300 hover:scale-[1.02] hover:shadow-2xl"
                 >
-                  <div className="text-4xl mb-4">{feature.icon}</div>
-                  <h3 className="text-xl font-semibold mb-3 text-white">{feature.title}</h3>
-                  <p className="text-gray-400">{feature.description}</p>
+                  <div className={`absolute -right-20 -top-20 w-60 h-60 rounded-full bg-gradient-to-r ${feature.color} opacity-10 blur-3xl`}></div>
+                  
+                  <div className="relative z-10">
+                    <div className="mb-6 text-4xl">{feature.icon}</div>
+                    <h3 className="text-xl font-semibold mb-3 text-white">{feature.title}</h3>
+                    <p className="text-gray-400">{feature.description}</p>
+                  </div>
                 </div>
               )
             ))}
@@ -359,14 +372,14 @@ export default function HomePage() {
               transition={{ duration: 0.8 }}
               className="text-center mb-16"
             >
-              <h2 className="text-3xl md:text-4xl font-bold mb-6">Who is Optiflow for?</h2>
+              <h2 className="text-3xl md:text-4xl font-bold mb-6">Who is SYNC for?</h2>
               <p className="text-lg text-gray-300 max-w-3xl mx-auto">
                 Designed for professionals across various domains who want to streamline their workflow
               </p>
             </MotionDiv>
           ) : (
             <div className="text-center mb-16">
-              <h2 className="text-3xl md:text-4xl font-bold mb-6">Who is Optiflow for?</h2>
+              <h2 className="text-3xl md:text-4xl font-bold mb-6">Who is SYNC for?</h2>
               <p className="text-lg text-gray-300 max-w-3xl mx-auto">
                 Designed for professionals across various domains who want to streamline their workflow
               </p>
@@ -385,7 +398,7 @@ export default function HomePage() {
                 >
                   <Link
                     href={persona.link}
-                    className="block bg-white/5 backdrop-blur-sm border border-white/10 rounded-xl p-8 h-full hover:border-[#3CDFFF]/40 hover:bg-white/10 transition-all duration-300 group"
+                    className="block bg-white/5 backdrop-blur-sm border border-white/10 rounded-2xl p-8 h-full hover:border-[#3CDFFF]/40 hover:bg-white/10 transition-all duration-300 group hover:scale-[1.02] hover:shadow-2xl"
                   >
                     <div className={`w-16 h-16 rounded-full bg-gradient-to-r ${persona.gradient} mb-6 flex items-center justify-center group-hover:scale-110 transition-transform`}>
                       {persona.icon && (
@@ -393,7 +406,7 @@ export default function HomePage() {
                       )}
                     </div>
                     <h3 className="text-2xl font-semibold mb-4 text-white group-hover:text-[#4AFFD4] transition-colors">{persona.title}</h3>
-                    <p className="text-gray-400 mb-6">{persona.description}</p>
+                    <p className="text-gray-400 mb-6 group-hover:text-white/80 transition-colors duration-300">{persona.description}</p>
                     <div className="flex items-center text-[#3CDFFF] font-medium">
                       Learn more 
                       <ArrowRightIcon className="ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform" />
@@ -404,7 +417,7 @@ export default function HomePage() {
                 <Link
                   key={persona.persona}
                   href={persona.link}
-                  className="block bg-white/5 backdrop-blur-sm border border-white/10 rounded-xl p-8 h-full hover:border-[#3CDFFF]/40 hover:bg-white/10 transition-all duration-300 group"
+                  className="block bg-white/5 backdrop-blur-sm border border-white/10 rounded-2xl p-8 h-full hover:border-[#3CDFFF]/40 hover:bg-white/10 transition-all duration-300 group hover:scale-[1.02] hover:shadow-2xl"
                 >
                   <div className={`w-16 h-16 rounded-full bg-gradient-to-r ${persona.gradient} mb-6 flex items-center justify-center`}>
                     {persona.icon && (
@@ -412,7 +425,7 @@ export default function HomePage() {
                     )}
                   </div>
                   <h3 className="text-2xl font-semibold mb-4 text-white group-hover:text-[#4AFFD4] transition-colors">{persona.title}</h3>
-                  <p className="text-gray-400 mb-6">{persona.description}</p>
+                  <p className="text-gray-400 mb-6 group-hover:text-white/80 transition-colors duration-300">{persona.description}</p>
                   <div className="flex items-center text-[#3CDFFF] font-medium">
                     Learn more 
                     <ArrowRightIcon className="ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform" />
@@ -427,7 +440,9 @@ export default function HomePage() {
       {/* Testimonials Section */}
       {mounted && (
         <section className="py-20 relative">
-          <div className="container mx-auto px-4">
+          <div className="absolute inset-0 bg-gradient-to-b from-black via-[#3CDFFF]/5 to-black"></div>
+          
+          <div className="container mx-auto px-4 relative z-10">
             <MotionDiv
               initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
@@ -436,7 +451,7 @@ export default function HomePage() {
             >
               <h2 className="text-3xl md:text-4xl font-bold mb-6">What Our Users Say</h2>
               <p className="text-lg text-gray-300 max-w-3xl mx-auto">
-                Hear from teams that have transformed their workflows with Optiflow
+                Hear from teams that have transformed their workflows with SYNC
               </p>
             </MotionDiv>
 
@@ -448,22 +463,24 @@ export default function HomePage() {
                   variants={fadeIn}
                   initial="hidden"
                   animate="visible"
-                  className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-xl p-8 flex flex-col"
+                  className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-2xl p-8 flex flex-col group hover:border-[#3CDFFF]/50 hover:bg-white/10 transition-all duration-300 hover:scale-[1.02] hover:shadow-2xl"
                 >
                   <div className="flex items-center mb-6">
-                    <Image 
-                      src={testimonial.avatar} 
-                      alt={testimonial.author} 
-                      width={56} 
-                      height={56} 
-                      className="rounded-full h-14 w-14 object-cover border-2 border-white/10" 
-                    />
+                    <div className="relative h-14 w-14 rounded-full overflow-hidden border-2 border-white/10 group-hover:border-[#3CDFFF]/50 transition-colors duration-300">
+                      <Image 
+                        src={testimonial.avatar} 
+                        alt={testimonial.author} 
+                        width={56} 
+                        height={56} 
+                        className="rounded-full h-14 w-14 object-cover transition-transform duration-300 group-hover:scale-110" 
+                      />
+                    </div>
                     <div className="ml-4">
-                      <div className="text-white font-semibold">{testimonial.author}</div>
+                      <div className="text-white font-semibold group-hover:text-[#3CDFFF] transition-colors duration-300">{testimonial.author}</div>
                       <div className="text-gray-400 text-sm">{testimonial.title}</div>
                     </div>
                   </div>
-                  <p className="text-gray-300 italic leading-relaxed flex-grow">"{testimonial.quote}"</p>
+                  <p className="text-gray-300 italic leading-relaxed flex-grow group-hover:text-white transition-colors duration-300">"{testimonial.quote}"</p>
                   <div className="mt-6 flex">
                     {[1, 2, 3, 4, 5].map((star) => (
                       <svg 
@@ -498,43 +515,45 @@ export default function HomePage() {
               initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.8 }}
-              className="bg-white/5 backdrop-blur-md border border-white/10 rounded-2xl p-10 md:p-16 text-center max-w-5xl mx-auto"
+              className="bg-white/5 backdrop-blur-md border border-white/10 rounded-2xl p-10 md:p-16 text-center max-w-5xl mx-auto hover:border-[#3CDFFF]/30 transition-all duration-300 hover:shadow-[0_0_30px_rgba(60,223,255,0.2)]"
             >
               <h2 className="text-3xl md:text-4xl font-bold mb-6">Ready to Transform Your Workflow?</h2>
-              <p className="text-xl text-gray-300 mb-10 max-w-3xl mx-auto">
-                Join thousands of teams who are already using Optiflow to automate their workflows and boost productivity.
+              <p className="text-xl text-gray-300 mb-10 max-w-3xl mx-auto leading-relaxed">
+                Join thousands of teams who are already using SYNC to automate their workflows and boost productivity.
               </p>
               <div className="flex flex-wrap justify-center gap-6">
                 <Link
                   href="/signup"
-                  className="px-8 py-3.5 bg-gradient-to-r from-[#3CDFFF] to-[#4AFFD4] text-black font-semibold rounded-lg hover:shadow-glow-cyan transition-all duration-300 text-lg"
+                  className="px-8 py-4 bg-gradient-to-r from-[#3CDFFF] to-[#4AFFD4] rounded-xl text-black text-lg font-semibold hover:opacity-90 transition-all duration-300 transform hover:scale-105 hover:shadow-lg"
                 >
                   Start Your Free Trial
                 </Link>
+                
                 <Link
                   href="/contact"
-                  className="px-8 py-3.5 border-2 border-white/20 text-white font-semibold rounded-lg hover:bg-white/10 transition-all duration-300 text-lg"
+                  className="px-8 py-4 border-2 border-white/20 text-white rounded-xl text-lg font-semibold hover:bg-white/10 transition-all duration-300 transform hover:scale-105 hover:shadow-lg"
                 >
                   Contact Sales
                 </Link>
               </div>
             </MotionDiv>
           ) : (
-            <div className="bg-white/5 backdrop-blur-md border border-white/10 rounded-2xl p-10 md:p-16 text-center max-w-5xl mx-auto">
+            <div className="bg-white/5 backdrop-blur-md border border-white/10 rounded-2xl p-10 md:p-16 text-center max-w-5xl mx-auto hover:border-[#3CDFFF]/30 transition-all duration-300 hover:shadow-[0_0_30px_rgba(60,223,255,0.2)]">
               <h2 className="text-3xl md:text-4xl font-bold mb-6">Ready to Transform Your Workflow?</h2>
-              <p className="text-xl text-gray-300 mb-10 max-w-3xl mx-auto">
-                Join thousands of teams who are already using Optiflow to automate their workflows and boost productivity.
+              <p className="text-xl text-gray-300 mb-10 max-w-3xl mx-auto leading-relaxed">
+                Join thousands of teams who are already using SYNC to automate their workflows and boost productivity.
               </p>
               <div className="flex flex-wrap justify-center gap-6">
                 <Link
                   href="/signup"
-                  className="px-8 py-3.5 bg-gradient-to-r from-[#3CDFFF] to-[#4AFFD4] text-black font-semibold rounded-lg hover:shadow-glow-cyan transition-all duration-300 text-lg"
+                  className="px-8 py-4 bg-gradient-to-r from-[#3CDFFF] to-[#4AFFD4] rounded-xl text-black text-lg font-semibold hover:opacity-90 transition-all duration-300 transform hover:scale-105 hover:shadow-lg"
                 >
                   Start Your Free Trial
                 </Link>
+                
                 <Link
                   href="/contact"
-                  className="px-8 py-3.5 border-2 border-white/20 text-white font-semibold rounded-lg hover:bg-white/10 transition-all duration-300 text-lg"
+                  className="px-8 py-4 border-2 border-white/20 text-white rounded-xl text-lg font-semibold hover:bg-white/10 transition-all duration-300 transform hover:scale-105 hover:shadow-lg"
                 >
                   Contact Sales
                 </Link>

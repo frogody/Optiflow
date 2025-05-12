@@ -4,6 +4,10 @@ import { getServerSession } from 'next-auth/next';
 
 import { authOptions } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
+import { Mem0MemoryService } from '@/services/Mem0MemoryService';
+
+// Initialize Mem0 memory service
+const memoryService = new Mem0MemoryService();
 
 // Helper function to strip quotes from environment variables
 function cleanEnvVar(value: string | undefined): string {
@@ -43,9 +47,32 @@ export async function POST(req: NextRequest) {
     // Allow agents/integrations to specify a userId to dispatch to that user's room
     const targetUserId = body.userId || session.user.id;
     const roomName = body.roomName; // Allow specifying room name directly
-    const metadata = body.metadata;
+    const metadata = body.metadata || {};
     const agent = body.agent; // { id, capabilities, joinedAt }
     const action = body.action; // { actor, action, timestamp }
+    
+    // Retrieve memory context for this user to inject into agent
+    console.log(`Retrieving memory context for user: ${targetUserId}`);
+    let memoryContext = [];
+    try {
+      const memories = await memoryService.getAll('user', targetUserId);
+      if (memories && Array.isArray(memories)) {
+        // Limit to most recent 10 memories to keep context manageable
+        memoryContext = memories.slice(-10);
+        console.log(`Retrieved ${memoryContext.length} memory items for user`);
+      }
+    } catch (memoryError) {
+      console.error('Failed to retrieve memories:', memoryError);
+      // Continue even if memory retrieval fails
+    }
+    
+    // Enhance metadata with memory context
+    const enhancedMetadata = {
+      ...metadata,
+      memoryContext,
+      mem0Enabled: true,
+      userId: targetUserId,
+    };
     
     // Find or create a persistent room for this user
     let userRoom = await prisma.userRoom.findUnique({ where: { userId: targetUserId } });
@@ -110,13 +137,13 @@ export async function POST(req: NextRequest) {
     // Create identity for agent if not provided
     const agentIdentity = agent?.id || `agent-jarvis-${Date.now()}`;
 
-    // Dispatch agent to room
-    console.log(`Dispatching agent ${agentIdentity} to room ${finalRoomName}`);
+    // Dispatch agent to room with enhanced metadata including memory context
+    console.log(`Dispatching agent ${agentIdentity} to room ${finalRoomName} with memory context`);
     const dispatch = await agentDispatchClient.createDispatch(
       finalRoomName,
       'Jarvis', // Assuming 'Jarvis' is the registered agent_name
       {
-        metadata: JSON.stringify({ userId: targetUserId, ...(metadata || {}) }),
+        metadata: JSON.stringify(enhancedMetadata),
       }
     );
 
@@ -153,7 +180,7 @@ export async function POST(req: NextRequest) {
     
     return NextResponse.json({
       success: true,
-      message: 'Agent dispatched successfully',
+      message: 'Agent dispatched successfully with memory integration',
       roomName: finalRoomName,
       agentIdentity,
       dispatchId: dispatch.id,
@@ -161,6 +188,8 @@ export async function POST(req: NextRequest) {
       sessionHistory: userRoom.sessionHistory,
       metadata: userRoom.metadata,
       assignments,
+      memoryEnabled: true,
+      memoryItemsCount: memoryContext.length,
     });
   } catch (error: any) {
     console.error('Error dispatching agent:', error);

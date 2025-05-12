@@ -4,9 +4,14 @@ import {
   ArrowRightOnRectangleIcon, 
   Bars3Icon, 
   BellIcon, 
+  BuildingOffice2Icon,
   Cog6ToothIcon,
+  DocumentTextIcon,
+  KeyIcon,
   MagnifyingGlassIcon,
+  ShieldCheckIcon,
   UserCircleIcon,
+  UserGroupIcon,
   XMarkIcon
 } from '@heroicons/react/24/outline';
 import Image from 'next/image';
@@ -28,6 +33,7 @@ export default function DashboardHeader({
 }: DashboardHeaderProps) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [userMenuOpen, setUserMenuOpen] = useState(false);
+  const [settingsMenuOpen, setSettingsMenuOpen] = useState(false);
   
   // Navigation items
   const navigationItems = [
@@ -36,6 +42,17 @@ export default function DashboardHeader({
     { name: 'Connections', href: '/connections', current: false },
     { name: 'Templates', href: '/workflow-editor/templates', current: false },
     { name: 'Analytics', href: '/analytics', current: false },
+  ];
+  
+  // Settings menu items
+  const settingsItems = [
+    { name: 'Profile Settings', href: '/settings/profile', icon: UserCircleIcon },
+    { name: 'Organization', href: '/settings/organization', icon: BuildingOffice2Icon },
+    { name: 'API Keys', href: '/settings/api-keys', icon: KeyIcon },
+    { name: 'Security', href: '/settings/security', icon: ShieldCheckIcon },
+    { name: 'Knowledge Base', href: '/settings/knowledge-base', icon: DocumentTextIcon },
+    { name: 'Notifications', href: '/settings/notifications', icon: BellIcon },
+    { name: 'Data & Privacy', href: '/settings/data', icon: DocumentTextIcon },
   ];
 
   return (
@@ -46,11 +63,14 @@ export default function DashboardHeader({
           <div className="flex items-center">
             <div className="flex-shrink-0">
               <Link href="/dashboard" className="flex items-center">
-                {/* Replace with your logo */}
-                <div className="w-8 h-8 bg-gradient-to-r from-[#22D3EE] to-[#0EA5E9] rounded-md flex items-center justify-center text-white font-bold">
-                  OF
-                </div>
-                <span className="ml-2 text-xl font-bold text-[#E5E7EB]">Optiflow</span>
+                <Image
+                  src="/logo-transparent.svg"
+                  alt="SYNC"
+                  width={120}
+                  height={32}
+                  className="h-8 w-auto"
+                  priority
+                />
               </Link>
             </div>
             
@@ -88,8 +108,8 @@ export default function DashboardHeader({
             </div>
             
             {/* Notifications */}
-            <button
-              type="button"
+            <Link
+              href="/settings/notifications"
               className="relative rounded-full p-1 text-[#9CA3AF] hover:text-white focus:outline-none focus:ring-2 focus:ring-[#22D3EE] mr-4"
             >
               <span className="sr-only">View notifications</span>
@@ -97,7 +117,7 @@ export default function DashboardHeader({
               {notificationCount > 0 && (
                 <span className="absolute top-0 right-0 block h-2 w-2 rounded-full bg-[#EF4444] ring-2 ring-[#111111]"></span>
               )}
-            </button>
+            </Link>
             
             {/* Profile dropdown */}
             <div className="relative">
@@ -124,32 +144,73 @@ export default function DashboardHeader({
               
               {/* User dropdown menu */}
               {userMenuOpen && (
-                <div className="absolute right-0 z-10 mt-2 w-48 origin-top-right rounded-md bg-[#18181B] py-1 shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none">
+                <div className="absolute right-0 z-10 mt-2 w-56 origin-top-right rounded-md bg-[#18181B] py-1 shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none">
                   <div className="px-4 py-3 border-b border-[#374151]">
                     <p className="text-sm text-[#E5E7EB] font-medium">{userName}</p>
                     <p className="text-xs text-[#9CA3AF] truncate">{userEmail}</p>
                   </div>
                   <Link
-                    href="/profile"
+                    href="/settings/profile"
                     className="flex items-center px-4 py-2 text-sm text-[#E5E7EB] hover:bg-[#1E293B] transition-colors"
                     onClick={() => setUserMenuOpen(false)}
                   >
                     <UserCircleIcon className="h-4 w-4 mr-2 text-[#9CA3AF]" />
                     Your Profile
                   </Link>
+                  
+                  {/* Settings menu with dropdown */}
+                  <div className="relative">
+                    <button
+                      className="flex items-center w-full px-4 py-2 text-sm text-[#E5E7EB] hover:bg-[#1E293B] transition-colors"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setSettingsMenuOpen(!settingsMenuOpen);
+                      }}
+                    >
+                      <Cog6ToothIcon className="h-4 w-4 mr-2 text-[#9CA3AF]" />
+                      <span className="flex-1 text-left">Settings</span>
+                      <svg className={`h-4 w-4 text-[#9CA3AF] transition-transform ${settingsMenuOpen ? 'rotate-180' : ''}`} fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                      </svg>
+                    </button>
+                    
+                    {settingsMenuOpen && (
+                      <div className="ml-2 pl-4 border-l border-[#374151]">
+                        {settingsItems.map((item) => (
+                          <Link
+                            key={item.name}
+                            href={item.href}
+                            className="flex items-center px-4 py-2 text-sm text-[#E5E7EB] hover:bg-[#1E293B] transition-colors"
+                            onClick={() => {
+                              setSettingsMenuOpen(false);
+                              setUserMenuOpen(false);
+                            }}
+                          >
+                            <item.icon className="h-4 w-4 mr-2 text-[#9CA3AF]" />
+                            {item.name}
+                          </Link>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                  
                   <Link
-                    href="/settings"
+                    href="/settings/organization"
                     className="flex items-center px-4 py-2 text-sm text-[#E5E7EB] hover:bg-[#1E293B] transition-colors"
                     onClick={() => setUserMenuOpen(false)}
                   >
-                    <Cog6ToothIcon className="h-4 w-4 mr-2 text-[#9CA3AF]" />
-                    Settings
+                    <UserGroupIcon className="h-4 w-4 mr-2 text-[#9CA3AF]" />
+                    Team Management
                   </Link>
+                  
+                  <div className="border-t border-[#374151] my-1"></div>
+                  
                   <button
                     className="flex w-full items-center px-4 py-2 text-sm text-[#E5E7EB] hover:bg-[#1E293B] transition-colors"
                     onClick={() => {
                       setUserMenuOpen(false);
                       // Handle sign out - in a real app, this would call your auth provider
+                      window.location.href = '/login';
                     }}
                   >
                     <ArrowRightOnRectangleIcon className="h-4 w-4 mr-2 text-[#9CA3AF]" />
@@ -197,6 +258,21 @@ export default function DashboardHeader({
                 {item.name}
               </Link>
             ))}
+            
+            <div className="mt-3 pt-3 border-t border-[#374151]">
+              <p className="px-3 text-xs font-medium text-[#9CA3AF]">Settings</p>
+              {settingsItems.map((item) => (
+                <Link
+                  key={item.name}
+                  href={item.href}
+                  className="flex items-center px-3 py-2 text-base font-medium text-[#9CA3AF] hover:bg-[#1E293B] hover:text-white transition-colors"
+                  onClick={() => setMobileMenuOpen(false)}
+                >
+                  <item.icon className="h-5 w-5 mr-2" />
+                  {item.name}
+                </Link>
+              ))}
+            </div>
           </div>
         </div>
       )}

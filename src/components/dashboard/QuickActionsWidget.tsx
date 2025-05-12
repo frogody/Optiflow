@@ -6,7 +6,8 @@ import {
   MicrophoneIcon, 
   PlusCircleIcon,
   PuzzlePieceIcon,
-  RocketLaunchIcon
+  RocketLaunchIcon,
+  Squares2X2Icon
 } from '@heroicons/react/24/outline';
 import Link from 'next/link';
 
@@ -17,6 +18,29 @@ interface QuickAction {
   icon: React.ElementType;
   link: string;
   color: string;
+}
+
+const QuickActionCard = ({ action }: { action: QuickAction }) => {
+  return (
+    <Link
+      href={action.link}
+      className="flex flex-col items-center justify-center bg-[#18181B] border border-[#2A2A35] rounded-lg p-4 hover:border-[#22D3EE] transition-all duration-200 hover:shadow-md group h-full"
+    >
+      <div 
+        className="flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center mb-2"
+        style={{ backgroundColor: `${action.color}15` }}
+      >
+        <action.icon 
+          className="h-4 w-4"
+          style={{ color: action.color }}
+        />
+      </div>
+      <div className="text-center">
+        <h3 className="text-[#E5E7EB] font-medium text-sm mb-1">{action.title}</h3>
+        <p className="text-[#9CA3AF] text-xs leading-tight max-w-[100px] mx-auto line-clamp-2">{action.description}</p>
+      </div>
+    </Link>
+  );
 }
 
 export default function QuickActionsWidget() {
@@ -51,7 +75,7 @@ export default function QuickActionsWidget() {
       title: 'Explore Templates',
       description: 'Browse pre-built workflows',
       icon: DocumentTextIcon,
-      link: '/workflow-editor/templates',
+      link: '/templates',
       color: '#8B5CF6'
     },
     {
@@ -73,32 +97,14 @@ export default function QuickActionsWidget() {
   ];
 
   return (
-    <div className="quick-actions-widget">
-      <h2 className="text-xl font-bold text-[#22D3EE] mb-4">Quick Actions</h2>
-      
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
+    <div className="bg-[#18181B] border border-[#2A2A35] rounded-lg p-5">
+      <div className="flex items-start mb-4">
+        <Squares2X2Icon className="h-5 w-5 text-[#22D3EE] mr-2" />
+        <h3 className="text-[#E5E7EB] font-medium">Quick Actions</h3>
+      </div>
+      <div className="grid grid-cols-2 gap-3">
         {quickActions.map((action) => (
-          <Link
-            key={action.id}
-            href={action.link}
-            className="bg-[#18181B] border border-[#374151] rounded-lg p-4 hover:border-[#22D3EE] transition-colors group"
-          >
-            <div className="flex items-start">
-              <div 
-                className="flex-shrink-0 w-10 h-10 rounded-md flex items-center justify-center mr-3"
-                style={{ backgroundColor: `${action.color}15` }}
-              >
-                <action.icon 
-                  className="h-6 w-6 transition-transform group-hover:scale-110 duration-200"
-                  style={{ color: action.color }}
-                />
-              </div>
-              <div>
-                <h3 className="text-[#E5E7EB] font-medium">{action.title}</h3>
-                <p className="text-[#9CA3AF] text-xs">{action.description}</p>
-              </div>
-            </div>
-          </Link>
+          <QuickActionCard key={action.id} action={action} />
         ))}
       </div>
     </div>

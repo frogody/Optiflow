@@ -1010,4 +1010,51 @@ button:hover {
   -webkit-backdrop-filter: blur(8px);
   backdrop-filter: blur(8px);
   border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+@keyframes pulse {
+  0% {
+    opacity: 0.5;
+    height: 4px;
+  }
+  50% {
+    opacity: 1;
+    height: 16px;
+  }
+  100% {
+    opacity: 0.5;
+    height: 4px;
+  }
+}
+
+.sync-logo-bar {
+  background-color: white;
+  width: 4px;
+  border-radius: 2px;
+  margin: 0 2px;
+}
+
+.sync-logo-bar-1 {
+  animation: pulse 1.5s ease-in-out infinite;
+  animation-delay: 0s;
+}
+
+.sync-logo-bar-2 {
+  animation: pulse 1.5s ease-in-out infinite;
+  animation-delay: 0.3s;
+}
+
+.sync-logo-bar-3 {
+  animation: pulse 1.5s ease-in-out infinite;
+  animation-delay: 0.6s;
+}
+
+.sync-logo-bar-4 {
+  animation: pulse 1.5s ease-in-out infinite;
+  animation-delay: 0.9s;
+}
+
+.sync-logo-bar-5 {
+  animation: pulse 1.5s ease-in-out infinite;
+  animation-delay: 1.2s;
 } 

@@ -1,6 +1,10 @@
+# Voice-agent resource is available at /voice-agent
+# This workaround prevents 404 errors for voice-agent?_rsc=1bdos:1
+
 # Allow all user agents
 User-agent: *
 Allow: /
+Disallow: /api/
 
 # Sitemap
 Sitemap: https://isyncso.com/sitemap.xml 

@@ -67,6 +67,15 @@ const settingSections = [
     iconColor: 'text-[#F59E0B]'
   },
   {
+    id: 'knowledge-base',
+    name: 'Knowledge Base',
+    description: 'Manage personal and team knowledge bases and documents',
+    icon: DocumentTextIconOutline,
+    href: '/settings/knowledge-base',
+    color: 'bg-[#0f172a]',
+    iconColor: 'text-[#38BDF8]'
+  },
+  {
     id: 'api-keys',
     name: 'API Keys',
     description: 'Generate and manage API keys for programmatic access',
@@ -230,11 +239,11 @@ export default function SettingsPage(): JSX.Element {
       {/* Neural Network Background */}
       <div className="neural-bg"></div>
       
-      <main className="max-w-4xl mx-auto px-4 py-8 relative z-10">
+      <main className="max-w-5xl mx-auto px-4 py-8 relative z-10">
         <motion.div
-          initial={{ opacity: 0, y: 20     }}
-          animate={{ opacity: 1, y: 0     }}
-          transition={{ duration: 0.5     }}
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
         >
           {/* Page Header */}
           <div className="flex items-center justify-between mb-8">
@@ -252,196 +261,120 @@ export default function SettingsPage(): JSX.Element {
           </div>
           
           {/* Settings Sections */}
-          <div className="space-y-6">
-            {/* General Settings */}
-            <div className="bg-dark-100/30 backdrop-blur-sm rounded-xl p-6">
-              <h2 className="text-xl font-semibold dark:text-white light:text-gray-800 mb-4">General Settings</h2>
-              
-              <div className="space-y-4">
-                <div>
-                  <label htmlFor="theme-select" className="block dark:text-white/80 light:text-gray-700 text-sm mb-2">Theme</label>
-                  <select
-                    id="theme-select"
-                    value={theme}
-                    onChange={handleThemeChange}
-                    className="w-full md:w-1/3 dark:bg-black/30 light:bg-white/70 rounded-lg px-4 py-3 dark:text-white light:text-gray-800"
-                    aria-label="Select Theme"
-                  >
-                    <option value="light">Light</option>
-                    <option value="dark">Dark</option>
-                    <option value="system">System Default</option>
-                  </select>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-10">
+            {settingSections.map((section) => (
+              <Link 
+                key={section.id}
+                href={section.href}
+                className="bg-dark-100/30 backdrop-blur-sm border border-white/10 rounded-xl p-6 hover:border-white/30 transition-all duration-300 flex flex-col h-full"
+              >
+                <div className={`${section.color} w-12 h-12 rounded-md flex items-center justify-center mb-4`}>
+                  <section.icon className={`h-6 w-6 ${section.iconColor}`} />
                 </div>
-              </div>
-            </div>
-            
-            {/* Notification Settings */}
-            <div className="bg-dark-100/30 backdrop-blur-sm rounded-xl p-6">
-              <h2 className="text-xl font-semibold dark:text-white light:text-gray-800 mb-4">Notification Settings</h2>
-              
-              <div className="space-y-4">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <h3 className="dark:text-white light:text-gray-800 font-medium">Email Notifications</h3>
-                    <p className="dark:text-white/60 light:text-gray-500 text-sm">Receive updates via email</p>
-                  </div>
-                  <button 
-                    onClick={() => handleNotificationToggle('email')}
-                    aria-label={settings.notifications.email ? "Disable Email Notifications" : "Enable Email Notifications"}
-                    className={`w-12 h-6 rounded-full relative transition-colors duration-300 ${ settings.notifications.email ? 'bg-primary' : 'dark:bg-white/20 light:bg-gray-300'
-                        }`}
-                  >
-                    <span 
-                      className={`absolute top-1 left-1 bg-white rounded-full w-4 h-4 transition-transform duration-300 transform ${ settings.notifications.email ? 'translate-x-6' : ''
-                          }`}
-                    ></span>
-                  </button>
+                <h2 className="text-xl font-semibold dark:text-white light:text-gray-800 mb-2">{section.name}</h2>
+                <p className="dark:text-white/60 light:text-gray-500 text-sm">{section.description}</p>
+                <div className="mt-auto pt-4 flex items-center text-[#22D3EE] font-medium text-sm">
+                  View Settings <ArrowRightIconOutline className="ml-2 h-4 w-4" />
                 </div>
-                
-                <div className="flex items-center justify-between">
-                  <div>
-                    <h3 className="dark:text-white light:text-gray-800 font-medium">Browser Notifications</h3>
-                    <p className="dark:text-white/60 light:text-gray-500 text-sm">Receive in-app notifications</p>
-                  </div>
-                  <button 
-                    onClick={() => handleNotificationToggle('browser')}
-                    aria-label={settings.notifications.browser ? "Disable Browser Notifications" : "Enable Browser Notifications"}
-                    className={`w-12 h-6 rounded-full relative transition-colors duration-300 ${ settings.notifications.browser ? 'bg-primary' : 'dark:bg-white/20 light:bg-gray-300'
-                        }`}
-                  >
-                    <span 
-                      className={`absolute top-1 left-1 bg-white rounded-full w-4 h-4 transition-transform duration-300 transform ${ settings.notifications.browser ? 'translate-x-6' : ''
-                          }`}
-                    ></span>
-                  </button>
-                </div>
-                
-                <div className="flex items-center justify-between">
-                  <div>
-                    <h3 className="dark:text-white light:text-gray-800 font-medium">Workflow Alerts</h3>
-                    <p className="dark:text-white/60 light:text-gray-500 text-sm">Get notified about workflow status changes</p>
-                  </div>
-                  <button 
-                    onClick={() => handleNotificationToggle('workflow')}
-                    aria-label={settings.notifications.workflow ? "Disable Workflow Alerts" : "Enable Workflow Alerts"}
-                    className={`w-12 h-6 rounded-full relative transition-colors duration-300 ${ settings.notifications.workflow ? 'bg-primary' : 'dark:bg-white/20 light:bg-gray-300'
-                        }`}
-                  >
-                    <span 
-                      className={`absolute top-1 left-1 bg-white rounded-full w-4 h-4 transition-transform duration-300 transform ${ settings.notifications.workflow ? 'translate-x-6' : ''
-                          }`}
-                    ></span>
-                  </button>
-                </div>
-                
-                <div className="flex items-center justify-between">
-                  <div>
-                    <h3 className="dark:text-white light:text-gray-800 font-medium">Security Alerts</h3>
-                    <p className="dark:text-white/60 light:text-gray-500 text-sm">Get notified about security-related events</p>
-                  </div>
-                  <button 
-                    onClick={() => handleNotificationToggle('security')}
-                    aria-label={settings.notifications.security ? "Disable Security Alerts" : "Enable Security Alerts"}
-                    className={`w-12 h-6 rounded-full relative transition-colors duration-300 ${ settings.notifications.security ? 'bg-primary' : 'dark:bg-white/20 light:bg-gray-300'
-                        }`}
-                  >
-                    <span 
-                      className={`absolute top-1 left-1 bg-white rounded-full w-4 h-4 transition-transform duration-300 transform ${ settings.notifications.security ? 'translate-x-6' : ''
-                          }`}
-                    ></span>
-                  </button>
-                </div>
-              </div>
-            </div>
-            
-            {/* API Settings */}
-            <div className="bg-dark-100/30 backdrop-blur-sm rounded-xl p-6">
-              <h2 className="text-xl font-semibold dark:text-white light:text-gray-800 mb-4">API Settings</h2>
-              
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div>
-                  <label htmlFor="defaultRequestTimeout" className="block dark:text-white/80 light:text-gray-700 text-sm mb-2">Default Request Timeout (seconds)</label>
-                  <input
-                    id="defaultRequestTimeout"
-                    type="number"
-                    value={settings.apiSettings.defaultRequestTimeout}
-                    onChange={(e) => handleApiSettingChange(e, 'defaultRequestTimeout')}
-                    min="5"
-                    max="120"
-                    placeholder="e.g., 30"
-                    className="w-full dark:bg-black/30 light:bg-white/70 rounded-lg px-4 py-3 dark:text-white light:text-gray-800"
-                  />
-                </div>
-                
-                <div>
-                  <label htmlFor="rateLimit" className="block dark:text-white/80 light:text-gray-700 text-sm mb-2">Rate Limit (requests per minute)</label>
-                  <input
-                    id="rateLimit"
-                    type="number"
-                    value={settings.apiSettings.rateLimit}
-                    onChange={(e) => handleApiSettingChange(e, 'rateLimit')}
-                    min="10"
-                    max="1000"
-                    placeholder="e.g., 100"
-                    className="w-full dark:bg-black/30 light:bg-white/70 rounded-lg px-4 py-3 dark:text-white light:text-gray-800"
-                  />
-                </div>
-              </div>
-            </div>
-            
-            {/* Display Settings */}
-            <div className="bg-dark-100/30 backdrop-blur-sm rounded-xl p-6">
-              <h2 className="text-xl font-semibold dark:text-white light:text-gray-800 mb-4">Display Settings</h2>
-              
-              <div className="space-y-4">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <h3 className="dark:text-white light:text-gray-800 font-medium">Compact Mode</h3>
-                    <p className="dark:text-white/60 light:text-gray-500 text-sm">Use more condensed UI elements</p>
-                  </div>
-                  <button 
-                    onClick={() => handleDisplaySettingToggle('compactMode')}
-                    aria-label={settings.displaySettings.compactMode ? "Disable Compact Mode" : "Enable Compact Mode"}
-                    className={`w-12 h-6 rounded-full relative transition-colors duration-300 ${ settings.displaySettings.compactMode ? 'bg-primary' : 'dark:bg-white/20 light:bg-gray-300'
-                        }`}
-                  >
-                    <span 
-                      className={`absolute top-1 left-1 bg-white rounded-full w-4 h-4 transition-transform duration-300 transform ${ settings.displaySettings.compactMode ? 'translate-x-6' : ''
-                          }`}
-                    ></span>
-                  </button>
-                </div>
-                
-                <div className="flex items-center justify-between">
-                  <div>
-                    <h3 className="dark:text-white light:text-gray-800 font-medium">Show Advanced Options</h3>
-                    <p className="dark:text-white/60 light:text-gray-500 text-sm">Display advanced configuration options</p>
-                  </div>
-                  <button 
-                    onClick={() => handleDisplaySettingToggle('showAdvancedOptions')}
-                    aria-label={settings.displaySettings.showAdvancedOptions ? "Disable Advanced Options" : "Enable Advanced Options"}
-                    className={`w-12 h-6 rounded-full relative transition-colors duration-300 ${ settings.displaySettings.showAdvancedOptions ? 'bg-primary' : 'dark:bg-white/20 light:bg-gray-300'
-                        }`}
-                  >
-                    <span 
-                      className={`absolute top-1 left-1 bg-white rounded-full w-4 h-4 transition-transform duration-300 transform ${ settings.displaySettings.showAdvancedOptions ? 'translate-x-6' : ''
-                          }`}
-                    ></span>
-                  </button>
-                </div>
-              </div>
-            </div>
+              </Link>
+            ))}
           </div>
           
-          {/* Save Button */}
-          <div className="mt-8 flex justify-end">
-            <button
-              onClick={handleSaveSettings}
-              disabled={isSaving}
-              className="px-6 py-3 bg-gradient-to-r from-primary to-secondary text-white rounded-lg font-medium shadow-glow hover:shadow-glow-intense transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              { isSaving ? 'Saving...' : 'Save Settings'    }
-            </button>
+          {/* Quick Settings Section */}
+          <div className="bg-dark-100/30 backdrop-blur-sm rounded-xl border border-white/10 p-6">
+            <h2 className="text-xl font-semibold dark:text-white light:text-gray-800 mb-4">Quick Settings</h2>
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {/* Theme Setting */}
+              <div>
+                <label htmlFor="theme-select" className="block dark:text-white/80 light:text-gray-700 text-sm mb-2">Application Theme</label>
+                <select
+                  id="theme-select"
+                  value={theme}
+                  onChange={handleThemeChange}
+                  className="w-full dark:bg-black/30 light:bg-white/70 rounded-lg px-4 py-3 dark:text-white light:text-gray-800"
+                  aria-label="Select Theme"
+                >
+                  <option value="light">Light</option>
+                  <option value="dark">Dark</option>
+                  <option value="system">System Default</option>
+                </select>
+              </div>
+              
+              {/* Display Mode */}
+              <div className="flex items-center justify-between">
+                <div>
+                  <h3 className="dark:text-white light:text-gray-800 font-medium">Compact Mode</h3>
+                  <p className="dark:text-white/60 light:text-gray-500 text-sm">Use more condensed UI elements</p>
+                </div>
+                <button 
+                  onClick={() => handleDisplaySettingToggle('compactMode')}
+                  aria-label={settings.displaySettings.compactMode ? "Disable Compact Mode" : "Enable Compact Mode"}
+                  className={`w-12 h-6 rounded-full relative transition-colors duration-300 ${
+                    settings.displaySettings.compactMode ? 'bg-primary' : 'dark:bg-white/20 light:bg-gray-300'
+                  }`}
+                >
+                  <span 
+                    className={`absolute top-1 left-1 bg-white rounded-full w-4 h-4 transition-transform duration-300 transform ${
+                      settings.displaySettings.compactMode ? 'translate-x-6' : ''
+                    }`}
+                  ></span>
+                </button>
+              </div>
+              
+              {/* Advanced Options */}
+              <div className="flex items-center justify-between">
+                <div>
+                  <h3 className="dark:text-white light:text-gray-800 font-medium">Show Advanced Features</h3>
+                  <p className="dark:text-white/60 light:text-gray-500 text-sm">Display advanced configuration options</p>
+                </div>
+                <button 
+                  onClick={() => handleDisplaySettingToggle('showAdvancedOptions')}
+                  aria-label={settings.displaySettings.showAdvancedOptions ? "Disable Advanced Options" : "Enable Advanced Options"}
+                  className={`w-12 h-6 rounded-full relative transition-colors duration-300 ${
+                    settings.displaySettings.showAdvancedOptions ? 'bg-primary' : 'dark:bg-white/20 light:bg-gray-300'
+                  }`}
+                >
+                  <span 
+                    className={`absolute top-1 left-1 bg-white rounded-full w-4 h-4 transition-transform duration-300 transform ${
+                      settings.displaySettings.showAdvancedOptions ? 'translate-x-6' : ''
+                    }`}
+                  ></span>
+                </button>
+              </div>
+              
+              {/* Workflow Alerts */}
+              <div className="flex items-center justify-between">
+                <div>
+                  <h3 className="dark:text-white light:text-gray-800 font-medium">Workflow Alerts</h3>
+                  <p className="dark:text-white/60 light:text-gray-500 text-sm">Get notified about workflow status changes</p>
+                </div>
+                <button 
+                  onClick={() => handleNotificationToggle('workflow')}
+                  aria-label={settings.notifications.workflow ? "Disable Workflow Alerts" : "Enable Workflow Alerts"}
+                  className={`w-12 h-6 rounded-full relative transition-colors duration-300 ${
+                    settings.notifications.workflow ? 'bg-primary' : 'dark:bg-white/20 light:bg-gray-300'
+                  }`}
+                >
+                  <span 
+                    className={`absolute top-1 left-1 bg-white rounded-full w-4 h-4 transition-transform duration-300 transform ${
+                      settings.notifications.workflow ? 'translate-x-6' : ''
+                    }`}
+                  ></span>
+                </button>
+              </div>
+            </div>
+            
+            {/* Save Button */}
+            <div className="mt-8 flex justify-end">
+              <button
+                onClick={handleSaveSettings}
+                disabled={isSaving}
+                className="px-6 py-3 bg-gradient-to-r from-primary to-secondary text-white rounded-lg font-medium shadow-glow hover:shadow-glow-intense transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {isSaving ? 'Saving...' : 'Save Quick Settings'}
+              </button>
+            </div>
           </div>
         </motion.div>
       </main>

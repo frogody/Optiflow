@@ -289,11 +289,13 @@ class JarvisAgent(Agent):
                 logger.error(f"Error polling user presence: {e}")
             await asyncio.sleep(poll_interval)
 
-    async def _main_agent_loop(self, session: AgentSession):
-        user_id = session.participant.identity if session.participant else None
+    async def _main_agent_loop(self, session: AgentSession, memory_context=None, user_id=None):
+        participant_id = session.participant.identity if session.participant else None
         room_id = session.room.name if session.room else None
-        logger.info(f"[AGENT JOIN] Jarvis agent joining room: {room_id} for user: {user_id}")
-        await send_agent_event("agent_join", user_id, room_id)
+        logger.info(f"[AGENT JOIN] Jarvis agent joining room: {room_id} for user: {participant_id}")
+        await send_agent_event("agent_join", participant_id, room_id)
+        
+        # Base prompt
         initial_prompt = (
             "You are Jarvis, a highly capable AI assistant for Optiflow. "
             "Your primary user is an Optiflow user who is using your voice interface. "
@@ -305,6 +307,16 @@ class JarvisAgent(Agent):
             "Always confirm actions before execution if they are irreversible or sensitive. "
             "Keep your responses conversational but efficient."
         )
+        
+        # Add memory context to enhance the assistant's knowledge of the user
+        if memory_context and len(memory_context) > 0:
+            memory_str = "\n\nHere is the conversation history with this user that you should use to provide continuity:\n"
+            for memory_item in memory_context:
+                if isinstance(memory_item, dict) and 'content' in memory_item and 'role' in memory_item:
+                    memory_str += f"\n{memory_item['role']}: {memory_item['content']}"
+            initial_prompt += memory_str
+            initial_prompt += "\n\nUse this history to maintain context, but do not explicitly mention that you are recalling previous conversations unless directly relevant to the current topic."
+            logger.info("Enhanced prompt with memory context")
         
         # Initialize chat history
         chat_history = [lk_llm.ChatMessage(role=lk_llm.ChatRole.SYSTEM, content=initial_prompt)]
@@ -319,8 +331,8 @@ class JarvisAgent(Agent):
         
         # Start polling for user presence in the background
         presence_task = None
-        if user_id and room_id:
-            presence_task = asyncio.create_task(self.poll_user_presence(user_id, room_id, session))
+        if participant_id and room_id:
+            presence_task = asyncio.create_task(self.poll_user_presence(participant_id, room_id, session))
         
         # Main conversation loop
         user_input_audio_stream = await session.stt.stream()
@@ -368,6 +380,17 @@ class JarvisAgent(Agent):
                 
                 logger.info(f"Jarvis responded: {full_response_text}")
                 
+                # If we have a user ID, store this exchange in memory service
+                if user_id:
+                    try:
+                        # We would call the memory service API here
+                        # This would be a webhook or direct API call to store the conversation
+                        # For demonstration, we'll just log the intent
+                        logger.info(f"Would store conversation for user {user_id} in Mem0")
+                    except Exception as e:
+                        logger.error(f"Error storing conversation in memory: {e}")
+                        # Continue despite memory storage failure
+            
             elif event.type == lk_stt.SpeechDataEvent.ERROR:
                 error_msg = f"Speech recognition error: {event.error}"
                 logger.error(error_msg)
@@ -379,14 +402,37 @@ class JarvisAgent(Agent):
                 # Also synthesize the error message
                 await session.tts.synthesize("I'm having trouble understanding you. Could you try again?")
                 break
-            finally:
-                if presence_task:
-                    presence_task.cancel()
-                logger.info(f"[AGENT LEAVE] Jarvis agent leaving room: {room_id} for user: {user_id}")
-                await send_agent_event("agent_leave", user_id, room_id)
+        
+        # Clean up before exiting
+        if presence_task:
+            presence_task.cancel()
+        logger.info(f"[AGENT LEAVE] Jarvis agent leaving room: {room_id} for user: {participant_id}")
+        await send_agent_event("agent_leave", participant_id, room_id)
 
     async def process_job(self, job: JobContext):
         logger.info(f"JarvisAgent processing job: {job.id} for participant: {job.participant.identity if job.participant else 'N/A'}")
+        
+        # Parse metadata to extract user information and mem0 memory context
+        metadata = {}
+        memory_context = []
+        user_id = None
+        try:
+            if job.metadata:
+                metadata = json.loads(job.metadata)
+                logger.info(f"Received metadata with job: {metadata.keys()}")
+                
+                # Extract memory context if available
+                if 'memoryContext' in metadata and isinstance(metadata['memoryContext'], list):
+                    memory_context = metadata['memoryContext']
+                    logger.info(f"Found memory context with {len(memory_context)} items")
+                
+                # Extract user ID for memory storage
+                if 'userId' in metadata:
+                    user_id = metadata['userId']
+                    logger.info(f"Using user ID from metadata: {user_id}")
+        except Exception as e:
+            logger.error(f"Error parsing metadata: {e}")
+            # Continue without memory context
         
         session = AgentSession(
             agent=self,
@@ -400,7 +446,8 @@ class JarvisAgent(Agent):
         )
         
         try:
-            await self._main_agent_loop(session)
+            # Enhance the initial prompt with memory context if available
+            await self._main_agent_loop(session, memory_context=memory_context, user_id=user_id)
         except Exception as e:
             error_msg = f"Error in agent processing loop: {e}"
             logger.error(error_msg, exc_info=True)

@@ -1,35 +1,46 @@
 'use client';
 
 import { useSession } from 'next-auth/react';
-import { useEffect } from 'react';
+import { useEffect, useState, Suspense } from 'react';
 
 import { useUserStore } from '@/lib/userStore';
 
-/**
- * SessionInitializer component checks for an existing session
- * and syncs it with the user store.
- */
-export function SessionInitializer() {
+// Inner component that will be wrapped with Suspense
+function SessionInitializerInner() {
   const { data: session, status } = useSession();
-  const userStore = useUserStore();
+  const [retryCount, setRetryCount] = useState(0);
+  
+  // Get store functions directly to avoid potential issues
+  const setUser = useUserStore((state) => state.setUser);
+  const setLoading = useUserStore((state) => state.setLoading);
+  const currentUser = useUserStore((state) => state.currentUser);
 
   useEffect(() => {
     // Only run on client side
     if (typeof window === 'undefined') return;
 
     // Validate that the required store functions exist
-    if (typeof userStore?.setLoading !== 'function' || typeof userStore?.setUser !== 'function') {
+    if (typeof setLoading !== 'function' || typeof setUser !== 'function') {
       console.error('Required userStore functions not available', { 
-        hasSetLoading: typeof userStore?.setLoading === 'function',
-        hasSetUser: typeof userStore?.setUser === 'function',
+        hasSetLoading: typeof setLoading === 'function',
+        hasSetUser: typeof setUser === 'function',
       });
+      
+      // If we've tried less than 3 times, retry with exponential backoff
+      if (retryCount < 3) {
+        const timeout = Math.pow(2, retryCount) * 500; // 500ms, 1000ms, 2000ms
+        console.log(`Retrying userStore initialization in ${timeout}ms (attempt ${retryCount + 1}/3)`);
+        const timer = setTimeout(() => setRetryCount(retryCount + 1), timeout);
+        return () => clearTimeout(timer);
+      }
+      
       return;
     }
 
     console.log('Session status:', status, 'User:', session?.user?.email || 'none');
     
     // Set loading state
-    userStore.setLoading(status === 'loading');
+    setLoading(status === 'loading');
 
     try {
       // Handle session state
@@ -39,29 +50,44 @@ export function SessionInitializer() {
           id: session.user.id || '', // Fallback to empty string if undefined
           email: session.user.email || null, // Explicitly set to null if undefined
           name: session.user.name || null, // Explicitly set to null if undefined
+          image: session.user.image || null // Handle image if present
         };
         console.log('Setting authenticated user:', user);
-        userStore.setUser(user);
+        setUser(user);
       } else if (status === 'unauthenticated') {
         // Clear the user when session is explicitly unauthenticated
         console.log('Session is unauthenticated, clearing user');
-        userStore.setUser(null);
+        setUser(null);
       } else if (status !== 'loading') {
         // If we're not loading and don't have a user, make sure we're cleared
         console.log('Session is not loading but not authenticated, clearing user');
-        userStore.setUser(null);
+        setUser(null);
       }
     } catch (error) {
       console.error('Error handling session state:', error);
       // Try to set user to null in case of error
       try {
-        userStore.setUser(null);
+        setUser(null);
       } catch (innerError) {
         console.error('Failed to reset user after error:', innerError);
       }
     }
-  }, [session, status, userStore]); // Updated dependencies
+  }, [session, status, setUser, setLoading, retryCount]);
 
-  // This component doesn't render anything visible
+  // This inner component doesn't render anything visible
   return null;
+}
+
+/**
+ * SessionInitializer component checks for an existing session
+ * and syncs it with the user store.
+ * 
+ * Wrapped in Suspense for Next.js 15 compatibility.
+ */
+export function SessionInitializer() {
+  return (
+    <Suspense fallback={null}>
+      <SessionInitializerInner />
+    </Suspense>
+  );
 }

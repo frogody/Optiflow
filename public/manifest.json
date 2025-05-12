@@ -1,6 +1,6 @@
 {
-  "name": "ISYNCSO",
-  "short_name": "ISYNCSO",
+  "name": "SYNC",
+  "short_name": "SYNC",
   "description": "Automated workflow orchestration platform",
   "start_url": "/",
   "display": "standalone",
@@ -9,15 +9,15 @@
   "orientation": "portrait-primary",
   "icons": [
     {
-      "src": "/ISYNCSO_LOGO.png",
+      "src": "/logo-transparent.svg",
       "sizes": "192x192",
-      "type": "image/png",
+      "type": "image/svg+xml",
       "purpose": "any maskable"
     },
     {
-      "src": "/ISYNCSO_LOGO.png",
+      "src": "/logo-transparent.svg",
       "sizes": "512x512",
-      "type": "image/png",
+      "type": "image/svg+xml",
       "purpose": "any maskable"
     }
   ]

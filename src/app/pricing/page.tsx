@@ -6,6 +6,48 @@ import Link from 'next/link';
 import React, { useRef, useState } from 'react';
 import { HiOutlineSparkles, HiOutlineLightningBolt, HiOutlineCube } from 'react-icons/hi';
 
+// Custom CSS for range sliders
+const sliderStyles = `
+  .pricing-slider {
+    -webkit-appearance: none;
+    width: 100%;
+    height: 8px;
+    border-radius: 10px;
+    background: rgba(60, 223, 255, 0.2);
+    outline: none;
+    transition: all 0.2s;
+  }
+  
+  .pricing-slider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: linear-gradient(to right, #3CDFFF, #4AFFD4);
+    cursor: pointer;
+    box-shadow: 0 0 10px rgba(60, 223, 255, 0.5);
+  }
+  
+  .pricing-slider::-moz-range-thumb {
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: linear-gradient(to right, #3CDFFF, #4AFFD4);
+    cursor: pointer;
+    box-shadow: 0 0 10px rgba(60, 223, 255, 0.5);
+    border: none;
+  }
+  
+  .pricing-slider:hover {
+    background: rgba(60, 223, 255, 0.3);
+  }
+  
+  .pricing-slider:active::-webkit-slider-thumb {
+    box-shadow: 0 0 15px rgba(60, 223, 255, 0.7);
+  }
+`;
+
 // Enhanced aurora effect component
 const AuroraEffect = () => {
   return (
@@ -61,10 +103,25 @@ const GradientOrb = ({ delay = 0, size = 600, color = 'blue' }) => {
   );
 };
 
-// Plan feature comparison data
+// Credit calculation constants 
+const CREDIT_COST = 0.07; // Cost per credit in euros
+const BASE_PRICES = {
+  core: 59,
+  pro: 129,
+  enterprise: 299
+};
+
+// Credit slider ranges
+const CREDIT_RANGES = {
+  core: { min: 500, max: 5000, default: 1000 },
+  pro: { min: 1000, max: 10000, default: 2000 },
+  enterprise: { min: 5000, max: 50000, default: 10000 }
+};
+
+// Updated plan features with clearer structure
 const planFeatures = {
   core: [
-    { name: "Workflow Automation", included: true },
+    { name: "Workflow Automation", included: true, limit: "Basic workflows" },
     { name: "Third-party Integrations", included: true, limit: "15 integrations" },
     { name: "Voice Agent Access", included: false },
     { name: "API Access", included: false },
@@ -78,32 +135,28 @@ const planFeatures = {
     { name: "Audit Logs", included: false },
   ],
   pro: [
-    { name: "Workflow Automation", included: true },
-    { name: "Third-party Integrations", included: true, limit: "Unlimited" },
-    { name: "Voice Agent Access", included: true, limit: "Basic commands" },
-    { name: "API Access", included: true },
-    { name: "Custom Workflows", included: true, limit: "Up to 50 workflows" },
-    { name: "Execution History", included: true, retention: "30 days" },
-    { name: "Email Support", included: true },
-    { name: "Priority Support", included: true },
-    { name: "Team Collaboration", included: true, limit: "Up to 5 members" },
-    { name: "Advanced Analytics", included: true },
-    { name: "Custom Branding", included: false },
-    { name: "Audit Logs", included: true, retention: "30 days" },
+    { name: "Everything in Core plan, plus:", included: true, highlight: true },
+    { name: "Unlimited Third-party Integrations", included: true, extra: true },
+    { name: "Voice Agent Access", included: true, limit: "Basic commands", extra: true },
+    { name: "API Access", included: true, extra: true },
+    { name: "Custom Workflows", included: true, limit: "Up to 50 workflows", extra: true },
+    { name: "Execution History", included: true, retention: "30 days", extra: true },
+    { name: "Priority Support", included: true, extra: true },
+    { name: "Team Collaboration", included: true, limit: "Up to 5 members", extra: true },
+    { name: "Advanced Analytics", included: true, extra: true },
+    { name: "Audit Logs", included: true, retention: "30 days", extra: true },
   ],
   enterprise: [
-    { name: "Workflow Automation", included: true },
-    { name: "Third-party Integrations", included: true, limit: "Unlimited" },
-    { name: "Voice Agent Access", included: true, limit: "Advanced commands" },
-    { name: "API Access", included: true },
-    { name: "Custom Workflows", included: true, limit: "Unlimited" },
-    { name: "Execution History", included: true, retention: "1 year" },
-    { name: "Email Support", included: true },
-    { name: "Priority Support", included: true, extra: "Dedicated account manager" },
-    { name: "Team Collaboration", included: true, limit: "Unlimited" },
-    { name: "Advanced Analytics", included: true },
-    { name: "Custom Branding", included: true },
-    { name: "Audit Logs", included: true, retention: "1 year" },
+    { name: "Everything in Pro plan, plus:", included: true, highlight: true },
+    { name: "Unlimited Custom Workflows", included: true, extra: true },
+    { name: "Advanced Voice Commands", included: true, extra: true },
+    { name: "Execution History", included: true, retention: "1 year", extra: true },
+    { name: "Dedicated Account Manager", included: true, extra: true },
+    { name: "Unlimited Team Collaboration", included: true, extra: true },
+    { name: "Custom Branding", included: true, extra: true },
+    { name: "Audit Logs", included: true, retention: "1 year", extra: true },
+    { name: "SLA Guarantees", included: true, extra: true },
+    { name: "On-Premise Deployment Options", included: true, extra: true },
   ]
 };
 
@@ -116,46 +169,73 @@ const creditConsumption = [
   { action: "AI-powered analysis", credits: 15, description: "Using AI to analyze or generate content" },
 ];
 
-// FAQ data
+// Updated FAQ data with credit pricing info
 const faqs = [
   {
-    question: "What are credits and how do they work?",
-    answer: "Credits are Optiflow's currency for resource usage. They allow for flexible consumption of different resources like workflow executions, API calls, and voice processing. Credits are consumed based on the specific actions you perform in the platform."
+    question: "How does the credit system work?",
+    answer: "Credits are Optiflow's resource currency. Each credit costs €0.07 and is consumed when you use platform resources like workflow executions, API calls, or voice processing. You can adjust the number of credits in your plan at any time using the slider to match your exact usage needs."
   },
   {
-    question: "What happens if I run out of credits?",
-    answer: "If you exhaust your monthly credits, you can purchase additional credit packs that never expire. Your workflows will continue to run without interruption. You can also set up auto-refill to automatically purchase credits when your balance drops below a threshold."
+    question: "What happens if I use all my credits?",
+    answer: "If you exhaust your monthly credits, you can purchase additional credit packs or upgrade your plan. Your workflows will continue to run without interruption. We'll notify you when your credits are running low, and you can set up auto-refill to add credits automatically."
   },
   {
-    question: "Can I change plans at any time?",
-    answer: "Yes, you can upgrade your plan at any time and the changes will take effect immediately. When downgrading, the changes will apply at the end of your current billing cycle. Unused credits will roll over when upgrading."
+    question: "Can I change my plan or credit amount?",
+    answer: "Yes, you can adjust your credit allocation or upgrade your plan at any time. Changes take effect immediately. When downgrading, changes apply at the end of your current billing cycle. Unused credits will roll over for 90 days when changing plans."
   },
   {
     question: "Is there a free trial available?",
-    answer: "Yes, we offer a 14-day free trial of our Pro plan with 500 credits included. No credit card is required to start the trial. At the end of your trial, you can choose to subscribe to any of our plans."
+    answer: "Yes, we offer a 14-day free trial of our Pro plan with 500 credits included. No credit card is required to start. You can experience all Pro features before deciding which plan fits your needs best."
   },
   {
-    question: "How does the annual discount work?",
-    answer: "When you choose annual billing, you save 20% compared to monthly billing. You'll be billed for 12 months upfront, and receive the annual allocation of credits at the beginning of the billing cycle."
+    question: "How do I know which plan is right for me?",
+    answer: "The Core plan (€59/mo) is ideal for individuals and small projects. The Pro plan (€129/mo) offers more capabilities for professionals and growing teams. For large organizations with advanced needs, our Enterprise plan (€299/mo) provides the highest level of service and support."
   }
 ];
 
 export default function PricingPage(): JSX.Element {
   const [annualBilling, setAnnualBilling] = useState(true);
   const [showCreditInfo, setShowCreditInfo] = useState(false);
+  const [coreCredits, setCoreCredits] = useState(CREDIT_RANGES.core.default);
+  const [proCredits, setProCredits] = useState(CREDIT_RANGES.pro.default);
+  const [enterpriseCredits, setEnterpriseCredits] = useState(CREDIT_RANGES.enterprise.default);
+  
   const containerRef = useRef(null);
-  const { scrollYProgress } = useScroll({ target: containerRef,
+  const { scrollYProgress } = useScroll({ 
+    target: containerRef,
     offset: ["start start", "end end"]
-      });
+  });
 
   const y = useTransform(scrollYProgress, [0, 1], [0, 200]);
 
-  const getPrice = (basePrice: number) => {
-    return annualBilling ? Math.round(basePrice * 0.8) : basePrice;
+  const getPrice = (basePrice: number, credits: number) => {
+    const totalPrice = basePrice + (credits * CREDIT_COST);
+    return annualBilling ? Math.round(totalPrice * 0.8) : Math.round(totalPrice);
+  };
+
+  // Credit slider handlers
+  const handleCoreCreditsChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setCoreCredits(parseInt(e.target.value, 10));
+  };
+
+  const handleProCreditsChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setProCredits(parseInt(e.target.value, 10));
+  };
+
+  const handleEnterpriseCreditsChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setEnterpriseCredits(parseInt(e.target.value, 10));
+  };
+
+  // Format price in Euro
+  const formatPrice = (price: number) => {
+    return `€${price}`;
   };
 
   return (
     <div ref={containerRef} className="min-h-screen bg-black text-white relative overflow-hidden">
+      {/* Add custom styles for sliders */}
+      <style jsx global>{sliderStyles}</style>
+      
       {/* Enhanced Dynamic Background */}
       <motion.div 
         className="fixed inset-0 z-0"
@@ -204,15 +284,15 @@ export default function PricingPage(): JSX.Element {
       {/* Main Content */}
       <main className="relative z-10 container mx-auto px-4 py-24">
         <motion.div
-          initial={{ opacity: 0, y: 20     }}
-          animate={{ opacity: 1, y: 0     }}
-          transition={{ duration: 0.8     }}
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8 }}
           className="text-center mb-16"
         >
           <motion.div
-            initial={{ opacity: 0, scale: 0.8     }}
-            animate={{ opacity: 1, scale: 1     }}
-            transition={{ duration: 0.7, delay: 0.3     }}
+            initial={{ opacity: 0, scale: 0.8 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 0.7, delay: 0.3 }}
             className="inline-block mb-8"
           >
             <span className="px-6 py-2 rounded-full bg-gradient-to-r from-[#3CDFFF]/10 to-[#4AFFD4]/10 border border-[#3CDFFF]/20 text-[#3CDFFF] text-sm font-medium backdrop-blur-sm">
@@ -267,16 +347,13 @@ export default function PricingPage(): JSX.Element {
             {/* Core Plan */}
             <motion.div
               key="core"
-              initial={{ opacity: 0, y: 20     }}
-              animate={{ opacity: 1, y: 0     }}
-              transition={{ duration: 0.5, delay: 0.1     }}
-              className={`relative p-8 rounded-2xl backdrop-blur-xl border group hover:scale-105 transition-transform duration-300 ${ !annualBilling
-                  ? 'border-[#3CDFFF] bg-gradient-to-b from-[#3CDFFF]/10 to-transparent'
-                  : 'border-white/10 bg-white/5 hover:border-[#3CDFFF]/50'
-                  }`}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: 0.1 }}
+              className="relative p-8 rounded-2xl backdrop-blur-xl border group hover:border-[#3CDFFF]/50 bg-white/5 border-white/10 transition-all duration-300"
             >
               <div className="flex items-center justify-center mb-6">
-                <div className={ `w-16 h-16 rounded-full flex items-center justify-center bg-gradient-to-r from-[#3CDFFF]/20 to-[#4AFFD4]/20 group-hover:from-[#3CDFFF]/30 group-hover:to-[#4AFFD4]/30 transition-colors duration-300`    }>
+                <div className="w-16 h-16 rounded-full flex items-center justify-center bg-gradient-to-r from-[#3CDFFF]/20 to-[#4AFFD4]/20 group-hover:from-[#3CDFFF]/30 group-hover:to-[#4AFFD4]/30 transition-colors duration-300">
                   <HiOutlineSparkles className="w-8 h-8 text-[#3CDFFF]" />
                 </div>
               </div>
@@ -284,7 +361,7 @@ export default function PricingPage(): JSX.Element {
               <h3 className="text-2xl font-bold text-white mb-2 text-center">Core</h3>
               <div className="text-4xl font-bold mb-4 text-center">
                 <span className="bg-clip-text text-transparent bg-gradient-to-r from-[#3CDFFF] to-[#4AFFD4]">
-                  ${getPrice(29)}
+                  {formatPrice(getPrice(BASE_PRICES.core, coreCredits))}
                 </span>
                 {annualBilling && (
                   <span className="text-sm text-white/60 ml-2">per month, billed annually</span>
@@ -292,57 +369,79 @@ export default function PricingPage(): JSX.Element {
               </div>
               <p className="text-white/80 mb-8 text-center h-12">Perfect for individuals and small projects</p>
 
-              {/* Products Included */}
+              {/* Credit Slider */}
+              <div className="mb-6">
+                <div className="flex justify-between text-sm text-white/60 mb-2">
+                  <span>Credits: {coreCredits}</span>
+                  <span>€{(coreCredits * CREDIT_COST).toFixed(2)}</span>
+                </div>
+                <input
+                  type="range"
+                  min={CREDIT_RANGES.core.min}
+                  max={CREDIT_RANGES.core.max}
+                  step="100"
+                  value={coreCredits}
+                  onChange={handleCoreCreditsChange}
+                  className="pricing-slider w-full h-2 bg-[#3CDFFF]/20 rounded-lg appearance-none cursor-pointer"
+                />
+                <div className="flex justify-between text-xs text-white/40 mt-1">
+                  <span>{CREDIT_RANGES.core.min}</span>
+                  <span>{CREDIT_RANGES.core.max}</span>
+                </div>
+              </div>
+
+              {/* Feature List */}
               <div className="mb-8 p-4 rounded-xl bg-white/5 border border-white/10">
-                <h4 className="text-sm text-white/60 mb-3">Included Products:</h4>
-                <ul className="space-y-2">
-                  {planFeatures.core.map((feature) => (
-                    <li key={feature.name} className="text-[#3CDFFF]">
-                      {feature.name}
+                <ul className="space-y-3">
+                  {planFeatures.core.map((feature, idx) => (
+                    <li
+                      key={idx}
+                      className={`flex items-start ${
+                        feature.highlight 
+                          ? 'text-white font-medium text-lg my-3' 
+                          : feature.included 
+                            ? 'text-[#4AFFD4]' 
+                            : 'text-white/40'
+                      }`}
+                    >
+                      {!feature.highlight && (
+                        <svg
+                          className={`w-5 h-5 mr-3 mt-0.5 ${
+                            feature.included ? 'text-[#4AFFD4]' : 'text-[#3CDFFF]/40'
+                          }`}
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth="2"
+                            d={feature.included ? "M5 13l4 4L19 7" : "M6 18L18 6M6 6l12 12"}
+                          />
+                        </svg>
+                      )}
+                      <span>
+                        {feature.name}
+                        {feature.limit && (
+                          <span className="block text-xs text-white/60 mt-0.5">{feature.limit}</span>
+                        )}
+                        {feature.retention && (
+                          <span className="block text-xs text-white/60 mt-0.5">Retention: {feature.retention}</span>
+                        )}
+                      </span>
                     </li>
                   ))}
                 </ul>
               </div>
 
-              {/* Features */}
-              <ul className="space-y-4 mb-8">
-                {planFeatures.core.map((feature, idx) => (
-                  <li
-                    key={idx}
-                    className={`flex items-start ${ feature.included ? 'text-[#4AFFD4]' : 'text-white/80'
-                        }`}
-                  >
-                    <svg
-                      className={`w-5 h-5 mr-3 mt-1 ${ feature.included ? 'text-[#4AFFD4]' : 'text-[#3CDFFF]'
-                          }`}
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth="2"
-                        d="M5 13l4 4L19 7"
-                      />
-                    </svg>
-                    {feature.name}
-                    {feature.limit && <span className="block text-xs text-white/60 ml-2">{feature.limit}</span>}
-                    {feature.retention && <span className="block text-xs text-white/60 ml-2">Retention: {feature.retention}</span>}
-                  </li>
-                ))}
-              </ul>
-
               <motion.div
-                whileHover={{ scale: 1.05     }}
-                whileTap={{ scale: 0.95     }}
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
               >
                 <Link
                   href="/signup?plan=core"
-                  className={`block w-full py-4 px-6 rounded-xl text-center font-medium transition-all duration-300 ${ !annualBilling
-                      ? 'bg-gradient-to-r from-[#3CDFFF] to-[#4AFFD4] text-black hover:shadow-lg hover:shadow-[#3CDFFF]/20'
-                      : 'bg-gradient-to-r from-[#3CDFFF]/20 to-[#4AFFD4]/20 text-white hover:from-[#3CDFFF]/30 hover:to-[#4AFFD4]/30'
-                      }`}
+                  className="block w-full py-4 px-6 rounded-xl text-center font-medium transition-all duration-300 bg-gradient-to-r from-[#3CDFFF]/20 to-[#4AFFD4]/20 text-white hover:from-[#3CDFFF]/30 hover:to-[#4AFFD4]/30"
                 >
                   Get Started
                 </Link>
@@ -352,13 +451,10 @@ export default function PricingPage(): JSX.Element {
             {/* Pro Plan */}
             <motion.div
               key="pro"
-              initial={{ opacity: 0, y: 20     }}
-              animate={{ opacity: 1, y: 0     }}
-              transition={{ duration: 0.5, delay: 0.2     }}
-              className={`relative p-8 rounded-2xl backdrop-blur-xl border group hover:scale-105 transition-transform duration-300 ${ annualBilling
-                  ? 'border-[#3CDFFF] bg-gradient-to-b from-[#3CDFFF]/10 to-transparent'
-                  : 'border-white/10 bg-white/5 hover:border-[#3CDFFF]/50'
-                  }`}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: 0.2 }}
+              className="relative p-8 rounded-2xl backdrop-blur-xl border-[#3CDFFF] bg-gradient-to-b from-[#3CDFFF]/10 to-transparent border group hover:scale-105 transition-transform duration-300"
             >
               <div className="absolute -top-4 left-1/2 transform -translate-x-1/2">
                 <span className="bg-gradient-to-r from-[#3CDFFF] to-[#4AFFD4] text-black text-sm px-4 py-1 rounded-full font-medium">
@@ -367,7 +463,7 @@ export default function PricingPage(): JSX.Element {
               </div>
 
               <div className="flex items-center justify-center mb-6">
-                <div className={ `w-16 h-16 rounded-full flex items-center justify-center bg-gradient-to-r from-[#3CDFFF]/20 to-[#4AFFD4]/20 group-hover:from-[#3CDFFF]/30 group-hover:to-[#4AFFD4]/30 transition-colors duration-300`    }>
+                <div className="w-16 h-16 rounded-full flex items-center justify-center bg-gradient-to-r from-[#3CDFFF]/20 to-[#4AFFD4]/20 group-hover:from-[#3CDFFF]/30 group-hover:to-[#4AFFD4]/30 transition-colors duration-300">
                   <HiOutlineLightningBolt className="w-8 h-8 text-[#3CDFFF]" />
                 </div>
               </div>
@@ -375,7 +471,7 @@ export default function PricingPage(): JSX.Element {
               <h3 className="text-2xl font-bold text-white mb-2 text-center">Pro</h3>
               <div className="text-4xl font-bold mb-4 text-center">
                 <span className="bg-clip-text text-transparent bg-gradient-to-r from-[#3CDFFF] to-[#4AFFD4]">
-                  ${getPrice(99)}
+                  {formatPrice(getPrice(BASE_PRICES.pro, proCredits))}
                 </span>
                 {annualBilling && (
                   <span className="text-sm text-white/60 ml-2">per month, billed annually</span>
@@ -383,58 +479,81 @@ export default function PricingPage(): JSX.Element {
               </div>
               <p className="text-white/80 mb-8 text-center h-12">For professionals and growing teams</p>
 
-              {/* Products Included */}
+              {/* Credit Slider */}
+              <div className="mb-6">
+                <div className="flex justify-between text-sm text-white/60 mb-2">
+                  <span>Credits: {proCredits}</span>
+                  <span>€{(proCredits * CREDIT_COST).toFixed(2)}</span>
+                </div>
+                <input
+                  type="range"
+                  min={CREDIT_RANGES.pro.min}
+                  max={CREDIT_RANGES.pro.max}
+                  step="100"
+                  value={proCredits}
+                  onChange={handleProCreditsChange}
+                  className="pricing-slider w-full h-2 bg-[#3CDFFF]/20 rounded-lg appearance-none cursor-pointer"
+                />
+                <div className="flex justify-between text-xs text-white/40 mt-1">
+                  <span>{CREDIT_RANGES.pro.min}</span>
+                  <span>{CREDIT_RANGES.pro.max}</span>
+                </div>
+              </div>
+
+              {/* Feature List */}
               <div className="mb-8 p-4 rounded-xl bg-white/5 border border-white/10">
-                <h4 className="text-sm text-white/60 mb-3">Included Products:</h4>
-                <ul className="space-y-2">
-                  {planFeatures.pro.map((feature) => (
-                    <li key={feature.name} className="text-[#3CDFFF]">
-                      {feature.name}
+                <ul className="space-y-3">
+                  {planFeatures.pro.map((feature, idx) => (
+                    <li
+                      key={idx}
+                      className={`flex items-start ${
+                        feature.highlight 
+                          ? 'text-white font-medium text-lg my-3' 
+                          : feature.included 
+                            ? feature.extra 
+                              ? 'text-[#4AFFD4]' 
+                              : 'text-white/80'
+                            : 'text-white/40'
+                      }`}
+                    >
+                      {!feature.highlight && (
+                        <svg
+                          className={`w-5 h-5 mr-3 mt-0.5 ${
+                            feature.included ? 'text-[#4AFFD4]' : 'text-[#3CDFFF]/40'
+                          }`}
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth="2"
+                            d={feature.included ? "M5 13l4 4L19 7" : "M6 18L18 6M6 6l12 12"}
+                          />
+                        </svg>
+                      )}
+                      <span>
+                        {feature.name}
+                        {feature.limit && (
+                          <span className="block text-xs text-white/60 mt-0.5">{feature.limit}</span>
+                        )}
+                        {feature.retention && (
+                          <span className="block text-xs text-white/60 mt-0.5">Retention: {feature.retention}</span>
+                        )}
+                      </span>
                     </li>
                   ))}
                 </ul>
               </div>
 
-              {/* Features */}
-              <ul className="space-y-4 mb-8">
-                {planFeatures.pro.map((feature, idx) => (
-                  <li
-                    key={idx}
-                    className={`flex items-start ${ feature.included ? 'text-[#4AFFD4]' : 'text-white/80'
-                        }`}
-                  >
-                    <svg
-                      className={`w-5 h-5 mr-3 mt-1 ${ feature.included ? 'text-[#4AFFD4]' : 'text-[#3CDFFF]'
-                          }`}
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth="2"
-                        d="M5 13l4 4L19 7"
-                      />
-                    </svg>
-                    {feature.name}
-                    {feature.limit && <span className="block text-xs text-white/60 ml-2">{feature.limit}</span>}
-                    {feature.retention && <span className="block text-xs text-white/60 ml-2">Retention: {feature.retention}</span>}
-                    {feature.extra && <span className="block text-xs text-white/60 ml-2">{feature.extra}</span>}
-                  </li>
-                ))}
-              </ul>
-
               <motion.div
-                whileHover={{ scale: 1.05     }}
-                whileTap={{ scale: 0.95     }}
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
               >
                 <Link
                   href="/signup?plan=pro"
-                  className={`block w-full py-4 px-6 rounded-xl text-center font-medium transition-all duration-300 ${ annualBilling
-                      ? 'bg-gradient-to-r from-[#3CDFFF] to-[#4AFFD4] text-black hover:shadow-lg hover:shadow-[#3CDFFF]/20'
-                      : 'bg-gradient-to-r from-[#3CDFFF]/20 to-[#4AFFD4]/20 text-white hover:from-[#3CDFFF]/30 hover:to-[#4AFFD4]/30'
-                      }`}
+                  className="block w-full py-4 px-6 rounded-xl text-center font-medium transition-all duration-300 bg-gradient-to-r from-[#3CDFFF] to-[#4AFFD4] text-black hover:shadow-lg hover:shadow-[#3CDFFF]/20"
                 >
                   Get Started
                 </Link>
@@ -444,16 +563,13 @@ export default function PricingPage(): JSX.Element {
             {/* Enterprise Plan */}
             <motion.div
               key="enterprise"
-              initial={{ opacity: 0, y: 20     }}
-              animate={{ opacity: 1, y: 0     }}
-              transition={{ duration: 0.5, delay: 0.3     }}
-              className={`relative p-8 rounded-2xl backdrop-blur-xl border group hover:scale-105 transition-transform duration-300 ${ !annualBilling
-                  ? 'border-[#3CDFFF] bg-gradient-to-b from-[#3CDFFF]/10 to-transparent'
-                  : 'border-white/10 bg-white/5 hover:border-[#3CDFFF]/50'
-                  }`}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: 0.3 }}
+              className="relative p-8 rounded-2xl backdrop-blur-xl border group hover:border-[#3CDFFF]/50 bg-white/5 border-white/10 transition-all duration-300"
             >
               <div className="flex items-center justify-center mb-6">
-                <div className={ `w-16 h-16 rounded-full flex items-center justify-center bg-gradient-to-r from-[#3CDFFF]/20 to-[#4AFFD4]/20 group-hover:from-[#3CDFFF]/30 group-hover:to-[#4AFFD4]/30 transition-colors duration-300`    }>
+                <div className="w-16 h-16 rounded-full flex items-center justify-center bg-gradient-to-r from-[#3CDFFF]/20 to-[#4AFFD4]/20 group-hover:from-[#3CDFFF]/30 group-hover:to-[#4AFFD4]/30 transition-colors duration-300">
                   <HiOutlineCube className="w-8 h-8 text-[#3CDFFF]" />
                 </div>
               </div>
@@ -461,7 +577,7 @@ export default function PricingPage(): JSX.Element {
               <h3 className="text-2xl font-bold text-white mb-2 text-center">Enterprise</h3>
               <div className="text-4xl font-bold mb-4 text-center">
                 <span className="bg-clip-text text-transparent bg-gradient-to-r from-[#3CDFFF] to-[#4AFFD4]">
-                  ${getPrice(299)}
+                  {formatPrice(getPrice(BASE_PRICES.enterprise, enterpriseCredits))}
                 </span>
                 {annualBilling && (
                   <span className="text-sm text-white/60 ml-2">per month, billed annually</span>
@@ -469,58 +585,81 @@ export default function PricingPage(): JSX.Element {
               </div>
               <p className="text-white/80 mb-8 text-center h-12">For organizations with advanced needs</p>
 
-              {/* Products Included */}
+              {/* Credit Slider */}
+              <div className="mb-6">
+                <div className="flex justify-between text-sm text-white/60 mb-2">
+                  <span>Credits: {enterpriseCredits}</span>
+                  <span>€{(enterpriseCredits * CREDIT_COST).toFixed(2)}</span>
+                </div>
+                <input
+                  type="range"
+                  min={CREDIT_RANGES.enterprise.min}
+                  max={CREDIT_RANGES.enterprise.max}
+                  step="500"
+                  value={enterpriseCredits}
+                  onChange={handleEnterpriseCreditsChange}
+                  className="pricing-slider w-full h-2 bg-[#3CDFFF]/20 rounded-lg appearance-none cursor-pointer"
+                />
+                <div className="flex justify-between text-xs text-white/40 mt-1">
+                  <span>{CREDIT_RANGES.enterprise.min}</span>
+                  <span>{CREDIT_RANGES.enterprise.max}</span>
+                </div>
+              </div>
+
+              {/* Feature List */}
               <div className="mb-8 p-4 rounded-xl bg-white/5 border border-white/10">
-                <h4 className="text-sm text-white/60 mb-3">Included Products:</h4>
-                <ul className="space-y-2">
-                  {planFeatures.enterprise.map((feature) => (
-                    <li key={feature.name} className="text-[#3CDFFF]">
-                      {feature.name}
+                <ul className="space-y-3">
+                  {planFeatures.enterprise.map((feature, idx) => (
+                    <li
+                      key={idx}
+                      className={`flex items-start ${
+                        feature.highlight 
+                          ? 'text-white font-medium text-lg my-3' 
+                          : feature.included 
+                            ? feature.extra 
+                              ? 'text-[#4AFFD4]' 
+                              : 'text-white/80'
+                            : 'text-white/40'
+                      }`}
+                    >
+                      {!feature.highlight && (
+                        <svg
+                          className={`w-5 h-5 mr-3 mt-0.5 ${
+                            feature.included ? 'text-[#4AFFD4]' : 'text-[#3CDFFF]/40'
+                          }`}
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth="2"
+                            d={feature.included ? "M5 13l4 4L19 7" : "M6 18L18 6M6 6l12 12"}
+                          />
+                        </svg>
+                      )}
+                      <span>
+                        {feature.name}
+                        {feature.limit && (
+                          <span className="block text-xs text-white/60 mt-0.5">{feature.limit}</span>
+                        )}
+                        {feature.retention && (
+                          <span className="block text-xs text-white/60 mt-0.5">Retention: {feature.retention}</span>
+                        )}
+                      </span>
                     </li>
                   ))}
                 </ul>
               </div>
 
-              {/* Features */}
-              <ul className="space-y-4 mb-8">
-                {planFeatures.enterprise.map((feature, idx) => (
-                  <li
-                    key={idx}
-                    className={`flex items-start ${ feature.included ? 'text-[#4AFFD4]' : 'text-white/80'
-                        }`}
-                  >
-                    <svg
-                      className={`w-5 h-5 mr-3 mt-1 ${ feature.included ? 'text-[#4AFFD4]' : 'text-[#3CDFFF]'
-                          }`}
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth="2"
-                        d="M5 13l4 4L19 7"
-                      />
-                    </svg>
-                    {feature.name}
-                    {feature.limit && <span className="block text-xs text-white/60 ml-2">{feature.limit}</span>}
-                    {feature.retention && <span className="block text-xs text-white/60 ml-2">Retention: {feature.retention}</span>}
-                    {feature.extra && <span className="block text-xs text-white/60 ml-2">{feature.extra}</span>}
-                  </li>
-                ))}
-              </ul>
-
               <motion.div
-                whileHover={{ scale: 1.05     }}
-                whileTap={{ scale: 0.95     }}
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
               >
                 <Link
                   href="/contact?topic=enterprise"
-                  className={`block w-full py-4 px-6 rounded-xl text-center font-medium transition-all duration-300 ${ !annualBilling
-                      ? 'bg-gradient-to-r from-[#3CDFFF] to-[#4AFFD4] text-black hover:shadow-lg hover:shadow-[#3CDFFF]/20'
-                      : 'bg-gradient-to-r from-[#3CDFFF]/20 to-[#4AFFD4]/20 text-white hover:from-[#3CDFFF]/30 hover:to-[#4AFFD4]/30'
-                      }`}
+                  className="block w-full py-4 px-6 rounded-xl text-center font-medium transition-all duration-300 bg-gradient-to-r from-[#3CDFFF]/20 to-[#4AFFD4]/20 text-white hover:from-[#3CDFFF]/30 hover:to-[#4AFFD4]/30"
                 >
                   Contact Sales
                 </Link>
@@ -531,7 +670,7 @@ export default function PricingPage(): JSX.Element {
           {/* Credits Breakdown */}
           <div className="mb-16">
             <div className="flex items-center justify-between mb-6">
-              <h2 className="text-2xl font-bold text-[#E5E7EB]">Understanding Credits</h2>
+              <h2 className="text-2xl font-bold text-[#E5E7EB]">How Credits Work</h2>
               <button 
                 onClick={() => setShowCreditInfo(!showCreditInfo)} 
                 className="text-[#22D3EE] hover:text-[#06B6D4] transition-colors text-sm font-medium"
@@ -553,6 +692,9 @@ export default function PricingPage(): JSX.Element {
                           Credits
                         </th>
                         <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-[#9CA3AF] uppercase tracking-wider">
+                          Cost (€)
+                        </th>
+                        <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-[#9CA3AF] uppercase tracking-wider">
                           Description
                         </th>
                       </tr>
@@ -565,6 +707,9 @@ export default function PricingPage(): JSX.Element {
                           </td>
                           <td className="px-6 py-4 whitespace-nowrap text-sm text-[#E5E7EB]">
                             {item.credits}
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap text-sm text-[#E5E7EB]">
+                            €{(item.credits * CREDIT_COST).toFixed(2)}
                           </td>
                           <td className="px-6 py-4 whitespace-nowrap text-sm text-[#9CA3AF]">
                             {item.description}
@@ -579,83 +724,75 @@ export default function PricingPage(): JSX.Element {
             
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               <div className="bg-[#18181B] border border-[#374151] rounded-lg p-6">
-                <h3 className="text-lg font-medium text-[#E5E7EB] mb-2">Need Additional Credits?</h3>
+                <h3 className="text-lg font-medium text-[#E5E7EB] mb-2">Flexible Credit System</h3>
                 <p className="text-sm text-[#9CA3AF] mb-4">
-                  All plans include a monthly credit allocation. Need more? Purchase additional credits that never expire.
+                  Each credit costs €0.07. You can adjust the number of credits in your plan with the slider to fit your exact needs.
                 </p>
                 <div className="bg-[#1F2937] p-4 rounded-md">
                   <div className="flex justify-between mb-2">
-                    <span className="text-[#9CA3AF]">500 credits</span>
-                    <span className="text-[#E5E7EB] font-medium">$19.99</span>
+                    <span className="text-[#9CA3AF]">Base price + Credits</span>
+                    <span className="text-[#E5E7EB] font-medium">=</span>
+                    <span className="text-[#E5E7EB] font-medium">Total Monthly Price</span>
                   </div>
                   <div className="flex justify-between mb-2">
-                    <span className="text-[#9CA3AF]">1,000 credits</span>
-                    <span className="text-[#E5E7EB] font-medium">$34.99</span>
-                  </div>
-                  <div className="flex justify-between mb-2">
-                    <span className="text-[#9CA3AF]">5,000 credits</span>
-                    <span className="text-[#E5E7EB] font-medium">$149.99</span>
+                    <span className="text-[#9CA3AF]">€59 + (1,000 × €0.07)</span>
+                    <span className="text-[#E5E7EB] font-medium">=</span>
+                    <span className="text-[#E5E7EB] font-medium">€129 /month</span>
                   </div>
                   <div className="text-xs text-[#9CA3AF] mt-2">
-                    * Additional credit packs can be purchased at any time
+                    * You can adjust your credit allocation at any time
                   </div>
                 </div>
               </div>
               
               <div className="bg-[#18181B] border border-[#374151] rounded-lg p-6">
-                <h3 className="text-lg font-medium text-[#E5E7EB] mb-2">Example Usage</h3>
+                <h3 className="text-lg font-medium text-[#E5E7EB] mb-2">What You Can Do With Credits</h3>
                 <p className="text-sm text-[#9CA3AF] mb-4">
-                  Here's what you can do with the Pro plan's 2,000 monthly credits:
+                  Here's what you can accomplish with 1,000 credits:
                 </p>
                 <ul className="space-y-2 text-sm">
                   <li className="flex items-center">
                     <CheckCircleIcon className="h-4 w-4 text-[#22D3EE] mr-2" />
-                    <span className="text-[#E5E7EB]">Run 1,000+ standard workflows</span>
+                    <span className="text-[#E5E7EB]">Run 1,000 standard workflows (1 credit each)</span>
                   </li>
                   <li className="flex items-center">
                     <CheckCircleIcon className="h-4 w-4 text-[#22D3EE] mr-2" />
-                    <span className="text-[#E5E7EB]">Process 250+ voice commands</span>
+                    <span className="text-[#E5E7EB]">Process 200 voice commands (5 credits each)</span>
                   </li>
                   <li className="flex items-center">
                     <CheckCircleIcon className="h-4 w-4 text-[#22D3EE] mr-2" />
-                    <span className="text-[#E5E7EB]">Make 500+ API calls to external services</span>
+                    <span className="text-[#E5E7EB]">Make 500 API calls (2 credits each)</span>
                   </li>
                   <li className="flex items-center">
                     <CheckCircleIcon className="h-4 w-4 text-[#22D3EE] mr-2" />
-                    <span className="text-[#E5E7EB]">Analyze 5+ GB of data</span>
+                    <span className="text-[#E5E7EB]">Process 100 GB of data (10 credits per GB)</span>
                   </li>
                 </ul>
               </div>
               
               <div className="bg-[#18181B] border border-[#374151] rounded-lg p-6">
-                <h3 className="text-lg font-medium text-[#E5E7EB] mb-2">Enterprise Customization</h3>
+                <h3 className="text-lg font-medium text-[#E5E7EB] mb-2">Annual Discount</h3>
                 <p className="text-sm text-[#9CA3AF] mb-4">
-                  Need a custom plan tailored to your organization's specific requirements?
+                  Save 20% on your entire plan when you choose annual billing.
                 </p>
                 <div className="space-y-2 text-sm">
                   <div className="flex items-start">
                     <CheckCircleIcon className="h-4 w-4 text-[#22D3EE] mt-0.5 mr-2" />
-                    <span className="text-[#E5E7EB]">Custom credit allocation</span>
+                    <span className="text-[#E5E7EB]">Applied to both base price and credits</span>
                   </div>
                   <div className="flex items-start">
                     <CheckCircleIcon className="h-4 w-4 text-[#22D3EE] mt-0.5 mr-2" />
-                    <span className="text-[#E5E7EB]">Volume discounts</span>
+                    <span className="text-[#E5E7EB]">Predictable yearly billing</span>
                   </div>
                   <div className="flex items-start">
                     <CheckCircleIcon className="h-4 w-4 text-[#22D3EE] mt-0.5 mr-2" />
-                    <span className="text-[#E5E7EB]">Custom SLAs and support</span>
+                    <span className="text-[#E5E7EB]">Credits are allocated monthly</span>
                   </div>
                   <div className="flex items-start">
                     <CheckCircleIcon className="h-4 w-4 text-[#22D3EE] mt-0.5 mr-2" />
-                    <span className="text-[#E5E7EB]">On-premise deployment options</span>
+                    <span className="text-[#E5E7EB]">Unused credits roll over for 90 days</span>
                   </div>
                 </div>
-                <Link 
-                  href="/enterprise"
-                  className="mt-4 text-[#22D3EE] hover:text-[#06B6D4] transition-colors inline-flex items-center text-sm font-medium"
-                >
-                  Learn more about Enterprise
-                </Link>
               </div>
             </div>
           </div>

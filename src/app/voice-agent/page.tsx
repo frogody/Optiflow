@@ -4,7 +4,23 @@ import { Suspense } from "react";
 
 import VoiceAgentClient from "@/components/voice/VoiceAgentClient";
 
-export default function VoiceAgentPage(): JSX.Element {
+// Create error boundary component for voice agent
+function VoiceAgentErrorBoundary({ children }: { children: React.ReactNode }) {
+  return (
+    <div className="error-boundary-wrapper">
+      <Suspense fallback={
+        <div className="min-h-screen flex items-center justify-center bg-[#111111] text-[#E5E7EB]">
+          <div className="animate-pulse text-xl text-[#22D3EE]">Loading voice agent...</div>
+        </div>
+      }>
+        {children}
+      </Suspense>
+    </div>
+  );
+}
+
+// Separate the session checking into its own component
+function VoiceAgentAuth() {
   const { data: session, status } = useSession();
 
   if (status === "loading") {
@@ -99,5 +115,14 @@ export default function VoiceAgentPage(): JSX.Element {
         </div>
       </div>
     </div>
+  );
+}
+
+// Main export with proper error boundaries and suspense
+export default function VoiceAgentPage(): JSX.Element {
+  return (
+    <VoiceAgentErrorBoundary>
+      <VoiceAgentAuth />
+    </VoiceAgentErrorBoundary>
   );
 }

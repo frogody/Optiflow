@@ -9,7 +9,8 @@ import {
   RemoteAudioTrack, 
   RemoteParticipant, 
   Room, 
-  RoomEvent 
+  RoomEvent, 
+  createLocalAudioTrack 
 } from 'livekit-client';
 import { useSession } from 'next-auth/react';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
@@ -157,8 +158,14 @@ const VoiceAgentInterface: React.FC<VoiceAgentInterfaceProps> = ({ className }) 
             const data = JSON.parse(message);
             if (data.type === 'agent_transcript') {
               setAgentResponse(prev => prev + '\nAgent: ' + data.transcript);
+              if (minimized) setUnread(true);
             } else if (data.type === 'user_transcript') {
+              console.log('Received user transcript:', data.transcript);
               setTranscript(prev => prev + '\nYou: ' + data.transcript);
+              const transcriptContainer = document.querySelector('.transcript-container');
+              if (transcriptContainer) {
+                transcriptContainer.scrollTop = transcriptContainer.scrollHeight;
+              }
             } else if (data.type === 'error') {
               toast.error(data.message);
             }
@@ -190,7 +197,7 @@ const VoiceAgentInterface: React.FC<VoiceAgentInterfaceProps> = ({ className }) 
       setError(null);
       
       // Publish local audio
-      const audioTrack = await Room.createLocalAudioTrack({
+      const audioTrack = await createLocalAudioTrack({
         noiseSuppression: true,
         echoCancellation: true,
       });
@@ -285,6 +292,50 @@ const VoiceAgentInterface: React.FC<VoiceAgentInterfaceProps> = ({ className }) 
     if (!minimized) setUnread(false);
   }, [minimized]);
 
+  // New function to force the agent to join the room
+  const forceAgentToJoin = async () => {
+    if (!room || !roomName) return;
+    
+    try {
+      setIsLoading(true);
+      const response = await fetch('/api/livekit/force-join', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ roomName })
+      });
+      
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(`Failed to force agent to join: ${errorData.error || response.statusText}`);
+      }
+      
+      toast.success('Manual agent join command sent');
+      setAgentResponse(prev => prev + '\n[System: Manual agent join command sent]');
+    } catch (e: any) {
+      console.error('Error forcing agent to join:', e);
+      setError(`Failed to force agent to join: ${e.message}`);
+      toast.error('Failed to force agent to join');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  // Full disconnect and reconnect
+  const reconnectAgent = useCallback(async () => {
+    if (room) {
+      // First disconnect properly
+      await disconnectFromRoom();
+    }
+    
+    // Set a short timeout to ensure cleanup is complete
+    setTimeout(() => {
+      // Then connect again, which will create a fresh room and agent
+      connectToLiveKit();
+    }, 1000);
+    
+    toast.success('Reconnecting agent with a fresh session...');
+  }, [room, disconnectFromRoom, connectToLiveKit]);
+
   if (minimized) {
     // Orb mode
     return (
@@ -341,6 +392,31 @@ const VoiceAgentInterface: React.FC<VoiceAgentInterfaceProps> = ({ className }) 
           }
         </button>
         
+        {/* Add buttons for force join and reconnect */}
+        <div className="flex space-x-2">
+          {/* Force join button */}
+          {isConnected && !isAgentSpeaking && (
+            <button
+              onClick={forceAgentToJoin}
+              disabled={isLoading}
+              className="flex-1 px-5 py-3 rounded-md font-medium bg-[#F59E0B] hover:bg-[#D97706] text-[#111111] font-semibold transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              Force Jarvis to Join
+            </button>
+          )}
+          
+          {/* Reconnect button - always visible when connected */}
+          {isConnected && (
+            <button
+              onClick={reconnectAgent}
+              disabled={isLoading}
+              className="flex-1 px-5 py-3 rounded-md font-medium bg-[#EC4899] hover:bg-[#DB2777] text-white font-semibold transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              Reconnect Agent
+            </button>
+          )}
+        </div>
+        
         {isConnected && (
           <div className="flex items-center space-x-3 text-sm font-medium bg-[#111111] p-3 rounded-md border border-[#374151]">
             <StatusIndicator active={isListening} />
@@ -356,7 +432,7 @@ const VoiceAgentInterface: React.FC<VoiceAgentInterfaceProps> = ({ className }) 
           </div>
         )}
         
-        <div className="border border-[#374151] rounded-md p-4 bg-[#111111] min-h-[240px] max-h-[400px] overflow-y-auto">
+        <div className="border border-[#374151] rounded-md p-4 bg-[#111111] min-h-[240px] max-h-[400px] overflow-y-auto transcript-container">
           <h3 className="font-medium mb-4 text-[#9CA3AF]">Conversation:</h3>
           
           <div className="space-y-2">
@@ -369,7 +445,7 @@ const VoiceAgentInterface: React.FC<VoiceAgentInterfaceProps> = ({ className }) 
             )}
             
             {transcript && (
-              <pre className="whitespace-pre-wrap text-sm font-mono text-[#D1D5DB] bg-[#1F2937] p-3 rounded-md border-l-2 border-[#6B7280]">{transcript}</pre>
+              <pre className="whitespace-pre-wrap text-sm font-mono text-white bg-[#1F2937] p-3 rounded-md border-l-2 border-cyan-400">{transcript}</pre>
             )}
             
             {agentResponse && (

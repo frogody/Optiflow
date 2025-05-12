@@ -24,18 +24,41 @@ export const viewport: Viewport = {
 };
 
 export const metadata: Metadata = {
-  title: 'Optiflow - Streamline Your Workflow Automation',
-  description: 'Connect your apps and automate workflows with a powerful, easy-to-use integration platform.',
-  manifest: '/manifest.json',
+  title: 'SYNC - Automate Your Workflow',
+  description: 'Connect your favorite tools, automate your workflows, and boost productivity with SYNC',
   icons: {
-    icon: '/favicon.ico',
-    apple: '/apple-touch-icon.png',
+    icon: '/favicon.svg',
+    apple: '/apple-icon.svg',
   },
   appleWebApp: {
-    capable: true,
-    statusBarStyle: 'default',
-    title: 'Optiflow',
+    title: 'SYNC',
+    statusBarStyle: 'black-translucent',
   },
+  applicationName: 'SYNC',
+  manifest: '/manifest.json',
+  openGraph: {
+    title: 'SYNC - Workflow Automation',
+    description: 'Connect your favorite tools, automate your workflows, and boost productivity with SYNC',
+    url: 'https://app.isyncso.com',
+    siteName: 'SYNC',
+    images: [
+      {
+        url: '/logo-transparent.svg',
+        width: 512,
+        height: 512,
+        alt: 'SYNC Logo',
+      },
+    ],
+    locale: 'en_US',
+    type: 'website',
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'SYNC - Automate Your Workflow',
+    description: 'Connect your favorite tools, automate your workflows, and boost productivity with SYNC',
+    creator: '@isyncso',
+  },
+  keywords: ['automation', 'workflows', 'productivity', 'AI', 'SYNC'],
 };
 
 // Initialize Sentry in production environment

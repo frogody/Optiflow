@@ -21,9 +21,10 @@ interface OnboardingStep {
 interface OnboardingSectionProps {
   userName: string;
   onClose: () => void;
+  className?: string;
 }
 
-export default function OnboardingSection({ userName, onClose }: OnboardingSectionProps) {
+export default function OnboardingSection({ userName, onClose, className = '' }: OnboardingSectionProps) {
   // In a real implementation, these would come from user data in an API
   const [steps, setSteps] = useState<OnboardingStep[]>([
     {
@@ -74,103 +75,48 @@ export default function OnboardingSection({ userName, onClose }: OnboardingSecti
   };
 
   return (
-    <div className="bg-gradient-to-r from-[#0F172A] to-[#111827] border border-[#374151] rounded-lg p-6 mb-8 relative">
-      <button 
-        className="absolute top-4 right-4 text-[#9CA3AF] hover:text-[#E5E7EB] transition-colors"
-        onClick={onClose}
-        aria-label="Close onboarding guide"
-      >
-        <XMarkIcon className="h-5 w-5" />
-      </button>
-
-      <div className="flex items-start mb-6">
-        <DocumentCheckIcon className="h-10 w-10 text-[#22D3EE] mr-4" />
+    <div className={`bg-gradient-to-r from-[#0F172A] to-[#1E293B] rounded-xl p-6 border border-[#334155] mb-6 ${className}`}>
+      <div className="flex justify-between items-start">
         <div>
-          <h2 className="text-2xl font-bold text-[#E5E7EB]">
-            Welcome, {userName}!
-          </h2>
-          <p className="text-[#9CA3AF] mt-1">{`Let's get you started with Optiflow. Complete these steps to set up your automation workflow.`}</p>
-        </div>
-      </div>
-
-      {/* Progress bar */}
-      <div className="mb-6">
-        <div className="flex justify-between text-sm text-[#9CA3AF] mb-2">
-          <span>Your progress</span>
-          <span>{completedSteps} of {steps.length} completed</span>
-        </div>
-        <div className="w-full h-2 bg-[#1E293B] rounded-full overflow-hidden">
-          <div 
-            className="h-full bg-gradient-to-r from-[#22D3EE] to-[#06B6D4] rounded-full transition-all duration-500"
-            style={{ width: `${progress}%` }}
-          ></div>
-        </div>
-      </div>
-
-      {/* Steps */}
-      <div className="grid gap-4">
-        {steps.map((step) => (
-          <div 
-            key={step.id}
-            className={`border ${
-              step.completed ? 'border-[#10B981] bg-[#10B981]/5' : 'border-[#374151] bg-[#18181B]'
-            } rounded-lg p-4 transition-colors`}
-          >
-            <div className="flex items-start">
-              <div className="flex-shrink-0 mt-0.5">
-                {step.completed ? (
-                  <CheckCircleIcon className="h-6 w-6 text-[#10B981]" />
-                ) : (
-                  <div className="h-6 w-6 rounded-full border-2 border-[#9CA3AF] flex items-center justify-center text-[#9CA3AF] text-xs">
-                    {steps.findIndex(s => s.id === step.id) + 1}
-                  </div>
-                )}
+          <h2 className="text-xl font-bold text-white mb-2">Welcome to Optiflow, {userName}!</h2>
+          <p className="text-[#9CA3AF] mb-4">
+            Let's set up your workspace and get you started with workflows. Here are a few steps to get started:
+          </p>
+          
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-5">
+            <div className="bg-[#18181B] p-4 rounded-lg border border-[#374151]">
+              <div className="bg-blue-500/20 w-10 h-10 rounded-full flex items-center justify-center mb-3">
+                <span className="text-blue-400 font-semibold">1</span>
               </div>
-              <div className="ml-3 flex-1">
-                <div className="flex items-center justify-between">
-                  <h3 className={`font-medium ${step.completed ? 'text-[#10B981]' : 'text-[#E5E7EB]'}`}>
-                    {step.title}
-                  </h3>
-                  {step.completed && (
-                    <span className="text-xs text-[#10B981] bg-[#10B981]/10 px-2 py-0.5 rounded">
-                      Completed
-                    </span>
-                  )}
-                </div>
-                <p className="text-[#9CA3AF] text-sm mt-1">{step.description}</p>
-                {!step.completed && (
-                  <Link 
-                    href={step.link}
-                    className="inline-flex items-center text-[#22D3EE] hover:text-[#06B6D4] text-sm mt-3 transition-colors"
-                    onClick={() => completeStep(step.id)}
-                  >
-                    {step.linkText}
-                    <ArrowRightIcon className="h-3.5 w-3.5 ml-1" />
-                  </Link>
-                )}
+              <h3 className="text-[#E5E7EB] font-medium mb-1">Create your first workflow</h3>
+              <p className="text-[#9CA3AF] text-sm">Start automating with a simple workflow</p>
+            </div>
+            
+            <div className="bg-[#18181B] p-4 rounded-lg border border-[#374151]">
+              <div className="bg-purple-500/20 w-10 h-10 rounded-full flex items-center justify-center mb-3">
+                <span className="text-purple-400 font-semibold">2</span>
               </div>
+              <h3 className="text-[#E5E7EB] font-medium mb-1">Connect your tools</h3>
+              <p className="text-[#9CA3AF] text-sm">Integrate with your favorite apps</p>
+            </div>
+            
+            <div className="bg-[#18181B] p-4 rounded-lg border border-[#374151]">
+              <div className="bg-green-500/20 w-10 h-10 rounded-full flex items-center justify-center mb-3">
+                <span className="text-green-400 font-semibold">3</span>
+              </div>
+              <h3 className="text-[#E5E7EB] font-medium mb-1">Try voice control</h3>
+              <p className="text-[#9CA3AF] text-sm">Activate Jarvis voice assistant</p>
             </div>
           </div>
-        ))}
-      </div>
-
-      {/* Help resources */}
-      <div className="mt-6 bg-[#18181B] border border-[#374151] rounded-lg p-4">
-        <h3 className="text-[#E5E7EB] font-medium mb-2">Need help getting started?</h3>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm">
-          <Link href="/help/getting-started" className="text-[#22D3EE] hover:text-[#06B6D4] transition-colors">
-            → Getting started guide
-          </Link>
-          <Link href="/help/community" className="text-[#22D3EE] hover:text-[#06B6D4] transition-colors">
-            → Community forum
-          </Link>
-          <Link href="/help/status" className="text-[#22D3EE] hover:text-[#06B6D4] transition-colors">
-            → Video tutorials
-          </Link>
-          <Link href="/help/contact-support" className="text-[#22D3EE] hover:text-[#06B6D4] transition-colors">
-            → Contact support
-          </Link>
         </div>
+        
+        <button 
+          onClick={onClose}
+          className="text-[#9CA3AF] hover:text-[#E5E7EB] p-1"
+          aria-label="Close onboarding section"
+        >
+          <XMarkIcon className="h-5 w-5" />
+        </button>
       </div>
     </div>
   );

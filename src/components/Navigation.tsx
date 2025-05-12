@@ -98,12 +98,9 @@ export default function Navigation() {
       current: pathname ? ['/pricing', '/faq', '/features', '/conversational-test', '/voice-test', '/integrations'].includes(pathname) : false,
       requiresAuth: false,
       children: [
-        { name: 'Features', href: '/features', current: pathname === '/features', requiresAuth: false     },
-        { name: 'Voice Workflows', href: '/voice-test', current: pathname === '/voice-test', requiresAuth: false     },
-        { name: 'Conversational', href: '/conversational-test', current: pathname === '/conversational-test', requiresAuth: false     },
-        { name: 'Integrations', href: '/integrations', current: pathname === '/integrations', requiresAuth: false     },
-        { name: 'Pricing', href: '/pricing', current: pathname === '/pricing', requiresAuth: false     },
-        { name: 'FAQ', href: '/faq', current: pathname === '/faq', requiresAuth: false     },
+        { name: 'Features', href: '/features', current: pathname === '/features', requiresAuth: false },
+        { name: 'Pricing', href: '/pricing', current: pathname === '/pricing', requiresAuth: false },
+        { name: 'FAQ', href: '/faq', current: pathname === '/faq', requiresAuth: false },
       ]
     },
     { name: 'Flows', href: '/workflows', current: pathname === '/workflows', requiresAuth: true     },

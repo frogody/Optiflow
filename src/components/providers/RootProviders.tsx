@@ -20,40 +20,6 @@ import { initializeErrorHandler } from '@/lib/error-handler';
 // Import Navigation normally - we'll control rendering with a state flag
 import Navigation from '@/components/Navigation';
 
-// Fallback minimal navigation component
-const MinimalNav = () => {
-  return (
-    <header className="sticky top-0 z-50 bg-black/20 backdrop-blur-sm">
-      <div className="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between">
-        <Link href="/" className="flex items-center space-x-2">
-          <div className="relative w-10 h-10">
-            <img
-              src="/ISYNCSO_LOGO.png"
-              alt="ISYNCSO Logo"
-              className="w-full h-full rounded object-contain"
-            />
-          </div>
-          <span className="text-lg font-medium text-white">ISYNCSO</span>
-        </Link>
-        <div className="flex items-center space-x-4">
-          <Link 
-            href="/login"
-            className="px-4 py-2 text-sm text-white/90 hover:text-white rounded-full border border-transparent hover:border-white/10 hover:bg-white/5 transition-all duration-200"
-          >
-            Log in
-          </Link>
-          <Link 
-            href="/signup"
-            className="px-5 py-2 text-sm font-medium text-black rounded-full bg-gradient-to-r from-[#3CDFFF] to-[#4AFFD4] hover:opacity-90 transition-all duration-200"
-          >
-            Get Started
-          </Link>
-        </div>
-      </div>
-    </header>
-  );
-};
-
 export function RootProviders({ children }: { children: React.ReactNode }) {
   // Use state to track client-side rendering and initialization status
   const [isClient, setIsClient] = useState(false);
@@ -148,7 +114,7 @@ export function RootProviders({ children }: { children: React.ReactNode }) {
     );
   }
 
-  // Only one ErrorBoundaryWrapper at the top
+  // Only show Navigation if not on dashboard-related pages
   return (
     <ErrorBoundaryWrapper>
       <ThemeProvider
@@ -160,9 +126,16 @@ export function RootProviders({ children }: { children: React.ReactNode }) {
         <SessionProvider>
           <TanstackProvider>
             <IconContext.Provider value={{ className: 'inline-block' }}>
-              <SessionInitializer />
-              {/* Only show Navigation if not on dashboard-related pages */}
-              {!shouldHideNav && (isClient ? <Navigation /> : <MinimalNav />)}
+              {/* SessionInitializer is already wrapped in Suspense internally */}
+              {isClient && <SessionInitializer />}
+              
+              {/* Only render Navigation if we're not on a dashboard route and client-side rendering is complete */}
+              {!shouldHideNav && isClient && (
+                <Suspense fallback={null}>
+                  <Navigation />
+                </Suspense>
+              )}
+              
               {children}
               <Analytics />
               <Toaster position="bottom-right" />
