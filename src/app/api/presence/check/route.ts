@@ -1,7 +1,8 @@
-import { redis } from '@/lib/redis';
 import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth/next';
+
 import { authOptions } from '@/lib/auth';
+import { redis } from '@/lib/redis';
 
 const RATE_LIMIT = 60; // requests
 const RATE_LIMIT_WINDOW = 60; // seconds
