@@ -3,7 +3,7 @@ import { Inter } from 'next/font/google';
 
 import BrowserDetection from '@/components/BrowserDetection';
 import { RootProviders } from '@/components/providers/RootProviders';
-import dynamic from 'next/dynamic';
+import ClientVoiceWrapper from '@/components/ClientVoiceWrapper';
 import { initializeSentry } from '@/lib/monitoring/sentry';
 import '@/styles/globals.css';
 
@@ -12,11 +12,6 @@ const inter = Inter({
   display: 'swap',
   preload: true,
   variable: '--font-inter',
-});
-
-// Load VoiceAgentInterface only on client side to prevent hydration issues
-const VoiceAgentInterface = dynamic(() => import('@/components/voice/VoiceAgentInterface'), {
-  ssr: false,
 });
 
 export const metadata: Metadata = {
@@ -75,10 +70,8 @@ export default function RootLayout({
             {/* Dynamic announcements will be inserted here */}
           </div>
           {children}
-          {/* Persistent Voice Agent Widget */}
-          <div style={{ position: 'fixed', bottom: 24, right: 24, zIndex: 50 }}>
-            <VoiceAgentInterface />
-          </div>
+          {/* Voice Agent Widget loaded via client component */}
+          <ClientVoiceWrapper />
         </RootProviders>
       </body>
     </html>
