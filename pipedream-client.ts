@@ -1,8 +1,6 @@
 import {
   type BackendClient,
   type BackendClientOpts,
-  type ConnectAPIResponse,
-  type ConnectTokenCreateOpts,
   type ConnectTokenResponse,
   createBackendClient,
 } from "@pipedream/sdk/server";
@@ -12,11 +10,11 @@ const clientOpts: BackendClientOpts = {
   environment: "production", // Correct for production deployment
   credentials: {
     // Consistently use PIPEDREAM_CLIENT_ID from Vercel env vars
-    clientId: process.env.PIPEDREAM_CLIENT_ID!,
-    clientSecret: process.env.PIPEDREAM_CLIENT_SECRET!,
+    clientId: process.env['PIPEDREAM_CLIENT_ID']!,
+    clientSecret: process.env['PIPEDREAM_CLIENT_SECRET']!,
   },
   // Consistently use PIPEDREAM_PROJECT_ID from Vercel env vars
-  projectId: process.env.PIPEDREAM_PROJECT_ID!,
+  projectId: process.env['PIPEDREAM_PROJECT_ID']!,
 };
 
 // Add critical startup checks (these will log in Vercel function logs if vars are missing)
@@ -81,7 +79,7 @@ export async function createUserConnectToken(externalUserId: string): Promise<Co
       body: JSON.stringify({
         external_user_id: externalUserId,
         allowed_origins: [
-          process.env.NEXT_PUBLIC_APP_URL || "https://app.isyncso.com",
+          process.env['NEXT_PUBLIC_APP_URL'] || "https://app.isyncso.com",
           "http://localhost:3000",
         ]
       })
