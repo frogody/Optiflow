@@ -22,7 +22,9 @@ const nextConfig = {
     '@heroicons/react',
     'framer-motion',
     'react-icons',
-    '@headlessui/react'
+    '@headlessui/react',
+    'mdx',
+    'next-mdx-remote'
   ],
   
   // External packages configuration - updated syntax for Next.js 15

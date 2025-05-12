@@ -53,17 +53,13 @@ export default function AuditAIDataToolsPage(): JSX.Element {
   // Process steps
   const processSteps = [
     { title: "Initial Assessment",
-      description: "We begin with a thorough analysis of your current AI systems and data infrastructure."
-        },
+      description: "We begin with a thorough analysis of your current AI systems and data infrastructure." },
     { title: "Deep Dive Analysis",
-      description: "Our experts perform detailed technical reviews and performance testing."
-        },
+      description: "Our experts perform detailed technical reviews and performance testing." },
     { title: "Security Review",
-      description: "Comprehensive security assessment of your AI systems and data handling."
-        },
+      description: "Comprehensive security assessment of your AI systems and data handling." },
     { title: "Recommendations",
-      description: "Detailed report with actionable insights and improvement strategies."
-        }
+      description: "Detailed report with actionable insights and improvement strategies." }
   ];
 
   // Only render the full content on the client side to avoid React version conflicts

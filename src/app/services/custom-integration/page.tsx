@@ -52,17 +52,13 @@ export default function CustomIntegrationPage(): JSX.Element {
 
   const processSteps = [
     { title: "Assessment",
-      description: "We analyze your current systems and integration needs."
-        },
+      description: "We analyze your current systems and integration needs." },
     { title: "Design",
-      description: "Creating a custom integration plan tailored to your requirements."
-        },
+      description: "Creating a custom integration plan tailored to your requirements." },
     { title: "Implementation",
-      description: "Seamless integration of your systems with minimal disruption."
-        },
+      description: "Seamless integration of your systems with minimal disruption." },
     { title: "Testing & Optimization",
-      description: "Rigorous testing and performance optimization."
-        }
+      description: "Rigorous testing and performance optimization." }
   ];
 
   // Only render the full content on the client side to avoid React version conflicts

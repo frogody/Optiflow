@@ -227,8 +227,7 @@ export default function ApiDevelopmentPage() {
               ].map((step, index) => (
                 <div key={index}
                   className={`relative flex md:items-center mb-12 ${
-                    index % 2 === 0 ? 'md:flex-row-reverse' : 'md:flex-row'
-                  }`}
+                    index % 2 === 0 ? 'md:flex-row-reverse' : 'md:flex-row' }`}
                 >
                   <div className={`flex-1 ${index % 2 === 0 ? 'md:text-right' : 'md:text-left'} p-4`}>
                     <h3 className="text-xl font-semibold mb-2">{step.title}</h3>
