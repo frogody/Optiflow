@@ -1,4 +1,11 @@
-export const runtime = 'edge';
+// Remove edge runtime which prevents static generation
+// export const runtime = 'edge';
+
+// Use nodejs runtime instead which supports static generation
+export const runtime = 'nodejs';
+
+// Handle WebSocket upgrade
+export const dynamic = 'force-dynamic';
 
 export async function GET() {
   const upgrade = Reflect.get(globalThis, 'socket')?.upgrade;

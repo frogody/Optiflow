@@ -13,18 +13,18 @@ const nextConfig = {
     // Also ignore ESLint errors during production build if needed
     ignoreDuringBuilds: true,
   },
-  // Configure pages to not be statically generated
-  // This works around session issues in static site generation
+  // Enable static generation where possible while preserving dynamic features
   reactStrictMode: true,
   output: 'standalone',
   
   // External packages configuration - updated syntax for Next.js 15
   serverExternalPackages: ['bcrypt'],
   
-  // Disable static generation completely to avoid session errors
-  staticPageGenerationTimeout: 180,
+  // Set a reasonable timeout for static page generation
+  // Longer timeout allows more complex pages to be generated
+  staticPageGenerationTimeout: 300,
   
-  // Explicitly disable static exports
+  // Keep trailing slash consistent
   trailingSlash: false,
   
   // Configure security headers
@@ -50,9 +50,9 @@ const nextConfig = {
     ];
   },
   
-  // Disable image optimization to avoid memory issues
+  // Configure image optimization
   images: {
-    unoptimized: true,
+    unoptimized: true, // Consider changing to false if memory issues are resolved
     domains: ['localhost', 'app.isyncso.com', 'optiflow-nmyk05sho-isyncso.vercel.app'],
   },
   
