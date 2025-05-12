@@ -1,17 +1,10 @@
 'use client';
 
-import {
-  ArrowPathIcon,
-  CalendarIcon,
-  CheckIcon,
-  ClipboardIcon,
-  ExclamationTriangleIcon,
-  InformationCircleIcon,
-  KeyIcon,
-  PlusIcon,
-  TrashIcon,
-  XMarkIcon,
-} from '@heroicons/react/24/outline';
+
+// Force dynamic rendering to avoid static generation issues
+export const dynamic = 'force-dynamic';
+
+// Heroicons removed to prevent React version conflicts
 import { useState } from 'react';
 
 // Mock API keys data
@@ -57,6 +50,15 @@ const availableScopes = [
   { id: 'manage:integrations', name: 'Manage Integrations', description: 'Create, update, and delete integration connections' },
   { id: 'read:billing', name: 'Read Billing Info', description: 'View subscription and billing information' },
 ];
+
+// Simple icon component to replace Heroicons
+const Icon = ({ name, className }) => {
+  return (
+    <div className={`icon-placeholder ${name} ${className || ''}`}>
+      <span className="sr-only">{name}</span>
+    </div>
+  );
+};
 
 export default function ApiKeysSettings() {
   const [showCreateModal, setShowCreateModal] = useState(false);
@@ -211,14 +213,14 @@ export default function ApiKeysSettings() {
           onClick={() => setShowCreateModal(true)}
           className="px-4 py-2 bg-[#22D3EE] text-[#111111] font-medium rounded-md hover:bg-[#06B6D4] transition-colors flex items-center"
         >
-          <PlusIcon className="h-5 w-5 mr-2" />
+          <Icon name="plus-" className="h-5 w-5 mr-2" />
           Create API Key
         </button>
       </div>
       
       {/* Information banner */}
       <div className="bg-[#111111] border border-[#374151] rounded-lg p-4 mb-6 flex items-start">
-        <InformationCircleIcon className="h-5 w-5 text-[#9CA3AF] mr-3 flex-shrink-0 mt-0.5" />
+        <Icon name="information-circle-" className="h-5 w-5 text-[#9CA3AF] mr-3 flex-shrink-0 mt-0.5" />
         <div className="text-sm text-[#9CA3AF]">
           <p className="mb-2">
             API keys grant programmatic access to your Optiflow account. Keep your API keys secure and never share them in public repositories or client-side code.
@@ -237,7 +239,7 @@ export default function ApiKeysSettings() {
         
         {mockApiKeys.length === 0 ? (
           <div className="p-6 text-center">
-            <KeyIcon className="h-12 w-12 text-[#374151] mx-auto mb-2" />
+            <Icon name="key-" className="h-12 w-12 text-[#374151] mx-auto mb-2" />
             <p className="text-[#9CA3AF]">You don't have any API keys yet.</p>
             <button
               onClick={() => setShowCreateModal(true)}
@@ -257,7 +259,7 @@ export default function ApiKeysSettings() {
                       <div className={`p-2 rounded-md mr-3 ${
                         key.status === 'active' ? 'bg-[#022c22] text-[#22D3EE]' : 'bg-[#1E293B] text-[#9CA3AF]'
                       }`}>
-                        <KeyIcon className="h-5 w-5" />
+                        <Icon name="key-" className="h-5 w-5" />
                       </div>
                       
                       <div>
@@ -292,7 +294,7 @@ export default function ApiKeysSettings() {
                           title="Revoke Key"
                           aria-label="Revoke Key"
                         >
-                          <TrashIcon className="h-4 w-4" />
+                          <Icon name="trash-" className="h-4 w-4" />
                         </button>
                       )}
                     </div>
@@ -338,7 +340,7 @@ export default function ApiKeysSettings() {
                             const scopeDetails = availableScopes.find(s => s.id === scope);
                             return (
                               <div key={scope} className="flex items-center">
-                                <CheckIcon className="h-4 w-4 text-[#22D3EE] mr-2" />
+                                <Icon name="check-" className="h-4 w-4 text-[#22D3EE] mr-2" />
                                 <span className="text-sm text-[#E5E7EB]">
                                   {scopeDetails?.name || scope}
                                 </span>
@@ -357,7 +359,7 @@ export default function ApiKeysSettings() {
                           aria-label="Regenerate Key"
                           title="Regenerate Key"
                         >
-                          <ArrowPathIcon className="h-4 w-4 mr-1" />
+                          <Icon name="arrow-path-" className="h-4 w-4 mr-1" />
                           Regenerate Key
                         </button>
                         
@@ -366,7 +368,7 @@ export default function ApiKeysSettings() {
                           className="px-3 py-1.5 text-sm bg-[#371520] text-[#F87171] rounded-md hover:bg-[#4B1D29] transition-colors flex items-center"
                           aria-label="Revoke Key"
                         >
-                          <TrashIcon className="h-4 w-4 mr-1" />
+                          <Icon name="trash-" className="h-4 w-4 mr-1" />
                           Revoke Key
                         </button>
                       </div>
@@ -385,23 +387,23 @@ export default function ApiKeysSettings() {
         
         <ul className="space-y-3 text-sm text-[#9CA3AF]">
           <li className="flex items-start">
-            <CheckIcon className="h-5 w-5 text-[#22D3EE] mr-2 mt-0.5 flex-shrink-0" />
+            <Icon name="check-" className="h-5 w-5 text-[#22D3EE] mr-2 mt-0.5 flex-shrink-0" />
             <span>Store API keys securely and never commit them to version control.</span>
           </li>
           <li className="flex items-start">
-            <CheckIcon className="h-5 w-5 text-[#22D3EE] mr-2 mt-0.5 flex-shrink-0" />
+            <Icon name="check-" className="h-5 w-5 text-[#22D3EE] mr-2 mt-0.5 flex-shrink-0" />
             <span>Use environment variables or secure vaults to store keys in your applications.</span>
           </li>
           <li className="flex items-start">
-            <CheckIcon className="h-5 w-5 text-[#22D3EE] mr-2 mt-0.5 flex-shrink-0" />
+            <Icon name="check-" className="h-5 w-5 text-[#22D3EE] mr-2 mt-0.5 flex-shrink-0" />
             <span>Create different keys for different purposes, with the minimum required permissions.</span>
           </li>
           <li className="flex items-start">
-            <CheckIcon className="h-5 w-5 text-[#22D3EE] mr-2 mt-0.5 flex-shrink-0" />
+            <Icon name="check-" className="h-5 w-5 text-[#22D3EE] mr-2 mt-0.5 flex-shrink-0" />
             <span>Rotate keys regularly, especially for production environments.</span>
           </li>
           <li className="flex items-start">
-            <CheckIcon className="h-5 w-5 text-[#22D3EE] mr-2 mt-0.5 flex-shrink-0" />
+            <Icon name="check-" className="h-5 w-5 text-[#22D3EE] mr-2 mt-0.5 flex-shrink-0" />
             <span>Monitor API key usage and revoke keys that are no longer needed.</span>
           </li>
         </ul>
@@ -425,13 +427,13 @@ export default function ApiKeysSettings() {
                     aria-label="Close modal"
                     title="Close modal"
                   >
-                    <XMarkIcon className="h-6 w-6" />
+                    <Icon name="xmark-" className="h-6 w-6" />
                   </button>
                 </div>
                 
                 <div className="bg-[#022c22] border border-[#10B981] rounded-lg p-4 mb-6">
                   <div className="flex items-start">
-                    <CheckIcon className="h-5 w-5 text-[#10B981] mr-2 mt-0.5" />
+                    <Icon name="check-" className="h-5 w-5 text-[#10B981] mr-2 mt-0.5" />
                     <div>
                       <p className="text-[#E5E7EB] font-medium">API key created successfully</p>
                       <p className="text-[#9CA3AF] text-sm mt-1">
@@ -460,12 +462,12 @@ export default function ApiKeysSettings() {
                     >
                       {keyCopied ? (
                         <>
-                          <CheckIcon className="h-3 w-3 mr-1" />
+                          <Icon name="check-" className="h-3 w-3 mr-1" />
                           Copied
                         </>
                       ) : (
                         <>
-                          <ClipboardIcon className="h-3 w-3 mr-1" />
+                          <Icon name="clipboard-" className="h-3 w-3 mr-1" />
                           Copy
                         </>
                       )}
@@ -475,7 +477,7 @@ export default function ApiKeysSettings() {
                 
                 <div className="bg-[#371520] border border-[#F87171] rounded-lg p-4 mb-6">
                   <div className="flex items-start">
-                    <ExclamationTriangleIcon className="h-5 w-5 text-[#F87171] mr-2 mt-0.5" />
+                    <Icon name="exclamation-triangle-" className="h-5 w-5 text-[#F87171] mr-2 mt-0.5" />
                     <p className="text-[#F87171] text-sm">
                       Make sure to copy and store this API key securely. It will not be displayed again.
                     </p>
@@ -506,7 +508,7 @@ export default function ApiKeysSettings() {
                     aria-label="Close modal"
                     title="Close modal"
                   >
-                    <XMarkIcon className="h-6 w-6" />
+                    <Icon name="xmark-" className="h-6 w-6" />
                   </button>
                 </div>
                 
@@ -544,7 +546,7 @@ export default function ApiKeysSettings() {
                         min={new Date().toISOString().split('T')[0]}
                         className="w-full px-3 py-2 bg-[#111111] border border-[#374151] rounded-md text-[#E5E7EB] focus:outline-none focus:ring-2 focus:ring-[#22D3EE] focus:border-transparent"
                       />
-                      <CalendarIcon className="absolute right-3 top-2.5 h-5 w-5 text-[#9CA3AF]" />
+                      <Icon name="calendar-" className="absolute right-3 top-2.5 h-5 w-5 text-[#9CA3AF]" />
                     </div>
                     <p className="mt-1 text-xs text-[#9CA3AF]">
                       If set, the key will automatically expire on this date. Leave blank for no expiration.

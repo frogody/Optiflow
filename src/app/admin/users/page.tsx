@@ -1,18 +1,10 @@
 'use client';
 
-import {
-  ArrowPathIcon,
-  CheckBadgeIcon,
-  EyeIcon,
-  FunnelIcon,
-  KeyIcon,
-  MagnifyingGlassIcon,
-  NoSymbolIcon,
-  PencilIcon,
-  TrashIcon,
-  UserCircleIcon,
-  UserPlusIcon
-} from '@heroicons/react/24/outline';
+
+// Force dynamic rendering to avoid static generation issues
+export const dynamic = 'force-dynamic';
+
+// Heroicons removed to prevent React version conflicts
 import { useState } from 'react';
 
 // Define User type
@@ -26,6 +18,15 @@ interface User {
   signupDate: string;
   lastActive: string;
 }
+
+// Simple icon component to replace Heroicons
+const Icon = ({ name, className }) => {
+  return (
+    <div className={`icon-placeholder ${name} ${className || ''}`}>
+      <span className="sr-only">{name}</span>
+    </div>
+  );
+};
 
 export default function UserManagement() {
   const [searchQuery, setSearchQuery] = useState('');
@@ -123,7 +124,7 @@ export default function UserManagement() {
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-bold text-[#22D3EE]">User Management</h1>
         <button className="flex items-center px-4 py-2 bg-[#A855F7] hover:bg-[#C026D3] text-white rounded-md transition-colors text-sm font-medium">
-          <UserPlusIcon className="h-5 w-5 mr-2" />
+          <Icon name="user-plus-" className="h-5 w-5 mr-2" />
           Add User
         </button>
       </div>
@@ -133,7 +134,7 @@ export default function UserManagement() {
         <div className="flex flex-col sm:flex-row space-y-4 sm:space-y-0 sm:space-x-4">
           <div className="relative flex-1">
             <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-              <MagnifyingGlassIcon className="h-5 w-5 text-[#6B7280]" />
+              <Icon name="magnifying-glass-" className="h-5 w-5 text-[#6B7280]" />
             </div>
             <input
               type="text"
@@ -148,14 +149,14 @@ export default function UserManagement() {
               onClick={() => setFilterOpen(!filterOpen)}
               className="px-3 py-2 flex items-center bg-[#1E293B] text-[#E5E7EB] rounded-md hover:bg-[#2D3748] transition-colors"
             >
-              <FunnelIcon className="h-5 w-5 mr-2" />
+              <Icon name="funnel-" className="h-5 w-5 mr-2" />
               <span>Filters</span>
             </button>
             <button
               className="px-3 py-2 flex items-center bg-[#1E293B] text-[#E5E7EB] rounded-md hover:bg-[#2D3748] transition-colors"
               title="Refresh users"
             >
-              <ArrowPathIcon className="h-5 w-5" />
+              <Icon name="arrow-path-" className="h-5 w-5" />
             </button>
           </div>
         </div>
@@ -260,7 +261,7 @@ export default function UserManagement() {
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="flex items-center">
                         <div className="flex-shrink-0 h-10 w-10 rounded-full bg-[#2D3748] flex items-center justify-center text-[#22D3EE]">
-                          <UserCircleIcon className="h-8 w-8" />
+                          <Icon name="user-circle-" className="h-8 w-8" />
                         </div>
                         <div className="ml-4">
                           <div className="text-sm font-medium text-[#E5E7EB]">{user.name}</div>
@@ -303,7 +304,7 @@ export default function UserManagement() {
                             // Handle edit user
                           }}
                         >
-                          <PencilIcon className="h-5 w-5" />
+                          <Icon name="pencil-" className="h-5 w-5" />
                         </button>
                         <button
                           className="text-[#A855F7] hover:text-[#C026D3] transition-colors"
@@ -313,7 +314,7 @@ export default function UserManagement() {
                             // Handle impersonate user
                           }}
                         >
-                          <EyeIcon className="h-5 w-5" />
+                          <Icon name="eye-" className="h-5 w-5" />
                         </button>
                         <button
                           className={`${
@@ -326,9 +327,9 @@ export default function UserManagement() {
                           }}
                         >
                           {user.status === 'active' ? (
-                            <NoSymbolIcon className="h-5 w-5" />
+                            <Icon name="no-symbol-" className="h-5 w-5" />
                           ) : (
-                            <CheckBadgeIcon className="h-5 w-5" />
+                            <Icon name="check-badge-" className="h-5 w-5" />
                           )}
                         </button>
                       </div>
@@ -367,7 +368,7 @@ export default function UserManagement() {
           <div className="flex justify-between items-start mb-6">
             <div className="flex items-center">
               <div className="h-16 w-16 rounded-full bg-[#2D3748] flex items-center justify-center text-[#22D3EE] mr-4">
-                <UserCircleIcon className="h-12 w-12" />
+                <Icon name="user-circle-" className="h-12 w-12" />
               </div>
               <div>
                 <h2 className="text-xl font-bold text-[#E5E7EB]">{selectedUser.name}</h2>
@@ -376,11 +377,11 @@ export default function UserManagement() {
             </div>
             <div className="flex space-x-2">
               <button className="flex items-center px-3 py-2 bg-[#1E293B] hover:bg-[#2D3748] text-[#E5E7EB] rounded-md transition-colors text-sm font-medium">
-                <KeyIcon className="h-4 w-4 mr-2" />
+                <Icon name="key-" className="h-4 w-4 mr-2" />
                 Reset Password
               </button>
               <button className="flex items-center px-3 py-2 bg-[#371520] hover:bg-[#4B1D29] text-[#F87171] rounded-md transition-colors text-sm font-medium">
-                <TrashIcon className="h-4 w-4 mr-2" />
+                <Icon name="trash-" className="h-4 w-4 mr-2" />
                 Delete User
               </button>
             </div>

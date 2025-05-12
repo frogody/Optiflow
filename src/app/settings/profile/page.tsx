@@ -1,17 +1,10 @@
 'use client';
 
-import {
-  ArrowRightOnRectangleIcon,
-  CameraIcon,
-  CheckCircleIcon,
-  ChevronDownIcon,
-  ComputerDesktopIcon,
-  DevicePhoneMobileIcon,
-  KeyIcon,
-  PencilIcon,
-  UserCircleIcon,
-  XMarkIcon,
-} from '@heroicons/react/24/outline';
+
+// Force dynamic rendering to avoid static generation issues
+export const dynamic = 'force-dynamic';
+
+// Heroicons removed to prevent React version conflicts
 import Image from 'next/image';
 import Link from 'next/link';
 import { useState, useRef, useEffect } from 'react';
@@ -122,6 +115,15 @@ const apiKeys = [
 ];
 
 // All imported icons and components are used in the UI (avatar, password, session, and connection sections).
+
+// Simple icon component to replace Heroicons
+const Icon = ({ name, className }) => {
+  return (
+    <div className={`icon-placeholder ${name} ${className || ''}`}>
+      <span className="sr-only">{name}</span>
+    </div>
+  );
+};
 
 export default function ProfileSettings() {
   // State for form values
@@ -359,12 +361,12 @@ export default function ProfileSettings() {
                 />
               ) : (
                 <div className="w-24 h-24 rounded-full bg-[#1E293B] flex items-center justify-center text-[#9CA3AF]">
-                  <UserCircleIcon className="w-16 h-16" />
+                  <Icon name="user-circle-" className="w-16 h-16" />
                 </div>
               )}
               
               <label htmlFor="avatar-upload" className="absolute bottom-0 right-0 p-1 bg-[#22D3EE] rounded-full cursor-pointer hover:bg-[#06B6D4] transition-colors">
-                <CameraIcon className="w-4 h-4 text-[#111111]" />
+                <Icon name="camera-" className="w-4 h-4 text-[#111111]" />
                 <input
                   id="avatar-upload"
                   type="file"
@@ -385,7 +387,7 @@ export default function ProfileSettings() {
                 className="mt-3 flex items-center px-3 py-1.5 bg-[#18181B] text-[#22D3EE] rounded-md hover:bg-[#23272F] transition-colors text-sm font-medium"
                 onClick={() => alert('Edit profile functionality coming soon!')}
               >
-                <PencilIcon className="h-4 w-4 mr-1" /> Edit Profile
+                <Icon name="pencil-" className="h-4 w-4 mr-1" /> Edit Profile
               </button>
             </div>
           </div>
@@ -588,12 +590,12 @@ export default function ProfileSettings() {
                 <div className="flex items-center mt-2">
                   {passwordForm.newPassword === passwordForm.confirmPassword ? (
                     <>
-                      <CheckCircleIcon className="h-4 w-4 text-[#10B981] mr-1" />
+                      <Icon name="check-circle-" className="h-4 w-4 text-[#10B981] mr-1" />
                       <span className="text-xs text-[#10B981]">Passwords match</span>
                     </>
                   ) : (
                     <>
-                      <XMarkIcon className="h-4 w-4 text-[#F87171] mr-1" />
+                      <Icon name="xmark-" className="h-4 w-4 text-[#F87171] mr-1" />
                       <span className="text-xs text-[#F87171]">Passwords do not match</span>
                     </>
                   )}
@@ -648,9 +650,9 @@ export default function ProfileSettings() {
                 >
                   <div className="flex items-center">
                     {session.device === 'Desktop' ? (
-                      <ComputerDesktopIcon className="h-6 w-6 text-[#9CA3AF] mr-3" />
+                      <Icon name="computer-desktop-" className="h-6 w-6 text-[#9CA3AF] mr-3" />
                     ) : (
-                      <DevicePhoneMobileIcon className="h-6 w-6 text-[#9CA3AF] mr-3" />
+                      <Icon name="device-phone-mobile-" className="h-6 w-6 text-[#9CA3AF] mr-3" />
                     )}
                     
                     <div>
@@ -670,8 +672,7 @@ export default function ProfileSettings() {
                     </div>
                   </div>
                   
-                  <ChevronDownIcon 
-                    className={`h-5 w-5 text-[#9CA3AF] transition-transform ${
+                  <Icon name="chevron-down-" className={`h-5 w-5 text-[#9CA3AF] transition-transform ${
                       expandedSession === session.id ? 'transform rotate-180' : ''
                     }`}
                   />
@@ -715,7 +716,7 @@ export default function ProfileSettings() {
                           onClick={() => handleLogoutSession(session.id, session.current)}
                           className="flex items-center text-sm text-[#F87171] hover:text-[#FCA5A5] transition-colors"
                         >
-                          <ArrowRightOnRectangleIcon className="h-4 w-4 mr-1" />
+                          <Icon name="arrow-right-on-rectangle-" className="h-4 w-4 mr-1" />
                           Terminate Session
                         </button>
                       </div>
@@ -779,7 +780,7 @@ export default function ProfileSettings() {
               className="flex items-center px-4 py-2 bg-[#18181B] text-[#22D3EE] rounded-md hover:bg-[#23272F] transition-colors text-sm font-medium"
               onClick={() => alert('Manage API Keys functionality coming soon!')}
             >
-              <KeyIcon className="h-5 w-5 mr-2" /> Manage API Keys
+              <Icon name="key-" className="h-5 w-5 mr-2" /> Manage API Keys
             </button>
           </div>
           
@@ -877,12 +878,12 @@ export default function ProfileSettings() {
                         <div className="flex items-center text-xs">
                           {service.status === 'connected' ? (
                             <span className="text-[#10B981] flex items-center">
-                              <CheckCircleIcon className="h-3 w-3 mr-1" />
+                              <Icon name="check-circle-" className="h-3 w-3 mr-1" />
                               Connected
                             </span>
                           ) : (
                             <span className="text-[#F87171] flex items-center">
-                              <XMarkIcon className="h-3 w-3 mr-1" />
+                              <Icon name="xmark-" className="h-3 w-3 mr-1" />
                               Connection Expired
                             </span>
                           )}

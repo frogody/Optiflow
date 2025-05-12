@@ -1,17 +1,10 @@
 'use client';
 
-import { 
-  AcademicCapIcon, 
-  BriefcaseIcon, 
-  ClockIcon,
-  CurrencyDollarIcon,
-  GlobeAltIcon,
-  HeartIcon,
-  HomeIcon,
-  MapPinIcon,
-  SparklesIcon,
-  UserGroupIcon
-} from '@heroicons/react/24/outline';
+
+// Force dynamic rendering to avoid static generation issues
+export const dynamic = 'force-dynamic';
+
+// Heroicons removed to prevent React version conflicts
 import Link from 'next/link';
 import { useState } from 'react';
 
@@ -168,6 +161,15 @@ const benefits = [
   },
 ];
 
+// Simple icon component to replace Heroicons
+const Icon = ({ name, className }) => {
+  return (
+    <div className={`icon-placeholder ${name} ${className || ''}`}>
+      <span className="sr-only">{name}</span>
+    </div>
+  );
+};
+
 export default function CareersPage() {
   const [selectedJob, setSelectedJob] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
@@ -209,7 +211,7 @@ export default function CareersPage() {
           <div className="relative h-80 rounded-xl overflow-hidden">
             <div className="absolute inset-0 bg-gradient-to-r from-[#6366f1] to-[#8b5cf6] opacity-80 rounded-xl"></div>
             <div className="absolute inset-0 flex items-center justify-center">
-              <UserGroupIcon className="h-32 w-32 text-white" />
+              <Icon name="user-group-" className="h-32 w-32 text-white" />
             </div>
           </div>
           <div>
@@ -234,7 +236,7 @@ export default function CareersPage() {
           <div className="bg-[#111111] p-6 rounded-xl">
             <div className="flex items-center mb-4">
               <div className="p-2 bg-[#1E293B] rounded-lg mr-3">
-                <SparklesIcon className="h-6 w-6 text-[#22D3EE]" />
+                <Icon name="sparkles-" className="h-6 w-6 text-[#22D3EE]" />
               </div>
               <h3 className="text-xl font-medium text-[#E5E7EB]">Innovation</h3>
             </div>
@@ -245,7 +247,7 @@ export default function CareersPage() {
           <div className="bg-[#111111] p-6 rounded-xl">
             <div className="flex items-center mb-4">
               <div className="p-2 bg-[#1E293B] rounded-lg mr-3">
-                <UserGroupIcon className="h-6 w-6 text-[#22D3EE]" />
+                <Icon name="user-group-" className="h-6 w-6 text-[#22D3EE]" />
               </div>
               <h3 className="text-xl font-medium text-[#E5E7EB]">Collaboration</h3>
             </div>
@@ -256,7 +258,7 @@ export default function CareersPage() {
           <div className="bg-[#111111] p-6 rounded-xl">
             <div className="flex items-center mb-4">
               <div className="p-2 bg-[#1E293B] rounded-lg mr-3">
-                <GlobeAltIcon className="h-6 w-6 text-[#22D3EE]" />
+                <Icon name="globe-alt-" className="h-6 w-6 text-[#22D3EE]" />
               </div>
               <h3 className="text-xl font-medium text-[#E5E7EB]">Impact</h3>
             </div>
@@ -331,15 +333,15 @@ export default function CareersPage() {
               <h3 className="text-2xl font-bold text-[#E5E7EB] mb-2">{jobDetails?.title}</h3>
               <div className="flex flex-wrap gap-4 text-[#9CA3AF]">
                 <div className="flex items-center">
-                  <BriefcaseIcon className="h-5 w-5 mr-1" />
+                  <Icon name="briefcase-" className="h-5 w-5 mr-1" />
                   <span>{jobDetails?.department}</span>
                 </div>
                 <div className="flex items-center">
-                  <MapPinIcon className="h-5 w-5 mr-1" />
+                  <Icon name="map-pin-" className="h-5 w-5 mr-1" />
                   <span>{jobDetails?.location}</span>
                 </div>
                 <div className="flex items-center">
-                  <ClockIcon className="h-5 w-5 mr-1" />
+                  <Icon name="clock-" className="h-5 w-5 mr-1" />
                   <span>{jobDetails?.type}</span>
                 </div>
               </div>
@@ -394,15 +396,15 @@ export default function CareersPage() {
                           <h3 className="text-xl font-medium text-[#E5E7EB] mb-2">{job.title}</h3>
                           <div className="flex flex-wrap gap-x-4 gap-y-2 text-[#9CA3AF]">
                             <div className="flex items-center">
-                              <BriefcaseIcon className="h-5 w-5 mr-1" />
+                              <Icon name="briefcase-" className="h-5 w-5 mr-1" />
                               <span>{job.department}</span>
                             </div>
                             <div className="flex items-center">
-                              <MapPinIcon className="h-5 w-5 mr-1" />
+                              <Icon name="map-pin-" className="h-5 w-5 mr-1" />
                               <span>{job.location}</span>
                             </div>
                             <div className="flex items-center">
-                              <ClockIcon className="h-5 w-5 mr-1" />
+                              <Icon name="clock-" className="h-5 w-5 mr-1" />
                               <span>{job.type}</span>
                             </div>
                           </div>
@@ -423,7 +425,7 @@ export default function CareersPage() {
               </div>
             ) : (
               <div className="bg-[#18181B] rounded-xl p-8 text-center">
-                <BriefcaseIcon className="h-12 w-12 text-[#9CA3AF] mx-auto mb-4" />
+                <Icon name="briefcase-" className="h-12 w-12 text-[#9CA3AF] mx-auto mb-4" />
                 <h3 className="text-xl font-medium text-[#E5E7EB] mb-2">No positions found</h3>
                 <p className="text-[#9CA3AF]">
                   We couldn't find any positions matching your search. Try adjusting your filters or check back later.

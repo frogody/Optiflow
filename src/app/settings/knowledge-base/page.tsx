@@ -1,18 +1,10 @@
 'use client';
 
-import { 
-  BuildingOfficeIcon, 
-  ChevronDownIcon, 
-  ChevronUpIcon, 
-  DocumentTextIcon, 
-  FolderIcon, 
-  GlobeAltIcon, 
-  PencilIcon,
-  PlusIcon,
-  TrashIcon,
-  UserGroupIcon,
-  UserIcon
-} from '@heroicons/react/24/outline';
+
+// Force dynamic rendering to avoid static generation issues
+export const dynamic = 'force-dynamic';
+
+// Heroicons removed to prevent React version conflicts
 import Link from 'next/link';
 import { useSession } from 'next-auth/react';
 import { useEffect, useState } from 'react';
@@ -92,6 +84,15 @@ const mockKnowledgeBases: KnowledgeBase[] = [
     _count: { documents: 28 }
   }
 ];
+
+// Simple icon component to replace Heroicons
+const Icon = ({ name, className }) => {
+  return (
+    <div className={`icon-placeholder ${name} ${className || ''}`}>
+      <span className="sr-only">{name}</span>
+    </div>
+  );
+};
 
 export default function KnowledgeBasePage() {
   const { data: session } = useSession();
@@ -257,7 +258,7 @@ export default function KnowledgeBasePage() {
           onClick={() => setShowCreateModal(true)}
           className="px-4 py-2 bg-[#22D3EE] text-[#111111] font-medium rounded-md hover:bg-[#06B6D4] transition-colors flex items-center"
         >
-          <PlusIcon className="h-5 w-5 mr-1" />
+          <Icon name="plus-" className="h-5 w-5 mr-1" />
           Create Knowledge Base
         </button>
       </div>
@@ -272,7 +273,7 @@ export default function KnowledgeBasePage() {
               : 'text-[#9CA3AF] hover:text-[#E5E7EB]'
           }`}
         >
-          <UserIcon className="h-4 w-4 mr-2" />
+          <Icon name="user-" className="h-4 w-4 mr-2" />
           Personal
         </button>
         
@@ -284,7 +285,7 @@ export default function KnowledgeBasePage() {
               : 'text-[#9CA3AF] hover:text-[#E5E7EB]'
           }`}
         >
-          <UserGroupIcon className="h-4 w-4 mr-2" />
+          <Icon name="user-group-" className="h-4 w-4 mr-2" />
           Team
         </button>
         
@@ -296,7 +297,7 @@ export default function KnowledgeBasePage() {
               : 'text-[#9CA3AF] hover:text-[#E5E7EB]'
           }`}
         >
-          <BuildingOfficeIcon className="h-4 w-4 mr-2" />
+          <Icon name="building-office-" className="h-4 w-4 mr-2" />
           Organization
         </button>
       </div>
@@ -310,7 +311,7 @@ export default function KnowledgeBasePage() {
         <div className="space-y-4">
           {filteredKnowledgeBases.length === 0 ? (
             <div className="text-center py-12 bg-[#1E293B] rounded-lg border border-[#374151]">
-              <FolderIcon className="h-12 w-12 mx-auto text-[#9CA3AF] mb-4" />
+              <Icon name="folder-" className="h-12 w-12 mx-auto text-[#9CA3AF] mb-4" />
               <h3 className="text-xl font-medium text-[#E5E7EB] mb-2">No Knowledge Bases</h3>
               <p className="text-[#9CA3AF] mb-6">
                 {selectedType === 'personal'
@@ -339,11 +340,11 @@ export default function KnowledgeBasePage() {
                   <div className="flex items-center">
                     <div className="bg-[#111111] p-2 rounded-lg mr-4">
                       {kb.type === 'personal' ? (
-                        <UserIcon className="h-6 w-6 text-[#22D3EE]" />
+                        <Icon name="user-" className="h-6 w-6 text-[#22D3EE]" />
                       ) : kb.type === 'team' ? (
-                        <UserGroupIcon className="h-6 w-6 text-[#22D3EE]" />
+                        <Icon name="user-group-" className="h-6 w-6 text-[#22D3EE]" />
                       ) : (
-                        <BuildingOfficeIcon className="h-6 w-6 text-[#22D3EE]" />
+                        <Icon name="building-office-" className="h-6 w-6 text-[#22D3EE]" />
                       )}
                     </div>
                     <div>
@@ -356,7 +357,7 @@ export default function KnowledgeBasePage() {
                         )}
                       </div>
                       <div className="text-sm text-[#9CA3AF] flex items-center mt-1">
-                        <DocumentTextIcon className="h-4 w-4 mr-1" />
+                        <Icon name="document-text-" className="h-4 w-4 mr-1" />
                         <span>{kb._count.documents} documents</span>
                         <span className="mx-2">•</span>
                         <span>Updated {formatDate(kb.updatedAt)}</span>
@@ -370,7 +371,7 @@ export default function KnowledgeBasePage() {
                       className="text-[#9CA3AF] hover:text-[#22D3EE] p-1 rounded-md"
                       onClick={(e) => e.stopPropagation()}
                     >
-                      <PencilIcon className="h-5 w-5" />
+                      <Icon name="pencil-" className="h-5 w-5" />
                     </Link>
                     <button
                       className="text-[#9CA3AF] hover:text-[#F87171] p-1 rounded-md ml-2"
@@ -380,12 +381,12 @@ export default function KnowledgeBasePage() {
                       }}
                       title="Delete knowledge base"
                     >
-                      <TrashIcon className="h-5 w-5" />
+                      <Icon name="trash-" className="h-5 w-5" />
                     </button>
                     {expandedKb === kb.id ? (
-                      <ChevronUpIcon className="h-5 w-5 text-[#9CA3AF] ml-2" />
+                      <Icon name="chevron-up-" className="h-5 w-5 text-[#9CA3AF] ml-2" />
                     ) : (
-                      <ChevronDownIcon className="h-5 w-5 text-[#9CA3AF] ml-2" />
+                      <Icon name="chevron-down-" className="h-5 w-5 text-[#9CA3AF] ml-2" />
                     )}
                   </div>
                 </div>
@@ -553,7 +554,7 @@ export default function KnowledgeBasePage() {
                 {formData.isPublic && (
                   <div className="bg-[#111111] p-3 rounded-md border border-[#374151]">
                     <div className="flex items-start">
-                      <GlobeAltIcon className="h-5 w-5 text-[#22D3EE] mr-2 mt-0.5" />
+                      <Icon name="globe-alt-" className="h-5 w-5 text-[#22D3EE] mr-2 mt-0.5" />
                       <div className="text-xs text-[#9CA3AF]">
                         <p>Public knowledge bases are accessible to all users who have access to your team or organization. For personal knowledge bases, make them public to share with your teams.</p>
                       </div>

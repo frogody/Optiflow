@@ -1,14 +1,10 @@
 'use client';
 
-import { 
-  CheckCircleIcon, 
-  EnvelopeIcon, 
-  ExclamationCircleIcon, 
-  EyeIcon, 
-  EyeSlashIcon,
-  LockClosedIcon,
-  UserIcon 
-} from '@heroicons/react/24/outline';
+
+// Force dynamic rendering to avoid static generation issues
+export const dynamic = 'force-dynamic';
+
+// Heroicons removed to prevent React version conflicts
 import Cookies from 'js-cookie';
 import Image from 'next/image';
 import Link from 'next/link';
@@ -30,6 +26,15 @@ interface PasswordStrength {
     hasSpecialChar: boolean;
   };
 }
+
+// Simple icon component to replace Heroicons
+const Icon = ({ name, className }) => {
+  return (
+    <div className={`icon-placeholder ${name} ${className || ''}`}>
+      <span className="sr-only">{name}</span>
+    </div>
+  );
+};
 
 export default function Signup(): JSX.Element {
   const router = useRouter();
@@ -219,7 +224,7 @@ export default function Signup(): JSX.Element {
                   </label>
                   <div className="mt-1 relative rounded-md shadow-sm">
                     <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                      <UserIcon className="h-5 w-5 text-[#4B5563]" aria-hidden="true" />
+                      <Icon name="user-" className="h-5 w-5 text-[#4B5563]" aria-hidden="true" />
                     </div>
                     <input
                       id="full-name"
@@ -243,7 +248,7 @@ export default function Signup(): JSX.Element {
                   </label>
                   <div className="mt-1 relative rounded-md shadow-sm">
                     <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                      <EnvelopeIcon className="h-5 w-5 text-[#4B5563]" aria-hidden="true" />
+                      <Icon name="envelope-" className="h-5 w-5 text-[#4B5563]" aria-hidden="true" />
                     </div>
                     <input
                       id="email"
@@ -267,7 +272,7 @@ export default function Signup(): JSX.Element {
                   </label>
                   <div className="mt-1 relative rounded-md shadow-sm">
                     <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                      <LockClosedIcon className="h-5 w-5 text-[#4B5563]" aria-hidden="true" />
+                      <Icon name="lock-closed-" className="h-5 w-5 text-[#4B5563]" aria-hidden="true" />
                     </div>
                     <input
                       id="password"
@@ -291,9 +296,9 @@ export default function Signup(): JSX.Element {
                         title={showPassword ? "Hide password" : "Show password"}
                       >
                         {showPassword ? (
-                          <EyeSlashIcon className="h-5 w-5" aria-hidden="true" />
+                          <Icon name="eye-slash-" className="h-5 w-5" aria-hidden="true" />
                         ) : (
-                          <EyeIcon className="h-5 w-5" aria-hidden="true" />
+                          <Icon name="eye-" className="h-5 w-5" aria-hidden="true" />
                         )}
                       </button>
                     </div>
@@ -324,9 +329,9 @@ export default function Signup(): JSX.Element {
                     <div className="mt-3 grid grid-cols-2 gap-2">
                       <div className="flex items-center text-xs">
                         {passwordStrength.criteria.hasMinLength ? (
-                          <CheckCircleIcon className="h-4 w-4 text-[#10B981] mr-1" />
+                          <Icon name="check-circle-" className="h-4 w-4 text-[#10B981] mr-1" />
                         ) : (
-                          <ExclamationCircleIcon className="h-4 w-4 text-[#9CA3AF] mr-1" />
+                          <Icon name="exclamation-circle-" className="h-4 w-4 text-[#9CA3AF] mr-1" />
                         )}
                         <span className={passwordStrength.criteria.hasMinLength ? 'text-[#E5E7EB]' : 'text-[#9CA3AF]'}>
                           8+ characters
@@ -334,9 +339,9 @@ export default function Signup(): JSX.Element {
                       </div>
                       <div className="flex items-center text-xs">
                         {passwordStrength.criteria.hasUppercase ? (
-                          <CheckCircleIcon className="h-4 w-4 text-[#10B981] mr-1" />
+                          <Icon name="check-circle-" className="h-4 w-4 text-[#10B981] mr-1" />
                         ) : (
-                          <ExclamationCircleIcon className="h-4 w-4 text-[#9CA3AF] mr-1" />
+                          <Icon name="exclamation-circle-" className="h-4 w-4 text-[#9CA3AF] mr-1" />
                         )}
                         <span className={passwordStrength.criteria.hasUppercase ? 'text-[#E5E7EB]' : 'text-[#9CA3AF]'}>
                           Uppercase letter
@@ -344,9 +349,9 @@ export default function Signup(): JSX.Element {
                       </div>
                       <div className="flex items-center text-xs">
                         {passwordStrength.criteria.hasLowercase ? (
-                          <CheckCircleIcon className="h-4 w-4 text-[#10B981] mr-1" />
+                          <Icon name="check-circle-" className="h-4 w-4 text-[#10B981] mr-1" />
                         ) : (
-                          <ExclamationCircleIcon className="h-4 w-4 text-[#9CA3AF] mr-1" />
+                          <Icon name="exclamation-circle-" className="h-4 w-4 text-[#9CA3AF] mr-1" />
                         )}
                         <span className={passwordStrength.criteria.hasLowercase ? 'text-[#E5E7EB]' : 'text-[#9CA3AF]'}>
                           Lowercase letter
@@ -354,9 +359,9 @@ export default function Signup(): JSX.Element {
                       </div>
                       <div className="flex items-center text-xs">
                         {passwordStrength.criteria.hasNumber ? (
-                          <CheckCircleIcon className="h-4 w-4 text-[#10B981] mr-1" />
+                          <Icon name="check-circle-" className="h-4 w-4 text-[#10B981] mr-1" />
                         ) : (
-                          <ExclamationCircleIcon className="h-4 w-4 text-[#9CA3AF] mr-1" />
+                          <Icon name="exclamation-circle-" className="h-4 w-4 text-[#9CA3AF] mr-1" />
                         )}
                         <span className={passwordStrength.criteria.hasNumber ? 'text-[#E5E7EB]' : 'text-[#9CA3AF]'}>
                           Number
@@ -364,9 +369,9 @@ export default function Signup(): JSX.Element {
                       </div>
                       <div className="flex items-center text-xs">
                         {passwordStrength.criteria.hasSpecialChar ? (
-                          <CheckCircleIcon className="h-4 w-4 text-[#10B981] mr-1" />
+                          <Icon name="check-circle-" className="h-4 w-4 text-[#10B981] mr-1" />
                         ) : (
-                          <ExclamationCircleIcon className="h-4 w-4 text-[#9CA3AF] mr-1" />
+                          <Icon name="exclamation-circle-" className="h-4 w-4 text-[#9CA3AF] mr-1" />
                         )}
                         <span className={passwordStrength.criteria.hasSpecialChar ? 'text-[#E5E7EB]' : 'text-[#9CA3AF]'}>
                           Special character
@@ -382,7 +387,7 @@ export default function Signup(): JSX.Element {
                   </label>
                   <div className="mt-1 relative rounded-md shadow-sm">
                     <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                      <LockClosedIcon className="h-5 w-5 text-[#4B5563]" aria-hidden="true" />
+                      <Icon name="lock-closed-" className="h-5 w-5 text-[#4B5563]" aria-hidden="true" />
                     </div>
                     <input
                       id="confirm-password"
@@ -410,9 +415,9 @@ export default function Signup(): JSX.Element {
                         title={showConfirmPassword ? "Hide password" : "Show password"}
                       >
                         {showConfirmPassword ? (
-                          <EyeSlashIcon className="h-5 w-5" aria-hidden="true" />
+                          <Icon name="eye-slash-" className="h-5 w-5" aria-hidden="true" />
                         ) : (
-                          <EyeIcon className="h-5 w-5" aria-hidden="true" />
+                          <Icon name="eye-" className="h-5 w-5" aria-hidden="true" />
                         )}
                       </button>
                     </div>
@@ -510,7 +515,7 @@ export default function Signup(): JSX.Element {
             </>
           ) : (
             <div className="text-center">
-              <CheckCircleIcon className="h-12 w-12 mx-auto text-[#10B981]" />
+              <Icon name="check-circle-" className="h-12 w-12 mx-auto text-[#10B981]" />
               <h3 className="mt-4 text-xl font-medium text-[#E5E7EB]">Verification Email Sent</h3>
               <p className="mt-2 text-[#9CA3AF]">
                 We've sent a verification link to <span className="font-medium text-[#E5E7EB]">{formData.email}</span>.

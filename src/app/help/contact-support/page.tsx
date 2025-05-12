@@ -1,12 +1,20 @@
 'use client';
 
-import {
-  ChatBubbleLeftRightIcon,
-  DocumentTextIcon,
-  EnvelopeIcon,
-  PhoneIcon,
-} from '@heroicons/react/24/outline';
+
+// Force dynamic rendering to avoid static generation issues
+export const dynamic = 'force-dynamic';
+
+// Heroicons removed to prevent React version conflicts
 import { useState } from 'react';
+
+// Simple icon component to replace Heroicons
+const Icon = ({ name, className }) => {
+  return (
+    <div className={`icon-placeholder ${name} ${className || ''}`}>
+      <span className="sr-only">{name}</span>
+    </div>
+  );
+};
 
 export default function ContactSupport() {
   const [formData, setFormData] = useState({
@@ -41,7 +49,7 @@ export default function ContactSupport() {
       {/* Contact channels */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
         <div className="bg-[#111111] border border-[#374151] rounded-lg p-6">
-          <EnvelopeIcon className="h-8 w-8 text-[#22D3EE] mb-4" />
+          <Icon name="envelope-" className="h-8 w-8 text-[#22D3EE] mb-4" />
           <h3 className="text-lg font-medium text-[#E5E7EB] mb-2">Email Support</h3>
           <p className="text-[#9CA3AF] mb-4">
             Send us an email and we'll get back to you within 24 hours.
@@ -52,7 +60,7 @@ export default function ContactSupport() {
         </div>
         
         <div className="bg-[#111111] border border-[#374151] rounded-lg p-6">
-          <ChatBubbleLeftRightIcon className="h-8 w-8 text-[#22D3EE] mb-4" />
+          <Icon name="chat-bubble-left-right-" className="h-8 w-8 text-[#22D3EE] mb-4" />
           <h3 className="text-lg font-medium text-[#E5E7EB] mb-2">Live Chat</h3>
           <p className="text-[#9CA3AF] mb-4">
             Chat with our support team during business hours.
@@ -61,7 +69,7 @@ export default function ContactSupport() {
         </div>
         
         <div className="bg-[#111111] border border-[#374151] rounded-lg p-6">
-          <PhoneIcon className="h-8 w-8 text-[#22D3EE] mb-4" />
+          <Icon name="phone-" className="h-8 w-8 text-[#22D3EE] mb-4" />
           <h3 className="text-lg font-medium text-[#E5E7EB] mb-2">Phone Support</h3>
           <p className="text-[#9CA3AF] mb-4">
             Available for Enterprise customers only.
@@ -76,7 +84,7 @@ export default function ContactSupport() {
         // Success message after form submission
         <div className="bg-[#111111] border border-[#374151] rounded-lg p-8 text-center">
           <div className="w-16 h-16 bg-[#134e4a] rounded-full mx-auto flex items-center justify-center mb-6">
-            <DocumentTextIcon className="h-8 w-8 text-[#22D3EE]" />
+            <Icon name="document-text-" className="h-8 w-8 text-[#22D3EE]" />
           </div>
           <h2 className="text-2xl font-bold text-[#E5E7EB] mb-4">Support Ticket Created</h2>
           <p className="text-[#9CA3AF] mb-6 max-w-md mx-auto">

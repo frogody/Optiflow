@@ -1,16 +1,11 @@
 'use client';
 
+
+// Force dynamic rendering to avoid static generation issues
+export const dynamic = 'force-dynamic';
+
 import './page.css';
-import {
-  ArrowRightIcon as ArrowRightIconOutline,
-  BellIcon as BellIconOutline,
-  BuildingOffice2Icon as BuildingOffice2IconOutline,
-  Cog6ToothIcon as Cog6ToothIconOutline,
-  DocumentTextIcon as DocumentTextIconOutline,
-  KeyIcon as KeyIconOutline,
-  ShieldCheckIcon as ShieldCheckIconOutline,
-  UserCircleIcon as UserCircleIconOutline
-} from '@heroicons/react/24/outline';
+// Heroicons removed to prevent React version conflicts
 import { motion } from 'framer-motion';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
@@ -94,6 +89,15 @@ const settingSections = [
     iconColor: 'text-[#F87171]'
   }
 ];
+
+// Simple icon component to replace Heroicons
+const Icon = ({ name, className }) => {
+  return (
+    <div className={`icon-placeholder ${name} ${className || ''}`}>
+      <span className="sr-only">{name}</span>
+    </div>
+  );
+};
 
 export default function SettingsPage(): JSX.Element {
   const router = useRouter();

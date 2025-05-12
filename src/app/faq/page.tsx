@@ -1,18 +1,10 @@
 'use client';
 
-import { 
-  ArrowPathIcon, 
-  BoltIcon, 
-  ChevronDownIcon, 
-  ChevronUpIcon, 
-  CreditCardIcon, 
-  CubeIcon,
-  MagnifyingGlassIcon,
-  MicrophoneIcon,
-  PuzzlePieceIcon,
-  QuestionMarkCircleIcon,
-  UserIcon
-} from '@heroicons/react/24/outline';
+
+// Force dynamic rendering to avoid static generation issues
+export const dynamic = 'force-dynamic';
+
+// Heroicons removed to prevent React version conflicts
 import { AnimatePresence, motion } from 'framer-motion';
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
@@ -194,6 +186,15 @@ const faqItems: FAQItem[] = [
   },
 ];
 
+// Simple icon component to replace Heroicons
+const Icon = ({ name, className }) => {
+  return (
+    <div className={`icon-placeholder ${name} ${className || ''}`}>
+      <span className="sr-only">{name}</span>
+    </div>
+  );
+};
+
 export default function FAQPage() {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState<FAQCategory>('all');
@@ -282,7 +283,7 @@ export default function FAQPage() {
               onClick={resetFilters}
               className="flex items-center text-[#22D3EE] hover:text-[#06B6D4] text-sm"
             >
-              <ArrowPathIcon className="h-4 w-4 mr-1" />
+              <Icon name="arrow-path-" className="h-4 w-4 mr-1" />
               Reset filters
             </button>
           </div>
@@ -311,7 +312,7 @@ export default function FAQPage() {
         <div className="space-y-4">
           {filteredItems.length === 0 ? (
             <div className="text-center py-12 bg-[#18181B] rounded-lg border border-[#374151]">
-              <QuestionMarkCircleIcon className="h-12 w-12 text-[#6B7280] mx-auto mb-4" />
+              <Icon name="question-mark-circle-" className="h-12 w-12 text-[#6B7280] mx-auto mb-4" />
               <h3 className="text-lg font-medium text-[#E5E7EB] mb-2">No questions found</h3>
               <p className="text-[#9CA3AF]">
                 Try adjusting your search or category filters
@@ -337,9 +338,9 @@ export default function FAQPage() {
                 >
                   <h3 className="text-lg font-medium text-[#E5E7EB] pr-8">{item.question}</h3>
                   {expandedItems.includes(index) ? (
-                    <ChevronUpIcon className="h-5 w-5 text-[#22D3EE] flex-shrink-0" />
+                    <Icon name="chevron-up-" className="h-5 w-5 text-[#22D3EE] flex-shrink-0" />
                   ) : (
-                    <ChevronDownIcon className="h-5 w-5 text-[#6B7280] flex-shrink-0" />
+                    <Icon name="chevron-down-" className="h-5 w-5 text-[#6B7280] flex-shrink-0" />
                   )}
                 </button>
                 

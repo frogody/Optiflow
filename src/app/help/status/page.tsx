@@ -1,11 +1,10 @@
 'use client';
 
-import {
-  CheckCircleIcon,
-  ExclamationTriangleIcon,
-  InformationCircleIcon,
-  XCircleIcon,
-} from '@heroicons/react/24/outline';
+
+// Force dynamic rendering to avoid static generation issues
+export const dynamic = 'force-dynamic';
+
+// Heroicons removed to prevent React version conflicts
 import { useState } from 'react';
 
 // Mock data for the service statuses
@@ -135,6 +134,15 @@ const incidentHistory = [
   }
 ];
 
+// Simple icon component to replace Heroicons
+const Icon = ({ name, className }) => {
+  return (
+    <div className={`icon-placeholder ${name} ${className || ''}`}>
+      <span className="sr-only">{name}</span>
+    </div>
+  );
+};
+
 export default function StatusPage() {
   const [expandedIncident, setExpandedIncident] = useState<string | null>(null);
   
@@ -164,28 +172,28 @@ export default function StatusPage() {
       case 'operational':
         return (
           <div className="flex items-center">
-            <CheckCircleIcon className="h-5 w-5 text-[#10b981] mr-2" />
+            <Icon name="check-circle-" className="h-5 w-5 text-[#10b981] mr-2" />
             <span className="text-[#10b981] font-medium">Operational</span>
           </div>
         );
       case 'degraded':
         return (
           <div className="flex items-center">
-            <ExclamationTriangleIcon className="h-5 w-5 text-[#f59e0b] mr-2" />
+            <Icon name="exclamation-triangle-" className="h-5 w-5 text-[#f59e0b] mr-2" />
             <span className="text-[#f59e0b] font-medium">Degraded</span>
           </div>
         );
       case 'outage':
         return (
           <div className="flex items-center">
-            <XCircleIcon className="h-5 w-5 text-[#ef4444] mr-2" />
+            <Icon name="xcircle-" className="h-5 w-5 text-[#ef4444] mr-2" />
             <span className="text-[#ef4444] font-medium">Outage</span>
           </div>
         );
       case 'maintenance':
         return (
           <div className="flex items-center">
-            <InformationCircleIcon className="h-5 w-5 text-[#3b82f6] mr-2" />
+            <Icon name="information-circle-" className="h-5 w-5 text-[#3b82f6] mr-2" />
             <span className="text-[#3b82f6] font-medium">Maintenance</span>
           </div>
         );
@@ -258,7 +266,7 @@ export default function StatusPage() {
         
         {incidentHistory.length === 0 ? (
           <div className="text-center py-8">
-            <CheckCircleIcon className="h-12 w-12 text-[#10b981] mx-auto" />
+            <Icon name="check-circle-" className="h-12 w-12 text-[#10b981] mx-auto" />
             <p className="mt-2 text-[#9CA3AF]">No incidents reported in the last 30 days</p>
           </div>
         ) : (

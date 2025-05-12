@@ -1,9 +1,22 @@
 'use client';
 
-import { EnvelopeIcon, EyeIcon, EyeSlashIcon, LockClosedIcon } from '@heroicons/react/24/outline';
+
+// Force dynamic rendering to avoid static generation issues
+export const dynamic = 'force-dynamic';
+
+// Heroicons removed to prevent React version conflicts
 import Image from 'next/image';
 import Link from 'next/link';
 import { useState } from 'react';
+
+// Simple icon component to replace Heroicons
+const Icon = ({ name, className }) => {
+  return (
+    <div className={`icon-placeholder ${name} ${className || ''}`}>
+      <span className="sr-only">{name}</span>
+    </div>
+  );
+};
 
 export default function Login() {
   const [email, setEmail] = useState('');
@@ -105,7 +118,7 @@ export default function Login() {
                   </label>
                   <div className="mt-1 relative rounded-md shadow-sm">
                     <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                      <EnvelopeIcon className="h-5 w-5 text-[#4B5563]" aria-hidden="true" />
+                      <Icon name="envelope-" className="h-5 w-5 text-[#4B5563]" aria-hidden="true" />
                     </div>
                     <input
                       id="email"
@@ -129,7 +142,7 @@ export default function Login() {
                   </label>
                   <div className="mt-1 relative rounded-md shadow-sm">
                     <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                      <LockClosedIcon className="h-5 w-5 text-[#4B5563]" aria-hidden="true" />
+                      <Icon name="lock-closed-" className="h-5 w-5 text-[#4B5563]" aria-hidden="true" />
                     </div>
                     <input
                       id="password"
@@ -153,9 +166,9 @@ export default function Login() {
                         title={showPassword ? "Hide password" : "Show password"}
                       >
                         {showPassword ? (
-                          <EyeSlashIcon className="h-5 w-5" aria-hidden="true" />
+                          <Icon name="eye-slash-" className="h-5 w-5" aria-hidden="true" />
                         ) : (
-                          <EyeIcon className="h-5 w-5" aria-hidden="true" />
+                          <Icon name="eye-" className="h-5 w-5" aria-hidden="true" />
                         )}
                       </button>
                     </div>

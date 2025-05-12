@@ -1,11 +1,10 @@
 'use client';
 
-import { 
-  DocumentTextIcon, 
-  FolderIcon,
-  FolderPlusIcon, 
-  PlusIcon 
-} from '@heroicons/react/24/outline';
+
+// Force dynamic rendering to avoid static generation issues
+export const dynamic = 'force-dynamic';
+
+// Heroicons removed to prevent React version conflicts
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
@@ -207,6 +206,15 @@ const mockFolders: WorkflowFolder[] = [
   }
 ];
 
+// Simple icon component to replace Heroicons
+const Icon = ({ name, className }) => {
+  return (
+    <div className={`icon-placeholder ${name} ${className || ''}`}>
+      <span className="sr-only">{name}</span>
+    </div>
+  );
+};
+
 export default function WorkflowsPage() {
   const router = useRouter();
   const { currentUser } = useUserStore();
@@ -319,21 +327,21 @@ export default function WorkflowsPage() {
               href="/templates"
               className="inline-flex items-center px-4 py-2 border border-[#374151] rounded-md bg-[#18181B] text-[#E5E7EB] hover:bg-[#1E293B] transition-colors"
             >
-              <DocumentTextIcon className="mr-2 h-5 w-5" />
+              <Icon name="document-text-" className="mr-2 h-5 w-5" />
               Templates
             </Link>
             <button
               onClick={() => setIsModalOpen(true)}
               className="inline-flex items-center px-4 py-2 border border-[#374151] rounded-md bg-[#18181B] text-[#E5E7EB] hover:bg-[#1E293B] transition-colors"
             >
-              <FolderPlusIcon className="mr-2 h-5 w-5" />
+              <Icon name="folder-plus-" className="mr-2 h-5 w-5" />
               New Folder
             </button>
             <Link
               href="/workflow-editor"
               className="inline-flex items-center px-4 py-2 rounded-md bg-[#22D3EE] text-[#111111] hover:bg-[#06B6D4] transition-colors"
             >
-              <PlusIcon className="mr-2 h-5 w-5" />
+              <Icon name="plus-" className="mr-2 h-5 w-5" />
               Create Workflow
             </Link>
           </div>
@@ -354,7 +362,7 @@ export default function WorkflowsPage() {
                       selectedFolder === null ? 'bg-[#1E293B] text-[#E5E7EB]' : 'text-[#9CA3AF] hover:bg-[#1E293B] hover:text-[#E5E7EB]'
                     } transition-colors`}
                   >
-                    <FolderIcon className="h-5 w-5 mr-2" />
+                    <Icon name="folder-" className="h-5 w-5 mr-2" />
                     <span>All Workflows</span>
                     <span className="ml-auto text-xs bg-[#374151] px-2 py-0.5 rounded-full">
                       {workflows.length}
@@ -370,7 +378,7 @@ export default function WorkflowsPage() {
                         selectedFolder === folder.id ? 'bg-[#1E293B] text-[#E5E7EB]' : 'text-[#9CA3AF] hover:bg-[#1E293B] hover:text-[#E5E7EB]'
                       } transition-colors`}
                     >
-                      <FolderIcon className="h-5 w-5 mr-2" />
+                      <Icon name="folder-" className="h-5 w-5 mr-2" />
                       <span className="truncate">{folder.name}</span>
                       <span className="ml-auto text-xs bg-[#374151] px-2 py-0.5 rounded-full">
                         {folder.workflowCount}

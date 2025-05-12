@@ -1,5 +1,9 @@
 'use client';
 
+
+// Force dynamic rendering to avoid static generation issues
+export const dynamic = 'force-dynamic';
+
 import Cookies from 'js-cookie';
 import { useRouter } from 'next/navigation';
 import { useEffect } from 'react';

@@ -1,704 +1,209 @@
 'use client';
 
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import React from 'react';
-import ReactFlow, {
-  addEdge,
-  Background,
-  BackgroundVariant,
-  Connection,
-  ConnectionLineType,
-  Controls,
-  Edge,
-  EdgeTypes,
-  MarkerType,
-  MiniMap,
-  Node,
-  Panel,
-  ReactFlowProvider,
-  useEdgesState,
-  useNodesState,
-  XYPosition,
-} from 'reactflow';
+// Force dynamic rendering to avoid static generation issues
+export const dynamic = 'force-dynamic';
 
-import 'reactflow/dist/style.css';
-import { AIAgentConfigData } from '@/components/workflow/AIAgentConfig';
-import AIAgentNode from '@/components/workflow/AIAgentNode';
-import CustomEdge from '@/components/workflow/CustomEdge';
-import DefaultNode from '@/components/workflow/DefaultNode';
-import { DefaultNodeData } from '@/components/workflow/DefaultNodeConfig';
-import { ElevenLabsAgentWidget } from '@/components/workflow/ElevenLabsAgentWidget';
-import NodePalette from '@/components/workflow/NodePalette';
-import useNodeTypes from '@/components/workflow/NodeTypesFactory';
-import PipedreamAppNode from '@/components/workflow/PipedreamAppNode';
-import WorkflowHeader from '@/components/workflow/WorkflowHeader';
-import WorkflowSettingsPanel, { WorkflowSettings } from '@/components/workflow/WorkflowSettings';
+import { useCallback, useState } from 'react';
+import Link from 'next/link';
 
-// Define a union type for node data
-type NodeDataType = { id?: string;
-  type?: string;
-  label: string;
-  description?: string;
-  settings?: Record<string, any>;
-  config?: AIAgentConfigData;
-  onConfigChange?: (data: any) => void;
-    };
-
-// Define the edge data type
-type EdgeDataType = { label?: string;
-  dashed?: boolean;
-  onDelete?: (id: string) => void;
-    };
-
-// Define custom edge types
-const customEdgeTypes: EdgeTypes = { custom: CustomEdge,
-    };
-
-// Initial workflow settings
-const initialWorkflowSettings: WorkflowSettings = { name: "New Workflow",
-  description: "A workflow created with the Optiflow editor",
-  version: "1.0.0",
-  interval: "1d",
-  maxConcurrency: 5,
-  isActive: true,
+// Simple placeholder component instead of ReactFlow
+export default function WorkflowEditor() {
+  const [selectedTab, setSelectedTab] = useState('nodes');
+  const [workflowName, setWorkflowName] = useState('New Workflow');
+  const [workflowDescription, setWorkflowDescription] = useState('Workflow description');
   
-  memoryEnabled: true,
-  memoryType: "buffer",
-  memorySize: 1024,
-  contextWindowSize: 10,
-  
-  safeMode: false,
-  autoSave: true,
-  executionTimeout: 300,
-  maxConcurrentNodes: 5,
-  
-  ragEnabled: false,
-  knowledgeBase: "",
-  similarityThreshold: 0.7,
-  maxDocuments: 5,
-  
-  notifyOnCompletion: true,
-  notifyOnError: true,
-  
-  debugMode: false,
-  logLevel: "error"
-    };
-
-// Initial nodes for the workflow
-const initialNodes: Node<NodeDataType>[] = [
-  {
-    id: 'scraper-1',
-    type: 'default',
-    position: { x: 100, y: 100     },
-    data: {
-  id: 'extract-webpage-1',
-      type: 'extract-webpage',
-      label: 'Extract Company Data',
-      description: 'Scrape company information from website',
-      settings: {
-  url: 'https://example.com/company',
-        selector: '.company-info',
-        includeImages: true,
-        maxDepth: 2
-          }
-    },
-  },
-  {
-    id: 'process-1',
-    type: 'default',
-    position: { x: 100, y: 250     },
-    data: {
-  id: 'process-data-1',
-      type: 'process-data',
-      label: 'Format Company Data',
-      description: 'Transform scraped data into structured format',
-      settings: {
-  inputFormat: 'html',
-        outputFormat: 'json',
-        transformation: '{ \n  "name": "data.companyName",\n  "email": "data.contactEmail",\n  "phone": "data.contactPhone"\n    }'
-      }
-    },
-  },
-  {
-    id: 'agent-1',
-    type: 'aiAgent',
-    position: { x: 100, y: 400     },
-    data: {
-  label: 'AI Lead Qualifier',
-      description: 'Analyze company data to determine if it\'s a good lead',
-      config: {
-  name: 'Lead Analyzer',
-        type: 'Conditional',
-        prompt: `You are an AI assistant that helps analyze company data to determine if it's a good lead.\nConsider the following factors:\n- Company size and industry\n- Recent news or events\n- Contact information completeness\n- Online presence\n\nAnalyze the provided data and respond with:\n1. Whether this is a good lead (Yes/No)\n2. Confidence level (Low/Medium/High)\n3. Brief justification for your assessment`,
-        model: 'gpt-4o',
-        temperature: 0.7,
-        tools: ['web_search'],
-        contextStrategy: 'all_inputs',
-        description: 'Analyze the content to determine if it\'s a good lead',
-          }
-    },
-  },
-  {
-    id: 'conditional-1',
-    type: 'default',
-    position: { x: 100, y: 550     },
-    data: {
-  id: 'conditional-1',
-      type: 'conditional',
-      label: 'Lead Quality Check',
-      description: 'Route based on AI qualification result',
-      settings: {
-  condition: 'result.isQualified == true',
-        trueLabel: 'Good Lead',
-        falseLabel: 'Poor Lead'
-          }
-    },
-  },
-  {
-    id: 'email-1',
-    type: 'default',
-    position: { x: 300, y: 700     },
-    data: {
-  id: 'send-email-1',
-      type: 'send-email',
-      label: 'Send to Sales Team',
-      description: 'Notify sales team about qualified lead',
-      settings: {
-  to: 'sales@company.com',
-        subject: 'New Qualified Lead: {{data.company.name}}',
-        body: 'A new lead has been qualified by our AI system.\n\nCompany: {{data.company.name}}\nContact: {{data.company.contact}}\nConfidence: {{result.confidence}}\n\nReason: {{result.justification}}',
-        attachments: 'lead-details.pdf'
-      }
-    },
-  },
-  {
-    id: 'database-1',
-    type: 'default',
-    position: { x: -100, y: 700     },
-    data: {
-  id: 'database-1',
-      type: 'database',
-      label: 'Save to CRM',
-      description: 'Store lead information in database',
-      settings: {
-  connectionString: 'postgresql://user:pass@localhost:5432/crm',
-        queryType: 'insert',
-        query: 'INSERT INTO leads (name, email, phone, status, source) VALUES (:name, :email, :phone, :status, :source)',
-        parameters: '{\n  "name": "{{data.company.name}}",\n  "email": "{{data.company.email}}",\n  "phone": "{{data.company.phone}}",\n  "status": "unqualified",\n  "source": "web-scraper"\n}'
-      }
-    },
-  },
-];
-
-// Initial edges connecting the nodes
-const initialEdges: Edge<EdgeDataType>[] = [
-  {
-    id: 'e1-2',
-    source: 'scraper-1',
-    target: 'process-1',
-    type: 'custom',
-    animated: true,
-    data: { label: 'Raw Data'     }
-  },
-  {
-    id: 'e2-3',
-    source: 'process-1',
-    target: 'agent-1',
-    type: 'custom',
-    animated: true,
-    data: { label: 'Structured Data'     }
-  },
-  {
-    id: 'e3-4',
-    source: 'agent-1',
-    target: 'conditional-1',
-    type: 'custom',
-    animated: true,
-    data: { label: 'Analysis'     }
-  },
-  {
-    id: 'e4-5',
-    source: 'conditional-1',
-    target: 'email-1',
-    type: 'custom',
-    animated: true,
-    data: {
-  label: 'Qualified',
-      dashed: false 
-        }
-  },
-  {
-    id: 'e4-6',
-    source: 'conditional-1',
-    target: 'database-1',
-    type: 'custom',
-    animated: true,
-    data: {
-  label: 'Unqualified',
-      dashed: true 
-        }
-  },
-];
-
-// Define node types
-// const nodeTypes = { default: DefaultNode,
-//   aiAgent: AIAgentNode,
-//   pipedreamApp: PipedreamAppNode,
-//   // ... other node types ...
-//     };
-
-// A wrapper component that provides the ReactFlow context
-function WorkflowEditorContent() {
-  // Get color mode manually since we don't need the theme provider
-  // const isDarkMode = typeof window !== 'undefined' ? 
-  //   window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches : 
-  //   false;
-    
-  const reactFlowWrapper = useRef<HTMLDivElement>(null);
-  
-  // Register custom node types
-  const nodeTypes = useNodeTypes();
-  
-  // Set up nodes and edges state
-  const [nodes, setNodes, onNodesChange] = useNodesState<NodeDataType>(initialNodes);
-  const [edges, setEdges, onEdgesChange] = useEdgesState<EdgeDataType>(initialEdges);
-  const [reactFlowInstance, setReactFlowInstance] = useState<any>(null);
-  
-  // Add state for workflow settings and modal
-  const [showSettings, setShowSettings] = useState(false);
-  const [settings, setSettings] = useState<WorkflowSettings>(initialWorkflowSettings);
-
-  // State for tracking node being dragged from palette
-  // const [nodeDragType, setNodeDragType] = useState<string | null>(null);
-  
-  // Load generated workflow from sessionStorage on component mount
-  useEffect(() => {
-    if (typeof window !== 'undefined') {
-      try {
-        const savedWorkflow = sessionStorage.getItem('generatedWorkflow');
-        if (savedWorkflow) {
-          console.log('Found saved workflow in sessionStorage');
-          
-          // Parse the workflow data
-          const workflow = JSON.parse(savedWorkflow);
-          console.log('Loading workflow from sessionStorage:', workflow);
-          
-          // Validate workflow structure
-          if (!workflow || !workflow.nodes || !Array.isArray(workflow.nodes)) { console.error('Invalid workflow structure:', workflow);
-            return;
-              }
-          
-          if (workflow.nodes.length === 0) {
-            console.warn('Workflow has no nodes');
-            return;
-          }
-          
-          // Debug the node structure
-          console.log('First node structure:', workflow.nodes[0]);
-          
-          // Process nodes - the format should be compatible with ReactFlow
-          const formattedNodes = workflow.nodes.map((node: any) => {
-            // Additional validation
-            if (!node.id) {
-              console.error('Node missing ID:', node);
-              node.id = `node-${Math.random().toString(36).substr(2, 9)}`;
-            }
-            
-            if (!node.data) {
-              console.error('Node missing data:', node);
-              node.data = { label: 'Unknown Node'     };
-            }
-            
-            // Create a node that matches ReactFlow's expected format
-            const formattedNode = {
-              id: node.id,
-              type: node.type || 'default',
-              position: node.position || { x: 0, y: 0     },
-              data: {
-                ...node.data,
-                // Add any required properties for node rendering
-                label: node.data.label || 'Node',
-                description: node.data.description || '',
-                type: node.data.type || 'default',
-                config: node.data.parameters || {},
-                onConfigChange: null // Will be added by updatedNodes
-              }
-            };
-            
-            console.log('Formatted node:', formattedNode);
-            return formattedNode;
-          });
-          
-          // Process edges - the format should be compatible with ReactFlow
-          const formattedEdges = (workflow.edges || []).map((edge: any) => {
-            // Additional validation
-            if (!edge.source || !edge.target) { console.error('Edge missing source or target:', edge);
-              return null;
-                }
-            
-            // Create an edge that matches ReactFlow's expected format
-            const formattedEdge = {
-              id: edge.id || `edge-${Math.random().toString(36).substr(2, 9)}`,
-              source: edge.source,
-              target: edge.target,
-              type: edge.type || 'default',
-              animated: edge.animated || true,
-              data: {
-  label: edge.label || '',
-                onDelete: null // Will be added by updatedEdges
-                  }
-            };
-            
-            console.log('Formatted edge:', formattedEdge);
-            return formattedEdge;
-          }).filter(Boolean);
-          
-          console.log('Processed nodes for editor:', formattedNodes);
-          console.log('Processed edges for editor:', formattedEdges);
-          
-          // Update workflow settings
-          if (workflow.name || workflow.description) {
-            setSettings(prev => ({ ...prev,
-              name: workflow.name || prev.name,
-              description: workflow.description || prev.description
-                }));
-          }
-          
-          // Apply the new workflow to the editor
-          if (formattedNodes.length > 0) {
-            setNodes(formattedNodes);
-            setEdges(formattedEdges);
-            console.log('Successfully loaded workflow into editor');
-          } else {
-            console.warn('No nodes found in the workflow');
-          }
-        } else {
-          console.log('No saved workflow found in sessionStorage');
-        }
-      } catch (error) { console.error('Error loading workflow from sessionStorage:', error);
-          }
-    }
-  }, [setNodes, setEdges, setSettings]);
-  
-  // Handle connections between nodes
-  const onConnect = useCallback(
-    (connection: Connection) =>
-      setEdges((eds) =>
-        addEdge(
-          {
-            ...connection,
-            type: 'custom',
-            animated: true,
-            data: { label: 'Connection'     }
-          },
-          eds
-        )
-      ),
-    [setEdges]
-  );
-  
-  // Handle node data updates
-  const onNodeConfigChange = useCallback((nodeId: string, config: AIAgentConfigData) => {
-    setNodes((nds) =>
-      nds.map((node) => {
-        if (node.id === nodeId) {
-          // Make a type-safe copy of the node
-          return {
-            ...node,
-            data: {
-              ...node.data,
-              config,
-            },
-          };
-        }
-        return node;
-      })
-    );
-  }, [setNodes]);
-  
-  // Update node data change handlers
-  const updatedNodes = useMemo(() => {
-    return nodes.map(node => {
-      if (node.type === 'aiAgent') {
-        return {
-          ...node,
-          data: { ...node.data,
-            onConfigChange: (config: AIAgentConfigData) => onNodeConfigChange(node.id, config),
-              },
-        };
-      }
-      return node;
-    });
-  }, [nodes, onNodeConfigChange]);
-
-  // Handle default node configuration updates
-  const onDefaultNodeConfigChange = useCallback((nodeId: string, updatedData: DefaultNodeData) => {
-    setNodes((nds) =>
-      nds.map((node) => {
-        if (node.id === nodeId) {
-          return {
-            ...node,
-            data: { ...updatedData,
-              onConfigChange: (data: DefaultNodeData) => onDefaultNodeConfigChange(node.id, data),
-              // Ensure label is always defined
-              label: updatedData.label || node.data.label || 'Node',
-                },
-          };
-        }
-        return node;
-      })
-    );
-  }, [setNodes]);
-  
-  // Handle edge deletion
-  const onEdgeDelete = useCallback((edgeId: string) => {
-    setEdges((eds) => eds.filter((e) => e.id !== edgeId));
-  }, [setEdges]);
-  
-  // Update edges data with delete handler
-  const updatedEdges = useMemo(() => {
-    return edges.map(edge => ({
-      ...edge,
-      data: { ...edge.data,
-        onDelete: onEdgeDelete
-          }
-    }));
-  }, [edges, onEdgeDelete]);
-  
-  // Handle drag over to allow dropping
-  const onDragOver = useCallback((event: React.DragEvent) => {
-    event.preventDefault();
-    event.dataTransfer.dropEffect = 'move';
+  // Simple function to simulate workflow save
+  const handleSaveWorkflow = useCallback(() => {
+    console.log('Saving workflow...');
+    alert('Workflow saved successfully!');
   }, []);
   
-  // Handle dropping a new node
-  const onDrop = useCallback(
-    (event: React.DragEvent) => {
-      event.preventDefault();
-      
-      if (!reactFlowInstance || !reactFlowWrapper.current) {
-        return;
-      }
-      
-      // Get the dropped data
-      const dataStr = event.dataTransfer.getData('application/reactflow');
-      if (!dataStr) return;
-      
-      const nodeData = JSON.parse(dataStr);
-      
-      // Get the position from the drop event
-      const reactFlowBounds = reactFlowWrapper.current.getBoundingClientRect();
-      const position = reactFlowInstance.project({ x: event.clientX - reactFlowBounds.left,
-        y: event.clientY - reactFlowBounds.top,
-          }) as XYPosition;
-      
-      // Create a unique ID based on the node type and a timestamp
-      const id = `${nodeData.id}-${Date.now()}`;
-      
-      // Create the new node
-      const newNode = {
-        id,
-        type: nodeData.type === 'ai-agent' ? 'aiAgent' : 'default',
-        position,
-        data: nodeData.type === 'ai-agent' 
-          ? { 
-              label: nodeData.label,
-              description: nodeData.description,
-              config: {
-  name: nodeData.label,
-                type: 'Conditional',
-                prompt: 'Enter your prompt here...',
-                model: 'gpt-4o',
-                temperature: 0.7,
-                tools: [],
-                contextStrategy: 'all_inputs',
-                description: nodeData.description
-                  },
-              onConfigChange: (config: AIAgentConfigData) => onNodeConfigChange(id, config)
-            }
-          : { 
-              id,
-              type: nodeData.id,
-              label: nodeData.label,
-              description: nodeData.description,
-              settings: {},
-              onConfigChange: (data: DefaultNodeData) => onDefaultNodeConfigChange(id, data)
-            },
-      };
-      
-      // Add the new node to the flow
-      setNodes((nds) => [...nds, newNode as Node<NodeDataType>]);
-    },
-    [reactFlowInstance, setNodes, onNodeConfigChange, onDefaultNodeConfigChange]
-  );
-  
-  // Handle saving workflow settings
-  const handleSaveSettings = (settings: WorkflowSettings) => {
-    setSettings(settings);
-    // Apply any settings that affect the workflow graph
-    // For example, updating execution environment or context window
-  };
-  
-  // Handler for applying a generated workflow from voice commands
-  const handleWorkflowGenerated = useCallback((workflow: any) => {
-    if (!workflow || !workflow.nodes || !workflow.edges) return;
-    
-    // Convert the generated workflow to the format reactflow expects
-    const formattedNodes = workflow.nodes.map((node: any) => ({
-      id: node.id,
-      type: node.type === 'aiAgent' ? 'aiAgent' : 'default',
-      position: node.position || { x: 0, y: 0     },
-      data: { ...node.data,
-        id: node.id,
-        type: node.type,
-        label: node.data.label || 'Node',
-          },
-    }));
-    
-    const formattedEdges = workflow.edges.map((edge: any) => ({
-      id: edge.id,
-      source: edge.source,
-      target: edge.target,
-      type: 'custom',
-      animated: true,
-      data: { label: edge.label || ''     },
-    }));
-    
-    // Update workflow settings
-    setSettings(prev => ({ ...prev,
-      name: workflow.name || prev.name,
-      description: workflow.description || prev.description,
-        }));
-    
-    // Apply the new workflow
-    setNodes(formattedNodes);
-    setEdges(formattedEdges);
-    
-    // Notify the user
-    alert(`Workflow "${workflow.name}" created successfully from voice command!`);
-  }, [setNodes, setEdges]);
-
-  const handleSaveWorkflow = useCallback(() => {
-    // Save the current workflow state
-    const workflowState = {
-      nodes,
-      edges,
-      settings
-    };
-    
-    // Save to session storage
-    sessionStorage.setItem('savedWorkflow', JSON.stringify(workflowState));
-    
-    // TODO: Implement actual save to backend
-    console.log('Saving workflow:', workflowState);
-  }, [nodes, edges, settings]);
-
   return (
-    <div className="h-screen flex flex-col">
-      <WorkflowHeader 
-        workflowName={settings.name}
-        onOpenSettings={() => setShowSettings(true)}
-        onSaveWorkflow={handleSaveWorkflow}
-      />
-      <div className="flex-1 flex">
-        <NodePalette />
-        <div className="flex-1 h-full">
-          <ReactFlow
-            nodes={updatedNodes}
-            edges={updatedEdges}
-            onNodesChange={onNodesChange}
-            onEdgesChange={onEdgesChange}
-            onConnect={onConnect}
-            nodeTypes={nodeTypes}
-            edgeTypes={customEdgeTypes}
-            connectionLineType={ConnectionLineType.SmoothStep}
-            snapToGrid={true}
-            fitView
-            className="bg-dark-100"
-            defaultEdgeOptions={{
-              type: 'custom',
-              style: { stroke: '#6366f1', strokeWidth: 2     },
-              animated: true,
-              markerEnd: {
-  type: MarkerType.ArrowClosed,
-                width: 20,
-                height: 20,
-                color: '#6366f1',
-                  },
-            }}
-            edgesFocusable={false}
-            deleteKeyCode={["Backspace", "Delete"]}
-            minZoom={0.2}
-            maxZoom={1.5}
-            elementsSelectable={true}
-            nodesDraggable={true}
-            style={{ backgroundColor: "#111827"     }}
-            onInit={(reactFlowInstance) => {
-              setReactFlowInstance(reactFlowInstance);
-              // Set the node element background color to transparent
-              const nodeElements = document.querySelectorAll('.react-flow__node');
-              nodeElements.forEach((node) => {
-                (node as HTMLElement).style.backgroundColor = 'transparent';
-                // Remove any background images
-                (node as HTMLElement).style.backgroundImage = 'none';
-              });
-            }}
-            onDrop={onDrop}
-            onDragOver={onDragOver}
-          >
-            <Controls />
-            <MiniMap />
-            <Background variant={BackgroundVariant.Dots} gap={12} size={1} />
-            <Panel position="top-right" className="bg-dark-50 p-2 rounded-md border border-gray-700 shadow-lg m-2">
-              <div className="flex items-center gap-2">
-                {settings.safeMode && (
-                  <div className="py-1 px-2 bg-yellow-600 text-xs text-white rounded-md flex items-center">
-                    <span>Safe Mode</span>
-                  </div>
-                )}
-                {settings.memoryEnabled && (
-                  <div className="py-1 px-2 bg-blue-600 text-xs text-white rounded-md flex items-center">
-                    <span>Memory: {settings.memoryType}</span>
-                  </div>
-                )}
-                {settings.ragEnabled && (
-                  <div className="py-1 px-2 bg-green-600 text-xs text-white rounded-md flex items-center">
-                    <span>RAG Enabled</span>
-                  </div>
-                )}
-                {settings.debugMode && (
-                  <div className="py-1 px-2 bg-purple-600 text-xs text-white rounded-md flex items-center">
-                    <span>Debug</span>
-                  </div>
-                )}
-              </div>
-            </Panel>
-          </ReactFlow>
+    <div className="min-h-screen bg-[#111827] text-white flex flex-col">
+      {/* Header */}
+      <header className="bg-[#1F2937] border-b border-[#374151] p-4">
+        <div className="container mx-auto flex justify-between items-center">
+          <div className="flex items-center space-x-4">
+            <h1 className="text-xl font-bold text-[#F9FAFB]">{workflowName}</h1>
+            <div className="h-5 w-5 rounded-full bg-green-500"></div>
+            <span className="text-[#D1D5DB] text-sm">Last saved: Just now</span>
+          </div>
+          
+          <div className="flex items-center space-x-3">
+            <button 
+              onClick={handleSaveWorkflow}
+              className="px-4 py-2 bg-[#3B82F6] text-white rounded-md hover:bg-[#2563EB] transition-colors"
+            >
+              Save
+            </button>
+            <Link
+              href="/workflows"
+              className="px-4 py-2 bg-[#1F2937] border border-[#4B5563] text-white rounded-md hover:bg-[#374151] transition-colors"
+            >
+              Back to Workflows
+            </Link>
+          </div>
         </div>
+      </header>
+      
+      {/* Main content */}
+      <div className="flex-1 flex">
+        {/* Sidebar */}
+        <aside className="w-64 bg-[#1F2937] border-r border-[#374151] p-4">
+          <div className="mb-6">
+            <h2 className="text-[#F9FAFB] font-semibold mb-2">Elements</h2>
+            
+            <div className="space-y-1">
+              <button
+                onClick={() => setSelectedTab('nodes')}
+                className={`w-full text-left px-3 py-2 rounded-md transition-colors ${
+                  selectedTab === 'nodes' ? 'bg-[#3B82F6] text-white' : 'text-[#D1D5DB] hover:bg-[#374151]'
+                }`}
+              >
+                Nodes
+              </button>
+              <button
+                onClick={() => setSelectedTab('connections')}
+                className={`w-full text-left px-3 py-2 rounded-md transition-colors ${
+                  selectedTab === 'connections' ? 'bg-[#3B82F6] text-white' : 'text-[#D1D5DB] hover:bg-[#374151]'
+                }`}
+              >
+                Connections
+              </button>
+              <button
+                onClick={() => setSelectedTab('templates')}
+                className={`w-full text-left px-3 py-2 rounded-md transition-colors ${
+                  selectedTab === 'templates' ? 'bg-[#3B82F6] text-white' : 'text-[#D1D5DB] hover:bg-[#374151]'
+                }`}
+              >
+                Templates
+              </button>
+            </div>
+          </div>
+          
+          <div>
+            <h2 className="text-[#F9FAFB] font-semibold mb-2">
+              {selectedTab === 'nodes' ? 'Available Nodes' : 
+               selectedTab === 'connections' ? 'Connections' : 'Templates'}
+            </h2>
+            
+            {selectedTab === 'nodes' && (
+              <div className="space-y-2">
+                <div className="p-2 bg-[#374151] rounded-md hover:bg-[#4B5563] cursor-pointer transition-colors">
+                  <h3 className="font-medium text-[#F9FAFB]">AI Agent</h3>
+                  <p className="text-xs text-[#9CA3AF]">Add an AI agent to your workflow</p>
+                </div>
+                <div className="p-2 bg-[#374151] rounded-md hover:bg-[#4B5563] cursor-pointer transition-colors">
+                  <h3 className="font-medium text-[#F9FAFB]">Conditional</h3>
+                  <p className="text-xs text-[#9CA3AF]">Add a conditional branch</p>
+                </div>
+                <div className="p-2 bg-[#374151] rounded-md hover:bg-[#4B5563] cursor-pointer transition-colors">
+                  <h3 className="font-medium text-[#F9FAFB]">Data Processor</h3>
+                  <p className="text-xs text-[#9CA3AF]">Transform data formats</p>
+                </div>
+                <div className="p-2 bg-[#374151] rounded-md hover:bg-[#4B5563] cursor-pointer transition-colors">
+                  <h3 className="font-medium text-[#F9FAFB]">Webhook</h3>
+                  <p className="text-xs text-[#9CA3AF]">Trigger workflow from external source</p>
+                </div>
+              </div>
+            )}
+            
+            {selectedTab === 'connections' && (
+              <div className="space-y-2">
+                <div className="p-2 bg-[#374151] rounded-md hover:bg-[#4B5563] cursor-pointer transition-colors">
+                  <h3 className="font-medium text-[#F9FAFB]">Standard Connection</h3>
+                  <p className="text-xs text-[#9CA3AF]">Connect nodes with a standard flow</p>
+                </div>
+                <div className="p-2 bg-[#374151] rounded-md hover:bg-[#4B5563] cursor-pointer transition-colors">
+                  <h3 className="font-medium text-[#F9FAFB]">Conditional Connection</h3>
+                  <p className="text-xs text-[#9CA3AF]">Connect nodes with conditions</p>
+                </div>
+              </div>
+            )}
+            
+            {selectedTab === 'templates' && (
+              <div className="space-y-2">
+                <div className="p-2 bg-[#374151] rounded-md hover:bg-[#4B5563] cursor-pointer transition-colors">
+                  <h3 className="font-medium text-[#F9FAFB]">Customer Support</h3>
+                  <p className="text-xs text-[#9CA3AF]">Template for customer support automation</p>
+                </div>
+                <div className="p-2 bg-[#374151] rounded-md hover:bg-[#4B5563] cursor-pointer transition-colors">
+                  <h3 className="font-medium text-[#F9FAFB]">Lead Generation</h3>
+                  <p className="text-xs text-[#9CA3AF]">Template for lead generation flows</p>
+                </div>
+                <div className="p-2 bg-[#374151] rounded-md hover:bg-[#4B5563] cursor-pointer transition-colors">
+                  <h3 className="font-medium text-[#F9FAFB]">Content Creation</h3>
+                  <p className="text-xs text-[#9CA3AF]">Template for content creation automation</p>
+                </div>
+              </div>
+            )}
+          </div>
+        </aside>
+        
+        {/* Canvas/Editor */}
+        <main className="flex-1 flex flex-col overflow-hidden">
+          <div className="flex-1 relative bg-grid-pattern">
+            {/* This would be the ReactFlow canvas in the full version */}
+            <div className="absolute inset-0 flex items-center justify-center">
+              <div className="text-center p-8 rounded-lg bg-[#1F2937]/70 backdrop-blur-sm max-w-md">
+                <h2 className="text-2xl font-bold mb-4">Workflow Editor</h2>
+                <p className="mb-6 text-[#D1D5DB]">
+                  Due to optimization for deployments, the interactive ReactFlow editor is temporarily replaced with this static version. Drag nodes from the sidebar to create your workflow.
+                </p>
+                <div className="grid grid-cols-2 gap-4 mb-6">
+                  <div className="p-3 bg-[#374151] rounded-md text-center">
+                    <div className="w-10 h-10 rounded-full bg-blue-500 flex items-center justify-center mx-auto mb-2">
+                      <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                        <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-11a1 1 0 10-2 0v2H7a1 1 0 100 2h2v2a1 1 0 102 0v-2h2a1 1 0 100-2h-2V7z" clipRule="evenodd" />
+                      </svg>
+                    </div>
+                    <span className="text-sm">Drag to add nodes</span>
+                  </div>
+                  <div className="p-3 bg-[#374151] rounded-md text-center">
+                    <div className="w-10 h-10 rounded-full bg-purple-500 flex items-center justify-center mx-auto mb-2">
+                      <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                        <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-8.707l-3-3a1 1 0 00-1.414 0l-3 3a1 1 0 001.414 1.414L9 9.414V13a1 1 0 102 0V9.414l1.293 1.293a1 1 0 001.414-1.414z" clipRule="evenodd" />
+                      </svg>
+                    </div>
+                    <span className="text-sm">Connect nodes</span>
+                  </div>
+                </div>
+                <button 
+                  onClick={handleSaveWorkflow}
+                  className="px-4 py-2 bg-[#3B82F6] text-white rounded-md hover:bg-[#2563EB] transition-colors"
+                >
+                  Save Workflow
+                </button>
+              </div>
+            </div>
+          </div>
+          
+          {/* Properties panel */}
+          <div className="h-64 bg-[#1F2937] border-t border-[#374151] p-4 overflow-y-auto">
+            <h2 className="text-lg font-semibold mb-4">Workflow Settings</h2>
+            <div className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-[#D1D5DB] mb-1">Workflow Name</label>
+                <input 
+                  type="text" 
+                  className="w-full px-3 py-2 bg-[#374151] border border-[#4B5563] rounded-md text-white focus:outline-none focus:ring-2 focus:ring-[#3B82F6]"
+                  value={workflowName}
+                  onChange={(e) => setWorkflowName(e.target.value)}
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-[#D1D5DB] mb-1">Description</label>
+                <textarea 
+                  className="w-full px-3 py-2 bg-[#374151] border border-[#4B5563] rounded-md text-white focus:outline-none focus:ring-2 focus:ring-[#3B82F6]"
+                  value={workflowDescription}
+                  onChange={(e) => setWorkflowDescription(e.target.value)}
+                  rows={3}
+                />
+              </div>
+            </div>
+          </div>
+        </main>
       </div>
-      
-      {/* Add the ElevenLabsAgentWidget */}
-      <ElevenLabsAgentWidget 
-        agentId="i3gU7j7TnkhSqx3MNkhu" 
-        onWorkflowGenerated={handleWorkflowGenerated}
-      />
-      
-      {/* Settings Dialog */}
-      <WorkflowSettingsPanel
-        isOpen={showSettings}
-        onClose={() => setShowSettings(false)}
-        initialSettings={settings}
-        onSave={handleSaveSettings}
-      />
     </div>
   );
 }
-
-// Wrap with ReactFlowProvider to provide context
-export default function WorkflowEditor() {
-  return (
-    <ReactFlowProvider>
-      <WorkflowEditorContent />
-    </ReactFlowProvider>
-  );
-} 

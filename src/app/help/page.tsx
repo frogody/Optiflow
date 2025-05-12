@@ -1,23 +1,23 @@
 'use client';
 
-import {
-  ArrowRightIcon,
-  BookOpenIcon,
-  ChatBubbleLeftRightIcon,
-  ClockIcon,
-  DocumentTextIcon,
-  LifebuoyIcon,
-  MagnifyingGlassIcon,
-  MicrophoneIcon,
-  PuzzlePieceIcon,
-  QuestionMarkCircleIcon,
-  RocketLaunchIcon,
-  WrenchScrewdriverIcon,
-} from '@heroicons/react/24/outline';
+
+// Force dynamic rendering to avoid static generation issues
+export const dynamic = 'force-dynamic';
+
+// Heroicons removed to prevent React version conflicts
 import { BookmarkIcon } from '@heroicons/react/24/solid';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useState } from 'react';
+
+// Simple icon component to replace Heroicons
+const Icon = ({ name, className }) => {
+  return (
+    <div className={`icon-placeholder ${name} ${className || ''}`}>
+      <span className="sr-only">{name}</span>
+    </div>
+  );
+};
 
 export default function HelpCenter() {
   const [searchQuery, setSearchQuery] = useState('');
@@ -146,7 +146,7 @@ export default function HelpCenter() {
         <form onSubmit={handleSearch} className="max-w-2xl mx-auto">
           <div className="relative">
             <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-              <MagnifyingGlassIcon className="h-5 w-5 text-[#6B7280]" />
+              <Icon name="magnifying-glass-" className="h-5 w-5 text-[#6B7280]" />
             </div>
             <input
               type="text"
@@ -183,7 +183,7 @@ export default function HelpCenter() {
           href="/help/contact-support" 
           className="flex flex-col items-center p-6 bg-[#111111] border border-[#374151] rounded-lg hover:border-[#22D3EE] transition-colors"
         >
-          <LifebuoyIcon className="h-12 w-12 text-[#22D3EE] mb-4" />
+          <Icon name="lifebuoy-" className="h-12 w-12 text-[#22D3EE] mb-4" />
           <h3 className="text-lg font-medium text-[#E5E7EB] mb-2">Contact Support</h3>
           <p className="text-sm text-[#9CA3AF] text-center">
             Get help from our support team
@@ -194,7 +194,7 @@ export default function HelpCenter() {
           href="/help/community" 
           className="flex flex-col items-center p-6 bg-[#111111] border border-[#374151] rounded-lg hover:border-[#A855F7] transition-colors"
         >
-          <ChatBubbleLeftRightIcon className="h-12 w-12 text-[#A855F7] mb-4" />
+          <Icon name="chat-bubble-left-right-" className="h-12 w-12 text-[#A855F7] mb-4" />
           <h3 className="text-lg font-medium text-[#E5E7EB] mb-2">Community Forum</h3>
           <p className="text-sm text-[#9CA3AF] text-center">
             Join discussions and share solutions
@@ -206,7 +206,7 @@ export default function HelpCenter() {
           className="flex flex-col items-center p-6 bg-[#111111] border border-[#374151] rounded-lg hover:border-[#22D3EE] transition-colors"
           target="_blank"
         >
-          <DocumentTextIcon className="h-12 w-12 text-[#22D3EE] mb-4" />
+          <Icon name="document-text-" className="h-12 w-12 text-[#22D3EE] mb-4" />
           <h3 className="text-lg font-medium text-[#E5E7EB] mb-2">System Status</h3>
           <p className="text-sm text-[#9CA3AF] text-center">
             Check current operational status
@@ -248,7 +248,7 @@ export default function HelpCenter() {
           <h2 className="text-2xl font-bold text-[#E5E7EB]">Featured Articles</h2>
           <Link href="/help/featured" className="text-[#22D3EE] hover:text-[#06B6D4] flex items-center text-sm font-medium">
             <span>View all featured</span>
-            <ArrowRightIcon className="ml-1 h-4 w-4" />
+            <Icon name="arrow-right-" className="ml-1 h-4 w-4" />
           </Link>
         </div>
         
@@ -275,7 +275,7 @@ export default function HelpCenter() {
                       {article.description}
                     </p>
                     <div className="mt-3 flex items-center text-xs text-[#6B7280]">
-                      <ClockIcon className="h-4 w-4 mr-1" />
+                      <Icon name="clock-" className="h-4 w-4 mr-1" />
                       <span>{article.readTime}</span>
                     </div>
                   </div>
@@ -294,7 +294,7 @@ export default function HelpCenter() {
             <h2 className="text-2xl font-bold text-[#E5E7EB]">Recent Updates</h2>
             <Link href="/help/recent" className="text-[#22D3EE] hover:text-[#06B6D4] flex items-center text-sm font-medium">
               <span>View all</span>
-              <ArrowRightIcon className="ml-1 h-4 w-4" />
+              <Icon name="arrow-right-" className="ml-1 h-4 w-4" />
             </Link>
           </div>
           
@@ -336,7 +336,7 @@ export default function HelpCenter() {
                     href={topic.href}
                     className="flex items-center p-4 hover:bg-[#1E293B] transition-colors"
                   >
-                    <BookmarkIcon className="h-4 w-4 text-[#22D3EE] mr-2" />
+                    <Icon name="bookmark-" className="h-4 w-4 text-[#22D3EE] mr-2" />
                     <span className="text-[#E5E7EB] hover:text-[#22D3EE]">
                       {topic.title}
                     </span>

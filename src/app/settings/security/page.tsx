@@ -1,17 +1,10 @@
 'use client';
 
-import {
-  CheckCircleIcon,
-  DevicePhoneMobileIcon,
-  ExclamationTriangleIcon,
-  FingerPrintIcon,
-  KeyIcon,
-  LockClosedIcon,
-  QrCodeIcon,
-  ShieldCheckIcon,
-  UserGroupIcon,
-  XMarkIcon
-} from '@heroicons/react/24/outline';
+
+// Force dynamic rendering to avoid static generation issues
+export const dynamic = 'force-dynamic';
+
+// Heroicons removed to prevent React version conflicts
 import Link from 'next/link';
 import { useState } from 'react';
 
@@ -78,6 +71,15 @@ const mockSecurityLogs = [
     },
   },
 ];
+
+// Simple icon component to replace Heroicons
+const Icon = ({ name, className }) => {
+  return (
+    <div className={`icon-placeholder ${name} ${className || ''}`}>
+      <span className="sr-only">{name}</span>
+    </div>
+  );
+};
 
 export default function SecuritySettings() {
   const [showMfaSetup, setShowMfaSetup] = useState(false);
@@ -185,9 +187,9 @@ export default function SecuritySettings() {
             {mockSecurityData.checks.map((check, index) => (
               <li key={index} className="flex items-start">
                 {check.passed ? (
-                  <CheckCircleIcon className="h-5 w-5 text-[#10B981] flex-shrink-0 mt-0.5 mr-2" />
+                  <Icon name="check-circle-" className="h-5 w-5 text-[#10B981] flex-shrink-0 mt-0.5 mr-2" />
                 ) : (
-                  <ExclamationTriangleIcon className="h-5 w-5 text-[#F59E0B] flex-shrink-0 mt-0.5 mr-2" />
+                  <Icon name="exclamation-triangle-" className="h-5 w-5 text-[#F59E0B] flex-shrink-0 mt-0.5 mr-2" />
                 )}
                 <span className={check.passed ? 'text-[#9CA3AF]' : 'text-[#E5E7EB]'}>
                   {check.name}
@@ -206,7 +208,7 @@ export default function SecuritySettings() {
               href="/settings/profile?tab=password" 
               className="flex items-center p-3 bg-[#1E293B] rounded-lg hover:bg-[#2D3748] transition-colors"
             >
-              <LockClosedIcon className="h-5 w-5 text-[#9CA3AF] mr-3" />
+              <Icon name="lock-closed-" className="h-5 w-5 text-[#9CA3AF] mr-3" />
               <span className="text-[#E5E7EB]">Change Password</span>
             </Link>
             
@@ -214,7 +216,7 @@ export default function SecuritySettings() {
               href="/settings/api-keys" 
               className="flex items-center p-3 bg-[#1E293B] rounded-lg hover:bg-[#2D3748] transition-colors"
             >
-              <KeyIcon className="h-5 w-5 text-[#9CA3AF] mr-3" />
+              <Icon name="key-" className="h-5 w-5 text-[#9CA3AF] mr-3" />
               <span className="text-[#E5E7EB]">Manage API Keys</span>
             </Link>
             
@@ -222,7 +224,7 @@ export default function SecuritySettings() {
               href="/settings/profile?tab=sessions" 
               className="flex items-center p-3 bg-[#1E293B] rounded-lg hover:bg-[#2D3748] transition-colors"
             >
-              <DevicePhoneMobileIcon className="h-5 w-5 text-[#9CA3AF] mr-3" />
+              <Icon name="device-phone-mobile-" className="h-5 w-5 text-[#9CA3AF] mr-3" />
               <span className="text-[#E5E7EB]">View Active Sessions</span>
             </Link>
             
@@ -230,7 +232,7 @@ export default function SecuritySettings() {
               href="/settings/notifications" 
               className="flex items-center p-3 bg-[#1E293B] rounded-lg hover:bg-[#2D3748] transition-colors"
             >
-              <UserGroupIcon className="h-5 w-5 text-[#9CA3AF] mr-3" />
+              <Icon name="user-group-" className="h-5 w-5 text-[#9CA3AF] mr-3" />
               <span className="text-[#E5E7EB]">Security Notifications</span>
             </Link>
           </div>
@@ -243,7 +245,7 @@ export default function SecuritySettings() {
           {mockSecurityData.mfaEnabled ? (
             <div>
               <div className="flex items-center mb-4">
-                <FingerPrintIcon className="h-6 w-6 text-[#10B981] mr-2" />
+                <Icon name="finger-print-" className="h-6 w-6 text-[#10B981] mr-2" />
                 <span className="text-[#10B981] font-medium">MFA is enabled</span>
               </div>
               
@@ -275,7 +277,7 @@ export default function SecuritySettings() {
           ) : (
             <div>
               <div className="flex items-center mb-4">
-                <ExclamationTriangleIcon className="h-6 w-6 text-[#F59E0B] mr-2" />
+                <Icon name="exclamation-triangle-" className="h-6 w-6 text-[#F59E0B] mr-2" />
                 <span className="text-[#F59E0B] font-medium">MFA is not enabled</span>
               </div>
               
@@ -287,7 +289,7 @@ export default function SecuritySettings() {
                 onClick={handleSetupMfa}
                 className="w-full py-2 bg-[#22D3EE] text-[#111111] font-medium rounded-md hover:bg-[#06B6D4] transition-colors flex items-center justify-center"
               >
-                <ShieldCheckIcon className="h-5 w-5 mr-2" />
+                <Icon name="shield-check-" className="h-5 w-5 mr-2" />
                 Enable MFA
               </button>
             </div>
@@ -311,11 +313,11 @@ export default function SecuritySettings() {
                     log.event.includes('Failed') ? 'bg-[#371520] text-[#F87171]' : 'bg-[#1E293B] text-[#9CA3AF]'
                   }`}>
                     {log.event.includes('Login') ? (
-                      <FingerPrintIcon className="h-5 w-5" />
+                      <Icon name="finger-print-" className="h-5 w-5" />
                     ) : log.event.includes('Password') ? (
-                      <LockClosedIcon className="h-5 w-5" />
+                      <Icon name="lock-closed-" className="h-5 w-5" />
                     ) : (
-                      <KeyIcon className="h-5 w-5" />
+                      <Icon name="key-" className="h-5 w-5" />
                     )}
                   </div>
                   
@@ -413,7 +415,7 @@ export default function SecuritySettings() {
                 aria-label="Close modal"
                 title="Close modal"
               >
-                <XMarkIcon className="h-6 w-6" />
+                <Icon name="xmark-" className="h-6 w-6" />
               </button>
             </div>
             
@@ -448,7 +450,7 @@ export default function SecuritySettings() {
                       
                       <div className="mt-3 bg-white p-4 rounded-lg w-48 h-48 mx-auto flex items-center justify-center">
                         {showQrCode ? (
-                          <QrCodeIcon className="h-32 w-32 text-[#111111]" />
+                          <Icon name="qr-code-" className="h-32 w-32 text-[#111111]" />
                         ) : (
                           <button
                             onClick={() => setShowQrCode(true)}
@@ -507,7 +509,7 @@ export default function SecuritySettings() {
             ) : (
               <div>
                 <div className="bg-[#022c22] border border-[#10B981] rounded-lg p-4 flex items-start mb-6">
-                  <CheckCircleIcon className="h-6 w-6 text-[#10B981] mr-3 mt-0.5" />
+                  <Icon name="check-circle-" className="h-6 w-6 text-[#10B981] mr-3 mt-0.5" />
                   <div>
                     <p className="text-[#E5E7EB] font-medium">
                       Verification successful!

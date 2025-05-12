@@ -1,23 +1,22 @@
 'use client';
 
-import {
-  ChatBubbleLeftRightIcon,
-  ChevronRightIcon,
-  FireIcon,
-  HandRaisedIcon,
-  MagnifyingGlassIcon,
-  MicrophoneIcon,
-  PlusIcon,
-  PuzzlePieceIcon,
-  QuestionMarkCircleIcon,
-  RocketLaunchIcon,
-  UserCircleIcon,
-  UserGroupIcon,
-  WrenchScrewdriverIcon,
-} from '@heroicons/react/24/outline';
+
+// Force dynamic rendering to avoid static generation issues
+export const dynamic = 'force-dynamic';
+
+// Heroicons removed to prevent React version conflicts
 import { CheckBadgeIcon } from '@heroicons/react/24/solid';
 import Link from 'next/link';
 import { useState } from 'react';
+
+// Simple icon component to replace Heroicons
+const Icon = ({ name, className }) => {
+  return (
+    <div className={`icon-placeholder ${name} ${className || ''}`}>
+      <span className="sr-only">{name}</span>
+    </div>
+  );
+};
 
 export default function CommunityForum() {
   const [searchQuery, setSearchQuery] = useState('');
@@ -194,7 +193,7 @@ export default function CommunityForum() {
         {/* Search */}
         <form onSubmit={handleSearch} className="relative max-w-lg">
           <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-            <MagnifyingGlassIcon className="h-5 w-5 text-[#6B7280]" />
+            <Icon name="magnifying-glass-" className="h-5 w-5 text-[#6B7280]" />
           </div>
           <input
             type="text"
@@ -241,28 +240,28 @@ export default function CommunityForum() {
               href="/help/community/new-topic"
               className="flex items-center justify-center space-x-2 px-4 py-2 bg-[#22D3EE] text-[#111111] font-medium rounded-md hover:bg-[#06B6D4] transition-colors"
             >
-              <PlusIcon className="h-5 w-5" />
+              <Icon name="plus-" className="h-5 w-5" />
               <span>New Topic</span>
             </Link>
             <Link
               href="/help/community/unanswered"
               className="flex items-center justify-center space-x-2 px-4 py-2 bg-[#1E293B] text-[#E5E7EB] font-medium rounded-md hover:bg-[#2D3748] transition-colors"
             >
-              <HandRaisedIcon className="h-5 w-5" />
+              <Icon name="hand-raised-" className="h-5 w-5" />
               <span>Help Others</span>
             </Link>
             <Link
               href="/help/community/your-posts"
               className="flex items-center justify-center space-x-2 px-4 py-2 bg-[#1E293B] text-[#E5E7EB] font-medium rounded-md hover:bg-[#2D3748] transition-colors"
             >
-              <UserCircleIcon className="h-5 w-5" />
+              <Icon name="user-circle-" className="h-5 w-5" />
               <span>Your Posts</span>
             </Link>
             <Link
               href="/help/community/guidelines"
               className="flex items-center justify-center space-x-2 px-4 py-2 bg-[#1E293B] text-[#E5E7EB] font-medium rounded-md hover:bg-[#2D3748] transition-colors"
             >
-              <ChatBubbleLeftRightIcon className="h-5 w-5" />
+              <Icon name="chat-bubble-left-right-" className="h-5 w-5" />
               <span>Guidelines</span>
             </Link>
           </div>
@@ -278,7 +277,7 @@ export default function CommunityForum() {
             className="text-sm text-[#22D3EE] hover:text-[#06B6D4] flex items-center"
           >
             <span>View all categories</span>
-            <ChevronRightIcon className="ml-1 h-4 w-4" />
+            <Icon name="chevron-right-" className="ml-1 h-4 w-4" />
           </Link>
         </div>
         
@@ -318,7 +317,7 @@ export default function CommunityForum() {
             className="text-sm text-[#22D3EE] hover:text-[#06B6D4] flex items-center"
           >
             <span>View all recent</span>
-            <ChevronRightIcon className="ml-1 h-4 w-4" />
+            <Icon name="chevron-right-" className="ml-1 h-4 w-4" />
           </Link>
         </div>
         
@@ -350,7 +349,7 @@ export default function CommunityForum() {
                     >
                       <div className="flex items-center">
                         {discussion.isHot && (
-                          <FireIcon className="h-5 w-5 text-[#F59E0B] mr-2" />
+                          <Icon name="fire-" className="h-5 w-5 text-[#F59E0B] mr-2" />
                         )}
                         <div>
                           <div className="font-medium text-[#E5E7EB] hover:text-[#22D3EE]">
@@ -358,13 +357,13 @@ export default function CommunityForum() {
                           </div>
                           <div className="mt-1 flex items-center text-xs text-[#9CA3AF]">
                             <div className="h-6 w-6 rounded-full bg-[#2D3748] flex items-center justify-center text-[#22D3EE] mr-2">
-                              <UserCircleIcon className="h-5 w-5" />
+                              <Icon name="user-circle-" className="h-5 w-5" />
                             </div>
                             <span>
                               {discussion.author.name}
                               {discussion.author.isStaff && (
                                 <span className="ml-1 inline-flex items-center">
-                                  <CheckBadgeIcon className="h-3 w-3 text-[#22D3EE] mr-1" />
+                                  <Icon name="check-badge-" className="h-3 w-3 text-[#22D3EE] mr-1" />
                                   <span className="text-[#22D3EE]">Staff</span>
                                 </span>
                               )}
@@ -405,7 +404,7 @@ export default function CommunityForum() {
                 <li key={index} className="p-4">
                   <div className="flex items-center">
                     <div className="h-10 w-10 rounded-full bg-[#2D3748] flex items-center justify-center text-[#22D3EE] mr-4">
-                      <UserCircleIcon className="h-8 w-8" />
+                      <Icon name="user-circle-" className="h-8 w-8" />
                     </div>
                     <div>
                       <h3 className="text-[#E5E7EB] font-medium">{contributor.name}</h3>
@@ -432,7 +431,7 @@ export default function CommunityForum() {
                 href="/help/community/members" 
                 className="text-sm text-[#22D3EE] hover:text-[#06B6D4] flex items-center"
               >
-                <UserGroupIcon className="h-4 w-4 mr-1" />
+                <Icon name="user-group-" className="h-4 w-4 mr-1" />
                 <span>View all members</span>
               </Link>
             </div>
@@ -492,7 +491,7 @@ export default function CommunityForum() {
               className="inline-flex items-center px-6 py-3 bg-[#22D3EE] text-[#111111] font-bold rounded-md hover:bg-[#06B6D4] transition-colors"
             >
               <span>Read Guidelines</span>
-              <ChevronRightIcon className="ml-2 h-5 w-5" />
+              <Icon name="chevron-right-" className="ml-2 h-5 w-5" />
             </Link>
           </div>
         </div>

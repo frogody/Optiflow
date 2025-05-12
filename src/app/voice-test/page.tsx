@@ -1,5 +1,9 @@
 'use client';
 
+
+// Force dynamic rendering to avoid static generation issues
+export const dynamic = 'force-dynamic';
+
 import { useEffect, useRef, useState } from 'react';
 
 import { ElevenLabsConversationalService } from '@/services/ElevenLabsConversationalService';

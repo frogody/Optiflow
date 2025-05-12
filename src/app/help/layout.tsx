@@ -1,20 +1,6 @@
 'use client';
 
-import {
-  Bars3Icon,
-  BookOpenIcon, 
-  ChevronDownIcon,
-  ChevronRightIcon,
-  CreditCardIcon,
-  MagnifyingGlassIcon,
-  MicrophoneIcon,
-  PuzzlePieceIcon,
-  QuestionMarkCircleIcon,
-  RocketLaunchIcon,
-  UserCircleIcon,
-  WrenchScrewdriverIcon,
-  XMarkIcon
-} from '@heroicons/react/24/outline';
+// Heroicons removed to prevent React version conflicts
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useEffect, useState } from 'react';
@@ -112,6 +98,15 @@ const helpCategories = [
   },
 ];
 
+// Simple icon component to replace Heroicons
+const Icon = ({ name, className }) => {
+  return (
+    <div className={`icon-placeholder ${name} ${className || ''}`}>
+      <span className="sr-only">{name}</span>
+    </div>
+  );
+};
+
 export default function HelpLayout({
   children,
 }: {
@@ -159,7 +154,7 @@ export default function HelpLayout({
             <div className="hidden md:flex flex-1 max-w-lg mx-6">
               <div className="w-full relative">
                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                  <MagnifyingGlassIcon className="h-5 w-5 text-[#6B7280]" />
+                  <Icon name="magnifying-glass-" className="h-5 w-5 text-[#6B7280]" />
                 </div>
                 <input
                   type="text"
@@ -207,9 +202,9 @@ export default function HelpLayout({
                 onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
               >
                 {mobileMenuOpen ? (
-                  <XMarkIcon className="block h-6 w-6" aria-hidden="true" />
+                  <Icon name="xmark-" className="block h-6 w-6" aria-hidden="true" />
                 ) : (
-                  <Bars3Icon className="block h-6 w-6" aria-hidden="true" />
+                  <Icon name="bars3-" className="block h-6 w-6" aria-hidden="true" />
                 )}
               </button>
             </div>
@@ -220,7 +215,7 @@ export default function HelpLayout({
         <div className="md:hidden px-4 py-3 bg-[#111111] border-t border-[#374151]">
           <div className="relative">
             <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-              <MagnifyingGlassIcon className="h-5 w-5 text-[#6B7280]" />
+              <Icon name="magnifying-glass-" className="h-5 w-5 text-[#6B7280]" />
             </div>
             <input
               type="text"
@@ -279,9 +274,9 @@ export default function HelpLayout({
                     {category.name}
                   </div>
                   {openCategory === category.name ? (
-                    <ChevronDownIcon className="h-5 w-5" />
+                    <Icon name="chevron-down-" className="h-5 w-5" />
                   ) : (
-                    <ChevronRightIcon className="h-5 w-5" />
+                    <Icon name="chevron-right-" className="h-5 w-5" />
                   )}
                 </button>
                 
@@ -326,9 +321,9 @@ export default function HelpLayout({
                       {category.name}
                     </div>
                     {openCategory === category.name ? (
-                      <ChevronDownIcon className="h-4 w-4" />
+                      <Icon name="chevron-down-" className="h-4 w-4" />
                     ) : (
-                      <ChevronRightIcon className="h-4 w-4" />
+                      <Icon name="chevron-right-" className="h-4 w-4" />
                     )}
                   </button>
                   

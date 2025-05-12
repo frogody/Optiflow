@@ -1,13 +1,10 @@
 'use client';
 
-import { 
-  CheckCircleIcon, 
-  ExclamationCircleIcon, 
-  ExclamationTriangleIcon,
-  EyeIcon,
-  EyeSlashIcon,
-  LockClosedIcon 
-} from '@heroicons/react/24/outline';
+
+// Force dynamic rendering to avoid static generation issues
+export const dynamic = 'force-dynamic';
+
+// Heroicons removed to prevent React version conflicts
 import Image from 'next/image';
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
@@ -24,6 +21,15 @@ interface PasswordStrength {
     hasSpecialChar: boolean;
   };
 }
+
+// Simple icon component to replace Heroicons
+const Icon = ({ name, className }) => {
+  return (
+    <div className={`icon-placeholder ${name} ${className || ''}`}>
+      <span className="sr-only">{name}</span>
+    </div>
+  );
+};
 
 export default function ResetPassword() {
   const searchParams = useSearchParams();
@@ -181,7 +187,7 @@ export default function ResetPassword() {
         <div className="bg-[#18181B] py-8 px-4 shadow-xl sm:rounded-lg sm:px-10">
           {error && (
             <div className="mb-4 bg-[#371520] border border-[#F87171] text-[#F87171] px-4 py-3 rounded-md text-sm flex items-start">
-              <ExclamationTriangleIcon className="h-5 w-5 mr-2 flex-shrink-0" />
+              <Icon name="exclamation-triangle-" className="h-5 w-5 mr-2 flex-shrink-0" />
               <span>{error}</span>
             </div>
           )}
@@ -197,7 +203,7 @@ export default function ResetPassword() {
 
           {tokenExpired && (
             <div className="text-center">
-              <ExclamationCircleIcon className="h-12 w-12 mx-auto text-[#F87171]" />
+              <Icon name="exclamation-circle-" className="h-12 w-12 mx-auto text-[#F87171]" />
               <h3 className="mt-4 text-xl font-medium text-[#E5E7EB]">Reset Link Expired</h3>
               <p className="mt-2 text-[#9CA3AF]">
                 The password reset link has expired or is invalid. Please request a new reset link.
@@ -221,7 +227,7 @@ export default function ResetPassword() {
                 </label>
                 <div className="mt-1 relative rounded-md shadow-sm">
                   <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                    <LockClosedIcon className="h-5 w-5 text-[#4B5563]" aria-hidden="true" />
+                    <Icon name="lock-closed-" className="h-5 w-5 text-[#4B5563]" aria-hidden="true" />
                   </div>
                   <input
                     id="password"
@@ -245,9 +251,9 @@ export default function ResetPassword() {
                       title={showPassword ? "Hide password" : "Show password"}
                     >
                       {showPassword ? (
-                        <EyeSlashIcon className="h-5 w-5" aria-hidden="true" />
+                        <Icon name="eye-slash-" className="h-5 w-5" aria-hidden="true" />
                       ) : (
-                        <EyeIcon className="h-5 w-5" aria-hidden="true" />
+                        <Icon name="eye-" className="h-5 w-5" aria-hidden="true" />
                       )}
                     </button>
                   </div>
@@ -278,9 +284,9 @@ export default function ResetPassword() {
                   <div className="mt-3 grid grid-cols-2 gap-2">
                     <div className="flex items-center text-xs">
                       {passwordStrength.criteria.hasMinLength ? (
-                        <CheckCircleIcon className="h-4 w-4 text-[#10B981] mr-1" />
+                        <Icon name="check-circle-" className="h-4 w-4 text-[#10B981] mr-1" />
                       ) : (
-                        <ExclamationCircleIcon className="h-4 w-4 text-[#9CA3AF] mr-1" />
+                        <Icon name="exclamation-circle-" className="h-4 w-4 text-[#9CA3AF] mr-1" />
                       )}
                       <span className={passwordStrength.criteria.hasMinLength ? 'text-[#E5E7EB]' : 'text-[#9CA3AF]'}>
                         8+ characters
@@ -288,9 +294,9 @@ export default function ResetPassword() {
                     </div>
                     <div className="flex items-center text-xs">
                       {passwordStrength.criteria.hasUppercase ? (
-                        <CheckCircleIcon className="h-4 w-4 text-[#10B981] mr-1" />
+                        <Icon name="check-circle-" className="h-4 w-4 text-[#10B981] mr-1" />
                       ) : (
-                        <ExclamationCircleIcon className="h-4 w-4 text-[#9CA3AF] mr-1" />
+                        <Icon name="exclamation-circle-" className="h-4 w-4 text-[#9CA3AF] mr-1" />
                       )}
                       <span className={passwordStrength.criteria.hasUppercase ? 'text-[#E5E7EB]' : 'text-[#9CA3AF]'}>
                         Uppercase letter
@@ -298,9 +304,9 @@ export default function ResetPassword() {
                     </div>
                     <div className="flex items-center text-xs">
                       {passwordStrength.criteria.hasLowercase ? (
-                        <CheckCircleIcon className="h-4 w-4 text-[#10B981] mr-1" />
+                        <Icon name="check-circle-" className="h-4 w-4 text-[#10B981] mr-1" />
                       ) : (
-                        <ExclamationCircleIcon className="h-4 w-4 text-[#9CA3AF] mr-1" />
+                        <Icon name="exclamation-circle-" className="h-4 w-4 text-[#9CA3AF] mr-1" />
                       )}
                       <span className={passwordStrength.criteria.hasLowercase ? 'text-[#E5E7EB]' : 'text-[#9CA3AF]'}>
                         Lowercase letter
@@ -308,9 +314,9 @@ export default function ResetPassword() {
                     </div>
                     <div className="flex items-center text-xs">
                       {passwordStrength.criteria.hasNumber ? (
-                        <CheckCircleIcon className="h-4 w-4 text-[#10B981] mr-1" />
+                        <Icon name="check-circle-" className="h-4 w-4 text-[#10B981] mr-1" />
                       ) : (
-                        <ExclamationCircleIcon className="h-4 w-4 text-[#9CA3AF] mr-1" />
+                        <Icon name="exclamation-circle-" className="h-4 w-4 text-[#9CA3AF] mr-1" />
                       )}
                       <span className={passwordStrength.criteria.hasNumber ? 'text-[#E5E7EB]' : 'text-[#9CA3AF]'}>
                         Number
@@ -318,9 +324,9 @@ export default function ResetPassword() {
                     </div>
                     <div className="flex items-center text-xs">
                       {passwordStrength.criteria.hasSpecialChar ? (
-                        <CheckCircleIcon className="h-4 w-4 text-[#10B981] mr-1" />
+                        <Icon name="check-circle-" className="h-4 w-4 text-[#10B981] mr-1" />
                       ) : (
-                        <ExclamationCircleIcon className="h-4 w-4 text-[#9CA3AF] mr-1" />
+                        <Icon name="exclamation-circle-" className="h-4 w-4 text-[#9CA3AF] mr-1" />
                       )}
                       <span className={passwordStrength.criteria.hasSpecialChar ? 'text-[#E5E7EB]' : 'text-[#9CA3AF]'}>
                         Special character
@@ -336,7 +342,7 @@ export default function ResetPassword() {
                 </label>
                 <div className="mt-1 relative rounded-md shadow-sm">
                   <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                    <LockClosedIcon className="h-5 w-5 text-[#4B5563]" aria-hidden="true" />
+                    <Icon name="lock-closed-" className="h-5 w-5 text-[#4B5563]" aria-hidden="true" />
                   </div>
                   <input
                     id="confirm-password"
@@ -364,9 +370,9 @@ export default function ResetPassword() {
                       title={showConfirmPassword ? "Hide password" : "Show password"}
                     >
                       {showConfirmPassword ? (
-                        <EyeSlashIcon className="h-5 w-5" aria-hidden="true" />
+                        <Icon name="eye-slash-" className="h-5 w-5" aria-hidden="true" />
                       ) : (
-                        <EyeIcon className="h-5 w-5" aria-hidden="true" />
+                        <Icon name="eye-" className="h-5 w-5" aria-hidden="true" />
                       )}
                     </button>
                   </div>
@@ -394,7 +400,7 @@ export default function ResetPassword() {
 
           {resetComplete && (
             <div className="text-center">
-              <CheckCircleIcon className="h-12 w-12 mx-auto text-[#10B981]" />
+              <Icon name="check-circle-" className="h-12 w-12 mx-auto text-[#10B981]" />
               <h3 className="mt-4 text-xl font-medium text-[#E5E7EB]">Password Reset Successful</h3>
               <p className="mt-2 text-[#9CA3AF]">
                 Your password has been reset successfully. You can now log in with your new password.

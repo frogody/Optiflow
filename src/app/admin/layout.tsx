@@ -1,19 +1,19 @@
 'use client';
 
-import { 
-  ChartBarIcon, 
-  CogIcon, 
-  CreditCardIcon, 
-  DocumentTextIcon, 
-  FlagIcon,
-  ServerIcon,
-  ShieldCheckIcon,
-  UsersIcon
-} from '@heroicons/react/24/outline';
+// Heroicons removed to prevent React version conflicts
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { useSession } from 'next-auth/react';
 import { useEffect, useState } from 'react';
+
+// Simple icon component to replace Heroicons
+const Icon = ({ name, className }) => {
+  return (
+    <div className={`icon-placeholder ${name} ${className || ''}`}>
+      <span className="sr-only">{name}</span>
+    </div>
+  );
+};
 
 export default function AdminLayout({
   children,

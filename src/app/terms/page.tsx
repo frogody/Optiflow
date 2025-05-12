@@ -1,7 +1,20 @@
 'use client';
 
-import { CalendarIcon } from '@heroicons/react/24/outline';
+
+// Force dynamic rendering to avoid static generation issues
+export const dynamic = 'force-dynamic';
+
+// Heroicons removed to prevent React version conflicts
 import Link from 'next/link';
+
+// Simple icon component to replace Heroicons
+const Icon = ({ name, className }) => {
+  return (
+    <div className={`icon-placeholder ${name} ${className || ''}`}>
+      <span className="sr-only">{name}</span>
+    </div>
+  );
+};
 
 export default function TermsOfService() {
   return (
@@ -10,7 +23,7 @@ export default function TermsOfService() {
         <div className="mb-12 text-center">
           <h1 className="text-3xl md:text-4xl font-bold text-[#E5E7EB] mb-2">Terms of Service</h1>
           <div className="flex items-center justify-center text-[#9CA3AF] text-sm">
-            <CalendarIcon className="h-4 w-4 mr-1" />
+            <Icon name="calendar-" className="h-4 w-4 mr-1" />
             <span>Last updated: June 1, 2023</span>
           </div>
         </div>

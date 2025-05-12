@@ -3,10 +3,6 @@
 // Force dynamic rendering to avoid static generation issues
 export const dynamic = 'force-dynamic';
 
-// Force dynamic rendering to avoid static generation issues with React version conflicts
-
-
-import dynamic from 'next/dynamic';
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { 
@@ -17,8 +13,6 @@ import {
   HiOutlineLightningBolt,
   HiOutlineUserGroup
 } from 'react-icons/hi';
-import { MotionWrapper } from '@/components/MotionWrapper';
-
 export default function CustomDevelopmentPage(): JSX.Element {
   // Use client-side only rendering to avoid hydration mismatches
   const [isClient, setIsClient] = useState(false);
@@ -32,27 +26,27 @@ export default function CustomDevelopmentPage(): JSX.Element {
     { title: "Custom Integration",
       description: "Tailored integration solutions to connect your existing systems and workflows.",
       icon: <HiOutlineCode className="w-8 h-8" />
-        },
+    },
     { title: "Workflow Automation",
       description: "Custom automation solutions to streamline your business processes.",
       icon: <HiOutlineCog className="w-8 h-8" />
-        },
+    },
     { title: "Performance Optimization",
       description: "Optimization of your existing systems for better performance and efficiency.",
       icon: <HiOutlineLightningBolt className="w-8 h-8" />
-        },
+    },
     { title: "Documentation",
       description: "Comprehensive documentation for your custom solutions.",
       icon: <HiOutlineDocumentText className="w-8 h-8" />
-        },
+    },
     { title: "Team Training",
       description: "Training sessions to help your team make the most of the new solutions.",
       icon: <HiOutlineUserGroup className="w-8 h-8" />
-        },
+    },
     { title: "Analytics & Reporting",
       description: "Custom analytics and reporting solutions for better insights.",
       icon: <HiOutlineChartBar className="w-8 h-8" />
-        }
+    }
   ];
 
   // Process steps
@@ -88,12 +82,7 @@ export default function CustomDevelopmentPage(): JSX.Element {
         <div className="absolute w-[400px] h-[400px] rounded-full right-1/4 bottom-1/3 bg-[#4AFFD4] opacity-10 blur-[120px]"></div>
         
         <div className="container mx-auto px-4 text-center relative z-10">
-          <MotionWrapper
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8 }}
-            className="max-w-4xl mx-auto"
-          >
+          <div className="max-w-4xl mx-auto">
             <h1 className="text-5xl md:text-6xl lg:text-7xl font-bold mb-8 tracking-tight">
               Custom{" "}
               <span className="bg-gradient-to-r from-[#3CDFFF] to-[#4AFFD4] text-transparent bg-clip-text">
@@ -119,7 +108,7 @@ export default function CustomDevelopmentPage(): JSX.Element {
                 Learn More
               </Link>
             </div>
-          </MotionWrapper>
+          </div>
         </div>
       </section>
 
@@ -137,12 +126,8 @@ export default function CustomDevelopmentPage(): JSX.Element {
           
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             {features.map((feature, index) => (
-              <MotionWrapper
+              <div
                 key={index}
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.5, delay: index * 0.1 }}
-                viewport={{ once: true }}
                 className="feature-card p-6 rounded-xl border border-white/10 bg-white/5 backdrop-blur-sm relative overflow-hidden group hover:border-[#3CDFFF]/30 transition-all duration-300"
               >
                 <div className="text-[#3CDFFF] mb-4">
@@ -151,7 +136,7 @@ export default function CustomDevelopmentPage(): JSX.Element {
                 
                 <h3 className="text-xl font-semibold mb-3">{feature.title}</h3>
                 <p className="text-gray-300">{feature.description}</p>
-              </MotionWrapper>
+              </div>
             ))}
           </div>
         </div>
@@ -173,12 +158,8 @@ export default function CustomDevelopmentPage(): JSX.Element {
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
             {processSteps.map((step, index) => (
-              <MotionWrapper
+              <div
                 key={index}
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.5, delay: index * 0.1 }}
-                viewport={{ once: true }}
                 className="bg-white/5 backdrop-blur-sm rounded-xl p-6 border border-white/10 relative overflow-hidden group hover:border-[#3CDFFF]/30 transition-all duration-300"
               >
                 <div className="absolute -right-4 -top-4 w-24 h-24 rounded-full bg-[#3CDFFF] opacity-10 blur-xl group-hover:opacity-20 transition-all duration-500"></div>
@@ -191,7 +172,7 @@ export default function CustomDevelopmentPage(): JSX.Element {
                   <h3 className="text-xl font-semibold mb-3">{step.title}</h3>
                   <p className="text-gray-300">{step.description}</p>
                 </div>
-              </MotionWrapper>
+              </div>
             ))}
           </div>
         </div>
@@ -204,13 +185,7 @@ export default function CustomDevelopmentPage(): JSX.Element {
         <div className="absolute w-[600px] h-[600px] rounded-full right-1/4 -bottom-1/2 bg-[#4AFFD4] opacity-10 blur-[120px]"></div>
         
         <div className="container mx-auto px-4 relative">
-          <MotionWrapper 
-            initial={{ opacity: 0, y: 30 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8 }}
-            viewport={{ once: true }}
-            className="max-w-4xl mx-auto text-center"
-          >
+          <div className="max-w-4xl mx-auto text-center">
             <h2 className="text-4xl md:text-5xl font-bold mb-8">
               Ready to Build Your{" "}
               <span className="bg-gradient-to-r from-[#3CDFFF] to-[#4AFFD4] text-transparent bg-clip-text">
@@ -228,7 +203,7 @@ export default function CustomDevelopmentPage(): JSX.Element {
             >
               Start Your Project
             </Link>
-          </MotionWrapper>
+          </div>
         </div>
       </section>
     </div>

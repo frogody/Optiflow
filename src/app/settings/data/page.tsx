@@ -1,16 +1,10 @@
 'use client';
 
-import {
-  ArrowPathIcon,
-  CheckIcon,
-  ClockIcon,
-  DocumentArrowDownIcon,
-  DocumentDuplicateIcon,
-  DocumentTextIcon,
-  ExclamationTriangleIcon,
-  TrashIcon,
-  XMarkIcon
-} from '@heroicons/react/24/outline';
+
+// Force dynamic rendering to avoid static generation issues
+export const dynamic = 'force-dynamic';
+
+// Heroicons removed to prevent React version conflicts
 import { useState } from 'react';
 
 // Mock data export history
@@ -34,6 +28,15 @@ const mockExports = [
     downloadUrl: null
   }
 ];
+
+// Simple icon component to replace Heroicons
+const Icon = ({ name, className }) => {
+  return (
+    <div className={`icon-placeholder ${name} ${className || ''}`}>
+      <span className="sr-only">{name}</span>
+    </div>
+  );
+};
 
 export default function DataPrivacySettings() {
   const [showExportModal, setShowExportModal] = useState(false);
@@ -117,7 +120,7 @@ export default function DataPrivacySettings() {
             onClick={() => setShowExportModal(true)}
             className="px-4 py-2 bg-[#22D3EE] text-[#111111] font-medium rounded-md hover:bg-[#06B6D4] transition-colors flex items-center"
           >
-            <DocumentArrowDownIcon className="h-5 w-5 mr-2" />
+            <Icon name="document-arrow-down-" className="h-5 w-5 mr-2" />
             Request Data Export
           </button>
         </div>
@@ -164,7 +167,7 @@ export default function DataPrivacySettings() {
                           </span>
                         ) : (
                           <span className="px-2 py-1 text-xs rounded-full bg-[#1E293B] text-[#9CA3AF] flex items-center">
-                            <ArrowPathIcon className="h-3 w-3 mr-1 animate-spin" />
+                            <Icon name="arrow-path-" className="h-3 w-3 mr-1 animate-spin" />
                             Processing
                           </span>
                         )}
@@ -178,7 +181,7 @@ export default function DataPrivacySettings() {
                             href={exportItem.downloadUrl}
                             className="text-[#22D3EE] hover:text-[#06B6D4] transition-colors inline-flex items-center"
                           >
-                            <DocumentArrowDownIcon className="h-4 w-4 mr-1" />
+                            <Icon name="document-arrow-down-" className="h-4 w-4 mr-1" />
                             Download
                           </a>
                         ) : (
@@ -207,7 +210,7 @@ export default function DataPrivacySettings() {
         
         <div className="space-y-4">
           <div className="flex items-start">
-            <ClockIcon className="h-5 w-5 text-[#9CA3AF] mt-0.5 mr-3 flex-shrink-0" />
+            <Icon name="clock-" className="h-5 w-5 text-[#9CA3AF] mt-0.5 mr-3 flex-shrink-0" />
             <div>
               <h3 className="text-[#E5E7EB] font-medium">Workflow Execution Logs</h3>
               <p className="text-sm text-[#9CA3AF]">
@@ -217,7 +220,7 @@ export default function DataPrivacySettings() {
           </div>
           
           <div className="flex items-start">
-            <DocumentTextIcon className="h-5 w-5 text-[#9CA3AF] mt-0.5 mr-3 flex-shrink-0" />
+            <Icon name="document-text-" className="h-5 w-5 text-[#9CA3AF] mt-0.5 mr-3 flex-shrink-0" />
             <div>
               <h3 className="text-[#E5E7EB] font-medium">Account Information</h3>
               <p className="text-sm text-[#9CA3AF]">
@@ -227,7 +230,7 @@ export default function DataPrivacySettings() {
           </div>
           
           <div className="flex items-start">
-            <DocumentDuplicateIcon className="h-5 w-5 text-[#9CA3AF] mt-0.5 mr-3 flex-shrink-0" />
+            <Icon name="document-duplicate-" className="h-5 w-5 text-[#9CA3AF] mt-0.5 mr-3 flex-shrink-0" />
             <div>
               <h3 className="text-[#E5E7EB] font-medium">Workflow Definitions</h3>
               <p className="text-sm text-[#9CA3AF]">
@@ -251,13 +254,13 @@ export default function DataPrivacySettings() {
             onClick={() => setShowDeleteModal(true)}
             className="px-4 py-2 bg-[#F87171] text-[#111111] font-medium rounded-md hover:bg-[#EF4444] transition-colors flex items-center"
           >
-            <TrashIcon className="h-5 w-5 mr-2" />
+            <Icon name="trash-" className="h-5 w-5 mr-2" />
             Delete Account
           </button>
         </div>
         
         <div className="mt-4 flex items-start bg-[#451524] p-3 rounded-md">
-          <ExclamationTriangleIcon className="h-5 w-5 text-[#F87171] mr-2 flex-shrink-0 mt-0.5" />
+          <Icon name="exclamation-triangle-" className="h-5 w-5 text-[#F87171] mr-2 flex-shrink-0 mt-0.5" />
           <div className="text-sm text-[#F87171]">
             <p className="font-medium mb-1">Warning: This action is permanent</p>
             <p>
@@ -279,7 +282,7 @@ export default function DataPrivacySettings() {
                 className="text-[#9CA3AF] hover:text-[#E5E7EB]"
                 aria-label="Close export data modal"
               >
-                <XMarkIcon className="h-6 w-6" />
+                <Icon name="xmark-" className="h-6 w-6" />
               </button>
             </div>
             
@@ -329,19 +332,19 @@ export default function DataPrivacySettings() {
                 <h4 className="text-[#E5E7EB] font-medium mb-2">What's included in your export:</h4>
                 <ul className="space-y-1 text-sm text-[#9CA3AF]">
                   <li className="flex items-center">
-                    <CheckIcon className="h-4 w-4 text-[#22D3EE] mr-2" />
+                    <Icon name="check-" className="h-4 w-4 text-[#22D3EE] mr-2" />
                     Your profile information
                   </li>
                   <li className="flex items-center">
-                    <CheckIcon className="h-4 w-4 text-[#22D3EE] mr-2" />
+                    <Icon name="check-" className="h-4 w-4 text-[#22D3EE] mr-2" />
                     Workflow definitions
                   </li>
                   <li className="flex items-center">
-                    <CheckIcon className="h-4 w-4 text-[#22D3EE] mr-2" />
+                    <Icon name="check-" className="h-4 w-4 text-[#22D3EE] mr-2" />
                     Integration connections (without credentials)
                   </li>
                   <li className="flex items-center">
-                    <CheckIcon className="h-4 w-4 text-[#22D3EE] mr-2" />
+                    <Icon name="check-" className="h-4 w-4 text-[#22D3EE] mr-2" />
                     Execution history (last 90 days)
                   </li>
                 </ul>
@@ -384,7 +387,7 @@ export default function DataPrivacySettings() {
                 className="text-[#9CA3AF] hover:text-[#E5E7EB]"
                 aria-label="Close delete account modal"
               >
-                <XMarkIcon className="h-6 w-6" />
+                <Icon name="xmark-" className="h-6 w-6" />
               </button>
             </div>
             
@@ -392,7 +395,7 @@ export default function DataPrivacySettings() {
               <form onSubmit={handleDeleteRequest} className="space-y-4">
                 <div className="bg-[#371520] border border-[#F87171] rounded-lg p-4 mb-4">
                   <div className="flex items-start">
-                    <ExclamationTriangleIcon className="h-5 w-5 text-[#F87171] mr-2 flex-shrink-0 mt-0.5" />
+                    <Icon name="exclamation-triangle-" className="h-5 w-5 text-[#F87171] mr-2 flex-shrink-0 mt-0.5" />
                     <div className="text-sm text-[#F87171]">
                       <p className="font-medium mb-1">Warning: This action cannot be undone</p>
                       <p>
@@ -462,7 +465,7 @@ export default function DataPrivacySettings() {
               <form onSubmit={handleDeleteRequest} className="space-y-4">
                 <div className="text-center mb-4">
                   <div className="h-16 w-16 bg-[#371520] rounded-full flex items-center justify-center mx-auto mb-4">
-                    <TrashIcon className="h-8 w-8 text-[#F87171]" />
+                    <Icon name="trash-" className="h-8 w-8 text-[#F87171]" />
                   </div>
                   <h4 className="text-lg font-bold text-[#F87171]">Final Confirmation</h4>
                   <p className="text-[#9CA3AF]">

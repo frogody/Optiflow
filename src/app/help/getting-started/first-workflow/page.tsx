@@ -1,17 +1,22 @@
 'use client';
 
-import {
-  ArrowLeftIcon,
-  ArrowRightIcon,
-  BookmarkIcon,
-  CheckCircleIcon,
-  ClockIcon,
-  ExclamationTriangleIcon,
-  InformationCircleIcon,
-} from '@heroicons/react/24/outline';
+
+// Force dynamic rendering to avoid static generation issues
+export const dynamic = 'force-dynamic';
+
+// Heroicons removed to prevent React version conflicts
 import Image from 'next/image';
 import Link from 'next/link';
 import { useState } from 'react';
+
+// Simple icon component to replace Heroicons
+const Icon = ({ name, className }) => {
+  return (
+    <div className={`icon-placeholder ${name} ${className || ''}`}>
+      <span className="sr-only">{name}</span>
+    </div>
+  );
+};
 
 export default function FirstWorkflowTutorial() {
   const [currentStep, setCurrentStep] = useState(1);
@@ -88,7 +93,7 @@ export default function FirstWorkflowTutorial() {
             </div>
             
             <div className="bg-[#1E293B] border border-[#374151] rounded-lg p-4 flex items-start mb-6">
-              <InformationCircleIcon className="h-6 w-6 text-[#22D3EE] flex-shrink-0 mt-0.5 mr-3" />
+              <Icon name="information-circle-" className="h-6 w-6 text-[#22D3EE] flex-shrink-0 mt-0.5 mr-3" />
               <div>
                 <h4 className="text-lg font-medium text-[#E5E7EB] mb-1">Pro Tip</h4>
                 <p className="text-sm text-[#9CA3AF]">
@@ -141,7 +146,7 @@ export default function FirstWorkflowTutorial() {
             </div>
             
             <div className="bg-[#1E293B] border border-[#374151] rounded-lg p-4 flex items-start mb-6">
-              <ExclamationTriangleIcon className="h-6 w-6 text-[#F59E0B] flex-shrink-0 mt-0.5 mr-3" />
+              <Icon name="exclamation-triangle-" className="h-6 w-6 text-[#F59E0B] flex-shrink-0 mt-0.5 mr-3" />
               <div>
                 <h4 className="text-lg font-medium text-[#E5E7EB] mb-1">Important</h4>
                 <p className="text-sm text-[#9CA3AF]">
@@ -200,19 +205,19 @@ export default function FirstWorkflowTutorial() {
               <h4 className="text-lg font-medium text-[#E5E7EB] mb-2">Common Trigger Types</h4>
               <ul className="space-y-2 text-sm text-[#9CA3AF]">
                 <li className="flex items-start">
-                  <CheckCircleIcon className="h-5 w-5 text-[#22D3EE] mr-2 flex-shrink-0" />
+                  <Icon name="check-circle-" className="h-5 w-5 text-[#22D3EE] mr-2 flex-shrink-0" />
                   <span><strong className="text-[#E5E7EB]">Schedule:</strong> Run a workflow at specific intervals or times</span>
                 </li>
                 <li className="flex items-start">
-                  <CheckCircleIcon className="h-5 w-5 text-[#22D3EE] mr-2 flex-shrink-0" />
+                  <Icon name="check-circle-" className="h-5 w-5 text-[#22D3EE] mr-2 flex-shrink-0" />
                   <span><strong className="text-[#E5E7EB]">Webhook:</strong> Trigger when data is received via a webhook URL</span>
                 </li>
                 <li className="flex items-start">
-                  <CheckCircleIcon className="h-5 w-5 text-[#22D3EE] mr-2 flex-shrink-0" />
+                  <Icon name="check-circle-" className="h-5 w-5 text-[#22D3EE] mr-2 flex-shrink-0" />
                   <span><strong className="text-[#E5E7EB]">Integration Event:</strong> Respond to events from connected services (e.g., new Slack message)</span>
                 </li>
                 <li className="flex items-start">
-                  <CheckCircleIcon className="h-5 w-5 text-[#22D3EE] mr-2 flex-shrink-0" />
+                  <Icon name="check-circle-" className="h-5 w-5 text-[#22D3EE] mr-2 flex-shrink-0" />
                   <span><strong className="text-[#E5E7EB]">Manual:</strong> Manually start the workflow with a button click</span>
                 </li>
               </ul>
@@ -268,7 +273,7 @@ export default function FirstWorkflowTutorial() {
             </div>
             
             <div className="bg-[#1E293B] border border-[#374151] rounded-lg p-4 flex items-start mb-6">
-              <InformationCircleIcon className="h-6 w-6 text-[#22D3EE] flex-shrink-0 mt-0.5 mr-3" />
+              <Icon name="information-circle-" className="h-6 w-6 text-[#22D3EE] flex-shrink-0 mt-0.5 mr-3" />
               <div>
                 <h4 className="text-lg font-medium text-[#E5E7EB] mb-1">Connecting Multiple Actions</h4>
                 <p className="text-sm text-[#9CA3AF]">
@@ -333,7 +338,7 @@ export default function FirstWorkflowTutorial() {
             </div>
             
             <div className="bg-[#1E293B] border border-[#374151] rounded-lg p-4 flex items-start mb-6">
-              <ExclamationTriangleIcon className="h-6 w-6 text-[#F59E0B] flex-shrink-0 mt-0.5 mr-3" />
+              <Icon name="exclamation-triangle-" className="h-6 w-6 text-[#F59E0B] flex-shrink-0 mt-0.5 mr-3" />
               <div>
                 <h4 className="text-lg font-medium text-[#E5E7EB] mb-1">Troubleshooting</h4>
                 <p className="text-sm text-[#9CA3AF]">
@@ -349,19 +354,19 @@ export default function FirstWorkflowTutorial() {
               </p>
               <ul className="mt-3 space-y-2 text-sm text-[#9CA3AF]">
                 <li className="flex items-start">
-                  <CheckCircleIcon className="h-5 w-5 text-[#22D3EE] mr-2 flex-shrink-0" />
+                  <Icon name="check-circle-" className="h-5 w-5 text-[#22D3EE] mr-2 flex-shrink-0" />
                   <span>A trigger that starts the workflow (Schedule)</span>
                 </li>
                 <li className="flex items-start">
-                  <CheckCircleIcon className="h-5 w-5 text-[#22D3EE] mr-2 flex-shrink-0" />
+                  <Icon name="check-circle-" className="h-5 w-5 text-[#22D3EE] mr-2 flex-shrink-0" />
                   <span>Actions that perform tasks (HTTP Request and Email)</span>
                 </li>
                 <li className="flex items-start">
-                  <CheckCircleIcon className="h-5 w-5 text-[#22D3EE] mr-2 flex-shrink-0" />
+                  <Icon name="check-circle-" className="h-5 w-5 text-[#22D3EE] mr-2 flex-shrink-0" />
                   <span>Data flow between connected nodes</span>
                 </li>
                 <li className="flex items-start">
-                  <CheckCircleIcon className="h-5 w-5 text-[#22D3EE] mr-2 flex-shrink-0" />
+                  <Icon name="check-circle-" className="h-5 w-5 text-[#22D3EE] mr-2 flex-shrink-0" />
                   <span>Testing and monitoring execution</span>
                 </li>
               </ul>
@@ -374,19 +379,19 @@ export default function FirstWorkflowTutorial() {
             
             <ul className="space-y-3 text-[#9CA3AF]">
               <li className="flex items-start">
-                <ArrowRightIcon className="h-5 w-5 text-[#22D3EE] mr-2 flex-shrink-0" />
+                <Icon name="arrow-right-" className="h-5 w-5 text-[#22D3EE] mr-2 flex-shrink-0" />
                 <span>Explore different triggers and actions in the workflow editor</span>
               </li>
               <li className="flex items-start">
-                <ArrowRightIcon className="h-5 w-5 text-[#22D3EE] mr-2 flex-shrink-0" />
+                <Icon name="arrow-right-" className="h-5 w-5 text-[#22D3EE] mr-2 flex-shrink-0" />
                 <span>Connect third-party apps using our <Link href="/help/integrations" className="text-[#22D3EE] hover:underline">integrations</Link></span>
               </li>
               <li className="flex items-start">
-                <ArrowRightIcon className="h-5 w-5 text-[#22D3EE] mr-2 flex-shrink-0" />
+                <Icon name="arrow-right-" className="h-5 w-5 text-[#22D3EE] mr-2 flex-shrink-0" />
                 <span>Learn about <Link href="/help/workflows/conditional-logic" className="text-[#22D3EE] hover:underline">conditional logic</Link> to create dynamic workflows</span>
               </li>
               <li className="flex items-start">
-                <ArrowRightIcon className="h-5 w-5 text-[#22D3EE] mr-2 flex-shrink-0" />
+                <Icon name="arrow-right-" className="h-5 w-5 text-[#22D3EE] mr-2 flex-shrink-0" />
                 <span>Check out our <Link href="/help/workflows/templates" className="text-[#22D3EE] hover:underline">workflow templates</Link> for ready-made solutions</span>
               </li>
             </ul>
@@ -413,7 +418,7 @@ export default function FirstWorkflowTutorial() {
         <h1 className="text-3xl font-bold text-[#22D3EE] mb-3">Creating Your First Workflow</h1>
         
         <div className="flex items-center text-[#9CA3AF] text-sm mb-6">
-          <ClockIcon className="h-4 w-4 mr-1" />
+          <Icon name="clock-" className="h-4 w-4 mr-1" />
           <span>5 min read</span>
           <span className="mx-2">•</span>
           <span>Last updated: June 15, 2025</span>
@@ -457,7 +462,7 @@ export default function FirstWorkflowTutorial() {
               : 'text-[#E5E7EB] hover:bg-[#1E293B]'
           }`}
         >
-          <ArrowLeftIcon className="h-4 w-4 mr-2" />
+          <Icon name="arrow-left-" className="h-4 w-4 mr-2" />
           Previous Step
         </button>
         
@@ -471,7 +476,7 @@ export default function FirstWorkflowTutorial() {
           }`}
         >
           Next Step
-          <ArrowRightIcon className="h-4 w-4 ml-2" />
+          <Icon name="arrow-right-" className="h-4 w-4 ml-2" />
         </button>
       </div>
       
@@ -499,7 +504,7 @@ export default function FirstWorkflowTutorial() {
                 href={article.href}
                 className="flex items-center text-[#9CA3AF] hover:text-[#22D3EE]"
               >
-                <BookmarkIcon className="h-4 w-4 mr-2 text-[#22D3EE]" />
+                <Icon name="bookmark-" className="h-4 w-4 mr-2 text-[#22D3EE]" />
                 {article.title}
               </Link>
             </li>

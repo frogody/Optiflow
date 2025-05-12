@@ -1,8 +1,8 @@
 // Script to fix Pipedream environment variables and test token creation
-require('dotenv').config();
-const fs = require('fs');
+import 'dotenv/config';
+import fs from 'fs';
 
-const { createBackendClient } = require('@pipedream/sdk/server');
+import { createBackendClient } from '@pipedream/sdk/server';
 
 // Check what's in the environment
 console.log('Current environment variables:');

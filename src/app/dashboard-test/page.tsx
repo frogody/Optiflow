@@ -1,5 +1,9 @@
 'use client';
 
+
+// Force dynamic rendering to avoid static generation issues
+export const dynamic = 'force-dynamic';
+
 import Dashboard from '@/components/Dashboard';
 
 // The imported Dashboard component is used in the UI.

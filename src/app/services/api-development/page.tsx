@@ -3,10 +3,7 @@
 // Force dynamic rendering to avoid static generation issues
 export const dynamic = 'force-dynamic';
 
-// Force dynamic rendering to avoid static generation issues with React version conflicts
 
-
-import dynamic from 'next/dynamic';
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
@@ -22,8 +19,6 @@ import { HiOutlineRefresh } from 'react-icons/hi';
 // Using direct imports rather than grouped imports to avoid barrel optimization issues
 import * as SiIcons from 'react-icons/si';
 const { SiOpenapi, SiGraphql, SiSwagger, SiPostman, SiNodedotjs, SiFastapi } = SiIcons;
-
-import { MotionWrapper } from '@/components/MotionWrapper';
 
 export default function ApiDevelopmentPage() {
   // Use client-side only rendering to avoid hydration mismatches
@@ -96,11 +91,7 @@ export default function ApiDevelopmentPage() {
         <div className="absolute w-[400px] h-[400px] rounded-full right-1/4 bottom-1/3 bg-purple-500 opacity-10 blur-[120px]"></div>
         
         <div className="container mx-auto px-4 text-center relative z-10">
-          <MotionWrapper
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8 }}
-            className="max-w-4xl mx-auto"
+          <div className="max-w-4xl mx-auto"
           >
             <h1 className="text-5xl md:text-6xl lg:text-7xl font-bold mb-8 tracking-tight">
               API{" "}
@@ -127,7 +118,7 @@ export default function ApiDevelopmentPage() {
                 Learn More
               </Link>
             </div>
-          </MotionWrapper>
+          </div>
         </div>
       </section>
 
@@ -145,12 +136,7 @@ export default function ApiDevelopmentPage() {
           
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             {features.map((feature, index) => (
-              <MotionWrapper
-                key={index}
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.5, delay: index * 0.1 }}
-                viewport={{ once: true }}
+              <div key={index}
                 className="feature-card p-6 rounded-xl border border-white/10 bg-white/5 backdrop-blur-sm relative overflow-hidden group hover:border-blue-500/30 transition-all duration-300"
               >
                 <div className="text-blue-500 mb-4">
@@ -158,7 +144,7 @@ export default function ApiDevelopmentPage() {
                 </div>
                 <h3 className="text-xl font-semibold mb-3">{feature.title}</h3>
                 <p className="text-gray-300">{feature.description}</p>
-              </MotionWrapper>
+              </div>
             ))}
           </div>
         </div>
@@ -180,19 +166,14 @@ export default function ApiDevelopmentPage() {
 
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-8">
             {technologies.map((tech, index) => (
-              <MotionWrapper
-                key={index}
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.5, delay: index * 0.1 }}
-                viewport={{ once: true }}
+              <div key={index}
                 className="bg-white/5 backdrop-blur-sm rounded-xl p-6 border border-white/10 relative overflow-hidden flex flex-col items-center justify-center group hover:border-blue-500/30 transition-all duration-300"
               >
                 <div className="text-blue-500 mb-3">
                   {tech.icon}
                 </div>
                 <p className="text-sm font-medium">{tech.name}</p>
-              </MotionWrapper>
+              </div>
             ))}
           </div>
         </div>
@@ -244,12 +225,7 @@ export default function ApiDevelopmentPage() {
                   icon: <HiOutlineRefresh className="w-6 h-6" />
                 }
               ].map((step, index) => (
-                <MotionWrapper
-                  key={index}
-                  initial={{ opacity: 0, x: index % 2 === 0 ? -30 : 30 }}
-                  whileInView={{ opacity: 1, x: 0 }}
-                  transition={{ duration: 0.5, delay: index * 0.2 }}
-                  viewport={{ once: true }}
+                <div key={index}
                   className={`relative flex md:items-center mb-12 ${
                     index % 2 === 0 ? 'md:flex-row-reverse' : 'md:flex-row'
                   }`}
@@ -266,7 +242,7 @@ export default function ApiDevelopmentPage() {
                   </div>
                   
                   <div className="flex-1"></div>
-                </MotionWrapper>
+                </div>
               ))}
             </div>
           </div>
@@ -280,12 +256,7 @@ export default function ApiDevelopmentPage() {
         <div className="absolute w-[600px] h-[600px] rounded-full right-1/4 -bottom-1/2 bg-purple-500 opacity-10 blur-[120px]"></div>
         
         <div className="container mx-auto px-4 relative">
-          <MotionWrapper 
-            initial={{ opacity: 0, y: 30 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8 }}
-            viewport={{ once: true }}
-            className="max-w-4xl mx-auto text-center"
+          <div className="max-w-4xl mx-auto text-center"
           >
             <h2 className="text-4xl md:text-5xl font-bold mb-8">
               Ready to{" "}
@@ -304,7 +275,7 @@ export default function ApiDevelopmentPage() {
             >
               Start Your API Project
             </Link>
-          </MotionWrapper>
+          </div>
         </div>
       </section>
     </div>

@@ -1,13 +1,10 @@
 'use client';
 
-import {
-  ArrowDownIcon,
-  ArrowUpIcon,
-  ChartBarIcon,
-  CurrencyDollarIcon,
-  InformationCircleIcon,
-  PlusIcon
-} from '@heroicons/react/24/outline';
+
+// Force dynamic rendering to avoid static generation issues
+export const dynamic = 'force-dynamic';
+
+// Heroicons removed to prevent React version conflicts
 import { useState } from 'react';
 
 // Mock data for demonstration purposes
@@ -35,6 +32,15 @@ const creditPackages = [
   { id: 'large', amount: 1000, price: '$44.99', perCredit: '$0.045' },
   { id: 'xl', amount: 5000, price: '$199.99', perCredit: '$0.040' },
 ];
+
+// Simple icon component to replace Heroicons
+const Icon = ({ name, className }) => {
+  return (
+    <div className={`icon-placeholder ${name} ${className || ''}`}>
+      <span className="sr-only">{name}</span>
+    </div>
+  );
+};
 
 export default function Credits() {
   const [showPurchaseModal, setShowPurchaseModal] = useState(false);
@@ -122,7 +128,7 @@ export default function Credits() {
               onClick={handleBuyCredits}
               className="px-4 py-2 bg-[#22D3EE] text-[#111111] rounded-md font-medium hover:bg-[#06B6D4] transition-colors flex items-center"
             >
-              <PlusIcon className="h-5 w-5 mr-1" />
+              <Icon name="plus-" className="h-5 w-5 mr-1" />
               Buy Additional Credits
             </button>
             <p className="text-[#9CA3AF] mt-2 text-sm">
@@ -140,7 +146,7 @@ export default function Credits() {
           {/* This would be a real chart in a production app */}
           <div className="absolute inset-0 flex items-center justify-center">
             <div className="text-center">
-              <ChartBarIcon className="h-16 w-16 mx-auto text-[#374151]" />
+              <Icon name="chart-bar-" className="h-16 w-16 mx-auto text-[#374151]" />
               <p className="text-[#9CA3AF] mt-2">Credits usage visualization would appear here</p>
               <p className="text-[#9CA3AF] text-sm mt-1">
                 Including historical usage, trends, and forecasting
@@ -182,9 +188,9 @@ export default function Credits() {
                     ${item.type === 'usage' ? 'text-[#F87171]' : item.type === 'refill' ? 'text-[#22D3EE]' : 'text-[#A855F7]'}`}
                   >
                     {item.type === 'usage' ? (
-                      <ArrowDownIcon className="h-4 w-4 mr-1" />
+                      <Icon name="arrow-down-" className="h-4 w-4 mr-1" />
                     ) : (
-                      <ArrowUpIcon className="h-4 w-4 mr-1" />
+                      <Icon name="arrow-up-" className="h-4 w-4 mr-1" />
                     )}
                     {item.type === 'usage' ? item.amount : `+${item.amount}`}
                   </td>
@@ -197,7 +203,7 @@ export default function Credits() {
       
       {/* Credits Information */}
       <div className="bg-[#111111] border border-[#374151] rounded-lg p-4 text-[#9CA3AF] text-sm flex items-start">
-        <InformationCircleIcon className="h-5 w-5 text-[#9CA3AF] mr-2 flex-shrink-0 mt-0.5" />
+        <Icon name="information-circle-" className="h-5 w-5 text-[#9CA3AF] mr-2 flex-shrink-0 mt-0.5" />
         <div>
           <p className="mb-2">
             Credits are used for all Optiflow operations, including workflow executions, API calls, and voice agent interactions.
@@ -226,7 +232,7 @@ export default function Credits() {
                   }`}
                 >
                   <div className="flex items-center">
-                    <CurrencyDollarIcon className={`h-5 w-5 mr-2 ${
+                    <Icon name="currency-dollar-" className={`h-5 w-5 mr-2 ${
                       selectedPackage && selectedPackage.id === pkg.id ? 'text-[#22D3EE]' : 'text-[#9CA3AF]'
                     }`} />
                     <div className="text-left">
@@ -254,7 +260,7 @@ export default function Credits() {
                 }`}
               >
                 <div className="flex items-center">
-                  <PlusIcon className={`h-5 w-5 mr-2 ${
+                  <Icon name="plus-" className={`h-5 w-5 mr-2 ${
                     isCustomAmount ? 'text-[#22D3EE]' : 'text-[#9CA3AF]'
                   }`} />
                   <div className="text-left">

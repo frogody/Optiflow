@@ -1,17 +1,6 @@
 'use client';
 
-import {
-  Bars3Icon,
-  BookOpenIcon,
-  ChatBubbleLeftRightIcon,
-  ChevronDownIcon,
-  CodeBracketIcon,
-  CubeIcon,
-  KeyIcon,
-  RocketLaunchIcon,
-  ServerIcon,
-  XMarkIcon,
-} from '@heroicons/react/24/outline';
+// Heroicons removed to prevent React version conflicts
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useEffect, useState } from 'react';
@@ -51,6 +40,15 @@ const navigation = [
   { name: 'Sandbox', href: '/developer/sandbox' },
   { name: 'Community', href: '/developer/community' },
 ];
+
+// Simple icon component to replace Heroicons
+const Icon = ({ name, className }) => {
+  return (
+    <div className={`icon-placeholder ${name} ${className || ''}`}>
+      <span className="sr-only">{name}</span>
+    </div>
+  );
+};
 
 export default function DeveloperLayout({
   children,
@@ -113,7 +111,7 @@ export default function DeveloperLayout({
                         } transition-colors`}
                       >
                         {item.name}
-                        <ChevronDownIcon className={`ml-1 h-4 w-4 transition-transform ${openDropdown === item.name ? 'rotate-180' : ''}`} />
+                        <Icon name="chevron-down-" className={`ml-1 h-4 w-4 transition-transform ${openDropdown === item.name ? 'rotate-180' : ''}`} />
                       </button>
                       {openDropdown === item.name && (
                         <div className="absolute left-0 mt-2 w-48 bg-[#18181B] border border-[#374151] rounded-md shadow-lg z-10">
@@ -177,9 +175,9 @@ export default function DeveloperLayout({
               >
                 <span className="sr-only">{mobileMenuOpen ? 'Close menu' : 'Open menu'}</span>
                 {mobileMenuOpen ? (
-                  <XMarkIcon className="block h-6 w-6" aria-hidden="true" />
+                  <Icon name="xmark-" className="block h-6 w-6" aria-hidden="true" />
                 ) : (
-                  <Bars3Icon className="block h-6 w-6" aria-hidden="true" />
+                  <Icon name="bars3-" className="block h-6 w-6" aria-hidden="true" />
                 )}
               </button>
             </div>
@@ -203,7 +201,7 @@ export default function DeveloperLayout({
                         } transition-colors`}
                       >
                         {item.name}
-                        <ChevronDownIcon className={`ml-1 h-5 w-5 transition-transform ${openDropdown === item.name ? 'rotate-180' : ''}`} />
+                        <Icon name="chevron-down-" className={`ml-1 h-5 w-5 transition-transform ${openDropdown === item.name ? 'rotate-180' : ''}`} />
                       </button>
                       {openDropdown === item.name && (
                         <div className="pl-4 mt-1 space-y-1">
@@ -271,7 +269,7 @@ export default function DeveloperLayout({
           <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
             <div>
               <h3 className="text-sm font-semibold text-[#22D3EE] tracking-wider uppercase flex items-center gap-1">
-                <BookOpenIcon className="h-4 w-4" /> Documentation
+                <Icon name="book-open-" className="h-4 w-4" /> Documentation
               </h3>
               <ul className="mt-4 space-y-4">
                 <li>
@@ -281,7 +279,7 @@ export default function DeveloperLayout({
                 </li>
                 <li>
                   <Link href="/developer/docs/authentication" className="text-sm text-[#9CA3AF] hover:text-[#E5E7EB] transition-colors flex items-center gap-1">
-                    <KeyIcon className="h-4 w-4" /> Authentication
+                    <Icon name="key-" className="h-4 w-4" /> Authentication
                   </Link>
                 </li>
                 <li>
@@ -298,7 +296,7 @@ export default function DeveloperLayout({
             </div>
             <div>
               <h3 className="text-sm font-semibold text-[#22D3EE] tracking-wider uppercase flex items-center gap-1">
-                <CubeIcon className="h-4 w-4" /> SDKs
+                <Icon name="cube-" className="h-4 w-4" /> SDKs
               </h3>
               <ul className="mt-4 space-y-4">
                 <li>
@@ -325,7 +323,7 @@ export default function DeveloperLayout({
             </div>
             <div>
               <h3 className="text-sm font-semibold text-[#22D3EE] tracking-wider uppercase flex items-center gap-1">
-                <CodeBracketIcon className="h-4 w-4" /> Resources
+                <Icon name="code-bracket-" className="h-4 w-4" /> Resources
               </h3>
               <ul className="mt-4 space-y-4">
                 <li>
@@ -352,7 +350,7 @@ export default function DeveloperLayout({
             </div>
             <div>
               <h3 className="text-sm font-semibold text-[#22D3EE] tracking-wider uppercase flex items-center gap-1">
-                <ChatBubbleLeftRightIcon className="h-4 w-4" /> Support
+                <Icon name="chat-bubble-left-right-" className="h-4 w-4" /> Support
               </h3>
               <ul className="mt-4 space-y-4">
                 <li>

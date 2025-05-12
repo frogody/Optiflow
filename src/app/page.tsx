@@ -1,6 +1,10 @@
 'use client';
 
-import { ArrowRightIcon, CheckCircleIcon, PlayCircleIcon } from '@heroicons/react/24/outline';
+
+// Force dynamic rendering to avoid static generation issues
+export const dynamic = 'force-dynamic';
+
+// Heroicons removed to prevent React version conflicts
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import dynamic from 'next/dynamic';
@@ -83,6 +87,15 @@ const integrationLogos = [
   { name: "Zapier", logo: "/icons/zapier.svg" },
 ];
 
+// Simple icon component to replace Heroicons
+const Icon = ({ name, className }) => {
+  return (
+    <div className={`icon-placeholder ${name} ${className || ''}`}>
+      <span className="sr-only">{name}</span>
+    </div>
+  );
+};
+
 export default function HomePage() {
   const hero = heroVariants['A'];
   const [mounted, setMounted] = useState(false);
@@ -100,7 +113,7 @@ export default function HomePage() {
         {/* Trusted badge */}
         <div className="flex justify-center mb-4">
           <span className="inline-flex items-center bg-[#18181B] text-[#22D3EE] px-4 py-1 rounded-full text-sm font-medium border border-[#374151]">
-            <CheckCircleIcon className="h-5 w-5 mr-1" /> Trusted by 10,000+ teams
+            <Icon name="check-circle-" className="h-5 w-5 mr-1" /> Trusted by 10,000+ teams
           </span>
         </div>
         <h1 className="text-4xl md:text-6xl font-bold mb-6 bg-gradient-to-r from-blue-400 to-indigo-500 text-transparent bg-clip-text">
@@ -113,7 +126,7 @@ export default function HomePage() {
             className="px-6 py-3 bg-indigo-600 text-white font-medium rounded-md hover:bg-indigo-700 transition-colors inline-flex items-center"
           >
             {hero.cta}
-            <ArrowRightIcon className="ml-2 h-5 w-5" />
+            <Icon name="arrow-right-" className="ml-2 h-5 w-5" />
           </Link>
           <Link
             href="/dashboard"
@@ -125,7 +138,7 @@ export default function HomePage() {
             href="/demo"
             className="px-6 py-3 border border-[#22D3EE] text-[#22D3EE] font-medium rounded-md hover:bg-[#22D3EE]/10 transition-colors inline-flex items-center"
           >
-            <PlayCircleIcon className="h-5 w-5 mr-2" /> Watch Demo
+            <Icon name="play-circle-" className="h-5 w-5 mr-2" /> Watch Demo
           </Link>
         </div>
         
@@ -162,7 +175,7 @@ export default function HomePage() {
               <h3 className="text-lg font-semibold mb-2 text-indigo-400 group-hover:text-indigo-300">{persona.title}</h3>
               <p className="text-gray-400 text-center mb-4">{persona.description}</p>
               <span className="inline-flex items-center text-indigo-400 group-hover:text-indigo-200 font-medium">
-                Learn more <ArrowRightIcon className="ml-1 h-4 w-4" />
+                Learn more <Icon name="arrow-right-" className="ml-1 h-4 w-4" />
               </span>
             </Link>
           ))}

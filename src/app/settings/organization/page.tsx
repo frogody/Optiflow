@@ -1,14 +1,10 @@
 'use client';
 
-import {
-  ArrowPathIcon,
-  BuildingOffice2Icon,
-  CameraIcon,
-  ShieldCheckIcon,
-  UserGroupIcon,
-  UserMinusIcon,
-  UserPlusIcon,
-} from '@heroicons/react/24/outline';
+
+// Force dynamic rendering to avoid static generation issues
+export const dynamic = 'force-dynamic';
+
+// Heroicons removed to prevent React version conflicts
 import Image from 'next/image';
 import { useState } from 'react';
 
@@ -123,6 +119,15 @@ const mockRoles = [
 ];
 
 // All imported icons and components are used in the UI (organization profile, members, roles, and modals).
+
+// Simple icon component to replace Heroicons
+const Icon = ({ name, className }) => {
+  return (
+    <div className={`icon-placeholder ${name} ${className || ''}`}>
+      <span className="sr-only">{name}</span>
+    </div>
+  );
+};
 
 export default function OrganizationSettings() {
   const [activeTab, setActiveTab] = useState('profile');
@@ -263,7 +268,7 @@ export default function OrganizationSettings() {
                 : 'border-transparent text-[#9CA3AF] hover:text-[#E5E7EB] hover:border-[#6B7280]'
             }`}
           >
-            <BuildingOffice2Icon className="inline-block h-5 w-5 mr-2" />
+            <Icon name="building-office2-" className="inline-block h-5 w-5 mr-2" />
             Profile
           </button>
           <button
@@ -274,7 +279,7 @@ export default function OrganizationSettings() {
                 : 'border-transparent text-[#9CA3AF] hover:text-[#E5E7EB] hover:border-[#6B7280]'
             }`}
           >
-            <UserGroupIcon className="inline-block h-5 w-5 mr-2" />
+            <Icon name="user-group-" className="inline-block h-5 w-5 mr-2" />
             Members
           </button>
           <button
@@ -285,7 +290,7 @@ export default function OrganizationSettings() {
                 : 'border-transparent text-[#9CA3AF] hover:text-[#E5E7EB] hover:border-[#6B7280]'
             }`}
           >
-            <ShieldCheckIcon className="inline-block h-5 w-5 mr-2" />
+            <Icon name="shield-check-" className="inline-block h-5 w-5 mr-2" />
             Roles
           </button>
         </div>
@@ -311,12 +316,12 @@ export default function OrganizationSettings() {
                     />
                   ) : (
                     <div className="w-24 h-24 rounded-lg bg-[#1E293B] flex items-center justify-center text-[#9CA3AF]">
-                      <BuildingOffice2Icon className="w-16 h-16" />
+                      <Icon name="building-office2-" className="w-16 h-16" />
                     </div>
                   )}
                   
                   <label htmlFor="logo-upload" className="absolute bottom-0 right-0 p-1.5 bg-[#22D3EE] rounded-full cursor-pointer hover:bg-[#06B6D4] transition-colors">
-                    <CameraIcon className="w-4 h-4 text-[#111111]" />
+                    <Icon name="camera-" className="w-4 h-4 text-[#111111]" />
                     <input
                       id="logo-upload"
                       type="file"

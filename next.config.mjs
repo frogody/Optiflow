@@ -17,18 +17,32 @@ const nextConfig = {
   reactStrictMode: true,
   output: 'standalone',
   
+  // Avoiding React version conflicts by transpiling specific packages
+  transpilePackages: [
+    '@heroicons/react',
+    'framer-motion',
+    'react-icons',
+    '@headlessui/react'
+  ],
+  
   // External packages configuration - updated syntax for Next.js 15
   // Including React packages to avoid "is not a function" errors
   serverExternalPackages: ['bcrypt', 'react', 'react-dom'],
   
   // Set a reasonable timeout for static page generation
   // Longer timeout allows more complex pages to be generated
-  staticPageGenerationTimeout: 180,
+  staticPageGenerationTimeout: 300,
   
   // Enhanced stability for build process
   experimental: {
     // Disable optimizeCss to prevent potential CSS issues
     optimizeCss: false,
+    // Use React server components more sparingly
+    serverMinification: true,
+    // Use the same React version for all components
+    serverActions: {
+      bodySizeLimit: '2mb',
+    }
   },
   
   // Keep trailing slash consistent
@@ -73,7 +87,7 @@ const nextConfig = {
     ];
   },
   
-  // Enhanced webpack configuration - ESM compatible version
+  // Simple webpack configuration - ESM compatible version
   webpack: (config, { isServer }) => {
     // Only apply fallbacks for client-side bundle
     if (!isServer) {
@@ -84,13 +98,20 @@ const nextConfig = {
       };
     }
     
-    // Add aliases without using require
-    config.resolve.alias = {
-      ...config.resolve.alias,
-    };
-    
     return config;
   },
+  
+  // Force all pages to be dynamically rendered for production
+  // This avoids React version conflicts during static generation
+  serverRuntimeConfig: {
+    forceStatic: false,
+  },
+  
+  // Configuration to handle React version conflicts
+  compiler: {
+    // Remove console logs in production
+    removeConsole: process.env.NODE_ENV === 'production',
+  }
 };
 
 export default nextConfig; 

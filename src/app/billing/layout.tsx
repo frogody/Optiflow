@@ -1,12 +1,17 @@
 'use client';
 
-import {
-  CreditCardIcon,
-  CurrencyDollarIcon,
-  DocumentTextIcon,
-} from '@heroicons/react/24/outline';
+// Heroicons removed to prevent React version conflicts
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
+
+// Simple icon component to replace Heroicons
+const Icon = ({ name, className }) => {
+  return (
+    <div className={`icon-placeholder ${name} ${className || ''}`}>
+      <span className="sr-only">{name}</span>
+    </div>
+  );
+};
 
 export default function BillingLayout({
   children,

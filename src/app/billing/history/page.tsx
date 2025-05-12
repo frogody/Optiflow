@@ -1,14 +1,10 @@
 'use client';
 
-import {
-  ArrowDownTrayIcon,
-  CheckIcon,
-  CreditCardIcon,
-  DocumentTextIcon,
-  EyeIcon,
-  PlusIcon,
-  XMarkIcon
-} from '@heroicons/react/24/outline';
+
+// Force dynamic rendering to avoid static generation issues
+export const dynamic = 'force-dynamic';
+
+// Heroicons removed to prevent React version conflicts
 import { useState } from 'react';
 
 // Mock data for demonstration purposes
@@ -78,6 +74,15 @@ const mockPaymentMethods = [
   }
 ];
 
+// Simple icon component to replace Heroicons
+const Icon = ({ name, className }) => {
+  return (
+    <div className={`icon-placeholder ${name} ${className || ''}`}>
+      <span className="sr-only">{name}</span>
+    </div>
+  );
+};
+
 export default function BillingHistory() {
   const [showInvoiceModal, setShowInvoiceModal] = useState(false);
   const [selectedInvoice, setSelectedInvoice] = useState(null);
@@ -146,7 +151,7 @@ export default function BillingHistory() {
             onClick={handleAddCard}
             className="px-4 py-2 bg-[#22D3EE] text-[#111111] rounded-md hover:bg-[#06B6D4] flex items-center transition-colors text-sm font-medium"
           >
-            <PlusIcon className="h-4 w-4 mr-1" />
+            <Icon name="plus-" className="h-4 w-4 mr-1" />
             Add Payment Method
           </button>
         </div>
@@ -156,7 +161,7 @@ export default function BillingHistory() {
             <div key={method.id} className="flex items-center justify-between p-4 bg-[#111111] border border-[#374151] rounded-lg">
               <div className="flex items-center">
                 <div className="p-2 bg-[#1E293B] rounded-md mr-4">
-                  <CreditCardIcon className="h-6 w-6 text-[#E5E7EB]" />
+                  <Icon name="credit-card-" className="h-6 w-6 text-[#E5E7EB]" />
                 </div>
                 <div>
                   <p className="text-[#E5E7EB] font-medium">
@@ -250,14 +255,14 @@ export default function BillingHistory() {
                         className="p-1.5 text-[#9CA3AF] hover:text-[#E5E7EB] bg-[#1E293B] rounded transition-colors"
                         aria-label="View Invoice"
                       >
-                        <EyeIcon className="h-4 w-4" />
+                        <Icon name="eye-" className="h-4 w-4" />
                       </button>
                       <button
                         onClick={() => downloadInvoice(invoice.id)}
                         className="p-1.5 text-[#9CA3AF] hover:text-[#E5E7EB] bg-[#1E293B] rounded transition-colors"
                         aria-label="Download Invoice"
                       >
-                        <ArrowDownTrayIcon className="h-4 w-4" />
+                        <Icon name="arrow-down-tray-" className="h-4 w-4" />
                       </button>
                     </div>
                   </td>
@@ -269,7 +274,7 @@ export default function BillingHistory() {
         
         {mockInvoices.length === 0 && (
           <div className="text-center py-8">
-            <DocumentTextIcon className="h-12 w-12 mx-auto text-[#374151]" />
+            <Icon name="document-text-" className="h-12 w-12 mx-auto text-[#374151]" />
             <p className="mt-2 text-[#9CA3AF]">No invoices yet</p>
           </div>
         )}
@@ -286,7 +291,7 @@ export default function BillingHistory() {
                 className="p-1 text-[#9CA3AF] hover:text-[#E5E7EB] transition-colors"
                 aria-label="Close invoice details"
               >
-                <XMarkIcon className="h-6 w-6" />
+                <Icon name="xmark-" className="h-6 w-6" />
               </button>
             </div>
             
@@ -344,7 +349,7 @@ export default function BillingHistory() {
                 onClick={() => downloadInvoice(selectedInvoice.id)}
                 className="px-4 py-2 bg-[#22D3EE] text-[#111111] rounded-md hover:bg-[#06B6D4] transition-colors flex items-center"
               >
-                <ArrowDownTrayIcon className="h-4 w-4 mr-1" />
+                <Icon name="arrow-down-tray-" className="h-4 w-4 mr-1" />
                 Download PDF
               </button>
             </div>
@@ -363,7 +368,7 @@ export default function BillingHistory() {
                 className="p-1 text-[#9CA3AF] hover:text-[#E5E7EB] transition-colors"
                 aria-label="Close payment method form"
               >
-                <XMarkIcon className="h-6 w-6" />
+                <Icon name="xmark-" className="h-6 w-6" />
               </button>
             </div>
             
@@ -454,7 +459,7 @@ export default function BillingHistory() {
                     type="submit"
                     className="px-4 py-2 bg-[#22D3EE] text-[#111111] rounded-md hover:bg-[#06B6D4] transition-colors flex items-center"
                   >
-                    <CheckIcon className="h-4 w-4 mr-1" />
+                    <Icon name="check-" className="h-4 w-4 mr-1" />
                     Add Payment Method
                   </button>
                 </div>

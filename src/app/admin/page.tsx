@@ -1,11 +1,24 @@
 'use client';
 
+
+// Force dynamic rendering to avoid static generation issues
+export const dynamic = 'force-dynamic';
+
 import {
   ArrowDownIcon,
   ArrowUpIcon,
   CheckCircleIcon,
   ExclamationTriangleIcon
 } from '@heroicons/react/24/solid';
+
+// Simple icon component to replace Heroicons
+const Icon = ({ name, className }) => {
+  return (
+    <div className={`icon-placeholder ${name} ${className || ''}`}>
+      <span className="sr-only">{name}</span>
+    </div>
+  );
+};
 
 export default function AdminDashboard() {
   // Dummy data for dashboard metrics
@@ -132,9 +145,9 @@ export default function AdminDashboard() {
                 }`}
               >
                 {metric.positive ? (
-                  <ArrowUpIcon className="h-3 w-3 mr-1" />
+                  <Icon name="arrow-up-" className="h-3 w-3 mr-1" />
                 ) : (
-                  <ArrowDownIcon className="h-3 w-3 mr-1" />
+                  <Icon name="arrow-down-" className="h-3 w-3 mr-1" />
                 )}
                 {metric.change}
               </div>
@@ -161,9 +174,9 @@ export default function AdminDashboard() {
                     }`}
                   >
                     {system.positive ? (
-                      <CheckCircleIcon className="h-4 w-4 mr-1.5" />
+                      <Icon name="check-circle-" className="h-4 w-4 mr-1.5" />
                     ) : (
-                      <ExclamationTriangleIcon className="h-4 w-4 mr-1.5" />
+                      <Icon name="exclamation-triangle-" className="h-4 w-4 mr-1.5" />
                     )}
                     {system.status}
                   </span>

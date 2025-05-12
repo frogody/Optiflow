@@ -1,9 +1,22 @@
 'use client';
 
-import { CheckCircleIcon, EnvelopeIcon } from '@heroicons/react/24/outline';
+
+// Force dynamic rendering to avoid static generation issues
+export const dynamic = 'force-dynamic';
+
+// Heroicons removed to prevent React version conflicts
 import Image from 'next/image';
 import Link from 'next/link';
 import { useState } from 'react';
+
+// Simple icon component to replace Heroicons
+const Icon = ({ name, className }) => {
+  return (
+    <div className={`icon-placeholder ${name} ${className || ''}`}>
+      <span className="sr-only">{name}</span>
+    </div>
+  );
+};
 
 export default function ForgotPassword() {
   const [email, setEmail] = useState('');
@@ -71,7 +84,7 @@ export default function ForgotPassword() {
                 </label>
                 <div className="mt-1 relative rounded-md shadow-sm">
                   <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                    <EnvelopeIcon className="h-5 w-5 text-[#4B5563]" aria-hidden="true" />
+                    <Icon name="envelope-" className="h-5 w-5 text-[#4B5563]" aria-hidden="true" />
                   </div>
                   <input
                     id="email"
@@ -105,7 +118,7 @@ export default function ForgotPassword() {
             </form>
           ) : (
             <div className="text-center">
-              <CheckCircleIcon className="h-12 w-12 mx-auto text-[#10B981]" />
+              <Icon name="check-circle-" className="h-12 w-12 mx-auto text-[#10B981]" />
               <h3 className="mt-4 text-xl font-medium text-[#E5E7EB]">Check Your Email</h3>
               <p className="mt-2 text-[#9CA3AF]">
                 We've sent a password reset link to <span className="font-medium text-[#E5E7EB]">{email}</span>.

@@ -1,15 +1,21 @@
 'use client';
 
-import { 
-  ArrowTopRightOnSquareIcon, 
-  CheckIcon, 
-  DocumentTextIcon, 
-  LockClosedIcon,
-  ServerIcon,
-  ShieldCheckIcon
-} from '@heroicons/react/24/outline';
+
+// Force dynamic rendering to avoid static generation issues
+export const dynamic = 'force-dynamic';
+
+// Heroicons removed to prevent React version conflicts
 import Image from 'next/image';
 import Link from 'next/link';
+
+// Simple icon component to replace Heroicons
+const Icon = ({ name, className }) => {
+  return (
+    <div className={`icon-placeholder ${name} ${className || ''}`}>
+      <span className="sr-only">{name}</span>
+    </div>
+  );
+};
 
 export default function SecurityPage() {
   return (
@@ -49,20 +55,20 @@ export default function SecurityPage() {
         <div className="grid md:grid-cols-2 gap-6">
           <div className="bg-[#111111] border border-[#374151] rounded-lg p-6">
             <div className="flex items-center mb-4">
-              <LockClosedIcon className="h-8 w-8 text-[#22D3EE] mr-3" />
+              <Icon name="lock-closed-" className="h-8 w-8 text-[#22D3EE] mr-3" />
               <h3 className="text-xl font-medium text-[#E5E7EB]">Data Security</h3>
             </div>
             <ul className="space-y-3 text-[#9CA3AF]">
               <li className="flex items-start">
-                <CheckIcon className="h-5 w-5 text-[#22D3EE] mr-2 flex-shrink-0 mt-0.5" />
+                <Icon name="check-" className="h-5 w-5 text-[#22D3EE] mr-2 flex-shrink-0 mt-0.5" />
                 <span>Encryption of data in transit (TLS 1.2+) and at rest (AES-256)</span>
               </li>
               <li className="flex items-start">
-                <CheckIcon className="h-5 w-5 text-[#22D3EE] mr-2 flex-shrink-0 mt-0.5" />
+                <Icon name="check-" className="h-5 w-5 text-[#22D3EE] mr-2 flex-shrink-0 mt-0.5" />
                 <span>Strict access controls and least privilege principles</span>
               </li>
               <li className="flex items-start">
-                <CheckIcon className="h-5 w-5 text-[#22D3EE] mr-2 flex-shrink-0 mt-0.5" />
+                <Icon name="check-" className="h-5 w-5 text-[#22D3EE] mr-2 flex-shrink-0 mt-0.5" />
                 <span>Regular security assessments and penetration testing</span>
               </li>
             </ul>
@@ -70,20 +76,20 @@ export default function SecurityPage() {
           
           <div className="bg-[#111111] border border-[#374151] rounded-lg p-6">
             <div className="flex items-center mb-4">
-              <ServerIcon className="h-8 w-8 text-[#22D3EE] mr-3" />
+              <Icon name="server-" className="h-8 w-8 text-[#22D3EE] mr-3" />
               <h3 className="text-xl font-medium text-[#E5E7EB]">Infrastructure Security</h3>
             </div>
             <ul className="space-y-3 text-[#9CA3AF]">
               <li className="flex items-start">
-                <CheckIcon className="h-5 w-5 text-[#22D3EE] mr-2 flex-shrink-0 mt-0.5" />
+                <Icon name="check-" className="h-5 w-5 text-[#22D3EE] mr-2 flex-shrink-0 mt-0.5" />
                 <span>SOC 2 compliant cloud infrastructure</span>
               </li>
               <li className="flex items-start">
-                <CheckIcon className="h-5 w-5 text-[#22D3EE] mr-2 flex-shrink-0 mt-0.5" />
+                <Icon name="check-" className="h-5 w-5 text-[#22D3EE] mr-2 flex-shrink-0 mt-0.5" />
                 <span>Network security with firewalls and intrusion detection</span>
               </li>
               <li className="flex items-start">
-                <CheckIcon className="h-5 w-5 text-[#22D3EE] mr-2 flex-shrink-0 mt-0.5" />
+                <Icon name="check-" className="h-5 w-5 text-[#22D3EE] mr-2 flex-shrink-0 mt-0.5" />
                 <span>Continuous monitoring and automated threat response</span>
               </li>
             </ul>
@@ -128,15 +134,15 @@ export default function SecurityPage() {
             </p>
             <ul className="space-y-3 text-[#9CA3AF]">
               <li className="flex items-start">
-                <CheckIcon className="h-5 w-5 text-[#22D3EE] mr-2 flex-shrink-0 mt-0.5" />
+                <Icon name="check-" className="h-5 w-5 text-[#22D3EE] mr-2 flex-shrink-0 mt-0.5" />
                 <span>GDPR and CCPA compliant data handling practices</span>
               </li>
               <li className="flex items-start">
-                <CheckIcon className="h-5 w-5 text-[#22D3EE] mr-2 flex-shrink-0 mt-0.5" />
+                <Icon name="check-" className="h-5 w-5 text-[#22D3EE] mr-2 flex-shrink-0 mt-0.5" />
                 <span>Transparent data collection and processing policies</span>
               </li>
               <li className="flex items-start">
-                <CheckIcon className="h-5 w-5 text-[#22D3EE] mr-2 flex-shrink-0 mt-0.5" />
+                <Icon name="check-" className="h-5 w-5 text-[#22D3EE] mr-2 flex-shrink-0 mt-0.5" />
                 <span>User data controls and export capabilities</span>
               </li>
             </ul>
@@ -149,19 +155,19 @@ export default function SecurityPage() {
             </p>
             <ul className="space-y-3 text-[#9CA3AF]">
               <li className="flex items-start">
-                <CheckIcon className="h-5 w-5 text-[#22D3EE] mr-2 flex-shrink-0 mt-0.5" />
+                <Icon name="check-" className="h-5 w-5 text-[#22D3EE] mr-2 flex-shrink-0 mt-0.5" />
                 <span>HIPAA compliance for healthcare data</span>
               </li>
               <li className="flex items-start">
-                <CheckIcon className="h-5 w-5 text-[#22D3EE] mr-2 flex-shrink-0 mt-0.5" />
+                <Icon name="check-" className="h-5 w-5 text-[#22D3EE] mr-2 flex-shrink-0 mt-0.5" />
                 <span>Custom data retention policies</span>
               </li>
               <li className="flex items-start">
-                <CheckIcon className="h-5 w-5 text-[#22D3EE] mr-2 flex-shrink-0 mt-0.5" />
+                <Icon name="check-" className="h-5 w-5 text-[#22D3EE] mr-2 flex-shrink-0 mt-0.5" />
                 <span>Advanced audit logging and compliance reporting</span>
               </li>
               <li className="flex items-start">
-                <CheckIcon className="h-5 w-5 text-[#22D3EE] mr-2 flex-shrink-0 mt-0.5" />
+                <Icon name="check-" className="h-5 w-5 text-[#22D3EE] mr-2 flex-shrink-0 mt-0.5" />
                 <span>Single Sign-On (SSO) and custom security controls</span>
               </li>
             </ul>
@@ -179,7 +185,7 @@ export default function SecurityPage() {
             <ul className="space-y-4 text-[#9CA3AF]">
               <li className="flex items-start">
                 <div className="bg-[#111111] rounded-full p-2 mr-4 mt-1">
-                  <ShieldCheckIcon className="h-5 w-5 text-[#22D3EE]" />
+                  <Icon name="shield-check-" className="h-5 w-5 text-[#22D3EE]" />
                 </div>
                 <div>
                   <h4 className="font-medium text-[#E5E7EB] mb-1">Multi-Factor Authentication (MFA)</h4>
@@ -189,7 +195,7 @@ export default function SecurityPage() {
               
               <li className="flex items-start">
                 <div className="bg-[#111111] rounded-full p-2 mr-4 mt-1">
-                  <ShieldCheckIcon className="h-5 w-5 text-[#22D3EE]" />
+                  <Icon name="shield-check-" className="h-5 w-5 text-[#22D3EE]" />
                 </div>
                 <div>
                   <h4 className="font-medium text-[#E5E7EB] mb-1">Single Sign-On (SSO)</h4>
@@ -199,7 +205,7 @@ export default function SecurityPage() {
               
               <li className="flex items-start">
                 <div className="bg-[#111111] rounded-full p-2 mr-4 mt-1">
-                  <ShieldCheckIcon className="h-5 w-5 text-[#22D3EE]" />
+                  <Icon name="shield-check-" className="h-5 w-5 text-[#22D3EE]" />
                 </div>
                 <div>
                   <h4 className="font-medium text-[#E5E7EB] mb-1">Role-Based Access Control</h4>
@@ -214,7 +220,7 @@ export default function SecurityPage() {
             <ul className="space-y-4 text-[#9CA3AF]">
               <li className="flex items-start">
                 <div className="bg-[#111111] rounded-full p-2 mr-4 mt-1">
-                  <LockClosedIcon className="h-5 w-5 text-[#22D3EE]" />
+                  <Icon name="lock-closed-" className="h-5 w-5 text-[#22D3EE]" />
                 </div>
                 <div>
                   <h4 className="font-medium text-[#E5E7EB] mb-1">End-to-End Encryption</h4>
@@ -224,7 +230,7 @@ export default function SecurityPage() {
               
               <li className="flex items-start">
                 <div className="bg-[#111111] rounded-full p-2 mr-4 mt-1">
-                  <LockClosedIcon className="h-5 w-5 text-[#22D3EE]" />
+                  <Icon name="lock-closed-" className="h-5 w-5 text-[#22D3EE]" />
                 </div>
                 <div>
                   <h4 className="font-medium text-[#E5E7EB] mb-1">Secure Credential Storage</h4>
@@ -234,7 +240,7 @@ export default function SecurityPage() {
               
               <li className="flex items-start">
                 <div className="bg-[#111111] rounded-full p-2 mr-4 mt-1">
-                  <LockClosedIcon className="h-5 w-5 text-[#22D3EE]" />
+                  <Icon name="lock-closed-" className="h-5 w-5 text-[#22D3EE]" />
                 </div>
                 <div>
                   <h4 className="font-medium text-[#E5E7EB] mb-1">Data Retention Controls</h4>
@@ -319,14 +325,14 @@ export default function SecurityPage() {
             className="block bg-[#111111] border border-[#374151] rounded-lg p-6 hover:border-[#22D3EE] transition-colors"
           >
             <div className="flex items-center mb-2">
-              <DocumentTextIcon className="h-5 w-5 text-[#22D3EE] mr-2" />
+              <Icon name="document-text-" className="h-5 w-5 text-[#22D3EE] mr-2" />
               <h3 className="text-lg font-medium text-[#E5E7EB]">Privacy Policy</h3>
             </div>
             <p className="text-[#9CA3AF] mb-2">
               Learn about how we collect, use, and protect your personal information.
             </p>
             <span className="text-[#22D3EE] text-sm flex items-center">
-              Read more <ArrowTopRightOnSquareIcon className="h-3 w-3 ml-1" />
+              Read more <Icon name="arrow-top-right-on-square-" className="h-3 w-3 ml-1" />
             </span>
           </Link>
           
@@ -335,14 +341,14 @@ export default function SecurityPage() {
             className="block bg-[#111111] border border-[#374151] rounded-lg p-6 hover:border-[#22D3EE] transition-colors"
           >
             <div className="flex items-center mb-2">
-              <ShieldCheckIcon className="h-5 w-5 text-[#22D3EE] mr-2" />
+              <Icon name="shield-check-" className="h-5 w-5 text-[#22D3EE] mr-2" />
               <h3 className="text-lg font-medium text-[#E5E7EB]">Security Policy</h3>
             </div>
             <p className="text-[#9CA3AF] mb-2">
               Detailed overview of our security practices and commitments.
             </p>
             <span className="text-[#22D3EE] text-sm flex items-center">
-              Read more <ArrowTopRightOnSquareIcon className="h-3 w-3 ml-1" />
+              Read more <Icon name="arrow-top-right-on-square-" className="h-3 w-3 ml-1" />
             </span>
           </Link>
           
@@ -351,14 +357,14 @@ export default function SecurityPage() {
             className="block bg-[#111111] border border-[#374151] rounded-lg p-6 hover:border-[#22D3EE] transition-colors"
           >
             <div className="flex items-center mb-2">
-              <DocumentTextIcon className="h-5 w-5 text-[#22D3EE] mr-2" />
+              <Icon name="document-text-" className="h-5 w-5 text-[#22D3EE] mr-2" />
               <h3 className="text-lg font-medium text-[#E5E7EB]">Compliance Documentation</h3>
             </div>
             <p className="text-[#9CA3AF] mb-2">
               Access detailed documentation about our compliance certifications.
             </p>
             <span className="text-[#22D3EE] text-sm flex items-center">
-              View documents <ArrowTopRightOnSquareIcon className="h-3 w-3 ml-1" />
+              View documents <Icon name="arrow-top-right-on-square-" className="h-3 w-3 ml-1" />
             </span>
           </Link>
           
@@ -367,14 +373,14 @@ export default function SecurityPage() {
             className="block bg-[#111111] border border-[#374151] rounded-lg p-6 hover:border-[#22D3EE] transition-colors"
           >
             <div className="flex items-center mb-2">
-              <ShieldCheckIcon className="h-5 w-5 text-[#22D3EE] mr-2" />
+              <Icon name="shield-check-" className="h-5 w-5 text-[#22D3EE] mr-2" />
               <h3 className="text-lg font-medium text-[#E5E7EB]">Security Support</h3>
             </div>
             <p className="text-[#9CA3AF] mb-2">
               Questions about security or need to report a concern? Contact our security team.
             </p>
             <span className="text-[#22D3EE] text-sm flex items-center">
-              Contact support <ArrowTopRightOnSquareIcon className="h-3 w-3 ml-1" />
+              Contact support <Icon name="arrow-top-right-on-square-" className="h-3 w-3 ml-1" />
             </span>
           </Link>
         </div>

@@ -1,6 +1,10 @@
 'use client';
 
-import { CheckCircleIcon, QuestionMarkCircleIcon } from '@heroicons/react/24/outline';
+
+// Force dynamic rendering to avoid static generation issues
+export const dynamic = 'force-dynamic';
+
+// Heroicons removed to prevent React version conflicts
 import { motion, useScroll, useTransform } from 'framer-motion';
 import Link from 'next/link';
 import React, { useRef, useState } from 'react';
@@ -139,6 +143,15 @@ const faqs = [
     answer: "When you choose annual billing, you save 20% compared to monthly billing. You'll be billed for 12 months upfront, and receive the annual allocation of credits at the beginning of the billing cycle."
   }
 ];
+
+// Simple icon component to replace Heroicons
+const Icon = ({ name, className }) => {
+  return (
+    <div className={`icon-placeholder ${name} ${className || ''}`}>
+      <span className="sr-only">{name}</span>
+    </div>
+  );
+};
 
 export default function PricingPage(): JSX.Element {
   const [annualBilling, setAnnualBilling] = useState(true);
@@ -609,19 +622,19 @@ export default function PricingPage(): JSX.Element {
                 </p>
                 <ul className="space-y-2 text-sm">
                   <li className="flex items-center">
-                    <CheckCircleIcon className="h-4 w-4 text-[#22D3EE] mr-2" />
+                    <Icon name="check-circle-" className="h-4 w-4 text-[#22D3EE] mr-2" />
                     <span className="text-[#E5E7EB]">Run 1,000+ standard workflows</span>
                   </li>
                   <li className="flex items-center">
-                    <CheckCircleIcon className="h-4 w-4 text-[#22D3EE] mr-2" />
+                    <Icon name="check-circle-" className="h-4 w-4 text-[#22D3EE] mr-2" />
                     <span className="text-[#E5E7EB]">Process 250+ voice commands</span>
                   </li>
                   <li className="flex items-center">
-                    <CheckCircleIcon className="h-4 w-4 text-[#22D3EE] mr-2" />
+                    <Icon name="check-circle-" className="h-4 w-4 text-[#22D3EE] mr-2" />
                     <span className="text-[#E5E7EB]">Make 500+ API calls to external services</span>
                   </li>
                   <li className="flex items-center">
-                    <CheckCircleIcon className="h-4 w-4 text-[#22D3EE] mr-2" />
+                    <Icon name="check-circle-" className="h-4 w-4 text-[#22D3EE] mr-2" />
                     <span className="text-[#E5E7EB]">Analyze 5+ GB of data</span>
                   </li>
                 </ul>
@@ -634,19 +647,19 @@ export default function PricingPage(): JSX.Element {
                 </p>
                 <div className="space-y-2 text-sm">
                   <div className="flex items-start">
-                    <CheckCircleIcon className="h-4 w-4 text-[#22D3EE] mt-0.5 mr-2" />
+                    <Icon name="check-circle-" className="h-4 w-4 text-[#22D3EE] mt-0.5 mr-2" />
                     <span className="text-[#E5E7EB]">Custom credit allocation</span>
                   </div>
                   <div className="flex items-start">
-                    <CheckCircleIcon className="h-4 w-4 text-[#22D3EE] mt-0.5 mr-2" />
+                    <Icon name="check-circle-" className="h-4 w-4 text-[#22D3EE] mt-0.5 mr-2" />
                     <span className="text-[#E5E7EB]">Volume discounts</span>
                   </div>
                   <div className="flex items-start">
-                    <CheckCircleIcon className="h-4 w-4 text-[#22D3EE] mt-0.5 mr-2" />
+                    <Icon name="check-circle-" className="h-4 w-4 text-[#22D3EE] mt-0.5 mr-2" />
                     <span className="text-[#E5E7EB]">Custom SLAs and support</span>
                   </div>
                   <div className="flex items-start">
-                    <CheckCircleIcon className="h-4 w-4 text-[#22D3EE] mt-0.5 mr-2" />
+                    <Icon name="check-circle-" className="h-4 w-4 text-[#22D3EE] mt-0.5 mr-2" />
                     <span className="text-[#E5E7EB]">On-premise deployment options</span>
                   </div>
                 </div>
@@ -667,7 +680,7 @@ export default function PricingPage(): JSX.Element {
               {faqs.map((faq, idx) => (
                 <div key={idx} className="bg-[#18181B] border border-[#374151] rounded-lg p-6">
                   <h3 className="text-lg font-medium text-[#E5E7EB] mb-2 flex items-start">
-                    <QuestionMarkCircleIcon className="h-5 w-5 text-[#22D3EE] mt-0.5 mr-2 flex-shrink-0" />
+                    <Icon name="question-mark-circle-" className="h-5 w-5 text-[#22D3EE] mt-0.5 mr-2 flex-shrink-0" />
                     <span>{faq.question}</span>
                   </h3>
                   <p className="text-sm text-[#9CA3AF] ml-7">

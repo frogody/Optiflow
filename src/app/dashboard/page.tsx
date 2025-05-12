@@ -1,5 +1,8 @@
 'use client';
 
+// Force dynamic rendering to avoid static generation issues
+export const dynamic = 'force-dynamic';
+
 import { useEffect, useState } from 'react';
 
 import ActivityFeedWidget from '@/components/dashboard/ActivityFeedWidget';

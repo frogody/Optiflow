@@ -1,5 +1,9 @@
 'use client';
 
+
+// Force dynamic rendering to avoid static generation issues
+export const dynamic = 'force-dynamic';
+
 import Link from 'next/link';
 import { useState } from 'react';
 import { toast } from 'react-hot-toast';

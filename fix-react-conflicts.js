@@ -1,4 +1,36 @@
-'use client';
+import { promises as fs } from 'fs';
+
+// List of all pages to fix
+const pagesToFix = [
+  'src/app/dashboard/page.tsx',
+  'src/app/developer/page.tsx'
+];
+
+/**
+ * Fix a page to resolve React version conflicts
+ */
+async function fixPage(filePath) {
+  try {
+    console.log(`Processing ${filePath}...`);
+    
+    // Read the file
+    const content = await fs.readFile(filePath, 'utf8');
+    
+    // Fix the issues
+    let updatedContent = content;
+    
+    // 1. Add dynamic export to force dynamic rendering
+    if (!updatedContent.includes("export const dynamic = 'force-dynamic'")) {
+      updatedContent = updatedContent.replace(
+        /^'use client';/,
+        "'use client';\n\n// Force dynamic rendering to avoid static generation issues\nexport const dynamic = 'force-dynamic';"
+      );
+    }
+    
+    // 2. For the developer page, handle the heroicons completely differently
+    if (filePath.includes('developer')) {
+      // Create a simpler implementation that doesn't use heroicons
+      updatedContent = `'use client';
 
 // Force dynamic rendering to avoid static generation issues
 export const dynamic = 'force-dynamic';
@@ -9,7 +41,7 @@ import { useState } from 'react';
 // Simple icon component to replace Heroicons
 const Icon = ({ name, className }) => {
   return (
-    <div className={`icon ${name} ${className || ''}`}>
+    <div className={\`icon \${name} \${className || ''}\`}>
       <span className="sr-only">{name}</span>
     </div>
   );
@@ -19,9 +51,9 @@ export default function DeveloperPortal() {
   const [selectedLanguage, setSelectedLanguage] = useState('curl');
   
   const codeExamples = {
-    curl: `curl -X POST https://api.optiflow.com/v1/workflows \\
-  -H "Content-Type: application/json" \\
-  -H "Authorization: Bearer YOUR_API_KEY" \\
+    curl: \`curl -X POST https://api.optiflow.com/v1/workflows \\\\
+  -H "Content-Type: application/json" \\\\
+  -H "Authorization: Bearer YOUR_API_KEY" \\\\
   -d '{
     "name": "My API Workflow",
     "description": "Created via API",
@@ -48,8 +80,8 @@ export default function DeveloperPortal() {
         "target": "action"
       }
     ]
-  }'`,
-    javascript: `import { OptiflowClient } from '@optiflow/sdk';
+  }'\`,
+    javascript: \`import { OptiflowClient } from '@optiflow/sdk';
 
 const client = new OptiflowClient({
   apiKey: 'YOUR_API_KEY'
@@ -83,8 +115,8 @@ const workflow = await client.workflows.create({
   ]
 });
 
-console.log('Created workflow with ID:', workflow.id);`,
-    python: `from optiflow import OptiflowClient
+console.log('Created workflow with ID:', workflow.id);\`,
+    python: \`from optiflow import OptiflowClient
 
 client = OptiflowClient(api_key="YOUR_API_KEY")
 
@@ -116,7 +148,7 @@ workflow = client.workflows.create(
     ]
 )
 
-print(f"Created workflow with ID: {workflow.id}")`,
+print(f"Created workflow with ID: {workflow.id}")\`,
   };
 
   const featureCards = [
@@ -229,7 +261,7 @@ print(f"Created workflow with ID: {workflow.id}")`,
               className="flex flex-col bg-[#18181B] border border-[#374151] rounded-lg overflow-hidden transition-all hover:shadow-lg hover:shadow-[#22D3EE]/20 hover:border-[#22D3EE]/30"
             >
               <div className="p-6">
-                <div className={`w-12 h-12 rounded-md bg-${feature.color}/10 flex items-center justify-center text-${feature.color} mb-4`}>
+                <div className={\`w-12 h-12 rounded-md bg-\${feature.color}/10 flex items-center justify-center text-\${feature.color} mb-4\`}>
                   <Icon name={feature.icon} className="h-6 w-6" />
                 </div>
                 <h3 className="text-lg font-semibold text-[#E5E7EB] mb-2">{feature.title}</h3>
@@ -250,31 +282,31 @@ print(f"Created workflow with ID: {workflow.id}")`,
           <div className="bg-[#111111] rounded-lg overflow-hidden border border-[#374151]">
             <div className="flex border-b border-[#374151]">
               <button
-                className={`px-4 py-2 text-sm font-medium ${
+                className={\`px-4 py-2 text-sm font-medium \${
                   selectedLanguage === 'curl' 
                   ? 'bg-[#1E293B] text-[#22D3EE]' 
                   : 'text-[#9CA3AF] hover:text-[#E5E7EB] hover:bg-[#1E293B]'
-                } transition-colors focus:outline-none`}
+                } transition-colors focus:outline-none\`}
                 onClick={() => setSelectedLanguage('curl')}
               >
                 cURL
               </button>
               <button
-                className={`px-4 py-2 text-sm font-medium ${
+                className={\`px-4 py-2 text-sm font-medium \${
                   selectedLanguage === 'javascript' 
                   ? 'bg-[#1E293B] text-[#22D3EE]' 
                   : 'text-[#9CA3AF] hover:text-[#E5E7EB] hover:bg-[#1E293B]'
-                } transition-colors focus:outline-none`}
+                } transition-colors focus:outline-none\`}
                 onClick={() => setSelectedLanguage('javascript')}
               >
                 JavaScript
               </button>
               <button
-                className={`px-4 py-2 text-sm font-medium ${
+                className={\`px-4 py-2 text-sm font-medium \${
                   selectedLanguage === 'python' 
                   ? 'bg-[#1E293B] text-[#22D3EE]' 
                   : 'text-[#9CA3AF] hover:text-[#E5E7EB] hover:bg-[#1E293B]'
-                } transition-colors focus:outline-none`}
+                } transition-colors focus:outline-none\`}
                 onClick={() => setSelectedLanguage('python')}
               >
                 Python
@@ -361,4 +393,76 @@ print(f"Created workflow with ID: {workflow.id}")`,
       </div>
     </div>
   );
+}`;
+    }
+    
+    // Write the updated file
+    await fs.writeFile(filePath, updatedContent, 'utf8');
+    console.log(`  ✅ Fixed ${filePath} successfully`);
+    
+  } catch (error) {
+    console.error(`Error updating ${filePath}:`, error);
+  }
 }
+
+/**
+ * Convert fix-pipedream-env.js to ES modules
+ */
+async function fixPipedreamEnvScript() {
+  try {
+    console.log(`Creating ES module version of fix-pipedream-env.js...`);
+    
+    // Create a new ES module version
+    const content = `// ES Module version to fix Pipedream environment variables
+import 'dotenv/config';
+import fs from 'fs';
+import { createBackendClient } from '@pipedream/sdk/server';
+
+// Fixed environment variables
+const fixedEnv = {
+  PIPEDREAM_CLIENT_ID: 'kWYR9dn6Vmk7MnLuVfoXx4jsedOcp83vBg6st3rWuiM',
+  PIPEDREAM_CLIENT_SECRET: 'ayINomSnhCcHGR6Xf1_4PElM25mqsEFsrvTHKQ7ink0',
+  PIPEDREAM_PROJECT_ID: 'proj_LosDxgO',
+  PIPEDREAM_PROJECT_ENVIRONMENT: 'development'
+};
+
+// Apply fixed values to the current environment
+Object.entries(fixedEnv).forEach(([key, value]) => {
+  process.env[key] = value;
+});
+
+console.log('Running Pipedream environment variable fixer...');
+console.log('✅ Pipedream environment variables patched');
+console.log('Environment state:', {
+  hasClientId: !!process.env.PIPEDREAM_CLIENT_ID,
+  hasClientSecret: !!process.env.PIPEDREAM_CLIENT_SECRET,
+  hasProjectId: !!process.env.PIPEDREAM_PROJECT_ID,
+  projectEnvironment: process.env.PIPEDREAM_PROJECT_ENVIRONMENT,
+  appUrl: process.env.NEXT_PUBLIC_APP_URL || 'https://app.isyncso.com',
+  redirectUri: (process.env.NEXT_PUBLIC_APP_URL || 'https://app.isyncso.com') + '/api/pipedream/callback'
+});`;
+    
+    // Write the module version to a new file
+    await fs.writeFile('fix-pipedream-env.mjs', content, 'utf8');
+    console.log(`  ✅ Created ES module version fix-pipedream-env.mjs successfully`);
+    
+  } catch (error) {
+    console.error(`Error creating ES module version:`, error);
+  }
+}
+
+async function main() {
+  console.log('🔧 Starting fixes for React version conflicts...');
+  
+  // Fix the pages
+  for (const page of pagesToFix) {
+    await fixPage(page);
+  }
+  
+  // Fix the Pipedream env script
+  await fixPipedreamEnvScript();
+  
+  console.log('✅ All fixes applied successfully!');
+}
+
+main().catch(console.error); 

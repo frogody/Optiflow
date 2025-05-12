@@ -1,13 +1,10 @@
 'use client';
 
-import { 
-  ChatBubbleLeftRightIcon, 
-  DocumentTextIcon, 
-  EnvelopeIcon, 
-  MapPinIcon,
-  PhoneIcon,
-  QuestionMarkCircleIcon
-} from '@heroicons/react/24/outline';
+
+// Force dynamic rendering to avoid static generation issues
+export const dynamic = 'force-dynamic';
+
+// Heroicons removed to prevent React version conflicts
 import Link from 'next/link';
 import { useState } from 'react';
 
@@ -23,6 +20,15 @@ const SocialIcon = ({ href, label, children }: { href: string; label: string; ch
     {children}
   </a>
 );
+
+// Simple icon component to replace Heroicons
+const Icon = ({ name, className }) => {
+  return (
+    <div className={`icon-placeholder ${name} ${className || ''}`}>
+      <span className="sr-only">{name}</span>
+    </div>
+  );
+};
 
 export default function ContactPage() {
   const [formData, setFormData] = useState({
@@ -234,7 +240,7 @@ export default function ContactPage() {
               <div className="space-y-4">
                 <div className="flex">
                   <div className="flex-shrink-0 h-10 w-10 bg-[#1E293B] rounded-lg flex items-center justify-center mr-4">
-                    <EnvelopeIcon className="h-5 w-5 text-[#22D3EE]" />
+                    <Icon name="envelope-" className="h-5 w-5 text-[#22D3EE]" />
                   </div>
                   <div>
                     <p className="text-sm font-medium text-[#E5E7EB] mb-1">Email</p>
@@ -246,7 +252,7 @@ export default function ContactPage() {
                 
                 <div className="flex">
                   <div className="flex-shrink-0 h-10 w-10 bg-[#1E293B] rounded-lg flex items-center justify-center mr-4">
-                    <EnvelopeIcon className="h-5 w-5 text-[#22D3EE]" />
+                    <Icon name="envelope-" className="h-5 w-5 text-[#22D3EE]" />
                   </div>
                   <div>
                     <p className="text-sm font-medium text-[#E5E7EB] mb-1">Department Emails</p>
@@ -266,7 +272,7 @@ export default function ContactPage() {
                 
                 <div className="flex">
                   <div className="flex-shrink-0 h-10 w-10 bg-[#1E293B] rounded-lg flex items-center justify-center mr-4">
-                    <PhoneIcon className="h-5 w-5 text-[#22D3EE]" />
+                    <Icon name="phone-" className="h-5 w-5 text-[#22D3EE]" />
                   </div>
                   <div>
                     <p className="text-sm font-medium text-[#E5E7EB] mb-1">Phone</p>
@@ -278,7 +284,7 @@ export default function ContactPage() {
                 
                 <div className="flex">
                   <div className="flex-shrink-0 h-10 w-10 bg-[#1E293B] rounded-lg flex items-center justify-center mr-4">
-                    <MapPinIcon className="h-5 w-5 text-[#22D3EE]" />
+                    <Icon name="map-pin-" className="h-5 w-5 text-[#22D3EE]" />
                   </div>
                   <div>
                     <p className="text-sm font-medium text-[#E5E7EB] mb-1">Headquarters</p>
@@ -298,17 +304,17 @@ export default function ContactPage() {
               
               <div className="space-y-4">
                 <Link href="/help" className="flex p-3 bg-[#1E293B] rounded-lg hover:bg-[#2D3748] transition-colors">
-                  <QuestionMarkCircleIcon className="h-6 w-6 text-[#22D3EE] mr-3" />
+                  <Icon name="question-mark-circle-" className="h-6 w-6 text-[#22D3EE] mr-3" />
                   <span className="text-[#E5E7EB]">Help Center</span>
                 </Link>
                 
                 <Link href="/faq" className="flex p-3 bg-[#1E293B] rounded-lg hover:bg-[#2D3748] transition-colors">
-                  <DocumentTextIcon className="h-6 w-6 text-[#22D3EE] mr-3" />
+                  <Icon name="document-text-" className="h-6 w-6 text-[#22D3EE] mr-3" />
                   <span className="text-[#E5E7EB]">FAQ</span>
                 </Link>
                 
                 <Link href="/help/community" className="flex p-3 bg-[#1E293B] rounded-lg hover:bg-[#2D3748] transition-colors">
-                  <ChatBubbleLeftRightIcon className="h-6 w-6 text-[#22D3EE] mr-3" />
+                  <Icon name="chat-bubble-left-right-" className="h-6 w-6 text-[#22D3EE] mr-3" />
                   <span className="text-[#E5E7EB]">Community Forum</span>
                 </Link>
               </div>

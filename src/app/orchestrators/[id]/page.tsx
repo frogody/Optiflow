@@ -1,5 +1,9 @@
 'use client';
 
+
+// Force dynamic rendering to avoid static generation issues
+export const dynamic = 'force-dynamic';
+
 // Original content commented out to bypass build errors
 /*
 import { useRouter } from 'next/navigation';

@@ -1,14 +1,10 @@
 'use client';
 
-import {
-  ArrowPathIcon,
-  BellIcon,
-  DevicePhoneMobileIcon,
-  EnvelopeIcon,
-  GlobeAltIcon,
-  InformationCircleIcon,
-  SpeakerWaveIcon
-} from '@heroicons/react/24/outline';
+
+// Force dynamic rendering to avoid static generation issues
+export const dynamic = 'force-dynamic';
+
+// Heroicons removed to prevent React version conflicts
 import { useState } from 'react';
 
 // Mock notification preferences data
@@ -71,6 +67,15 @@ const mockNotificationTypes = [
     ]
   },
 ];
+
+// Simple icon component to replace Heroicons
+const Icon = ({ name, className }) => {
+  return (
+    <div className={`icon-placeholder ${name} ${className || ''}`}>
+      <span className="sr-only">{name}</span>
+    </div>
+  );
+};
 
 export default function NotificationSettings() {
   // State for notification channels
@@ -390,7 +395,7 @@ export default function NotificationSettings() {
         </div>
         
         <div className="mt-4 p-3 rounded bg-[#1E293B] flex items-start">
-          <InformationCircleIcon className="h-5 w-5 text-[#9CA3AF] flex-shrink-0 mt-0.5 mr-2" />
+          <Icon name="information-circle-" className="h-5 w-5 text-[#9CA3AF] flex-shrink-0 mt-0.5 mr-2" />
           <p className="text-xs text-[#9CA3AF]">
             Digest options apply to email notifications only. In-app and other notifications will still be delivered immediately.
             Critical security notifications will always be sent immediately regardless of your digest preference.
@@ -456,7 +461,7 @@ export default function NotificationSettings() {
         
         {dndEnabled && (
           <div className="mt-4 p-3 rounded bg-[#1E293B] flex items-start">
-            <InformationCircleIcon className="h-5 w-5 text-[#9CA3AF] flex-shrink-0 mt-0.5 mr-2" />
+            <Icon name="information-circle-" className="h-5 w-5 text-[#9CA3AF] flex-shrink-0 mt-0.5 mr-2" />
             <p className="text-xs text-[#9CA3AF]">
               Critical security notifications will still be delivered even during Do Not Disturb hours.
             </p>
@@ -572,7 +577,7 @@ export default function NotificationSettings() {
                 className="px-4 py-2 bg-[#22D3EE] text-[#111111] font-medium rounded-md hover:bg-[#06B6D4] transition-colors flex items-center"
                 disabled={isSendingTest}
               >
-                {isSendingTest && <ArrowPathIcon className="h-4 w-4 mr-2 animate-spin" />}
+                {isSendingTest && <Icon name="arrow-path-" className="h-4 w-4 mr-2 animate-spin" />}
                 {isSendingTest ? 'Sending...' : 'Send Test Notification'}
               </button>
             </div>

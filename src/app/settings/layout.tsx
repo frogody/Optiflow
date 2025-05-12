@@ -1,18 +1,18 @@
 'use client';
 
-import {
-  ArrowLeftIcon,
-  BellIcon,
-  BuildingOffice2Icon,
-  Cog6ToothIcon,
-  DocumentTextIcon,
-  KeyIcon,
-  ShieldCheckIcon,
-  UserCircleIcon
-} from '@heroicons/react/24/outline';
+// Heroicons removed to prevent React version conflicts
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useEffect, useState } from 'react';
+
+// Simple icon component to replace Heroicons
+const Icon = ({ name, className }) => {
+  return (
+    <div className={`icon-placeholder ${name} ${className || ''}`}>
+      <span className="sr-only">{name}</span>
+    </div>
+  );
+};
 
 export default function SettingsLayout({
   children,
@@ -55,7 +55,7 @@ export default function SettingsLayout({
         {/* Mobile menu toggle and back button */}
         <div className="flex items-center justify-between md:hidden mb-6">
           <Link href="/dashboard" className="flex items-center text-[#9CA3AF] hover:text-[#E5E7EB]">
-            <ArrowLeftIcon className="h-5 w-5 mr-1" />
+            <Icon name="arrow-left-" className="h-5 w-5 mr-1" />
             <span>Back to Dashboard</span>
           </Link>
           

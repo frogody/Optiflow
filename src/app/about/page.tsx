@@ -1,13 +1,11 @@
 'use client';
 
-import { ArrowRightIcon, CheckCircleIcon } from '@heroicons/react/24/outline';
-import { 
-  GlobeAltIcon, 
-  ShieldCheckIcon,
-  SparklesIcon,
-  StarIcon,
-  UserGroupIcon
-} from '@heroicons/react/24/outline';
+
+// Force dynamic rendering to avoid static generation issues
+export const dynamic = 'force-dynamic';
+
+// Heroicons removed to prevent React version conflicts
+// Heroicons removed to prevent React version conflicts
 import { motion } from 'framer-motion';
 import Image from 'next/image';
 import Link from 'next/link';
@@ -138,6 +136,15 @@ const timelineEvents = [
     description: 'Opened offices in London and Singapore, expanding our team to 100+ employees serving customers in over 50 countries.'
   }
 ];
+
+// Simple icon component to replace Heroicons
+const Icon = ({ name, className }) => {
+  return (
+    <div className={`icon-placeholder ${name} ${className || ''}`}>
+      <span className="sr-only">{name}</span>
+    </div>
+  );
+};
 
 export default function AboutPage() {
   return (
@@ -357,7 +364,7 @@ export default function AboutPage() {
                 className="inline-flex items-center px-6 py-3 bg-[#1E293B] text-[#E5E7EB] font-medium rounded-md hover:bg-[#374151] transition-colors"
               >
                 Join Our Growing Team
-                <ArrowRightIcon className="ml-2 h-5 w-5" />
+                <Icon name="arrow-right-" className="ml-2 h-5 w-5" />
               </Link>
             </div>
           </div>
@@ -387,7 +394,7 @@ export default function AboutPage() {
               <div>
                 <div className="text-4xl md:text-5xl font-bold text-white mb-2 flex items-center justify-center gap-2">
                   1M+
-                  <CheckCircleIcon className="h-6 w-6 text-[#22D3EE]" title="Milestone reached" />
+                  <Icon name="check-circle-" className="h-6 w-6 text-[#22D3EE]" title="Milestone reached" />
                 </div>
                 <div className="text-[#9CA3AF]">Workflows Run</div>
               </div>

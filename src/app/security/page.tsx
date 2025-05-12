@@ -1,13 +1,10 @@
 'use client';
 
-import { 
-  ArrowRightIcon, 
-  CheckCircleIcon, 
-  DocumentTextIcon, 
-  LockClosedIcon,
-  ServerIcon,
-  ShieldCheckIcon
-} from '@heroicons/react/24/outline';
+
+// Force dynamic rendering to avoid static generation issues
+export const dynamic = 'force-dynamic';
+
+// Heroicons removed to prevent React version conflicts
 import Link from 'next/link';
 
 // Security features
@@ -44,6 +41,15 @@ const complianceCertifications = [
   { name: 'NIST CSF', status: 'Compliant' },
 ];
 
+// Simple icon component to replace Heroicons
+const Icon = ({ name, className }) => {
+  return (
+    <div className={`icon-placeholder ${name} ${className || ''}`}>
+      <span className="sr-only">{name}</span>
+    </div>
+  );
+};
+
 export default function SecurityPage() {
   return (
     <div className="bg-[#111111] text-[#E5E7EB]">
@@ -59,7 +65,7 @@ export default function SecurityPage() {
           <div className="inline-flex rounded-md shadow">
             <Link href="/contact" className="px-5 py-3 bg-[#22D3EE] text-[#111111] rounded-md font-medium hover:bg-[#06B6D4] transition-colors inline-flex items-center">
               Talk to Security Team
-              <ArrowRightIcon className="ml-2 h-4 w-4" />
+              <Icon name="arrow-right-" className="ml-2 h-4 w-4" />
             </Link>
           </div>
         </div>
@@ -90,31 +96,31 @@ export default function SecurityPage() {
             <h2 className="text-3xl font-bold mb-6 text-[#22D3EE]">How We Protect Your Data</h2>
             <div className="space-y-4">
               <div className="flex">
-                <CheckCircleIcon className="h-6 w-6 text-[#10B981] mr-3 flex-shrink-0" />
+                <Icon name="check-circle-" className="h-6 w-6 text-[#10B981] mr-3 flex-shrink-0" />
                 <p className="text-[#E5E7EB]">
                   <strong>Data Encryption</strong> - All data is encrypted both in transit and at rest using industry-standard protocols.
                 </p>
               </div>
               <div className="flex">
-                <CheckCircleIcon className="h-6 w-6 text-[#10B981] mr-3 flex-shrink-0" />
+                <Icon name="check-circle-" className="h-6 w-6 text-[#10B981] mr-3 flex-shrink-0" />
                 <p className="text-[#E5E7EB]">
                   <strong>Access Controls</strong> - Strict role-based access controls with principle of least privilege.
                 </p>
               </div>
               <div className="flex">
-                <CheckCircleIcon className="h-6 w-6 text-[#10B981] mr-3 flex-shrink-0" />
+                <Icon name="check-circle-" className="h-6 w-6 text-[#10B981] mr-3 flex-shrink-0" />
                 <p className="text-[#E5E7EB]">
                   <strong>24/7 Monitoring</strong> - Continuous monitoring of all systems with automated alerts for suspicious activities.
                 </p>
               </div>
               <div className="flex">
-                <CheckCircleIcon className="h-6 w-6 text-[#10B981] mr-3 flex-shrink-0" />
+                <Icon name="check-circle-" className="h-6 w-6 text-[#10B981] mr-3 flex-shrink-0" />
                 <p className="text-[#E5E7EB]">
                   <strong>Regular Backups</strong> - Automated data backups with geographic redundancy to prevent data loss.
                 </p>
               </div>
               <div className="flex">
-                <CheckCircleIcon className="h-6 w-6 text-[#10B981] mr-3 flex-shrink-0" />
+                <Icon name="check-circle-" className="h-6 w-6 text-[#10B981] mr-3 flex-shrink-0" />
                 <p className="text-[#E5E7EB]">
                   <strong>Vulnerability Management</strong> - Regular security assessments and prompt patching of vulnerabilities.
                 </p>
@@ -124,7 +130,7 @@ export default function SecurityPage() {
           <div className="relative h-80 rounded-xl overflow-hidden">
             <div className="absolute inset-0 bg-gradient-to-r from-[#0891b2] to-[#1e40af] opacity-80 rounded-xl"></div>
             <div className="absolute inset-0 flex items-center justify-center">
-              <LockClosedIcon className="h-32 w-32 text-white" />
+              <Icon name="lock-closed-" className="h-32 w-32 text-white" />
             </div>
           </div>
         </div>
@@ -147,7 +153,7 @@ export default function SecurityPage() {
             <div key={index} className="grid grid-cols-2 md:grid-cols-3 border-b border-[#374151] last:border-b-0">
               <div className="p-4 text-[#E5E7EB] border-r border-[#374151]">{cert.name}</div>
               <div className="p-4 text-[#10B981] flex items-center md:col-span-2">
-                <CheckCircleIcon className="h-5 w-5 mr-2" />
+                <Icon name="check-circle-" className="h-5 w-5 mr-2" />
                 {cert.status}
               </div>
             </div>
@@ -208,19 +214,19 @@ export default function SecurityPage() {
         
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
           <Link href="/security/whitepaper" className="block p-6 bg-[#111111] rounded-lg hover:bg-[#1E293B] transition-colors">
-            <DocumentTextIcon className="h-8 w-8 text-[#22D3EE] mb-4" />
+            <Icon name="document-text-" className="h-8 w-8 text-[#22D3EE] mb-4" />
             <h3 className="text-lg font-medium text-[#E5E7EB] mb-2">Security Whitepaper</h3>
             <p className="text-[#9CA3AF]">Download our detailed security whitepaper for a comprehensive overview of our security practices.</p>
           </Link>
           
           <Link href="/security/privacy-shield" className="block p-6 bg-[#111111] rounded-lg hover:bg-[#1E293B] transition-colors">
-            <ShieldCheckIcon className="h-8 w-8 text-[#22D3EE] mb-4" />
+            <Icon name="shield-check-" className="h-8 w-8 text-[#22D3EE] mb-4" />
             <h3 className="text-lg font-medium text-[#E5E7EB] mb-2">Privacy Shield Certification</h3>
             <p className="text-[#9CA3AF]">Learn about our Privacy Shield certification for international data transfers.</p>
           </Link>
           
           <Link href="/security/pentest-reports" className="block p-6 bg-[#111111] rounded-lg hover:bg-[#1E293B] transition-colors">
-            <ServerIcon className="h-8 w-8 text-[#22D3EE] mb-4" />
+            <Icon name="server-" className="h-8 w-8 text-[#22D3EE] mb-4" />
             <h3 className="text-lg font-medium text-[#E5E7EB] mb-2">Penetration Test Reports</h3>
             <p className="text-[#9CA3AF]">View summaries of our most recent third-party penetration tests.</p>
           </Link>

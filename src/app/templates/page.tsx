@@ -1,13 +1,10 @@
 'use client';
 
-import { 
-  ArrowLeftIcon,
-  ArrowTopRightOnSquareIcon,
-  CheckBadgeIcon,
-  MagnifyingGlassIcon,
-  StarIcon,
-  TagIcon
-} from '@heroicons/react/24/outline';
+
+// Force dynamic rendering to avoid static generation issues
+export const dynamic = 'force-dynamic';
+
+// Heroicons removed to prevent React version conflicts
 import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
@@ -189,6 +186,15 @@ const categories = [
   { id: 'human-resources', name: 'Human Resources' }
 ];
 
+// Simple icon component to replace Heroicons
+const Icon = ({ name, className }) => {
+  return (
+    <div className={`icon-placeholder ${name} ${className || ''}`}>
+      <span className="sr-only">{name}</span>
+    </div>
+  );
+};
+
 export default function TemplatesPage() {
   const router = useRouter();
   const [searchQuery, setSearchQuery] = useState('');
@@ -248,7 +254,7 @@ export default function TemplatesPage() {
               href="/workflows" 
               className="inline-flex items-center text-[#9CA3AF] hover:text-[#E5E7EB] transition-colors mb-4"
             >
-              <ArrowLeftIcon className="mr-2 h-4 w-4" />
+              <Icon name="arrow-left-" className="mr-2 h-4 w-4" />
               Back to Workflows
             </Link>
             <h1 className="text-3xl font-bold text-[#22D3EE] mb-2">Workflow Templates</h1>
@@ -322,11 +328,11 @@ export default function TemplatesPage() {
                     </svg>
                   </div>
                   <div className="absolute top-2 right-2 bg-[#111111] bg-opacity-80 rounded-full p-1">
-                    <ArrowTopRightOnSquareIcon className="h-5 w-5 text-[#22D3EE] opacity-0 group-hover:opacity-100 transition-opacity" />
+                    <Icon name="arrow-top-right-on-square-" className="h-5 w-5 text-[#22D3EE] opacity-0 group-hover:opacity-100 transition-opacity" />
                   </div>
                   {template.isOfficial && (
                     <div className="absolute top-2 left-2 bg-[#111111] bg-opacity-80 rounded-full p-1">
-                      <CheckBadgeIcon className="h-5 w-5 text-[#22D3EE]" />
+                      <Icon name="check-badge-" className="h-5 w-5 text-[#22D3EE]" />
                     </div>
                   )}
                 </div>
@@ -336,7 +342,7 @@ export default function TemplatesPage() {
                   <div className="flex items-center justify-between mb-2">
                     <h3 className="text-[#E5E7EB] font-medium">{template.name}</h3>
                     <div className="flex items-center text-[#9CA3AF] text-xs">
-                      <StarIcon className="h-4 w-4 mr-1" />
+                      <Icon name="star-" className="h-4 w-4 mr-1" />
                       {template.popularity}
                     </div>
                   </div>
@@ -344,7 +350,7 @@ export default function TemplatesPage() {
                   <p className="text-[#9CA3AF] text-sm mb-4 line-clamp-2">{template.description}</p>
                   
                   <div className="flex items-center text-xs">
-                    <TagIcon className="h-3 w-3 text-[#9CA3AF] mr-1" />
+                    <Icon name="tag-" className="h-3 w-3 text-[#9CA3AF] mr-1" />
                     <div className="flex flex-wrap gap-1">
                       {template.tags.slice(0, 3).map(tag => (
                         <span 
@@ -375,7 +381,7 @@ export default function TemplatesPage() {
                     <h2 className="text-2xl font-bold text-[#E5E7EB] mr-2">{selectedTemplate.name}</h2>
                     {selectedTemplate.isOfficial && (
                       <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-[#022c22] text-[#10B981]">
-                        <CheckBadgeIcon className="mr-1 h-4 w-4" />
+                        <Icon name="check-badge-" className="mr-1 h-4 w-4" />
                         Official
                       </span>
                     )}
@@ -411,7 +417,7 @@ export default function TemplatesPage() {
                 <div>
                   <h3 className="text-sm text-[#9CA3AF] mb-1">Popularity</h3>
                   <div className="flex items-center text-[#E5E7EB]">
-                    <StarIcon className="h-4 w-4 text-[#F59E0B] mr-1" />
+                    <Icon name="star-" className="h-4 w-4 text-[#F59E0B] mr-1" />
                     <span>{selectedTemplate.popularity} users</span>
                   </div>
                 </div>

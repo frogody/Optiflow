@@ -1,12 +1,10 @@
 'use client';
 
-import {
-  ArrowDownIcon,
-  ArrowUpIcon,
-  CheckIcon,
-  InformationCircleIcon,
-  XMarkIcon
-} from '@heroicons/react/24/outline';
+
+// Force dynamic rendering to avoid static generation issues
+export const dynamic = 'force-dynamic';
+
+// Heroicons removed to prevent React version conflicts
 import { CheckCircleIcon } from '@heroicons/react/24/solid';
 import { useState } from 'react';
 
@@ -17,6 +15,15 @@ const mockUserPlan = {
   cost: '$49.99',
   cycleType: 'monthly',
   credits: 1000
+};
+
+// Simple icon component to replace Heroicons
+const Icon = ({ name, className }) => {
+  return (
+    <div className={`icon-placeholder ${name} ${className || ''}`}>
+      <span className="sr-only">{name}</span>
+    </div>
+  );
 };
 
 export default function SubscriptionPlans() {
@@ -152,7 +159,7 @@ export default function SubscriptionPlans() {
               <span className="text-[#22D3EE] ml-2 flex items-center">
                 {mockUserPlan.name}
                 {mockUserPlan.name === 'Pro' && (
-                  <CheckCircleIcon className="ml-2 h-5 w-5 text-[#22D3EE]" />
+                  <Icon name="check-circle-" className="ml-2 h-5 w-5 text-[#22D3EE]" />
                 )}
               </span>
               {mockUserPlan.name === 'Pro' && (
@@ -226,7 +233,7 @@ export default function SubscriptionPlans() {
                       
                       <td className="whitespace-nowrap px-3 py-4 text-sm text-[#E5E7EB] flex items-center gap-1">
                         {plan.price}
-                        {plan.id === 'pro' ? <ArrowUpIcon className="h-4 w-4 text-[#22D3EE]" /> : plan.id === 'free' ? <ArrowDownIcon className="h-4 w-4 text-[#F87171]" /> : null}
+                        {plan.id === 'pro' ? <Icon name="arrow-up-" className="h-4 w-4 text-[#22D3EE]" /> : plan.id === 'free' ? <Icon name="arrow-down-" className="h-4 w-4 text-[#F87171]" /> : null}
                       </td>
                       
                       <td className="whitespace-nowrap px-3 py-4 text-sm text-[#E5E7EB]">
@@ -293,9 +300,9 @@ export default function SubscriptionPlans() {
                         {plans.map((plan) => (
                           <td key={`${plan.id}-${featureIdx}`} className="whitespace-nowrap px-3 py-4 text-sm text-center">
                             {plan.features[featureIdx].included ? (
-                              <CheckIcon className="h-5 w-5 text-[#22D3EE] inline-block" />
+                              <Icon name="check-" className="h-5 w-5 text-[#22D3EE] inline-block" />
                             ) : (
-                              <XMarkIcon className="h-5 w-5 text-[#6B7280] inline-block" />
+                              <Icon name="xmark-" className="h-5 w-5 text-[#6B7280] inline-block" />
                             )}
                           </td>
                         ))}
@@ -381,7 +388,7 @@ export default function SubscriptionPlans() {
               </div>
               
               <div className="flex items-start mt-4 bg-[#422006] p-3 rounded-md">
-                <InformationCircleIcon className="h-5 w-5 text-[#F59E0B] flex-shrink-0 mt-0.5 mr-2" />
+                <Icon name="information-circle-" className="h-5 w-5 text-[#F59E0B] flex-shrink-0 mt-0.5 mr-2" />
                 <p className="text-sm text-[#F59E0B]">
                   Downgrading may reduce feature access and workflow limits. Your data will be retained, but you may need to remove workflows or integrations that exceed the new plan's limits.
                 </p>
@@ -437,7 +444,7 @@ export default function SubscriptionPlans() {
                   </div>
                   
                   <div className="flex items-start mt-6 bg-[#371520] p-3 rounded-md">
-                    <InformationCircleIcon className="h-5 w-5 text-[#F87171] flex-shrink-0 mt-0.5 mr-2" />
+                    <Icon name="information-circle-" className="h-5 w-5 text-[#F87171] flex-shrink-0 mt-0.5 mr-2" />
                     <p className="text-sm text-[#F87171]">
                       If you proceed with cancellation, your subscription will remain active until the end of your current billing period ({mockUserPlan.nextRenewal}). After that, your account will revert to the Free plan with limited features.
                     </p>
@@ -447,7 +454,7 @@ export default function SubscriptionPlans() {
                 <>
                   <div className="flex items-center justify-center mb-6">
                     <div className="h-16 w-16 bg-[#371520] rounded-full flex items-center justify-center">
-                      <XMarkIcon className="h-8 w-8 text-[#F87171]" />
+                      <Icon name="xmark-" className="h-8 w-8 text-[#F87171]" />
                     </div>
                   </div>
                   
