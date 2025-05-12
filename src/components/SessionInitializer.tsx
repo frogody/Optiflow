@@ -26,6 +26,8 @@ export function SessionInitializer() {
       return;
     }
 
+    console.log('Session status:', status, 'User:', session?.user?.email || 'none');
+    
     // Set loading state
     userStore.setLoading(status === 'loading');
 
@@ -40,12 +42,14 @@ export function SessionInitializer() {
         };
         console.log('Setting authenticated user:', user);
         userStore.setUser(user);
-      } else if (status === 'unauthenticated' || !session) {
-        // Clear the user when session is explicitly unauthenticated or missing
-        console.log('Session is unauthenticated or missing, clearing user');
+      } else if (status === 'unauthenticated') {
+        // Clear the user when session is explicitly unauthenticated
+        console.log('Session is unauthenticated, clearing user');
         userStore.setUser(null);
-      } else {
-        console.warn('Unexpected session status:', status);
+      } else if (status !== 'loading') {
+        // If we're not loading and don't have a user, make sure we're cleared
+        console.log('Session is not loading but not authenticated, clearing user');
+        userStore.setUser(null);
       }
     } catch (error) {
       console.error('Error handling session state:', error);

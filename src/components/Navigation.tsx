@@ -35,13 +35,21 @@ interface UserNavItem {
 export default function Navigation() {
   const router = useRouter();
   const pathname = usePathname();
-  const { currentUser, isLoading: userLoading, setCurrentUser     } = useUserStore();
+  const { currentUser, isLoading: userLoading, setCurrentUser } = useUserStore();
   const { theme } = useThemeStore();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
   const [isNotifying, setIsNotifying] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [compactMode, setCompactMode] = useState(false);
+
+  // Debug logging
+  useEffect(() => {
+    console.log('Navigation rendered. User state:', {
+      currentUser: currentUser ? `${currentUser.email} (${currentUser.id})` : 'null',
+      isLoading: userLoading
+    });
+  }, [currentUser, userLoading]);
 
   // Close menus when route changes
   useEffect(() => {
@@ -53,7 +61,7 @@ export default function Navigation() {
   const handleLogout = async () => {
     try {
       setIsUserMenuOpen(false); // Close menu before logout
-      await signOut({ redirect: false     });
+      await signOut({ redirect: false });
       setCurrentUser(null);
       router.push('/');
     } catch (error) { console.error('Error during logout:', error);
@@ -415,14 +423,15 @@ export default function Navigation() {
               {/* Language Selector */}
               <LanguageSwitcher />
 
+              {/* Always render auth buttons when user is not logged in, regardless of loading state */}
               {userLoading ? (
-                // Loading skeleton
+                // Show a simple placeholder during loading to prevent layout shift
                 <div className="h-8 w-24 bg-white/5 animate-pulse rounded-full" />
               ) : currentUser ? (
                 // User profile avatar and menu
                 renderUserMenu()
               ) : (
-                // Auth buttons for non-logged in users
+                // Auth buttons for non-logged in users (always show these when no user)
                 renderAuthButtons()
               )}
 

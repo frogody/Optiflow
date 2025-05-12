@@ -24,13 +24,30 @@ const MinimalNav = () => {
   return (
     <header className="sticky top-0 z-50 bg-black/20 backdrop-blur-sm">
       <div className="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between">
-        <Link href="/" className="text-lg font-medium text-white">ISYNCSO</Link>
-        <Link 
-          href="/signup"
-          className="px-5 py-2 text-sm font-medium text-black rounded-full bg-gradient-to-r from-[#3CDFFF] to-[#4AFFD4] hover:opacity-90 transition-all duration-200"
-        >
-          Get Started
+        <Link href="/" className="flex items-center space-x-2">
+          <div className="relative w-10 h-10">
+            <img
+              src="/ISYNCSO_LOGO.png"
+              alt="ISYNCSO Logo"
+              className="w-full h-full rounded object-contain"
+            />
+          </div>
+          <span className="text-lg font-medium text-white">ISYNCSO</span>
         </Link>
+        <div className="flex items-center space-x-4">
+          <Link 
+            href="/login"
+            className="px-4 py-2 text-sm text-white/90 hover:text-white rounded-full border border-transparent hover:border-white/10 hover:bg-white/5 transition-all duration-200"
+          >
+            Log in
+          </Link>
+          <Link 
+            href="/signup"
+            className="px-5 py-2 text-sm font-medium text-black rounded-full bg-gradient-to-r from-[#3CDFFF] to-[#4AFFD4] hover:opacity-90 transition-all duration-200"
+          >
+            Get Started
+          </Link>
+        </div>
       </div>
     </header>
   );
@@ -130,14 +147,11 @@ export function RootProviders({ children }: { children: React.ReactNode }) {
         <SessionProvider>
           <TanstackProvider>
             <IconContext.Provider value={{ className: 'inline-block' }}>
-              <Suspense fallback={<MinimalNav />}>
-                <SessionInitializer />
-                {isClient && <Navigation />}
-                {!isClient && <MinimalNav />}
-                {children}
-                <Analytics />
-                <Toaster position="bottom-right" />
-              </Suspense>
+              <SessionInitializer />
+              {isClient ? <Navigation /> : <MinimalNav />}
+              {children}
+              <Analytics />
+              <Toaster position="bottom-right" />
             </IconContext.Provider>
           </TanstackProvider>
         </SessionProvider>
