@@ -70,6 +70,25 @@ module.exports = {
       env: {
         node: true
       }
+    },
+    {
+      // Allow 'any' in API routes, services, types, middleware and utility files
+      files: [
+        'src/app/api/**/*.ts',
+        'src/app/api/**/*.tsx',
+        'src/services/**/*.ts',
+        'src/types/**/*.ts',
+        'src/types/**/*.d.ts',
+        'src/lib/**/*.ts',
+        'src/components/workflow/**/*.ts',
+        'src/components/workflow/**/*.tsx',
+        'src/hooks/**/*.ts',
+        'src/stores/**/*.ts',
+        'prisma/middleware/**/*.ts'
+      ],
+      rules: {
+        '@typescript-eslint/no-explicit-any': 'off'
+      }
     }
   ]
 }

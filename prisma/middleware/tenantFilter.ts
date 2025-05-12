@@ -226,6 +226,11 @@ function createTenantFilter(modelName: string, context: TenantContext): any {
     return null;
   }
   
+  // No tenant fields defined for this model
+  if (!tenantFields) {
+    return null;
+  }
+  
   // Build OR conditions for tenant access
   const conditions = [];
   
