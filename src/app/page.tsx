@@ -1,17 +1,12 @@
 'use client';
 
 import { ArrowRightIcon, CheckCircleIcon, PlayCircleIcon } from '@heroicons/react/24/outline';
-import { motion } from 'framer-motion';
-import Head from 'next/head';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import dynamic from 'next/dynamic';
 
-// Dynamically import Image to prevent hydration issues
+// Dynamically import components that could cause hydration issues
 const Image = dynamic(() => import('next/image'), { ssr: false });
-
-// All imported icons and components are used in the UI (hero, personas, testimonials, and integrations).
 
 // Define A/B testing variants for hero section
 const heroVariants = {
@@ -89,27 +84,16 @@ const integrationLogos = [
 ];
 
 export default function HomePage() {
-  // For now, use variant A
   const hero = heroVariants['A'];
-  const [isClient, setIsClient] = useState(false);
+  const [mounted, setMounted] = useState(false);
   
-  // Set isClient to true once component mounts
+  // Only run on client-side
   useEffect(() => {
-    setIsClient(true);
+    setMounted(true);
   }, []);
 
-  if (!isClient) {
-    return <div className="min-h-screen flex flex-col items-center justify-center bg-[#111111] text-white p-4">
-      <div className="max-w-4xl mx-auto text-center mt-12 mb-16">
-        <h1 className="text-4xl md:text-6xl font-bold mb-6 bg-gradient-to-r from-blue-400 to-indigo-500 text-transparent bg-clip-text">
-          {hero.title}
-        </h1>
-        <p className="text-xl text-gray-300 mb-4">{hero.subtitle}</p>
-      </div>
-    </div>;
-  }
-
-  return (
+  // Basic content that will be the same on server and client initially
+  const renderContent = () => (
     <div className="min-h-screen flex flex-col items-center justify-center bg-[#111111] text-white p-4">
       {/* Hero Section */}
       <div className="max-w-4xl mx-auto text-center mt-12 mb-16">
@@ -144,14 +128,20 @@ export default function HomePage() {
             <PlayCircleIcon className="h-5 w-5 mr-2" /> Watch Demo
           </Link>
         </div>
-        {/* Integration Logos */}
-        <div className="flex flex-wrap justify-center gap-6 mt-8">
-          {integrationLogos.map((logo) => (
-            <div key={logo.name} className="flex items-center">
-              <Image src={logo.logo} alt={logo.name} width={40} height={40} className="h-10 w-10 object-contain" />
+        
+        {/* Only render images after client-side hydration */}
+        {mounted && (
+          <>
+            {/* Integration Logos */}
+            <div className="flex flex-wrap justify-center gap-6 mt-8">
+              {integrationLogos.map((logo) => (
+                <div key={logo.name} className="flex items-center">
+                  <Image src={logo.logo} alt={logo.name} width={40} height={40} className="h-10 w-10 object-contain" />
+                </div>
+              ))}
             </div>
-          ))}
-        </div>
+          </>
+        )}
       </div>
 
       {/* Persona Value Props */}
@@ -164,7 +154,11 @@ export default function HomePage() {
               href={persona.link}
               className="bg-[#18181B] rounded-lg p-6 flex flex-col items-center border border-[#374151] hover:border-indigo-500 transition-colors group"
             >
-              <Image src={persona.icon} alt={persona.title} width={48} height={48} className="mb-4 h-12 w-12 object-contain" />
+              {mounted ? (
+                <Image src={persona.icon} alt={persona.title} width={48} height={48} className="mb-4 h-12 w-12 object-contain" />
+              ) : (
+                <div className="mb-4 h-12 w-12" />
+              )}
               <h3 className="text-lg font-semibold mb-2 text-indigo-400 group-hover:text-indigo-300">{persona.title}</h3>
               <p className="text-gray-400 text-center mb-4">{persona.description}</p>
               <span className="inline-flex items-center text-indigo-400 group-hover:text-indigo-200 font-medium">
@@ -176,19 +170,23 @@ export default function HomePage() {
       </section>
 
       {/* Testimonials Section */}
-      <section className="w-full max-w-5xl mx-auto mb-16">
-        <h2 className="text-2xl font-bold text-center mb-8">What Our Users Say</h2>
-        <div className="grid md:grid-cols-3 gap-8">
-          {testimonials.map((testimonial, idx) => (
-            <div key={idx} className="bg-[#18181B] rounded-lg p-6 flex flex-col items-center border border-[#374151]">
-              <Image src={testimonial.avatar} alt={testimonial.author} width={56} height={56} className="rounded-full mb-4 h-14 w-14 object-cover" />
-              <p className="text-gray-300 italic mb-4">"{testimonial.quote}"</p>
-              <div className="text-indigo-400 font-semibold">{testimonial.author}</div>
-              <div className="text-gray-400 text-sm">{testimonial.title}</div>
-            </div>
-          ))}
-        </div>
-      </section>
+      {mounted && (
+        <section className="w-full max-w-5xl mx-auto mb-16">
+          <h2 className="text-2xl font-bold text-center mb-8">What Our Users Say</h2>
+          <div className="grid md:grid-cols-3 gap-8">
+            {testimonials.map((testimonial, idx) => (
+              <div key={idx} className="bg-[#18181B] rounded-lg p-6 flex flex-col items-center border border-[#374151]">
+                <Image src={testimonial.avatar} alt={testimonial.author} width={56} height={56} className="rounded-full mb-4 h-14 w-14 object-cover" />
+                <p className="text-gray-300 italic mb-4">"{testimonial.quote}"</p>
+                <div className="text-indigo-400 font-semibold">{testimonial.author}</div>
+                <div className="text-gray-400 text-sm">{testimonial.title}</div>
+              </div>
+            ))}
+          </div>
+        </section>
+      )}
     </div>
   );
+
+  return renderContent();
 } 

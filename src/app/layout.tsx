@@ -3,7 +3,7 @@ import { Inter } from 'next/font/google';
 
 import BrowserDetection from '@/components/BrowserDetection';
 import { RootProviders } from '@/components/providers/RootProviders';
-import VoiceAgentInterface from '@/components/voice/VoiceAgentInterface';
+import dynamic from 'next/dynamic';
 import { initializeSentry } from '@/lib/monitoring/sentry';
 import '@/styles/globals.css';
 
@@ -12,6 +12,11 @@ const inter = Inter({
   display: 'swap',
   preload: true,
   variable: '--font-inter',
+});
+
+// Load VoiceAgentInterface only on client side to prevent hydration issues
+const VoiceAgentInterface = dynamic(() => import('@/components/voice/VoiceAgentInterface'), {
+  ssr: false,
 });
 
 export const metadata: Metadata = {
@@ -50,7 +55,13 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" suppressHydrationWarning className={inter.variable}>
+    <html lang="en" className={inter.variable} suppressHydrationWarning>
+      <head>
+        <meta
+          name="format-detection"
+          content="telephone=no, date=no, email=no, address=no"
+        />
+      </head>
       <body className={inter.className}>
         <BrowserDetection />
         <RootProviders>
