@@ -41,9 +41,7 @@ export async function GET() {
   return new Response(null, { status: 101 });
 }
 
-// Handle WebSocket upgrade
-export const dynamic = 'force-dynamic';
-
+// Handle POST requests for testing WebSocket connection
 export async function POST() {
   try {
     // Test WebSocket connection to echo.websocket.org
