@@ -1,11 +1,15 @@
 'use client';
 
-// Force dynamic rendering to avoid static generation issues with React version conflicts
+// Force dynamic rendering to avoid static generation issues
 export const dynamic = 'force-dynamic';
 
+// Force dynamic rendering to avoid static generation issues with React version conflicts
+
+
+import dynamic from 'next/dynamic';
 import { MotionWrapper } from '@/components/MotionWrapper';
 import { useState, useEffect } from 'react';
-import dynamic from 'next/dynamic';
+
 import Link from 'next/link';
 import { 
   HiOutlineClipboardCheck,

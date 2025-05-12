@@ -29,12 +29,6 @@ const nextConfig = {
   experimental: {
     // Disable optimizeCss to prevent potential CSS issues
     optimizeCss: false,
-    
-    // Improved hydration
-    optimizeFonts: true,
-    
-    // More stable JSX transformation
-    swcMinify: true
   },
   
   // Keep trailing slash consistent
