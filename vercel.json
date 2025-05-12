@@ -1,7 +1,7 @@
 {
   "version": 2,
   "buildCommand": "npm run build",
-  "installCommand": "npm install --no-frozen-lockfile",
+  "installCommand": "if [ -f 'pnpm-lock.yaml' ]; then pnpm install --no-frozen-lockfile; else npm install --no-frozen-lockfile; fi",
   "framework": "nextjs",
   "github": {
     "enabled": true,
