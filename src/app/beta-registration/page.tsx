@@ -105,7 +105,7 @@ export default function BetaRegistration() {
     {
       id: 'personal-info',
       title: 'Tell us about yourself',
-      description: 'We'd like to know who we're talking to.',
+      description: "We'd like to know who we're talking to.",
       component: (
         <div className="space-y-6">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
