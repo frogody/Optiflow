@@ -23,9 +23,21 @@ function cleanEnvVar(value: string | undefined): string {
 export async function POST(req: NextRequest) {
   // Check authentication
   const session = await getServerSession(authOptions);
-  if (!session?.user?.id) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+
+  // Allow connections without authentication in development OR if the request contains a special bypass token
+  const bypassAuth = process.env.NODE_ENV === 'development' || req.headers.get('x-agent-bypass') === process.env.AGENT_BYPASS_SECRET;
+
+  // Skip authentication check in development mode
+  if (!bypassAuth && !session?.user?.id) {
+    console.error('Authentication required but user not found in session');
+    return NextResponse.json({ 
+      error: 'Unauthorized',
+      details: 'Authentication required. Please login or provide bypass token.',
+    }, { status: 401 });
   }
+
+  // Use anonymous ID if no session available but auth is bypassed
+  const effectiveUserId = (session?.user?.id || `anon-${Date.now()}`);
 
   // Get environment variables - simplified approach
   const apiKey = cleanEnvVar(process.env.LIVEKIT_API_KEY || '');
@@ -60,7 +72,7 @@ export async function POST(req: NextRequest) {
     const body = await req.json();
     
     // Allow agents/integrations to specify a userId to dispatch to that user's room
-    const targetUserId = body.userId || session.user.id;
+    const targetUserId = body.userId || effectiveUserId;
     const roomName = body.roomName; // Allow specifying room name directly
     const metadata = body.metadata || {};
     const agent = body.agent; // { id, capabilities, joinedAt }

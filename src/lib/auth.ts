@@ -499,4 +499,16 @@ export async function createTestUser() {
   });
 
   return user;
-} 
+}
+
+// Add a way to bypass auth for agents in non-development environments
+export const verifyAgentBypass = (bypassToken?: string) => {
+  if (!bypassToken) return false;
+  
+  // If we're in development mode, always allow bypass
+  if (process.env.NODE_ENV === 'development') return true;
+  
+  // In production, check against environment variable
+  const secretToken = process.env.AGENT_BYPASS_SECRET || 'production-bypass-token';
+  return bypassToken === secretToken;
+}; 

@@ -24,9 +24,21 @@ export async function POST(req: NextRequest) {
   
   // Check authentication
   const session = await getServerSession(authOptions);
-  if (!session?.user?.id) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+
+  // Allow connections without authentication in development OR if the request contains a special bypass token
+  const bypassAuth = process.env.NODE_ENV === 'development' || req.headers.get('x-agent-bypass') === process.env.AGENT_BYPASS_SECRET;
+
+  // Skip authentication check in development mode
+  if (!bypassAuth && !session?.user?.id) {
+    console.error('Authentication required but user not found in session');
+    return NextResponse.json({ 
+      error: 'Unauthorized',
+      details: 'Authentication required. Please login or provide bypass token.',
+    }, { status: 401 });
   }
+
+  // Use anonymous ID if no session available but auth is bypassed
+  const effectiveUserId = (session?.user?.id || `anon-${Date.now()}`);
 
   try {
     const body = await req.json();
@@ -77,10 +89,10 @@ export async function POST(req: NextRequest) {
     const agentIdentity = `agent-jarvis-force-${Date.now()}`;
 
     // Retrieve memory context for this user
-    console.log(`Retrieving memory context for user: ${session.user.id}`);
+    console.log(`Retrieving memory context for user: ${effectiveUserId}`);
     let memoryContext = [];
     try {
-      const memories = await memoryService.getAll('user', session.user.id);
+      const memories = await memoryService.getAll('user', effectiveUserId);
       if (memories && Array.isArray(memories)) {
         // Limit to most recent 10 memories to keep context manageable
         memoryContext = memories.slice(-10);
@@ -101,7 +113,7 @@ export async function POST(req: NextRequest) {
         console.log(`Room ${roomName} not found in database, creating new room entry`);
         await prisma.userRoom.create({
           data: {
-            userId: session.user.id,
+            userId: effectiveUserId,
             roomName,
             metadata: { forcedJoin: true, joinedAt: new Date().toISOString() }
           }
@@ -119,7 +131,7 @@ export async function POST(req: NextRequest) {
       'Jarvis', // The registered agent name
       {
         metadata: JSON.stringify({ 
-          userId: session.user.id,
+          userId: effectiveUserId,
           forcedJoin: true,
           joinedAt: new Date().toISOString(),
           memoryContext,
