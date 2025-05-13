@@ -15,8 +15,8 @@ import {
 import { useSession } from 'next-auth/react';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { toast } from 'react-hot-toast';
-import { BarVisualizer } from '@livekit/components-react';
 
+import CustomBarVisualizer from './CustomBarVisualizer';
 import ErrorMessage from './ErrorMessage';
 
 interface VoiceAgentInterfaceProps {
@@ -413,16 +413,12 @@ const VoiceAgentInterface: React.FC<VoiceAgentInterfaceProps> = ({ className }) 
       {isConnected && (
         <div className="flex flex-col items-center justify-center px-6 pt-2 pb-4">
           <div className="w-full flex flex-col items-center">
-            <BarVisualizer
+            <CustomBarVisualizer
               width={320}
               height={36}
               barCount={24}
+              isActive={isAgentSpeaking}
               className="my-2"
-              // Animate only when agent is speaking
-              isSpeaking={isAgentSpeaking}
-              // Use a digital gradient for bars
-              barColor="linear-gradient(180deg, #22D3EE 0%, #A855F7 100%)"
-              backgroundColor="#23243a"
             />
             <div className="text-xs text-[#A855F7] mt-1 tracking-widest uppercase">
               {isAgentSpeaking ? 'Agent Speaking' : isListening ? 'Listening...' : 'Connected'}
@@ -501,12 +497,17 @@ interface StatusIndicatorProps {
 }
 
 const StatusIndicator: React.FC<StatusIndicatorProps> = ({ active, color = 'blue' }) => {
-  const bgColor = color === 'purple' ? '[#A855F7]' : '[#22D3EE]';
+  // Use predefined class names instead of dynamic template interpolation
+  const activeClass = active ? 
+    (color === 'purple' ? 'bg-[#A855F7]' : 'bg-[#22D3EE]') : 
+    'bg-[#4B5563]';
+  
+  const animationClass = active ? 'animate-ping' : '';
   
   return (
     <div className="relative inline-flex h-3 w-3">
-      <span className={`absolute inline-flex h-full w-full rounded-full ${active ? `bg-${bgColor}` : 'bg-[#4B5563]'} opacity-75 ${active ? 'animate-ping' : ''}`}></span>
-      <span className={`relative inline-flex rounded-full h-3 w-3 ${active ? `bg-${bgColor}` : 'bg-[#4B5563]'}`}></span>
+      <span className={`absolute inline-flex h-full w-full rounded-full ${activeClass} opacity-75 ${animationClass}`}></span>
+      <span className={`relative inline-flex rounded-full h-3 w-3 ${activeClass}`}></span>
     </div>
   );
 };
