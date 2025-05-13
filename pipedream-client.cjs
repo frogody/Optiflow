@@ -1,5 +1,5 @@
 /**
- * Mock Pipedream client for development
+ * Mock Pipedream client for development (CommonJS version)
  * This prevents errors when the real Pipedream client is not available
  */
 
@@ -8,7 +8,7 @@
  * @param {string} userId - The ID of the user in your system
  * @returns {Promise<{token: string, expires_at: string}>} The generated token and expiration
  */
-export async function createUserConnectToken(userId) {
+async function createUserConnectToken(userId) {
   try {
     // Use the mock client to create a token
     const response = await mockPipedreamClient.connect.tokens.create({
@@ -43,12 +43,7 @@ const mockPipedreamClient = {
   createUserConnectToken
 };
 
-// Export both as default and as named export for maximum compatibility
-export default mockPipedreamClient;
-
-// For CommonJS compatibility (for older versions of Next.js)
-// This will be ignored in ESM mode but will help in CommonJS mode
-module.exports = {
-  default: mockPipedreamClient,
-  createUserConnectToken
-}; 
+// CommonJS exports
+module.exports = mockPipedreamClient;
+module.exports.createUserConnectToken = createUserConnectToken;
+module.exports.default = mockPipedreamClient; 
