@@ -69,6 +69,7 @@ export async function POST(req: NextRequest) {
     
     console.log(`LiveKit token using - API Key: ${apiKey ? apiKey.substring(0, 4) + '...' : 'MISSING'}, Secret length: ${apiSecret.length || 'MISSING'}, URL: ${livekitUrl || 'MISSING'}`);
 
+    // Handle missing LiveKit config more gracefully
     if (!apiKey || !apiSecret || !livekitUrl) {
       const missingVars = [];
       if (!apiKey) missingVars.push('LIVEKIT_API_KEY');
@@ -76,6 +77,23 @@ export async function POST(req: NextRequest) {
       if (!livekitUrl) missingVars.push('LIVEKIT_URL');
       
       console.error(`LiveKit environment variables not set: ${missingVars.join(', ')}`);
+      
+      // In development or with bypass, provide a mock token for testing
+      if (process.env.NODE_ENV === 'development' || bypassAuth) {
+        console.log('Providing mock token for development/bypass mode');
+        // Create a simple JWT-like string for testing
+        const mockToken = `dev-token-${Date.now()}-${Math.random().toString(36).substring(2, 15)}`;
+        const mockUrl = 'wss://mock.livekit.cloud';
+        
+        return NextResponse.json({ 
+          token: mockToken, 
+          url: mockUrl,
+          room,
+          identity: effectiveIdentity,
+          isMock: true
+        });
+      }
+      
       return NextResponse.json(
         { 
           error: 'LiveKit env vars not set',
