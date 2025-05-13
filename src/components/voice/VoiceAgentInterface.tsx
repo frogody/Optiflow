@@ -41,7 +41,8 @@ const VoiceAgentInterface: React.FC<VoiceAgentInterfaceProps> = ({
     }
   })();
   
-  const { data: session } = sessionData;
+  // Handle undefined data property safely
+  const session = sessionData?.data || null;
   
   const [room, setRoom] = useState<Room | null>(null);
   const [isConnected, setIsConnected] = useState(false);
@@ -103,7 +104,7 @@ const VoiceAgentInterface: React.FC<VoiceAgentInterfaceProps> = ({
         // Add bypass header for all environments when not authenticated
         if (!session?.user?.id) {
           headers['x-agent-bypass'] = 'production-bypass-token';
-          console.log('Adding bypass token header for unauthenticated request');
+          console.log('Adding bypass token header for force-join request');
         }
         
         const dispatchResponse = await fetch(dispatchEndpoint, {
@@ -148,9 +149,20 @@ const VoiceAgentInterface: React.FC<VoiceAgentInterfaceProps> = ({
         
         console.log(`Using token endpoint: ${tokenEndpoint}`);
         
+        // Set the same headers for token request as for dispatch
+        const tokenHeaders: HeadersInit = { 
+          'Content-Type': 'application/json',
+        };
+        
+        // Add bypass header for unauthenticated requests
+        if (!session?.user?.id) {
+          tokenHeaders['x-agent-bypass'] = 'production-bypass-token';
+          console.log('Adding bypass token header for token request');
+        }
+        
         const tokenResponse = await fetch(tokenEndpoint, {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+          headers: tokenHeaders,
           body: JSON.stringify({ room: generatedRoomName, userId })
         });
         
@@ -473,9 +485,10 @@ const VoiceAgentInterface: React.FC<VoiceAgentInterfaceProps> = ({
         'Content-Type': 'application/json',
       };
       
-      // Add bypass header if in production and not authenticated
-      if (process.env.NODE_ENV === 'production' && !session?.user?.id) {
+      // Add bypass header if not authenticated
+      if (!session?.user?.id) {
         headers['x-agent-bypass'] = 'production-bypass-token';
+        console.log('Adding bypass token header for force-join request');
       }
       
       // First attempt

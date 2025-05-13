@@ -2,7 +2,7 @@ import { AccessToken } from 'livekit-server-sdk';
 import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth/next';
 
-import { authOptions } from '@/lib/auth';
+import { authOptions, verifyAgentBypass } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 
 // Helper function to strip quotes from environment variables
@@ -22,11 +22,21 @@ export async function POST(req: NextRequest) {
   // Check authentication
   const session = await getServerSession(authOptions);
   
-  // Allow connections without authentication in development OR if the request contains a special bypass token
-  const bypassAuth = process.env.NODE_ENV === 'development' || req.headers.get('x-agent-bypass') === process.env.AGENT_BYPASS_SECRET;
+  // Get bypass token from header
+  const bypassToken = req.headers.get('x-agent-bypass');
+  
+  // Check auth status using helper function  
+  const bypassAuth = process.env.NODE_ENV === 'development' || verifyAgentBypass(bypassToken);
+  
+  console.log('Token Auth check:', { 
+    isDev: process.env.NODE_ENV === 'development',
+    hasSession: !!session?.user?.id,
+    bypassToken: bypassToken ? 'present' : 'missing',
+    bypassResult: bypassAuth
+  });
   
   if (!bypassAuth && !session?.user?.id) {
-    console.error('Authentication required but user not found in session');
+    console.error('Authentication required but user not found in session and bypass token invalid');
     return NextResponse.json({ 
       error: 'Unauthorized',
       details: 'Authentication required. Please login or provide bypass token.',
