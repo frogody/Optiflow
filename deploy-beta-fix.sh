@@ -1,3 +1,30 @@
+#!/bin/bash
+
+# Beta Registration Fix and Deploy Script - Simplified Version
+# This script fixes the beta registration page and deploys the application
+
+echo "🚀 Starting Beta Registration Page Fix and Deploy Script"
+
+# Set error handling
+set -e
+
+# Check if running in CI environment
+if [ -n "$CI" ]; then
+  echo "Running in CI environment..."
+else
+  echo "Running in local environment..."
+fi
+
+# Fix Beta Registration Page with a simplified version that will definitely build
+echo "🔧 Replacing beta registration page with simplified version..."
+
+BETA_PAGE="src/app/beta-registration/page.tsx"
+if [ -f "$BETA_PAGE" ]; then
+  echo "📝 Creating backup of beta registration page"
+  cp "$BETA_PAGE" "${BETA_PAGE}.bak.$(date +%s)"
+  
+  echo "📝 Creating simplified beta registration page"
+  cat > "$BETA_PAGE" << 'EOF'
 'use client';
 
 import { ArrowRightIcon } from '@heroicons/react/24/outline';
@@ -53,3 +80,23 @@ export default function BetaRegistration() {
     </div>
   );
 }
+EOF
+  
+  echo "✅ Beta registration page replaced with simplified version"
+else
+  echo "⚠️ Beta registration page not found at $BETA_PAGE"
+  exit 1
+fi
+
+# Create a test build locally first
+echo "🔍 Testing build locally first..."
+npm run build || {
+  echo "❌ Local build failed! Aborting deployment."
+  exit 1
+}
+
+# Deploy to Vercel
+echo "🚀 Deploying to Vercel..."
+npx vercel deploy --prod --yes
+
+echo "🎉 Beta Registration Page Fix and Deploy Script completed!" 

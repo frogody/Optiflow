@@ -211,7 +211,7 @@ function HomePage() {
                 className="flex flex-wrap justify-center gap-5 mb-8"
               >
                 <Link
-                  href="/signup"
+                  href="/beta-registration"
                   className="px-8 py-3.5 bg-gradient-to-r from-[#3CDFFF] to-[#4AFFD4] text-black font-semibold rounded-lg hover:shadow-glow-cyan transition-all duration-300 text-lg flex items-center"
                 >
                   Join Beta
@@ -228,7 +228,7 @@ function HomePage() {
             ) : (
               <div className="flex flex-wrap justify-center gap-5 mb-8">
                 <Link
-                  href="/signup"
+                  href="/beta-registration"
                   className="px-8 py-3.5 bg-gradient-to-r from-[#3CDFFF] to-[#4AFFD4] text-black font-semibold rounded-lg hover:shadow-glow-cyan transition-all duration-300 text-lg flex items-center"
                 >
                   Join Beta
@@ -526,7 +526,7 @@ function HomePage() {
               </p>
               <div className="flex flex-wrap justify-center gap-6">
                 <Link
-                  href="/signup"
+                  href="/beta-registration"
                   className="px-8 py-4 bg-gradient-to-r from-[#3CDFFF] to-[#4AFFD4] rounded-xl text-black text-lg font-semibold hover:opacity-90 transition-all duration-300 transform hover:scale-105 hover:shadow-lg"
                 >
                   Join Beta
@@ -548,7 +548,7 @@ function HomePage() {
               </p>
               <div className="flex flex-wrap justify-center gap-6">
                 <Link
-                  href="/signup"
+                  href="/beta-registration"
                   className="px-8 py-4 bg-gradient-to-r from-[#3CDFFF] to-[#4AFFD4] rounded-xl text-black text-lg font-semibold hover:opacity-90 transition-all duration-300 transform hover:scale-105 hover:shadow-lg"
                 >
                   Join Beta
