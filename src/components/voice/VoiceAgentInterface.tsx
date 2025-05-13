@@ -16,7 +16,7 @@ import { useSession } from 'next-auth/react';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { toast } from 'react-hot-toast';
 
-import CustomBarVisualizer from './CustomBarVisualizer';
+import DivBarVisualizer from './DivBarVisualizer';
 import ErrorMessage from './ErrorMessage';
 
 interface VoiceAgentInterfaceProps {
@@ -413,7 +413,7 @@ const VoiceAgentInterface: React.FC<VoiceAgentInterfaceProps> = ({ className }) 
       {isConnected && (
         <div className="flex flex-col items-center justify-center px-6 pt-2 pb-4">
           <div className="w-full flex flex-col items-center">
-            <CustomBarVisualizer
+            <DivBarVisualizer
               width={320}
               height={36}
               barCount={24}
