@@ -44,12 +44,28 @@ export async function POST(req: NextRequest) {
     // Get environment variables
     const apiKey = cleanEnvVar(process.env.LIVEKIT_API_KEY || '');
     const apiSecret = cleanEnvVar(process.env.LIVEKIT_API_SECRET || '');
-    const livekitUrl = cleanEnvVar(process.env.LIVEKIT_URL || '');
+    let livekitUrl = cleanEnvVar(process.env.LIVEKIT_URL || '');
+
+    // Ensure URL uses HTTPS format to avoid TLD errors
+    if (livekitUrl.startsWith('wss://')) {
+      livekitUrl = livekitUrl.replace('wss://', 'https://');
+      console.log('Converted LiveKit URL from WSS to HTTPS format');
+    }
+
+    console.log(`LiveKit force-join - API Key: ${apiKey ? apiKey.substring(0, 4) + '...' : 'MISSING'}, Secret length: ${apiSecret.length || 'MISSING'}, URL: ${livekitUrl || 'MISSING'}`);
 
     if (!apiKey || !apiSecret || !livekitUrl) {
-      console.error('LiveKit environment variables not set');
+      const missingVars = [];
+      if (!apiKey) missingVars.push('LIVEKIT_API_KEY');
+      if (!apiSecret) missingVars.push('LIVEKIT_API_SECRET');
+      if (!livekitUrl) missingVars.push('LIVEKIT_URL');
+      
+      console.error(`LiveKit environment variables not set: ${missingVars.join(', ')}`);
       return NextResponse.json(
-        { error: 'LiveKit configuration is not available' },
+        { 
+          error: 'LiveKit configuration is not available',
+          details: `Missing environment variables: ${missingVars.join(', ')}`
+        },
         { status: 500 }
       );
     }

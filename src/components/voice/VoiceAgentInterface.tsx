@@ -16,17 +16,33 @@ import { useSession } from 'next-auth/react';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { toast } from 'react-hot-toast';
 
+import ConnectionDebugger from './ConnectionDebugger';
 import DivBarVisualizer from './DivBarVisualizer';
 import ErrorMessage from './ErrorMessage';
 
 interface VoiceAgentInterfaceProps {
   className?: string;
+  debug?: boolean;
 }
 
 const ORB_SIZE = 64;
 
-const VoiceAgentInterface: React.FC<VoiceAgentInterfaceProps> = ({ className }) => {
-  const { data: session } = useSession();
+const VoiceAgentInterface: React.FC<VoiceAgentInterfaceProps> = ({ 
+  className,
+  debug = process.env.NODE_ENV === 'development'
+}) => {
+  // Use a try-catch for session to handle errors gracefully
+  const sessionData = (() => {
+    try {
+      return useSession();
+    } catch (error) {
+      console.warn('NextAuth session error (safe to ignore in test mode):', error);
+      return { data: null, status: 'unauthenticated' };
+    }
+  })();
+  
+  const { data: session } = sessionData;
+  
   const [room, setRoom] = useState<Room | null>(null);
   const [isConnected, setIsConnected] = useState(false);
   const [isListening, setIsListening] = useState(false);
@@ -43,234 +59,303 @@ const VoiceAgentInterface: React.FC<VoiceAgentInterfaceProps> = ({ className }) 
     return false;
   });
   const [unread, setUnread] = useState(false);
+  const [showDebugger, setShowDebugger] = useState(debug);
+  const [connectionAttempts, setConnectionAttempts] = useState(0);
   
   const localAudioTrackRef = useRef<LocalAudioTrack | null>(null);
   const agentAudioTrackRef = useRef<RemoteAudioTrack | null>(null);
   const audioElementRef = useRef<HTMLAudioElement | null>(null);
+  const retryAttemptedRef = useRef<boolean>(false);
 
   const connectToLiveKit = useCallback(async () => {
     setIsLoading(true);
+    setError(null);
     
-    // Generate a unique room name for this session
-    const generatedRoomName = `sync-jarvis-${Date.now()}`;
-    setRoomName(generatedRoomName);
-
-    // Use session user ID or generate anonymous ID
-    const userId = session?.user?.id || `anon-${Math.random().toString(36).slice(2)}`;
+    // Increment connection attempts counter
+    setConnectionAttempts(prev => prev + 1);
+    const currentAttempt = connectionAttempts + 1;
     
-    // First, dispatch the agent to the room
+    // Log connection attempt
+    console.log(`LiveKit connection attempt #${currentAttempt}`);
+    
     try {
-      // Use debug endpoint in development if not authenticated
-      const dispatchEndpoint = process.env.NODE_ENV === 'development' && !session?.user?.id 
-        ? '/api/livekit/debug-dispatch' 
-        : '/api/livekit/dispatch';
+      // Generate a unique room name for this session
+      const generatedRoomName = `sync-jarvis-${Date.now()}`;
+      setRoomName(generatedRoomName);
+  
+      // Use session user ID or generate anonymous ID
+      const userId = session?.user?.id || `anon-${Math.random().toString(36).slice(2)}`;
       
-      console.log(`Using dispatch endpoint: ${dispatchEndpoint}`);
-      
-      const dispatchResponse = await fetch(dispatchEndpoint, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ roomName: generatedRoomName, userId })
-      });
-      
-      if (!dispatchResponse.ok) {
-        const errorData = await dispatchResponse.json();
-        throw new Error(`Failed to dispatch agent: ${errorData.error || dispatchResponse.statusText}`);
-      }
-      
-      console.log('Agent dispatched successfully');
-    } catch (e: any) {
-      console.error('Error dispatching agent:', e);
-      setError(`Failed to dispatch agent: ${e.message}`);
-      setIsLoading(false);
-      return;
-    }
-    
-    // Now get a token for the user to join the room
-    let token = '';
-    let livekitUrl = '';
-    try {
-      // Use debug endpoint in development if not authenticated
-      const tokenEndpoint = process.env.NODE_ENV === 'development' && !session?.user?.id 
-        ? '/api/livekit/debug-token' 
-        : '/api/livekit/token';
-      
-      console.log(`Using token endpoint: ${tokenEndpoint}`);
-      
-      const tokenResponse = await fetch(tokenEndpoint, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ room: generatedRoomName, userId })
-      });
-      
-      if (!tokenResponse.ok) {
-        throw new Error('Failed to fetch LiveKit token: ' + tokenResponse.statusText);
-      }
-      
-      const tokenData = await tokenResponse.json();
-      token = tokenData.token;
-      livekitUrl = tokenData.url;
-      
-      // Fix URL format: ensure we're using a valid URL format that won't trigger TLD errors
-      // Convert from wss:// to https:// if needed
-      if (livekitUrl.startsWith('wss://')) {
-        livekitUrl = livekitUrl.replace('wss://', 'https://');
-        console.log('Converted LiveKit URL to https format:', livekitUrl);
-      }
-      
-      if (!token || !livekitUrl) {
-        throw new Error('Invalid LiveKit configuration received from server');
-      }
-      
-      console.log('Connecting to LiveKit with URL:', livekitUrl);
-    } catch (e: any) {
-      console.error('Error fetching token:', e);
-      setError(`Failed to get LiveKit token: ${e.message}`);
-      setIsLoading(false);
-      return;
-    }
-    
-    // Create and configure room with increased timeout
-    const newRoom = new Room({
-      adaptiveStream: true,
-      dynacast: true,
-      // Increase connection timeout
-      connectionTimeout: 30000, // 30 seconds
-    });
-    
-    // Set up event listeners
-    newRoom
-      .on(RoomEvent.ParticipantConnected, (participant: RemoteParticipant) => {
-        console.log('Participant connected:', participant.identity);
+      // First, dispatch the agent to the room
+      try {
+        // Use debug endpoint in development if not authenticated
+        const dispatchEndpoint = process.env.NODE_ENV === 'development' 
+          ? '/api/livekit/debug-dispatch' 
+          : '/api/livekit/dispatch';
         
-        // Check if this is an agent
-        if (participant.identity.startsWith('agent-')) {
-          toast.success('Sync agent has joined the room');
-        }
+        console.log(`Using dispatch endpoint: ${dispatchEndpoint}`);
         
-        // Listen for agent tracks
-        participant.on(ParticipantEvent.TrackSubscribed, (track) => {
-          if (track.kind === 'audio' && participant.identity.startsWith('agent-')) {
-            agentAudioTrackRef.current = track as RemoteAudioTrack;
-            const audioEl = track.attach();
-            audioEl.autoplay = true;
-            audioEl.playsInline = true;
-            audioElementRef.current = audioEl;
-            document.body.appendChild(audioEl);
-            console.log('Agent audio track attached');
-            setIsAgentSpeaking(true);
-          }
+        const dispatchResponse = await fetch(dispatchEndpoint, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ roomName: generatedRoomName, userId })
         });
         
-        participant.on(ParticipantEvent.TrackUnsubscribed, (track) => {
-          if (track.kind === 'audio' && participant.identity.startsWith('agent-')) {
-            track.detach();
-            setIsAgentSpeaking(false);
-          }
-        });
-      })
-      .on(RoomEvent.ParticipantDisconnected, (participant: RemoteParticipant) => {
-        if (participant.identity.startsWith('agent-')) {
-          toast.error('Agent has disconnected from the room');
-          setAgentResponse(prev => prev + '\n[System: Agent disconnected from room]');
+        if (!dispatchResponse.ok) {
+          const errorData = await dispatchResponse.json();
+          throw new Error(`Failed to dispatch agent: ${errorData.error || dispatchResponse.statusText}`);
         }
-      })
-      .on(RoomEvent.DataReceived, (payload: Uint8Array, participant?: RemoteParticipant, kind?: DataPacket_Kind) => {
-        if (participant?.identity.startsWith('agent-') && kind === DataPacket_Kind.RELIABLE) {
-          const message = new TextDecoder().decode(payload);
-          try {
-            const data = JSON.parse(message);
-            if (data.type === 'agent_transcript') {
-              setAgentResponse(prev => prev + '\nAgent: ' + data.transcript);
-              if (minimized) setUnread(true);
-            } else if (data.type === 'user_transcript') {
-              console.log('Received user transcript:', data.transcript);
-              setTranscript(prev => prev + '\nYou: ' + data.transcript);
-              const transcriptContainer = document.querySelector('.transcript-container');
-              if (transcriptContainer) {
-                transcriptContainer.scrollTop = transcriptContainer.scrollHeight;
-              }
-            } else if (data.type === 'error') {
-              toast.error(data.message);
+        
+        console.log('Agent dispatched successfully');
+      } catch (e: any) {
+        console.error('Error dispatching agent:', e);
+        setError(`Failed to dispatch agent: ${e.message}`);
+        setIsLoading(false);
+        return;
+      }
+      
+      // Now get a token for the user to join the room
+      let token = '';
+      let livekitUrl = '';
+      try {
+        // Use debug endpoint in development
+        const tokenEndpoint = process.env.NODE_ENV === 'development' 
+          ? '/api/livekit/debug-token' 
+          : '/api/livekit/token';
+        
+        console.log(`Using token endpoint: ${tokenEndpoint}`);
+        
+        const tokenResponse = await fetch(tokenEndpoint, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ room: generatedRoomName, userId })
+        });
+        
+        if (!tokenResponse.ok) {
+          throw new Error('Failed to fetch LiveKit token: ' + tokenResponse.statusText);
+        }
+        
+        const tokenData = await tokenResponse.json();
+        token = tokenData.token;
+        livekitUrl = tokenData.url;
+        
+        // Fix URL format: ensure we're using a valid URL format that won't trigger TLD errors
+        // Convert from wss:// to https:// if needed
+        if (livekitUrl.startsWith('wss://')) {
+          livekitUrl = livekitUrl.replace('wss://', 'https://');
+          console.log('Converted LiveKit URL to https format:', livekitUrl);
+        }
+        
+        if (!token || !livekitUrl) {
+          throw new Error('Invalid LiveKit configuration received from server');
+        }
+        
+        console.log('Connecting to LiveKit with URL:', livekitUrl);
+      } catch (e: any) {
+        console.error('Error fetching token:', e);
+        setError(`Failed to get LiveKit token: ${e.message}`);
+        setIsLoading(false);
+        return;
+      }
+      
+      // Create and configure room with increased timeout
+      const newRoom = new Room({
+        adaptiveStream: true,
+        dynacast: true,
+        // Increase connection timeout
+        connectionTimeout: 30000, // 30 seconds
+      });
+      
+      // Set up event listeners
+      newRoom
+        .on(RoomEvent.Connected, () => {
+          console.log('LiveKit room connected successfully');
+        })
+        .on(RoomEvent.Connecting, () => {
+          console.log('Connecting to LiveKit room...');
+        })
+        .on(RoomEvent.Reconnecting, () => {
+          console.log('Reconnecting to LiveKit room...');
+        })
+        .on(RoomEvent.ParticipantConnected, (participant: RemoteParticipant) => {
+          console.log('Participant connected:', participant.identity);
+          
+          // Check if this is an agent
+          if (participant.identity.startsWith('agent-')) {
+            toast.success('Sync agent has joined the room');
+          }
+          
+          // Listen for agent tracks
+          participant.on(ParticipantEvent.TrackSubscribed, (track) => {
+            if (track.kind === 'audio' && participant.identity.startsWith('agent-')) {
+              agentAudioTrackRef.current = track as RemoteAudioTrack;
+              const audioEl = track.attach();
+              audioEl.autoplay = true;
+              audioEl.playsInline = true;
+              audioElementRef.current = audioEl;
+              document.body.appendChild(audioEl);
+              console.log('Agent audio track attached');
+              setIsAgentSpeaking(true);
             }
-          } catch (e) {
-            console.error('Error parsing data from agent:', e);
+          });
+          
+          participant.on(ParticipantEvent.TrackUnsubscribed, (track) => {
+            if (track.kind === 'audio' && participant.identity.startsWith('agent-')) {
+              track.detach();
+              setIsAgentSpeaking(false);
+            }
+          });
+        })
+        .on(RoomEvent.ParticipantDisconnected, (participant: RemoteParticipant) => {
+          if (participant.identity.startsWith('agent-')) {
+            toast.error('Agent has disconnected from the room');
+            setAgentResponse(prev => prev + '\n[System: Agent disconnected from room]');
+          }
+        })
+        .on(RoomEvent.DataReceived, (payload: Uint8Array, participant?: RemoteParticipant, kind?: DataPacket_Kind) => {
+          if (participant?.identity.startsWith('agent-') && kind === DataPacket_Kind.RELIABLE) {
+            const message = new TextDecoder().decode(payload);
+            try {
+              const data = JSON.parse(message);
+              if (data.type === 'agent_transcript') {
+                setAgentResponse(prev => prev + '\nAgent: ' + data.transcript);
+                if (minimized) setUnread(true);
+              } else if (data.type === 'user_transcript') {
+                console.log('Received user transcript:', data.transcript);
+                setTranscript(prev => prev + '\nYou: ' + data.transcript);
+                const transcriptContainer = document.querySelector('.transcript-container');
+                if (transcriptContainer) {
+                  transcriptContainer.scrollTop = transcriptContainer.scrollHeight;
+                }
+              } else if (data.type === 'error') {
+                toast.error(data.message);
+              }
+            } catch (e) {
+              console.error('Error parsing data from agent:', e);
+            }
+          }
+        })
+        .on(RoomEvent.Disconnected, (reason) => {
+          console.log('Disconnected from LiveKit room. Reason:', reason);
+          setIsConnected(false);
+          setRoom(null);
+          setIsListening(false);
+          setIsLoading(false);
+          
+          // Clean up audio elements
+          if (audioElementRef.current) {
+            audioElementRef.current.remove();
+            audioElementRef.current = null;
+          }
+        })
+        .on(RoomEvent.MediaDevicesError, (e: Error) => {
+          console.error('Media device error:', e);
+          setError(`Media device error: ${e.message}`);
+        })
+        .on(RoomEvent.ConnectionQualityChanged, (quality, participant) => {
+          console.log(`Connection quality changed to ${quality} for ${participant.identity}`);
+        })
+        .on(RoomEvent.SignalConnected, () => {
+          console.log('Signal connection established');
+        });
+      
+      // Connect to room and publish local audio
+      try {
+        console.log(`Connecting to LiveKit room with URL: ${livekitUrl}`);
+        await newRoom.connect(livekitUrl, token, {
+          autoSubscribe: true,
+        });
+        console.log('Connected to LiveKit room:', newRoom.name);
+        setIsConnected(true);
+        setRoom(newRoom);
+        setError(null);
+        
+        // Request microphone permission and publish local audio
+        try {
+          console.log('Requesting microphone access...');
+          // Give the browser more time after connection before requesting microphone
+          await new Promise(resolve => setTimeout(resolve, 2000)); // Increased from 1000ms to 2000ms
+          
+          const audioTrack = await createLocalAudioTrack({
+            noiseSuppression: true,
+            echoCancellation: true,
+            // Additional constraints for more reliable audio capture
+            constraints: {
+              audio: {
+                channelCount: 1,
+                sampleRate: 44100,
+              }
+            }
+          });
+          
+          console.log('Audio track created, waiting for engine to be ready...');
+          // Add an additional delay to ensure the audio engine is fully initialized
+          await new Promise(resolve => setTimeout(resolve, 1000));
+          
+          console.log('Attempting to publish audio track...');
+          await newRoom.localParticipant.publishTrack(audioTrack, {
+            // Use more reliable publishing options
+            source: 'microphone',
+            stopMicTrackOnMute: false,
+            // Much longer timeout for publishing
+            publishTimeout: 30000, // 30 seconds (doubled from 15)
+          });
+          
+          localAudioTrackRef.current = audioTrack;
+          console.log('Local audio track published successfully');
+          setIsListening(true);
+          toast.success('Connected to Sync voice agent');
+        } catch (audioError: any) {
+          console.error('Failed to publish audio track:', audioError);
+          // Don't disconnect - just update UI to show connected but not listening
+          setIsListening(false);
+          
+          // Make a second attempt to publish the track after a delay
+          if (!retryAttemptedRef.current) {
+            retryAttemptedRef.current = true;
+            console.log('Scheduling retry for audio publishing...');
+            
+            setTimeout(async () => {
+              try {
+                console.log('Retrying audio track publishing...');
+                const retryAudioTrack = await createLocalAudioTrack({
+                  noiseSuppression: true,
+                  echoCancellation: true,
+                });
+                
+                await newRoom.localParticipant.publishTrack(retryAudioTrack, {
+                  source: 'microphone',
+                  stopMicTrackOnMute: false,
+                  publishTimeout: 30000,
+                });
+                
+                localAudioTrackRef.current = retryAudioTrack;
+                console.log('Retry successful! Audio track published');
+                setIsListening(true);
+                toast.success('Microphone connected successfully');
+              } catch (retryError) {
+                console.error('Retry failed:', retryError);
+                toast.error('Connected, but microphone access failed even after retry');
+              }
+            }, 5000); // Wait 5 seconds before retry
+          } else {
+            toast.error('Connected, but microphone access failed: ' + audioError.message);
           }
         }
-      })
-      .on(RoomEvent.Disconnected, () => {
-        console.log('Disconnected from LiveKit room');
+      } catch (e: any) {
+        console.error('Failed to connect to LiveKit room:', e);
+        setError('Connection failed: ' + e.message);
         setIsConnected(false);
         setRoom(null);
-        setIsListening(false);
-        setIsLoading(false);
-        
-        // Clean up audio elements
-        if (audioElementRef.current) {
-          audioElementRef.current.remove();
-          audioElementRef.current = null;
-        }
-      });
-    
-    // Connect to room and publish local audio
-    try {
-      console.log(`Connecting to LiveKit room with URL: ${livekitUrl}`);
-      await newRoom.connect(livekitUrl, token, {
-        autoSubscribe: true,
-      });
-      console.log('Connected to LiveKit room:', newRoom.name);
-      setIsConnected(true);
-      setRoom(newRoom);
-      setError(null);
-      
-      // Request microphone permission and publish local audio
-      try {
-        console.log('Requesting microphone access...');
-        // Give the browser some time after connection before requesting microphone
-        await new Promise(resolve => setTimeout(resolve, 1000));
-        
-        const audioTrack = await createLocalAudioTrack({
-          noiseSuppression: true,
-          echoCancellation: true,
-          // Additional constraints for more reliable audio capture
-          constraints: {
-            audio: {
-              channelCount: 1,
-              sampleRate: 44100,
-            }
-          }
-        });
-        
-        console.log('Audio track created, attempting to publish...');
-        await newRoom.localParticipant.publishTrack(audioTrack, {
-          // Use more reliable publishing options
-          source: 'microphone',
-          stopMicTrackOnMute: false,
-          // Longer timeout for publishing
-          publishTimeout: 15000, // 15 seconds
-        });
-        
-        localAudioTrackRef.current = audioTrack;
-        console.log('Local audio track published successfully');
-        setIsListening(true);
-        toast.success('Connected to Sync voice agent');
-      } catch (audioError: any) {
-        console.error('Failed to publish audio track:', audioError);
-        // Don't disconnect - just update UI to show connected but not listening
-        setIsListening(false);
-        toast.error('Connected, but microphone access failed: ' + audioError.message);
-        // Still stay connected even if audio publishing fails
+        toast.error('Failed to connect to voice agent');
       }
     } catch (e: any) {
-      console.error('Failed to connect to LiveKit room:', e);
-      setError('Connection failed: ' + e.message);
-      setIsConnected(false);
-      setRoom(null);
-      toast.error('Failed to connect to voice agent');
+      console.error('Unexpected error during connection:', e);
+      setError(`Unexpected error: ${e.message}`);
     } finally {
       setIsLoading(false);
     }
-  }, [session]);
+  }, [session, connectionAttempts]);
   
   const disconnectFromRoom = useCallback(async () => {
     if (room) {
@@ -354,17 +439,30 @@ const VoiceAgentInterface: React.FC<VoiceAgentInterfaceProps> = ({ className }) 
       setIsLoading(true);
 
       // Use debug endpoint in development if not authenticated
-      const forceJoinEndpoint = process.env.NODE_ENV === 'development' && !session?.user?.id 
+      const forceJoinEndpoint = process.env.NODE_ENV === 'development' 
         ? '/api/livekit/debug-force-join' 
         : '/api/livekit/force-join';
       
       console.log(`Using force-join endpoint: ${forceJoinEndpoint}`);
 
-      const response = await fetch(forceJoinEndpoint, {
+      // First attempt
+      let response = await fetch(forceJoinEndpoint, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ roomName })
       });
+      
+      // If the first attempt fails, try once more after a delay
+      if (!response.ok) {
+        console.log('First force-join attempt failed, retrying in 2 seconds...');
+        await new Promise(resolve => setTimeout(resolve, 2000));
+        
+        response = await fetch(forceJoinEndpoint, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ roomName })
+        });
+      }
       
       if (!response.ok) {
         const errorData = await response.json();
@@ -373,6 +471,25 @@ const VoiceAgentInterface: React.FC<VoiceAgentInterfaceProps> = ({ className }) 
       
       toast.success('Manual agent join command sent');
       setAgentResponse(prev => prev + '\n[System: Manual agent join command sent]');
+      
+      // Wait for agent to connect for a bit
+      console.log('Waiting for agent to join room...');
+      let waitTime = 0;
+      const checkInterval = setInterval(() => {
+        const hasAgent = room.participants.size > 1 || 
+                       Array.from(room.participants.values()).some(p => p.identity.startsWith('agent-'));
+        
+        if (hasAgent) {
+          clearInterval(checkInterval);
+          toast.success('Agent has joined the room!');
+        } else if (waitTime >= 10000) { // Wait up to 10 seconds
+          clearInterval(checkInterval);
+          console.log('Agent did not join within timeout period');
+        }
+        
+        waitTime += 1000;
+      }, 1000);
+      
     } catch (e: any) {
       console.error('Error forcing agent to join:', e);
       setError(`Failed to force agent to join: ${e.message}`);
@@ -468,14 +585,49 @@ const VoiceAgentInterface: React.FC<VoiceAgentInterfaceProps> = ({ className }) 
       {/* Mixer header */}
       <div className="flex items-center justify-between px-6 pt-5 pb-2 bg-gradient-to-r from-[#23243a]/80 to-[#2d1e4f]/80">
         <h2 className="text-xl font-bold text-[#22D3EE] tracking-widest drop-shadow">Sync Voice Mixer</h2>
-        <button
-          onClick={() => setMinimized(true)}
-          className="ml-2 px-2 py-1 rounded-full hover:bg-[#22223B] text-[#A855F7] text-lg font-bold transition"
-          title="Minimize"
-        >
-          &minus;
-        </button>
+        <div className="flex items-center space-x-2">
+          {debug && (
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                setShowDebugger(!showDebugger);
+              }}
+              className="p-1 rounded-full hover:bg-[#22223B] text-[#22D3EE] text-sm font-bold transition"
+              title="Toggle Debug Panel"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+              </svg>
+            </button>
+          )}
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              setMinimized(true);
+            }}
+            className="p-1 rounded-full hover:bg-[#22223B] text-[#A855F7] text-lg font-bold transition"
+            title="Minimize"
+          >
+            &minus;
+          </button>
+        </div>
       </div>
+      
+      {/* Connection Debugger */}
+      {showDebugger && (
+        <div className="px-6 pt-3">
+          <ConnectionDebugger
+            isConnected={isConnected}
+            isListening={isListening}
+            isAgentSpeaking={isAgentSpeaking}
+            roomName={roomName}
+            error={error}
+            isLoading={isLoading}
+          />
+        </div>
+      )}
+      
       {/* Visualizer */}
       {isConnected && (
         <div className="flex flex-col items-center justify-center px-6 pt-2 pb-4">
@@ -495,6 +647,13 @@ const VoiceAgentInterface: React.FC<VoiceAgentInterfaceProps> = ({ className }) 
       )}
       {/* Controls and status */}
       <div className="flex flex-col space-y-6 px-6 pb-6">
+        {error && (
+          <ErrorMessage 
+            message={error} 
+            onDismiss={clearError}
+          />
+        )}
+        
         {process.env.NODE_ENV === 'development' && !session?.user?.id && (
           <div className="text-xs text-yellow-400 text-center mb-2 font-mono">
             Using debug endpoints (auth bypassed)

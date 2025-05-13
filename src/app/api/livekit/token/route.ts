@@ -67,13 +67,28 @@ export async function POST(req: NextRequest) {
   // Get environment variables and clean them properly - simplified approach
   const apiKey = cleanEnvVar(process.env.LIVEKIT_API_KEY || '');
   const apiSecret = cleanEnvVar(process.env.LIVEKIT_API_SECRET || '');
-  const livekitUrl = cleanEnvVar(process.env.LIVEKIT_URL || '');
+  let livekitUrl = cleanEnvVar(process.env.LIVEKIT_URL || '');
 
-  console.log(`LiveKit variables - API Key: ${apiKey}, Secret length: ${apiSecret.length}, URL: ${livekitUrl}`);
+  // Ensure URL uses HTTPS format to avoid TLD errors
+  if (livekitUrl.startsWith('wss://')) {
+    livekitUrl = livekitUrl.replace('wss://', 'https://');
+    console.log('Converted LiveKit URL from WSS to HTTPS format');
+  }
+
+  console.log(`LiveKit variables - API Key: ${apiKey ? apiKey.substring(0, 4) + '...' : 'MISSING'}, Secret length: ${apiSecret.length || 'MISSING'}, URL: ${livekitUrl || 'MISSING'}`);
 
   if (!apiKey || !apiSecret || !livekitUrl) {
+    const missingVars = [];
+    if (!apiKey) missingVars.push('LIVEKIT_API_KEY');
+    if (!apiSecret) missingVars.push('LIVEKIT_API_SECRET');
+    if (!livekitUrl) missingVars.push('LIVEKIT_URL');
+    
+    console.error(`LiveKit environment variables not set: ${missingVars.join(', ')}`);
     return NextResponse.json(
-      { error: 'LiveKit env vars not set' },
+      { 
+        error: 'LiveKit env vars not set',
+        details: `Missing environment variables: ${missingVars.join(', ')}`
+      },
       { status: 500 }
     );
   }
@@ -82,14 +97,16 @@ export async function POST(req: NextRequest) {
     // Create and configure the token
     const at = new AccessToken(apiKey, apiSecret, {
       identity: userId,
-      ttl: 60 * 60, // 1 hour
+      ttl: 3 * 60 * 60, // 3 hours (increased from 1 hour)
+      name: 'User token',
     });
     
     at.addGrant({ 
       room, 
       roomJoin: true, 
       canPublish: true, 
-      canSubscribe: true 
+      canSubscribe: true,
+      canPublishData: true
     });
     
     // Generate the JWT token with await
