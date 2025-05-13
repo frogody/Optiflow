@@ -214,7 +214,7 @@ function HomePage() {
                   href="/signup"
                   className="px-8 py-3.5 bg-gradient-to-r from-[#3CDFFF] to-[#4AFFD4] text-black font-semibold rounded-lg hover:shadow-glow-cyan transition-all duration-300 text-lg flex items-center"
                 >
-                  Get Started
+                  Join Beta
                   <ArrowRightIcon className="ml-2 h-5 w-5" />
                 </Link>
                 <button
@@ -231,7 +231,7 @@ function HomePage() {
                   href="/signup"
                   className="px-8 py-3.5 bg-gradient-to-r from-[#3CDFFF] to-[#4AFFD4] text-black font-semibold rounded-lg hover:shadow-glow-cyan transition-all duration-300 text-lg flex items-center"
                 >
-                  Get Started
+                  Join Beta
                   <ArrowRightIcon className="ml-2 h-5 w-5" />
                 </Link>
                 <button
@@ -529,7 +529,7 @@ function HomePage() {
                   href="/signup"
                   className="px-8 py-4 bg-gradient-to-r from-[#3CDFFF] to-[#4AFFD4] rounded-xl text-black text-lg font-semibold hover:opacity-90 transition-all duration-300 transform hover:scale-105 hover:shadow-lg"
                 >
-                  Start Your Free Trial
+                  Join Beta
                 </Link>
                 
                 <Link
@@ -551,7 +551,7 @@ function HomePage() {
                   href="/signup"
                   className="px-8 py-4 bg-gradient-to-r from-[#3CDFFF] to-[#4AFFD4] rounded-xl text-black text-lg font-semibold hover:opacity-90 transition-all duration-300 transform hover:scale-105 hover:shadow-lg"
                 >
-                  Start Your Free Trial
+                  Join Beta
                 </Link>
                 
                 <Link
