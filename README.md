@@ -1,57 +1,138 @@
-# Optiflow
+# Introducing Sync: AI-Powered Workflow & Communication
 
-Optiflow is redefining the future of work. As an AI-powered workflow and communication platform, Optiflow empowers teams and organizations to achieve more—faster, smarter, and with less friction. Imagine a world where your digital workspace is not just a tool, but an intelligent partner: orchestrating tasks, connecting your favorite SaaS tools, and enabling seamless collaboration between people and AI agents—all in real time.
+## What is Sync?
 
----
+Sync is redefining how enterprises work by providing an AI-powered workflow and communication platform that empowers teams to achieve more—faster, smarter, and with less friction. Sync serves as an intelligent digital workspace that orchestrates tasks, connects your favorite SaaS tools, and enables seamless collaboration between people and AI agents in real-time.
 
-## 🏢 Built for Enterprises: Collaboration & Security at the Core
+## Core Features
 
-Optiflow was designed from the ground up with **enterprise needs** in mind. We believe that the future of work is collaborative, secure, and scalable:
+- **Intelligent Voice Agents**: Interact naturally with Jarvis-like voice assistants that understand context and execute complex workflows
+- **Workflow Automation**: Design, deploy, and monitor custom workflows without code
+- **Deep Integrations**: Connect directly with 2,400+ SaaS applications through Pipedream
+- **Team Collaboration**: Real-time workspaces for teams to collaborate with AI agents and each other
+- **Enterprise Security**: Robust authentication, granular permissions, and compliance features
+- **Advanced AI Reasoning**: Powered by Claude AI for sophisticated understanding, reasoning, and creative problem-solving
+- **Document Generation**: Create professional documents with AI using contextual information from emails and integrated systems
 
-- **Team Collaboration:** Real-time, persistent workspaces bring together people, AI agents, and integrations—empowering teams to brainstorm, plan, and execute seamlessly, no matter where they are.
-- **Enterprise-Grade Security:** Security and privacy are not afterthoughts. Optiflow features robust authentication, granular access controls, and compliance-ready infrastructure to protect your data and your business.
-- **Scalable for Growth:** Whether you're a fast-moving startup or a global enterprise, Optiflow adapts to your needs with flexible integrations, role-based permissions, and audit-ready activity tracking.
+## Real-World Use Cases
 
----
+### AI-Powered Proposal Generation
 
-## 🚀 Vision & Opportunity
+Sarah, a sales executive, receives an email from a potential client requesting a proposal for Sync services. Instead of spending hours manually creating this document, she simply asks the Sync voice agent:
 
-The modern workplace is fragmented. Teams juggle dozens of apps, communication channels, and manual processes. Optiflow unifies this chaos, transforming it into a single, intelligent experience. Our platform is designed for the next generation of digital teams—where automation, AI, and human creativity work hand-in-hand.
+"Hey Sync, I just received an email from TechCorp requesting a proposal for our enterprise plan. Can you help me create a personalized proposal?"
 
-- **Market-Ready:** Built for scale, security, and extensibility, Optiflow is ready to power startups, enterprises, and everything in between.
-- **Transformative Impact:** By automating the mundane and surfacing the meaningful, Optiflow frees teams to focus on what matters most: innovation, relationships, and results.
+Sync's voice agent, powered by LiveKit and Claude AI, immediately:
 
----
+1. Accesses Sarah's Gmail account to read and analyze the client's email, extracting key requirements and information
+2. Queries Salesforce to retrieve current pricing information and applicable discounts
+3. Uses Claude's advanced reasoning to draft a comprehensive proposal document, including:
+   - Personalized executive summary addressing client's specific needs
+   - Recommended service package with justifications
+   - Accurate pricing information with appropriate discounts
+   - Implementation timeline and resource requirements
+4. Sends the proposal draft to Sarah's email for review
+5. When Sarah says "Looks good, please send it to the client," the agent:
+   - Creates a professional PDF with proper formatting and branding
+   - Composes a personalized email with the proposal attached
+   - Sends it directly to the client through Sarah's Gmail account
+   - Creates a follow-up task in Salesforce with a reminder for Sarah
 
-## ✨ What Makes Optiflow Different?
+This entire process, which would typically take several hours of focused work across multiple systems, is completed in minutes through simple voice interactions.
 
-- **Enterprise-Ready Collaboration:** Real-time voice, chat, and agent-powered interactions in a secure, persistent workspace, designed for teams of any size.
-- **Intelligent Orchestration:** AI agents that understand context, remember your preferences, and take action—so you don't have to.
-- **Personalized Automation:** From sending emails and scheduling meetings to updating CRMs and managing projects, Optiflow automates it all, tailored to each user's connected accounts.
-- **Deep Integrations:** Effortlessly connect to the tools your business already uses—CRMs, productivity suites, communication platforms, cloud storage, calendars, and more.
-- **Persistent Memory:** Every conversation, preference, and workflow is remembered, enabling smarter, more proactive assistance over time.
-- **Security & Compliance:** Built with robust authentication, privacy, and compliance at its core. Features include SSO, role-based access, and audit logs for peace of mind.
+### Sales Team Efficiency
 
----
+The sales team at TechCorp uses Sync to streamline their deal process:
 
-## 🌟 Use Cases
+1. When a sales rep conducts a customer call through Sync, the voice agent automatically:
+   - Transcribes the entire conversation
+   - Updates the Salesforce opportunity record
+   - Creates follow-up tasks in the CRM
+   - Drafts a personalized email for approval
+   - Schedules the next meeting with calendar integration
 
-- **Sales & Customer Success:** Instantly log calls, update pipelines, and trigger follow-ups—no manual entry required.
-- **Executive Productivity:** Schedule meetings, send messages, and manage tasks with a single voice command or chat.
-- **Team Collaboration:** Bring together people and AI agents to brainstorm, plan, and execute projects in real time.
-- **Support & Operations:** Automate ticketing, escalate issues, and keep everyone in the loop—without switching apps.
-- **Custom Workflows:** Design and deploy automations unique to your business, with no code required.
+2. This process, which previously took 45 minutes of manual work after each call, now happens instantly—allowing the team to focus on building relationships instead of data entry.
 
----
+### Cross-Functional Project Collaboration
 
-## 🧠 How It Works
+When launching a new product, teams across marketing, product, and engineering use Sync to coordinate:
 
-Optiflow's architecture is built for the future:
+1. The workflow editor creates a custom approval process that:
+   - Routes designs from Figma to the right stakeholders
+   - Tracks approvals and feedback through a unified dashboard
+   - Automates notifications across Slack and email
+   - Triggers downstream actions when milestones are completed
 
-- **Modular Orchestration:** A powerful backend orchestrator routes every request to the right agent or integration, handling context, memory, and intent.
-- **Persistent Mapping:** User workspaces, agent assignments, and integration connections are securely mapped and stored for reliability and continuity.
-- **Unified API Layer:** All integrations and automations are managed through a unified API, making it easy to add new services or agents as your business grows.
-- **Modern Frontend:** A beautiful, responsive interface provides a frictionless user experience across devices.
+2. Teams collaborate in real-time with AI agents that provide insights, documentation, and automation—all within the same platform.
+
+## Technology Stack
+
+Sync leverages cutting-edge technologies to deliver its powerful capabilities:
+
+### Core Infrastructure
+- **Next.js 15**: Modern React framework for the frontend and API routes
+- **Prisma**: Type-safe database ORM for data management
+- **NextAuth**: Authentication framework with JWT sessions
+- **Tailwind CSS**: Utility-first CSS for a responsive UI
+- **Zustand**: State management for reactive components
+
+### AI & Voice Processing
+- **Claude AI**: Advanced reasoning, contextual understanding, and creative problem-solving
+- **LiveKit**: WebRTC platform for real-time voice communication
+- **Deepgram**: Speech-to-text processing for voice recognition
+- **ElevenLabs**: High-quality text-to-speech generation
+
+### Integration & Automation
+- **Pipedream**: Integration platform connecting 2,400+ applications
+- **ReactFlow**: Visual workflow editor for no-code automation
+- **Socket.io**: Real-time bi-directional communication
+- **Redis**: High-performance caching and pub/sub messaging
+
+### Security & Monitoring
+- **Sentry**: Error tracking and performance monitoring
+- **Bcrypt**: Secure password hashing
+- **JWT**: Stateless authentication tokens
+- **Role-based access control**: Granular permissions system
+
+## How Sync Works
+
+### Document Generation User Journey Example
+
+1. **Email Context Processing**:
+   - The client sends an email requesting a proposal to sarah@company.com
+   - Sarah asks Sync to create a proposal based on this email
+   - The voice agent uses the ClaudeWrapper service to connect to Gmail via Pipedream integration
+   - Claude analyzes the email content to identify requirements, timeline, and specific needs
+
+2. **Data Gathering & Analysis**:
+   - Claude identifies that pricing information is needed
+   - The system queries Salesforce through the Pipedream integration to retrieve:
+     - Current pricing tiers for the client's size and industry
+     - Available discounts and promotions
+     - Historical transaction data for similar clients
+
+3. **Intelligent Document Creation**:
+   - Claude combines email context, client data, and pricing information
+   - It generates a comprehensive, professionally formatted proposal including:
+     - Executive summary with personalized value proposition
+     - Detailed service offerings addressing specific client needs
+     - Accurate pricing with appropriate discounting
+     - Implementation timeline and resource allocation
+   - The document is formatted according to company branding guidelines
+
+4. **Review & Refinement**:
+   - The completed proposal is delivered to Sarah's email for review
+   - Sarah can request modifications through natural language: "Add more details about our security features"
+   - Claude understands the context and makes targeted changes to the document
+
+5. **Client Delivery**:
+   - After approval, Sarah instructs Sync to "Send the proposal to the client"
+   - The system creates a professional PDF attachment
+   - It composes a personalized email with appropriate messaging
+   - The email is sent through Sarah's Gmail account, maintaining her professional identity
+   - A record of the proposal and communication is stored in Salesforce
+
+This seamless workflow demonstrates the power of combining advanced AI reasoning with deep integrations, enabling complex business processes that would typically require hours of manual work across multiple systems to be completed in minutes through simple voice interactions.
 
 ---
 
@@ -59,8 +140,8 @@ Optiflow's architecture is built for the future:
 
 1. **Clone the repo:**
    ```sh
-   git clone https://github.com/your-org/optiflow.git
-   cd optiflow
+   git clone https://github.com/your-org/sync.git
+   cd sync
    ```
 2. **Install dependencies:**
    ```sh
@@ -81,7 +162,7 @@ Optiflow's architecture is built for the future:
 
 ## 🤝 Join the Movement
 
-Optiflow is more than a product—it's a movement toward a smarter, more connected, and more human future of work. We welcome contributors, partners, and investors who share our vision. Please open issues or pull requests for new features, bug fixes, or improvements. See `CONTRIBUTING.md` for guidelines.
+Sync is more than a product—it's a movement toward a smarter, more connected, and more human future of work. We welcome contributors, partners, and investors who share our vision. Please open issues or pull requests for new features, bug fixes, or improvements. See `CONTRIBUTING.md` for guidelines.
 
 ---
 
@@ -92,3 +173,5 @@ This project is licensed under the MIT License.
 ---
 
 For more information, visit our documentation or contact the team. Let's build the future of intelligent work—together.
+
+By combining advanced AI from Claude, enterprise integrations, and intuitive design, Sync is transforming how work gets done in the modern enterprise—making digital workspaces more intelligent, connected, and human. As a flagship product from ISYNCSO, Sync embodies the company's mission to synchronize people, processes, and technology for optimal business performance.
