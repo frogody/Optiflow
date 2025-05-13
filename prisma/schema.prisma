@@ -8,31 +8,31 @@ datasource db {
 }
 
 model User {
-  id                String               @id @default(uuid())
-  email             String               @unique
-  name              String?
-  passwordHash      String?              @map("password_hash")
-  createdAt         DateTime             @default(now()) @map("created_at")
-  updatedAt         DateTime             @updatedAt @map("updated_at")
-  lastLogin         DateTime?            @map("last_login")
-  isActive          Boolean              @default(true) @map("is_active")
-  role              String               @default("user")
-  avatar            String?
-  aiPrompts         AIPrompt[]
-  aiTrainingData    AITrainingData[]
-  apiKeys           ApiKey[]
-  auditLogs         AuditLog[]
-  comments          Comment[]
-  notifications     Notification[]
-  organizations     OrganizationMember[]
-  voiceMetrics      UserVoiceMetrics[]
-  voiceAnalytics    VoiceAnalytics[]
-  voiceCommands     VoiceCommand[]
-  voiceInteractions VoiceInteraction[]
-  sharedWorkflows   WorkflowShare[]      @relation("SharedWith")
-  workflows         Workflow[]
-  knowledgeBases    KnowledgeBase[]
+  id                 String               @id @default(uuid())
+  email              String               @unique
+  name               String?
+  passwordHash       String?              @map("password_hash")
+  createdAt          DateTime             @default(now()) @map("created_at")
+  updatedAt          DateTime             @updatedAt @map("updated_at")
+  lastLogin          DateTime?            @map("last_login")
+  isActive           Boolean              @default(true) @map("is_active")
+  role               String               @default("user")
+  avatar             String?
+  aiPrompts          AIPrompt[]
+  aiTrainingData     AITrainingData[]
+  apiKeys            ApiKey[]
+  auditLogs          AuditLog[]
+  comments           Comment[]
+  knowledgeBases     KnowledgeBase[]
   knowledgeDocuments KnowledgeDocument[]
+  notifications      Notification[]
+  organizations      OrganizationMember[]
+  voiceMetrics       UserVoiceMetrics[]
+  voiceAnalytics     VoiceAnalytics[]
+  voiceCommands      VoiceCommand[]
+  voiceInteractions  VoiceInteraction[]
+  sharedWorkflows    WorkflowShare[]      @relation("SharedWith")
+  workflows          Workflow[]
 
   @@map("users")
 }
@@ -46,10 +46,10 @@ model Organization {
   plan           String               @default("free")
   aiPrompts      AIPrompt[]
   aiTrainingData AITrainingData[]
+  knowledgeBases KnowledgeBase[]
   members        OrganizationMember[]
   teams          Team[]
   workflows      Workflow[]
-  knowledgeBases KnowledgeBase[]
 
   @@map("organizations")
 }
@@ -185,16 +185,16 @@ model AuditLog {
 }
 
 model Team {
-  id             String       @id @default(uuid())
+  id             String          @id @default(uuid())
   name           String
-  organizationId String       @map("organization_id")
-  createdAt      DateTime     @default(now()) @map("created_at")
-  updatedAt      DateTime     @updatedAt @map("updated_at")
+  organizationId String          @map("organization_id")
+  createdAt      DateTime        @default(now()) @map("created_at")
+  updatedAt      DateTime        @updatedAt @map("updated_at")
   description    String?
-  members        TeamMember[]
-  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
-  workflows      Workflow[]
   knowledgeBases KnowledgeBase[]
+  members        TeamMember[]
+  organization   Organization    @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  workflows      Workflow[]
 
   @@map("teams")
 }
@@ -432,20 +432,20 @@ model ConsultationRequest {
 }
 
 model KnowledgeBase {
-  id             String             @id @default(uuid())
+  id             String              @id @default(uuid())
   name           String
   description    String?
-  type           String             @default("personal") // personal, team, organization
-  ownerId        String?            @map("owner_id")
-  teamId         String?            @map("team_id")
-  organizationId String?            @map("organization_id")
-  createdAt      DateTime           @default(now()) @map("created_at")
-  updatedAt      DateTime           @updatedAt @map("updated_at")
-  isPublic       Boolean            @default(false) @map("is_public")
+  type           String              @default("personal")
+  ownerId        String?             @map("owner_id")
+  teamId         String?             @map("team_id")
+  organizationId String?             @map("organization_id")
+  createdAt      DateTime            @default(now()) @map("created_at")
+  updatedAt      DateTime            @updatedAt @map("updated_at")
+  isPublic       Boolean             @default(false) @map("is_public")
+  organization   Organization?       @relation(fields: [organizationId], references: [id])
+  owner          User?               @relation(fields: [ownerId], references: [id])
+  team           Team?               @relation(fields: [teamId], references: [id])
   documents      KnowledgeDocument[]
-  owner          User?              @relation(fields: [ownerId], references: [id])
-  team           Team?              @relation(fields: [teamId], references: [id])
-  organization   Organization?      @relation(fields: [organizationId], references: [id])
 
   @@index([type])
   @@index([ownerId])
@@ -457,17 +457,17 @@ model KnowledgeBase {
 model KnowledgeDocument {
   id              String        @id @default(uuid())
   title           String
-  content         String        @db.Text
-  contentType     String        @default("text") @map("content_type") // text, markdown, html
+  content         String
+  contentType     String        @default("text") @map("content_type")
   metadata        Json?
   knowledgeBaseId String        @map("knowledge_base_id")
-  createdAt       DateTime      @default(now()) @map("created_at") 
+  createdAt       DateTime      @default(now()) @map("created_at")
   updatedAt       DateTime      @updatedAt @map("updated_at")
   createdById     String        @map("created_by_id")
   tags            String[]
-  embedding       Json?         // Vector embedding for semantic search
-  knowledgeBase   KnowledgeBase @relation(fields: [knowledgeBaseId], references: [id], onDelete: Cascade)
+  embedding       Json?
   createdBy       User          @relation(fields: [createdById], references: [id])
+  knowledgeBase   KnowledgeBase @relation(fields: [knowledgeBaseId], references: [id], onDelete: Cascade)
 
   @@index([knowledgeBaseId])
   @@index([createdById])
@@ -476,72 +476,74 @@ model KnowledgeDocument {
 }
 
 model UserRoom {
-  id            Int      @id @default(autoincrement())
-  userId        String   @unique
-  roomName      String   @unique
-  createdAt     DateTime @default(now())
-  metadata      Json?
-  participants  Json?    // Array of user objects: [{ id, name, role, joinedAt }]
-  agents        Json?    // Array of agent objects: [{ id, capabilities, joinedAt }]
-  sessionHistory Json?   // Array of action logs: [{ actor, action, timestamp }]
+  id                      Int                      @id @default(autoincrement())
+  userId                  String                   @unique
+  roomName                String                   @unique
+  createdAt               DateTime                 @default(now())
+  metadata                Json?
+  agents                  Json?
+  participants            Json?
+  sessionHistory          Json?
   orchestratorAssignments OrchestratorAssignment[]
+
+  @@map("UserRoom")
 }
 
 model Agent {
-  id           String   @id @default(uuid())
+  id           String                   @id @default(uuid())
   name         String
-  identity     String   @unique
+  identity     String                   @unique
   capabilities String[]
-  status       String   @default("active")
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
+  status       String                   @default("active")
+  createdAt    DateTime                 @default(now())
+  updatedAt    DateTime                 @updatedAt
   assignments  OrchestratorAssignment[]
 }
 
 model OrchestratorAssignment {
-  id        String   @id @default(uuid())
-  agentId   String
-  roomId    Int
-  role      String   // orchestrator, assistant, etc.
+  id         String   @id @default(uuid())
+  agentId    String
+  roomId     Int
+  role       String
   assignedAt DateTime @default(now())
-  agent     Agent    @relation(fields: [agentId], references: [id], onDelete: Cascade)
-  userRoom  UserRoom @relation(fields: [roomId], references: [id], onDelete: Cascade)
+  agent      Agent    @relation(fields: [agentId], references: [id], onDelete: Cascade)
+  userRoom   UserRoom @relation(fields: [roomId], references: [id], onDelete: Cascade)
 }
 
 model PipedreamConnection {
-  id         String   @id @default(uuid())
-  userId     String
-  service    String
-  accountId  String
-  createdAt  DateTime @default(now())
-  updatedAt  DateTime @updatedAt
+  id        String   @id @default(uuid())
+  userId    String
+  service   String
+  accountId String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@unique([userId, service])
 }
 
 model BetaAccessRequest {
-  id              String    @id @default(uuid())
-  firstName       String
-  lastName        String
-  email           String    @unique
-  companyName     String
-  companyWebsite  String
-  companySize     String
-  industry        String
-  isAiConsultant  Boolean   @default(false)
-  intendedUse     String
-  usageFrequency  String
-  useCase         String
-  additionalInfo  String
-  joinReason      String
-  status          String    @default("PENDING") // PENDING, APPROVED, REJECTED
-  requestDate     DateTime  @default(now())
-  approvalDate    DateTime?
-  rejectionDate   DateTime?
-  inviteCode      String?   @unique
-  inviteCodeUsed  Boolean   @default(false)
-  adminNotes      String?
-  
+  id             String    @id @default(uuid())
+  firstName      String
+  lastName       String
+  email          String    @unique
+  companyName    String
+  companyWebsite String
+  companySize    String
+  industry       String
+  isAiConsultant Boolean   @default(false)
+  useCase        String
+  additionalInfo String
+  status         String    @default("PENDING")
+  requestDate    DateTime  @default(now())
+  approvalDate   DateTime?
+  rejectionDate  DateTime?
+  inviteCode     String?   @unique
+  inviteCodeUsed Boolean   @default(false)
+  adminNotes     String?
+  intendedUse    String
+  joinReason     String
+  usageFrequency String
+
   @@index([status])
   @@index([isAiConsultant])
   @@map("beta_access_requests")
