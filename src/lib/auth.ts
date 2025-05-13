@@ -154,15 +154,23 @@ const authOptions: NextAuthOptions = {
         });
         
         // Only update session if we have token data and session.user exists
-        if (token && typeof token === 'object' && session?.user && typeof session.user === 'object') {
-          session.user.id = token.id as string;
+        if (token && typeof token === 'object' && session) {
+          // Initialize the user object if it doesn't exist
+          if (!session.user) session.user = {};
+          
+          // Safely assign properties from token to session.user
+          if (token.id) session.user.id = token.id as string;
           if (token.email) session.user.email = token.email as string;
           if (token.name) session.user.name = token.name as string;
         }
         return session;
       } catch (error) {
         console.error('[Auth] Session callback error:', error);
-        return session;
+        // Return a valid empty session object instead of the incomplete one
+        return {
+          expires: new Date(Date.now() + 86400000).toISOString(),
+          user: { id: '', email: '', name: '' }
+        };
       }
     },
     async redirect({ url, baseUrl }) {
