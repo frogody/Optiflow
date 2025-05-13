@@ -100,9 +100,10 @@ const VoiceAgentInterface: React.FC<VoiceAgentInterfaceProps> = ({
           'Content-Type': 'application/json',
         };
         
-        // Add bypass header if in production and not authenticated
-        if (process.env.NODE_ENV === 'production' && !session?.user?.id) {
+        // Add bypass header for all environments when not authenticated
+        if (!session?.user?.id) {
           headers['x-agent-bypass'] = 'production-bypass-token';
+          console.log('Adding bypass token header for unauthenticated request');
         }
         
         const dispatchResponse = await fetch(dispatchEndpoint, {
@@ -112,8 +113,20 @@ const VoiceAgentInterface: React.FC<VoiceAgentInterfaceProps> = ({
         });
         
         if (!dispatchResponse.ok) {
-          const errorData = await dispatchResponse.json();
-          throw new Error(`Failed to dispatch agent: ${errorData.error || dispatchResponse.statusText}`);
+          const errorText = await dispatchResponse.text();
+          let errorMessage = dispatchResponse.statusText;
+          
+          try {
+            // Try to parse as JSON for more detailed error
+            const errorData = JSON.parse(errorText);
+            errorMessage = errorData.error || errorData.details || errorMessage;
+            console.error('Agent dispatch error details:', errorData);
+          } catch (e) {
+            // If not JSON, use the text as is
+            console.error('Agent dispatch error (raw):', errorText);
+          }
+          
+          throw new Error(`Failed to dispatch agent: ${errorMessage}`);
         }
         
         console.log('Agent dispatched successfully');
