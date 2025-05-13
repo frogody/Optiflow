@@ -19,6 +19,24 @@ function cleanEnvVar(value: string | undefined): string {
 export async function POST(req: NextRequest) {
   console.log('LiveKit token endpoint called');
   
+  // Check all possible environment variables
+  const envVars = {
+    LIVEKIT_API_KEY: !!process.env.LIVEKIT_API_KEY,
+    LIVEKIT_API_SECRET: !!process.env.LIVEKIT_API_SECRET,
+    LIVEKIT_URL: !!process.env.LIVEKIT_URL,
+    // Alternate variables
+    LIVEKIT_KEY: !!process.env.LIVEKIT_KEY,
+    LIVEKIT_SECRET: !!process.env.LIVEKIT_SECRET,
+    LIVEKIT_ENDPOINT: !!process.env.LIVEKIT_ENDPOINT,
+    // Check other possible LiveKit variables
+    LIVEKIT_WS_URL: !!process.env.LIVEKIT_WS_URL,
+    LIVEKIT_SERVER: !!process.env.LIVEKIT_SERVER,
+    NEXT_PUBLIC_LIVEKIT_URL: !!process.env.NEXT_PUBLIC_LIVEKIT_URL,
+    NODE_ENV: process.env.NODE_ENV
+  };
+  
+  console.log('LiveKit environment variables present:', envVars);
+  
   // Check authentication
   const session = await getServerSession(authOptions);
   
@@ -78,7 +96,52 @@ export async function POST(req: NextRequest) {
       
       console.error(`LiveKit environment variables not set: ${missingVars.join(', ')}`);
       
-      // In development or with bypass, provide a mock token for testing
+      // Check environment variables one by one to see if they're in different formats
+      const altApiKey = process.env.LIVEKIT_KEY || process.env.LIVEKIT_API_KEY || '';
+      const altApiSecret = process.env.LIVEKIT_SECRET || process.env.LIVEKIT_API_SECRET || '';
+      const altLivekitUrl = process.env.LIVEKIT_ENDPOINT || process.env.LIVEKIT_URL || '';
+      
+      // Try with alternative environment variables if available
+      if (altApiKey && altApiSecret && altLivekitUrl) {
+        console.log('Found alternative LiveKit configuration, using it instead');
+        
+        // Create token with alternative config
+        const at = new AccessToken(
+          cleanEnvVar(altApiKey), 
+          cleanEnvVar(altApiSecret), 
+          {
+            identity: effectiveIdentity,
+            ttl: 3600 * 6, // 6 hours
+          }
+        );
+        
+        at.addGrant({ 
+          roomJoin: true, 
+          room,
+          canPublish: true,
+          canSubscribe: true,
+          canPublishData: true,
+        });
+        
+        const token = at.toJwt();
+        let url = cleanEnvVar(altLivekitUrl);
+        
+        // Ensure URL has the correct wss:// protocol
+        if (url && !url.startsWith('wss://')) {
+          url = url.replace(/^http(s?):\/\//, 'wss://');
+        }
+        
+        console.log(`Generated LiveKit token with alternative config for ${effectiveIdentity}`);
+        
+        return NextResponse.json({ 
+          token, 
+          url,
+          room,
+          identity: effectiveIdentity 
+        });
+      }
+      
+      // In development or with bypass, provide a mock token only as a last resort
       if (process.env.NODE_ENV === 'development' || bypassAuth) {
         console.log('Providing mock token for development/bypass mode');
         // Create a simple JWT-like string for testing

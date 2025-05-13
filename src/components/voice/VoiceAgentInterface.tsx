@@ -144,11 +144,18 @@ const VoiceAgentInterface: React.FC<VoiceAgentInterfaceProps> = ({
       let livekitUrl = '';
       try {
         // Use debug endpoint in development
-        const tokenEndpoint = process.env.NODE_ENV === 'development' 
+        let tokenEndpoint = process.env.NODE_ENV === 'development' 
           ? '/api/livekit/debug-token' 
           : '/api/livekit/token';
         
         console.log(`Using token endpoint: ${tokenEndpoint}`);
+        
+        // Define alternate endpoints to try if the primary fails
+        const alternateEndpoints = [
+          '/api/livekit/token',          // Standard endpoint
+          '/api/livekit/dispatch/token', // Some deployments use this path
+          '/api/voice/livekit/token',    // Alternate path in voice namespace
+        ];
         
         // Set the same headers for token request as for dispatch
         const tokenHeaders: HeadersInit = { 
@@ -165,9 +172,23 @@ const VoiceAgentInterface: React.FC<VoiceAgentInterfaceProps> = ({
         let tokenResponse;
         let retryCount = 0;
         const maxRetries = 3;
+        let currentEndpointIndex = 0; // Track which endpoint we're using
         
+        // First try the primary endpoint, then alternate ones
         while (retryCount < maxRetries) {
           try {
+            // If we've tried the primary endpoint and failed, try alternates
+            if (retryCount > 0 && process.env.NODE_ENV === 'production') {
+              // Try cycling through alternate endpoints
+              currentEndpointIndex = currentEndpointIndex % alternateEndpoints.length;
+              const nextEndpoint = alternateEndpoints[currentEndpointIndex];
+              if (nextEndpoint !== tokenEndpoint) {
+                tokenEndpoint = nextEndpoint;
+                console.log(`Trying alternate endpoint: ${tokenEndpoint}`);
+                currentEndpointIndex++;
+              }
+            }
+            
             tokenResponse = await fetch(tokenEndpoint, {
               method: 'POST',
               headers: tokenHeaders,
@@ -191,6 +212,13 @@ const VoiceAgentInterface: React.FC<VoiceAgentInterfaceProps> = ({
             
             // If client error that's not 401/403, don't retry
             if (tokenResponse.status !== 401 && tokenResponse.status !== 403) {
+              // If we have more alternate endpoints to try, do that before giving up
+              if (process.env.NODE_ENV === 'production' && currentEndpointIndex < alternateEndpoints.length - 1) {
+                retryCount++;
+                currentEndpointIndex++;
+                await new Promise(resolve => setTimeout(resolve, 500));
+                continue;
+              }
               break;
             }
             
@@ -209,6 +237,13 @@ const VoiceAgentInterface: React.FC<VoiceAgentInterfaceProps> = ({
             // Network errors should be retried
             retryCount++;
             console.error(`Network error fetching token (attempt ${retryCount}/${maxRetries}):`, e);
+            
+            // Try another endpoint if available
+            if (process.env.NODE_ENV === 'production' && currentEndpointIndex < alternateEndpoints.length) {
+              currentEndpointIndex++;
+              console.log(`Network error, will try alternate endpoint: ${alternateEndpoints[currentEndpointIndex % alternateEndpoints.length]}`);
+            }
+            
             if (retryCount >= maxRetries) throw e;
             await new Promise(resolve => setTimeout(resolve, 1000 * retryCount));
           }
@@ -230,6 +265,28 @@ const VoiceAgentInterface: React.FC<VoiceAgentInterfaceProps> = ({
           urlPresent: !!tokenData.url,
           isMock: !!tokenData.isMock
         });
+        
+        // Debug the token format itself to check for proper JWT structure
+        if (tokenData.token) {
+          const isMockToken = 
+            tokenData.isMock === true || 
+            tokenData.token.startsWith('dev-token-') ||
+            !tokenData.token.includes('.');  // Real JWTs have periods separating parts
+          
+          console.log('Token validation:', {
+            isRealJWT: tokenData.token.includes('.') && tokenData.token.split('.').length === 3,
+            startsWithEyJ: tokenData.token.startsWith('eyJ'),
+            isMockToken: isMockToken,
+            // Log a small sample of the token for debugging
+            tokenPreview: tokenData.token.substring(0, 15) + '...'
+          });
+          
+          if (isMockToken) {
+            console.warn('Using mock token - real-time voice functionality will be limited!');
+          } else {
+            console.log('Using real JWT token - full functionality available');
+          }
+        }
         
         // Store the full token data
         setTokenData(tokenData);
@@ -373,6 +430,13 @@ const VoiceAgentInterface: React.FC<VoiceAgentInterfaceProps> = ({
         if (connectionUrl.startsWith('https://')) {
           connectionUrl = connectionUrl.replace('https://', 'wss://');
           console.log('Corrected connection URL for WebSocket:', connectionUrl);
+        } else if (connectionUrl.startsWith('http://')) {
+          connectionUrl = connectionUrl.replace('http://', 'ws://');
+          console.log('Corrected connection URL for WebSocket:', connectionUrl);
+        } else if (!connectionUrl.startsWith('wss://') && !connectionUrl.startsWith('ws://')) {
+          // If no protocol specified, assume secure WebSocket
+          connectionUrl = 'wss://' + connectionUrl;
+          console.log('Added wss:// protocol to connection URL:', connectionUrl);
         }
         
         // Handle mock tokens specially
