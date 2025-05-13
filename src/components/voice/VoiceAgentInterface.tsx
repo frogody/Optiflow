@@ -432,6 +432,11 @@ const VoiceAgentInterface: React.FC<VoiceAgentInterfaceProps> = ({ className }) 
       )}
       {/* Controls and status */}
       <div className="flex flex-col space-y-6 px-6 pb-6">
+        {process.env.NODE_ENV === 'development' && !session?.user?.id && (
+          <div className="text-xs text-yellow-400 text-center mb-2 font-mono">
+            Using debug endpoints (auth bypassed)
+          </div>
+        )}
         <button
           onClick={isConnected ? disconnectFromRoom : connectToLiveKit}
           disabled={isLoading}
