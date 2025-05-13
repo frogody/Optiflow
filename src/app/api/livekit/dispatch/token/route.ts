@@ -3,7 +3,6 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth/next';
 
 import { authOptions, verifyAgentBypass } from '@/lib/auth';
-import { prisma } from '@/lib/prisma';
 
 // Helper function to strip quotes from environment variables
 function cleanEnvVar(value: string | undefined): string {
@@ -16,7 +15,7 @@ function cleanEnvVar(value: string | undefined): string {
   return value;
 }
 
-// Support multiple HTTP methods
+// Export POST, GET, and OPTIONS methods for the endpoint
 export async function POST(req: NextRequest) {
   return handleTokenRequest(req);
 }
@@ -37,25 +36,7 @@ export async function OPTIONS(req: NextRequest) {
 }
 
 async function handleTokenRequest(req: NextRequest) {
-  console.log('LiveKit token endpoint called');
-  
-  // Check all possible environment variables
-  const envVars = {
-    LIVEKIT_API_KEY: !!process.env.LIVEKIT_API_KEY,
-    LIVEKIT_API_SECRET: !!process.env.LIVEKIT_API_SECRET,
-    LIVEKIT_URL: !!process.env.LIVEKIT_URL,
-    // Alternate variables
-    LIVEKIT_KEY: !!process.env.LIVEKIT_KEY,
-    LIVEKIT_SECRET: !!process.env.LIVEKIT_SECRET,
-    LIVEKIT_ENDPOINT: !!process.env.LIVEKIT_ENDPOINT,
-    // Check other possible LiveKit variables
-    LIVEKIT_WS_URL: !!process.env.LIVEKIT_WS_URL,
-    LIVEKIT_SERVER: !!process.env.LIVEKIT_SERVER,
-    NEXT_PUBLIC_LIVEKIT_URL: !!process.env.NEXT_PUBLIC_LIVEKIT_URL,
-    NODE_ENV: process.env.NODE_ENV
-  };
-  
-  console.log('LiveKit environment variables present:', envVars);
+  console.log('LiveKit dispatch/token endpoint called');
   
   // Check authentication
   const session = await getServerSession(authOptions);
@@ -85,12 +66,7 @@ async function handleTokenRequest(req: NextRequest) {
     // Get request body (with fallback for GET requests)
     let requestData;
     if (req.method === 'POST') {
-      try {
-        requestData = await req.json();
-      } catch (error) {
-        console.error('Failed to parse JSON body:', error);
-        requestData = {};
-      }
+      requestData = await req.json().catch(() => ({}));
     } else {
       // Handle GET requests by parsing URL parameters
       const url = new URL(req.url);
@@ -112,12 +88,12 @@ async function handleTokenRequest(req: NextRequest) {
     // Use session user ID as default identity if available
     const effectiveIdentity = identity || session?.user?.id || `user-${Date.now()}`;
     
-    // Get environment variables with all possible alternates
+    // Get environment variables with alternates
     const apiKey = cleanEnvVar(process.env.LIVEKIT_API_KEY || process.env.LIVEKIT_KEY || '');
     const apiSecret = cleanEnvVar(process.env.LIVEKIT_API_SECRET || process.env.LIVEKIT_SECRET || '');
-    let livekitUrl = cleanEnvVar(process.env.LIVEKIT_URL || process.env.LIVEKIT_ENDPOINT || process.env.LIVEKIT_WS_URL || process.env.NEXT_PUBLIC_LIVEKIT_URL || '');
+    let livekitUrl = cleanEnvVar(process.env.LIVEKIT_URL || process.env.LIVEKIT_ENDPOINT || process.env.LIVEKIT_WS_URL || '');
     
-    // Ensure URL has the correct wss:// protocol
+    // Ensure URL has the correct wss:// protocol for WebSockets
     if (livekitUrl) {
       if (livekitUrl.startsWith('http://')) {
         livekitUrl = livekitUrl.replace('http://', 'ws://');
@@ -138,12 +114,11 @@ async function handleTokenRequest(req: NextRequest) {
       if (!apiSecret) missingVars.push('API Secret');
       if (!livekitUrl) missingVars.push('LiveKit URL');
       
-      console.error(`LiveKit environment variables not set: ${missingVars.join(', ')}`);
+      console.error(`LiveKit configuration incomplete: ${missingVars.join(', ')}`);
       
-      // In development or with bypass, provide a mock token only as a last resort
+      // In development or with bypass, provide a mock token as a last resort
       if (process.env.NODE_ENV === 'development' || bypassAuth) {
         console.log('Providing mock token for development/bypass mode');
-        // Create a simple JWT-like string for testing
         const mockToken = `dev-token-${Date.now()}-${Math.random().toString(36).substring(2, 15)}`;
         const mockUrl = 'wss://mock.livekit.cloud';
         
@@ -158,8 +133,8 @@ async function handleTokenRequest(req: NextRequest) {
       
       return NextResponse.json(
         { 
-          error: 'LiveKit env vars not set',
-          details: `Missing environment variables: ${missingVars.join(', ')}`
+          error: 'LiveKit configuration incomplete',
+          details: `Missing: ${missingVars.join(', ')}`
         },
         { status: 500 }
       );
@@ -181,11 +156,7 @@ async function handleTokenRequest(req: NextRequest) {
 
     // Generate token
     const token = at.toJwt();
-    const tokenFirstChars = token ? token.substring(0, 20) + '...' : 'undefined';
-    console.log(`Generated LiveKit token for ${effectiveIdentity} in room ${room}: ${tokenFirstChars}`);
-    
-    // Log URL format to ensure it's correct for WebSocket connection
-    console.log(`Returning LiveKit URL: ${livekitUrl}`);
+    console.log(`Generated LiveKit token for ${effectiveIdentity} in room ${room}`);
     
     return NextResponse.json({ 
       token, 
@@ -204,4 +175,4 @@ async function handleTokenRequest(req: NextRequest) {
       { status: 500 }
     );
   }
-}
+} 
