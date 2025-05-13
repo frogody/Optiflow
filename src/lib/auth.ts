@@ -1,6 +1,6 @@
 import { PrismaAdapter } from "@next-auth/prisma-adapter";
 import bcrypt from "bcryptjs";
-import { NextAuthOptions } from "next-auth";
+import type { NextAuthOptions } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 import GoogleProvider from "next-auth/providers/google";
 import { z } from "zod";
@@ -87,8 +87,8 @@ const authOptions: NextAuthOptions = {
       }
     }),
     GoogleProvider({ 
-      clientId: process.env.GOOGLE_CLIENT_ID || '',
-      clientSecret: process.env.GOOGLE_CLIENT_SECRET || '',
+      clientId: process.env['GOOGLE_CLIENT_ID'] || '',
+      clientSecret: process.env['GOOGLE_CLIENT_SECRET'] || '',
     })
   ],
   pages: {
@@ -125,8 +125,8 @@ const authOptions: NextAuthOptions = {
           tokenId: token?.id, 
           userId: user?.id,
           accountType: account?.type,
-          expires: token?.exp,
-          issued: token?.iat,
+          expires: token?.['exp'],
+          issued: token?.['iat'],
           timestamp: new Date().toISOString()
         });
         
@@ -134,7 +134,9 @@ const authOptions: NextAuthOptions = {
         if (user && typeof user === 'object') {
           token.id = user.id;
           token.email = user.email;
-          token.name = user.name;
+          if (user.name !== undefined) {
+            token.name = user.name;
+          }
         }
         return token;
       } catch (error) {
@@ -149,14 +151,18 @@ const authOptions: NextAuthOptions = {
           sessionUserId: session?.user?.id, 
           tokenId: token?.id,
           sessionExpiry: session?.expires,
-          tokenExpiry: token?.exp,
+          tokenExpiry: token?.['exp'],
           timestamp: new Date().toISOString()
         });
         
-        // Only update session if we have token data and session.user exists
+        // Only update session if we have token data and session exists
         if (token && typeof token === 'object' && session) {
           // Initialize the user object if it doesn't exist
-          if (!session.user) session.user = {};
+          if (!session.user) {
+            session.user = { id: token.id as string };
+          } else if (!session.user.id) {
+            session.user.id = token.id as string;
+          }
           
           // Safely assign properties from token to session.user
           if (token.id) session.user.id = token.id as string;
@@ -206,7 +212,7 @@ const authOptions: NextAuthOptions = {
     }
   },
   // Add additional security for Next.js 15
-  secret: process.env.NEXTAUTH_SECRET || process.env.JWT_SECRET,
+  secret: (process.env.NEXTAUTH_SECRET || process.env['JWT_SECRET'] || 'default-secret-key-replace-in-production') as string,
 };
 
 // Export authOptions as default and named export
@@ -242,24 +248,26 @@ export async function registerUser({ email, password, name }: RegisterUserParams
   // Hash password
   const hashedPassword = await bcrypt.hash(password, 10);
 
-  // Create user
-  const user = await prisma.user.create({
-    data: {
-      email,
-      passwordHash: hashedPassword,
-      name,
-      organizations: {
-        create: {
-          organization: {
-            create: {
-              name: `${name || email}'s Organization`,
-              plan: 'free',
-            }
-          },
-          role: 'OWNER',
-        }
+  // Create user with proper typing
+  const userData = {
+    email,
+    passwordHash: hashedPassword,
+    name: name || null,
+    organizations: {
+      create: {
+        organization: {
+          create: {
+            name: `${name || email}'s Organization`,
+            plan: 'free',
+          }
+        },
+        role: 'OWNER',
       }
-    },
+    }
+  };
+
+  const user = await prisma.user.create({
+    data: userData,
     select: {
       id: true,
       email: true,
