@@ -21,20 +21,28 @@ const CustomBarVisualizer: React.FC<CustomBarVisualizerProps> = ({
 }) => {
   const [barHeights, setBarHeights] = useState<number[]>([]);
   
+  console.log('CustomBarVisualizer render', { width, height, barCount, isActive });
+  
   // Update bars periodically to create animation
   useEffect(() => {
+    console.log('CustomBarVisualizer useEffect running', { isActive });
+    
     // Generate initial bar heights
     updateBars();
     
     // Set up animation interval
     const interval = setInterval(() => {
       if (isActive) {
+        console.log('Animation tick - updating bars');
         updateBars();
       }
     }, 100); // Update every 100ms when active
     
-    return () => clearInterval(interval);
-  }, [isActive]);
+    return () => {
+      console.log('Cleaning up animation interval');
+      clearInterval(interval);
+    };
+  }, [isActive, height, barCount]);
   
   // Function to update bar heights
   const updateBars = () => {
@@ -63,6 +71,9 @@ const CustomBarVisualizer: React.FC<CustomBarVisualizerProps> = ({
       const xPos = i * (barWidth + 2);
       const yPos = height - barHeight;
       
+      // Use style instead of className for transitions and colors
+      const fillColor = isActive ? '#22D3EE' : '#4B5563';
+      
       bars.push(
         <rect
           key={i}
@@ -71,7 +82,10 @@ const CustomBarVisualizer: React.FC<CustomBarVisualizerProps> = ({
           width={barWidth}
           height={barHeight}
           rx={2}
-          className={`transition-all duration-100 ${isActive ? 'fill-[#22D3EE]' : 'fill-[#4B5563]'}`}
+          style={{
+            transition: 'all 100ms',
+            fill: fillColor
+          }}
         />
       );
     }
@@ -82,7 +96,11 @@ const CustomBarVisualizer: React.FC<CustomBarVisualizerProps> = ({
     <svg 
       width={width} 
       height={height} 
-      className={`bg-[#23243a] rounded-md ${className}`}
+      style={{
+        backgroundColor: '#23243a',
+        borderRadius: '4px',
+        margin: className?.includes('my-2') ? '8px 0' : '0'
+      }}
     >
       <defs>
         <linearGradient id="barGradient" x1="0%" y1="0%" x2="0%" y2="100%">
