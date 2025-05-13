@@ -3,11 +3,11 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev --port ${PORT:-3001}",
+    "dev": "next dev --port ${PORT:-3987}",
     "build": "NODE_OPTIONS='--max_old_space_size=8192' npx prisma generate && next build",
     "build:analyze": "ANALYZE=true npx prisma generate && next build",
     "postbuild": "echo 'Skipping bundle size check' || node scripts/check-bundle-size.js",
-    "start": "next start",
+    "start": "next start --port ${PORT:-3987}",
     "lint": "eslint . --ext .ts,.tsx",
     "lint:fix": "eslint . --ext .ts,.tsx --fix",
     "voice-check": "ts-node scripts/validate-voice-routing.ts",
