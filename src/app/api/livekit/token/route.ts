@@ -101,9 +101,18 @@ export async function POST(req: NextRequest) {
 
     // Generate token
     const token = at.toJwt();
-    console.log(`Generated LiveKit token for ${effectiveIdentity} in room ${room}`);
-
-    return NextResponse.json({ token, url: livekitUrl });
+    const tokenFirstChars = token ? token.substring(0, 20) + '...' : 'undefined';
+    console.log(`Generated LiveKit token for ${effectiveIdentity} in room ${room}: ${tokenFirstChars}`);
+    
+    // Log URL format to ensure it's correct for WebSocket connection
+    console.log(`Returning LiveKit URL: ${livekitUrl}`);
+    
+    return NextResponse.json({ 
+      token, 
+      url: livekitUrl,
+      room,
+      identity: effectiveIdentity 
+    });
   } catch (error: any) {
     console.error('Error generating LiveKit token:', error);
     

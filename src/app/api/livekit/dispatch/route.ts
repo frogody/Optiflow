@@ -115,16 +115,41 @@ export async function POST(req: NextRequest) {
     let userRoom = await prisma.userRoom.findUnique({ where: { userId: targetUserId } });
     
     if (!userRoom) {
-      const newRoomName = roomName || `user-${targetUserId}-${Date.now()}`;
-      userRoom = await prisma.userRoom.create({
-        data: {
-          userId: targetUserId,
-          roomName: newRoomName,
-          metadata: metadata || {},
-          agents: agent ? [agent] : [],
-          sessionHistory: action ? [action] : []
+      const timestamp = Date.now();
+      const randomId = Math.random().toString(36).substring(2, 10);
+      const newRoomName = roomName || `user-${targetUserId.substring(0, 8)}-${timestamp}-${randomId}`;
+      
+      try {
+        userRoom = await prisma.userRoom.create({
+          data: {
+            userId: targetUserId,
+            roomName: newRoomName,
+            metadata: metadata || {},
+            agents: agent ? [agent] : [],
+            sessionHistory: action ? [action] : []
+          }
+        });
+      } catch (createError) {
+        console.error('Error creating user room:', createError);
+        // If we hit a unique constraint error, try again with a different name
+        if (createError.code === 'P2002') {
+          const retryRandomId = Math.random().toString(36).substring(2, 15);
+          const retryRoomName = `retry-${timestamp}-${retryRandomId}`;
+          console.log(`Room name collision, retrying with name: ${retryRoomName}`);
+          
+          userRoom = await prisma.userRoom.create({
+            data: {
+              userId: targetUserId,
+              roomName: retryRoomName,
+              metadata: metadata || {},
+              agents: agent ? [agent] : [],
+              sessionHistory: action ? [action] : []
+            }
+          });
+        } else {
+          throw createError; // Re-throw if it's not a uniqueness issue
         }
-      });
+      }
     } else {
       // Update agents
       const agents = Array.isArray(userRoom.agents) ? userRoom.agents : [];

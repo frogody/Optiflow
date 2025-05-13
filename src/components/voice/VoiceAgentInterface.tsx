@@ -171,12 +171,22 @@ const VoiceAgentInterface: React.FC<VoiceAgentInterfaceProps> = ({
         }
         
         const tokenData = await tokenResponse.json();
+        
+        // Log the token data structure to debug
+        console.log('Token response structure:', {
+          hasToken: !!tokenData.token,
+          tokenType: typeof tokenData.token,
+          tokenLength: tokenData.token ? tokenData.token.length : 0,
+          urlPresent: !!tokenData.url
+        });
+        
+        // Extract token and URL safely
         token = tokenData.token;
         livekitUrl = tokenData.url;
         
         // Fix URL format: ensure we're using a valid URL format that won't trigger TLD errors
         // Convert from wss:// to https:// if needed
-        if (livekitUrl.startsWith('wss://')) {
+        if (livekitUrl && livekitUrl.startsWith('wss://')) {
           livekitUrl = livekitUrl.replace('wss://', 'https://');
           console.log('Converted LiveKit URL to https format:', livekitUrl);
         }
@@ -297,7 +307,21 @@ const VoiceAgentInterface: React.FC<VoiceAgentInterfaceProps> = ({
       // Connect to room and publish local audio
       try {
         console.log(`Connecting to LiveKit room with URL: ${livekitUrl}`);
-        await newRoom.connect(livekitUrl, token, {
+        
+        // Ensure token is a string, not an object
+        if (typeof token !== 'string') {
+          console.error('Token is not a string:', token);
+          throw new Error('Invalid token format');
+        }
+        
+        // Make sure URL is in the right format for WebSocket connection (wss://)
+        let connectionUrl = livekitUrl;
+        if (connectionUrl.startsWith('https://')) {
+          connectionUrl = connectionUrl.replace('https://', 'wss://');
+          console.log('Corrected connection URL for WebSocket:', connectionUrl);
+        }
+        
+        await newRoom.connect(connectionUrl, token, {
           autoSubscribe: true,
         });
         console.log('Connected to LiveKit room:', newRoom.name);
@@ -379,7 +403,31 @@ const VoiceAgentInterface: React.FC<VoiceAgentInterfaceProps> = ({
         }
       } catch (e: any) {
         console.error('Failed to connect to LiveKit room:', e);
-        setError('Connection failed: ' + e.message);
+        
+        // Categorize and handle specific error types
+        let errorMessage = 'Connection failed';
+        
+        // Check for authorization errors
+        if (e.message && (
+            e.message.includes('unauthorized') || 
+            e.message.includes('invalid authorization') ||
+            e.message.includes('invalid token')
+          )) {
+          errorMessage = 'Authorization failed. Please try again.';
+          console.error('Auth token error:', e.message);
+        } 
+        // Check for network errors
+        else if (e.message && (
+            e.message.includes('network') || 
+            e.message.includes('connection') ||
+            e.message.includes('timeout')
+          )) {
+          errorMessage = 'Network connection failed. Please check your connection.';
+        }
+        // Add detailed error info to the message
+        errorMessage += ' ' + e.message;
+        
+        setError(errorMessage);
         setIsConnected(false);
         setRoom(null);
         toast.error('Failed to connect to voice agent');
