@@ -4,6 +4,13 @@ try {
   // Dynamically import the pipedream client
   const pdModule = await import('./pipedream-client.js').catch(() => null);
   pd = pdModule?.default || null;
+
+  // Import the createUserConnectToken function as well
+  if (pdModule && typeof pdModule.createUserConnectToken === 'function') {
+    console.log('Found createUserConnectToken function');
+  } else {
+    console.warn('createUserConnectToken function not found in pipedream-client.js');
+  }
 } catch (error) {
   console.warn('Pipedream client not available:', error.message);
 }
@@ -46,4 +53,7 @@ export async function serverConnectTokenCreate({ external_user_id }) {
       error: error.message
     };
   }
-} 
+}
+
+// Re-export the createUserConnectToken function from pipedream-client.js
+export { createUserConnectToken } from './pipedream-client.js'; 
