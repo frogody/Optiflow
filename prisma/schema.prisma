@@ -529,8 +529,11 @@ model BetaAccessRequest {
   companySize     String
   industry        String
   isAiConsultant  Boolean   @default(false)
+  intendedUse     String
+  usageFrequency  String
   useCase         String
   additionalInfo  String
+  joinReason      String
   status          String    @default("PENDING") // PENDING, APPROVED, REJECTED
   requestDate     DateTime  @default(now())
   approvalDate    DateTime?

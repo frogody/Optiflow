@@ -7,6 +7,7 @@ import {
   ExclamationCircleIcon,
   MagnifyingGlassIcon,
   XMarkIcon,
+  GlobeAltIcon,
 } from '@heroicons/react/24/outline';
 import { format } from 'date-fns';
 import { useSession } from 'next-auth/react';
@@ -23,8 +24,11 @@ type BetaRequest = {
   companySize: string;
   industry: string;
   isAiConsultant: boolean;
+  intendedUse: string;
+  usageFrequency: string;
   useCase: string;
   additionalInfo: string;
+  joinReason: string;
   status: 'PENDING' | 'APPROVED' | 'REJECTED';
   requestDate: string;
   approvalDate?: string;
@@ -396,149 +400,208 @@ export default function BetaRequestsAdmin() {
                   <XMarkIcon className="h-6 w-6" />
                 </button>
               </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+              
+              <div className="space-y-6">
+                {/* Contact Information */}
                 <div>
-                  <h3 className="text-sm font-medium text-gray-400 mb-2">Applicant Information</h3>
-                  <div className="bg-[#1E293B]/50 p-4 rounded-lg">
-                    <p className="text-white font-medium">
-                      {selectedRequest.firstName} {selectedRequest.lastName}
-                    </p>
-                    <p className="text-gray-400 text-sm">{selectedRequest.email}</p>
-                    <div className="mt-2 pt-2 border-t border-[#374151]">
-                      <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                        selectedRequest.isAiConsultant 
-                          ? 'bg-purple-900/20 text-purple-400' 
-                          : 'bg-blue-900/20 text-blue-400'
-                      }`}>
-                        {selectedRequest.isAiConsultant ? 'AI Consultant' : 'End User'}
-                      </span>
+                  <h3 className="text-lg font-medium mb-3">Contact Information</h3>
+                  <div className="bg-[#1E293B]/50 rounded-lg divide-y divide-[#374151]">
+                    <div className="flex flex-wrap p-3">
+                      <div className="w-full md:w-1/2 p-2">
+                        <p className="text-sm text-gray-400">Name</p>
+                        <p className="font-medium">{`${selectedRequest.firstName} ${selectedRequest.lastName}`}</p>
+                      </div>
+                      <div className="w-full md:w-1/2 p-2">
+                        <p className="text-sm text-gray-400">Email</p>
+                        <div className="flex items-center">
+                          <p className="font-medium truncate">{selectedRequest.email}</p>
+                          <a 
+                            href={`mailto:${selectedRequest.email}`} 
+                            className="ml-2 text-[#3CDFFF] hover:text-[#4AFFD4]"
+                            title="Send email"
+                          >
+                            <EnvelopeIcon className="h-4 w-4" />
+                          </a>
+                        </div>
+                      </div>
                     </div>
                   </div>
                 </div>
-
+                
+                {/* Company Information */}
                 <div>
-                  <h3 className="text-sm font-medium text-gray-400 mb-2">Company Information</h3>
-                  <div className="bg-[#1E293B]/50 p-4 rounded-lg">
-                    <p className="text-white font-medium">{selectedRequest.companyName}</p>
-                    <p className="text-gray-400 text-sm">
-                      <a 
-                        href={selectedRequest.companyWebsite} 
-                        target="_blank" 
-                        rel="noopener noreferrer"
-                        className="text-[#22D3EE] hover:underline"
-                      >
-                        {selectedRequest.companyWebsite}
-                      </a>
-                    </p>
-                    <div className="mt-2 flex flex-wrap gap-2">
-                      <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-[#374151] text-gray-300">
-                        {selectedRequest.industry}
-                      </span>
-                      <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-[#374151] text-gray-300">
-                        {selectedRequest.companySize}
-                      </span>
+                  <h3 className="text-lg font-medium mb-3">Company Information</h3>
+                  <div className="bg-[#1E293B]/50 rounded-lg divide-y divide-[#374151]">
+                    <div className="flex flex-wrap p-3">
+                      <div className="w-full md:w-1/2 p-2">
+                        <p className="text-sm text-gray-400">Company</p>
+                        <p className="font-medium">{selectedRequest.companyName}</p>
+                      </div>
+                      <div className="w-full md:w-1/2 p-2">
+                        <p className="text-sm text-gray-400">Website</p>
+                        <div className="flex items-center">
+                          <a 
+                            href={selectedRequest.companyWebsite}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="font-medium text-[#3CDFFF] hover:underline truncate"
+                          >
+                            {selectedRequest.companyWebsite.replace(/^https?:\/\//, '')}
+                          </a>
+                          <GlobeAltIcon className="ml-1 h-4 w-4 text-[#3CDFFF]" />
+                        </div>
+                      </div>
+                    </div>
+                    <div className="flex flex-wrap p-3">
+                      <div className="w-full md:w-1/2 p-2">
+                        <p className="text-sm text-gray-400">Size</p>
+                        <p className="font-medium">{selectedRequest.companySize}</p>
+                      </div>
+                      <div className="w-full md:w-1/2 p-2">
+                        <p className="text-sm text-gray-400">Industry</p>
+                        <p className="font-medium">{selectedRequest.industry}</p>
+                      </div>
                     </div>
                   </div>
                 </div>
-              </div>
-
-              <div className="mb-6">
-                <h3 className="text-sm font-medium text-gray-400 mb-2">Use Case</h3>
-                <div className="bg-[#1E293B]/50 p-4 rounded-lg">
-                  <div className="mb-2">
-                    <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-[#374151] text-gray-300">
-                      {selectedRequest.useCase}
-                    </span>
-                  </div>
-                  <p className="text-gray-300 text-sm whitespace-pre-wrap">
-                    {selectedRequest.additionalInfo}
-                  </p>
-                </div>
-              </div>
-
-              <div className="mb-6">
-                <h3 className="text-sm font-medium text-gray-400 mb-2">Request Details</h3>
-                <div className="bg-[#1E293B]/50 p-4 rounded-lg">
-                  <div className="flex flex-col sm:flex-row sm:justify-between">
-                    <div className="mb-3 sm:mb-0">
-                      <p className="text-xs text-gray-400">Request Date</p>
-                      <p className="text-sm text-white">
-                        {new Date(selectedRequest.requestDate).toLocaleDateString()}
-                      </p>
+                
+                {/* Usage Information */}
+                <div>
+                  <h3 className="text-lg font-medium mb-3">Usage Information</h3>
+                  <div className="bg-[#1E293B]/50 rounded-lg divide-y divide-[#374151]">
+                    <div className="flex flex-wrap p-3">
+                      <div className="w-full md:w-1/2 p-2">
+                        <p className="text-sm text-gray-400">Intended Use</p>
+                        <p className="font-medium capitalize">{selectedRequest.intendedUse}</p>
+                      </div>
+                      <div className="w-full md:w-1/2 p-2">
+                        <p className="text-sm text-gray-400">Usage Frequency</p>
+                        <p className="font-medium">{selectedRequest.usageFrequency}</p>
+                      </div>
                     </div>
-                    {selectedRequest.status === 'APPROVED' && selectedRequest.approvalDate && (
-                      <div>
-                        <p className="text-xs text-gray-400">Approval Date</p>
-                        <p className="text-sm text-white">
-                          {new Date(selectedRequest.approvalDate).toLocaleDateString()}
-                        </p>
+                    <div className="flex flex-wrap p-3">
+                      <div className="w-full md:w-1/2 p-2">
+                        <p className="text-sm text-gray-400">Is AI Consultant</p>
+                        <p className="font-medium">{selectedRequest.isAiConsultant ? 'Yes' : 'No'}</p>
+                      </div>
+                      <div className="w-full md:w-1/2 p-2">
+                        <p className="text-sm text-gray-400">Use Case</p>
+                        <p className="font-medium">{selectedRequest.useCase}</p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                
+                {/* Additional Information */}
+                <div>
+                  <h3 className="text-lg font-medium mb-3">Additional Information</h3>
+                  <div className="bg-[#1E293B]/50 rounded-lg p-4">
+                    <p className="text-sm whitespace-pre-wrap">{selectedRequest.additionalInfo}</p>
+                  </div>
+                </div>
+                
+                {/* Reason for Joining Beta */}
+                <div>
+                  <h3 className="text-lg font-medium mb-3">Reason for Joining Beta</h3>
+                  <div className="bg-[#1E293B]/50 rounded-lg p-4">
+                    <p className="text-sm whitespace-pre-wrap">{selectedRequest.joinReason}</p>
+                  </div>
+                </div>
+                
+                {/* Request Information */}
+                <div>
+                  <h3 className="text-lg font-medium mb-3">Request Information</h3>
+                  <div className="bg-[#1E293B]/50 rounded-lg divide-y divide-[#374151]">
+                    <div className="flex flex-wrap p-3">
+                      <div className="w-full md:w-1/2 p-2">
+                        <p className="text-sm text-gray-400">Request Date</p>
+                        <p className="font-medium">{format(new Date(selectedRequest.requestDate), 'PPP')} ({format(new Date(selectedRequest.requestDate), 'p')})</p>
+                      </div>
+                      <div className="w-full md:w-1/2 p-2">
+                        <p className="text-sm text-gray-400">Status</p>
+                        <div className="flex items-center">
+                          <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                            selectedRequest.status === 'PENDING' 
+                              ? 'bg-yellow-900/20 text-yellow-400' 
+                              : selectedRequest.status === 'APPROVED'
+                              ? 'bg-green-900/20 text-green-400'
+                              : 'bg-red-900/20 text-red-400'
+                          }`}>
+                            {selectedRequest.status}
+                            {selectedRequest.status === 'PENDING' && <ClockIcon className="ml-1 h-3 w-3" />}
+                            {selectedRequest.status === 'APPROVED' && <CheckCircleIcon className="ml-1 h-3 w-3" />}
+                            {selectedRequest.status === 'REJECTED' && <XMarkIcon className="ml-1 h-3 w-3" />}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                    
+                    {selectedRequest.status === 'APPROVED' && (
+                      <div className="p-3">
+                        <div className="bg-green-900/20 border border-green-700/30 rounded-md p-3 text-sm">
+                          <p className="text-gray-400 mb-1">Invite Code</p>
+                          <div className="flex items-center justify-between">
+                            <code className="font-mono text-green-400">{selectedRequest.inviteCode}</code>
+                            <span className={`ml-2 inline-flex items-center px-2 py-0.5 rounded text-xs font-medium ${
+                              selectedRequest.inviteCodeUsed
+                                ? 'bg-blue-900/20 text-blue-400'
+                                : 'bg-green-900/20 text-green-400'
+                            }`}>
+                              {selectedRequest.inviteCodeUsed ? 'Used' : 'Not Used'}
+                            </span>
+                          </div>
+                        </div>
                       </div>
                     )}
                   </div>
-                  
-                  {selectedRequest.status === 'APPROVED' && selectedRequest.inviteCode && (
-                    <div className="mt-3 pt-3 border-t border-[#374151]">
-                      <p className="text-xs text-gray-400">Invite Code</p>
-                      <div className="mt-1 flex items-center">
-                        <code className="bg-black/50 text-[#3CDFFF] px-2 py-1 rounded font-mono text-sm">
-                          {selectedRequest.inviteCode}
-                        </code>
-                        <span className={`ml-3 text-xs ${selectedRequest.inviteCodeUsed ? 'text-green-400' : 'text-yellow-400'}`}>
-                          {selectedRequest.inviteCodeUsed ? 'Used' : 'Not used yet'}
-                        </span>
-                      </div>
+                </div>
+
+                {selectedRequest.status === 'PENDING' && (
+                  <>
+                    <div className="mb-6">
+                      <label htmlFor="admin-notes" className="block text-sm font-medium text-gray-400 mb-2">
+                        Admin Notes (Optional)
+                      </label>
+                      <textarea
+                        id="admin-notes"
+                        rows={3}
+                        className="w-full px-3 py-2 bg-[#111111] border border-[#374151] rounded-md text-white focus:outline-none focus:ring-2 focus:ring-[#22D3EE] focus:border-transparent"
+                        placeholder="Add notes about this request..."
+                        value={adminNotes}
+                        onChange={(e) => setAdminNotes(e.target.value)}
+                      />
                     </div>
-                  )}
-                </div>
-              </div>
+                    
+                    <div className="flex justify-end gap-4">
+                      <button
+                        className="px-4 py-2 bg-red-600/20 text-red-400 border border-red-600/30 rounded-md hover:bg-red-600/30 focus:outline-none focus:ring-2 focus:ring-red-500/50"
+                        onClick={handleReject}
+                        disabled={isApproving}
+                      >
+                        {isApproving ? 'Processing...' : 'Reject'}
+                      </button>
+                      <button
+                        className="px-4 py-2 bg-gradient-to-r from-[#3CDFFF] to-[#4AFFD4] text-black font-medium rounded-md hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-[#22D3EE]/50"
+                        onClick={handleApprove}
+                        disabled={isApproving}
+                      >
+                        {isApproving ? 'Processing...' : 'Approve & Generate Invite Code'}
+                      </button>
+                    </div>
+                  </>
+                )}
 
-              {/* Admin notes and actions */}
-              {selectedRequest.status === 'PENDING' && (
-                <>
+                {selectedRequest.status !== 'PENDING' && selectedRequest.adminNotes && (
                   <div className="mb-6">
-                    <label htmlFor="admin-notes" className="block text-sm font-medium text-gray-400 mb-2">
-                      Admin Notes (Optional)
-                    </label>
-                    <textarea
-                      id="admin-notes"
-                      rows={3}
-                      className="w-full px-3 py-2 bg-[#111111] border border-[#374151] rounded-md text-white focus:outline-none focus:ring-2 focus:ring-[#22D3EE] focus:border-transparent"
-                      placeholder="Add notes about this request..."
-                      value={adminNotes}
-                      onChange={(e) => setAdminNotes(e.target.value)}
-                    />
+                    <h3 className="text-sm font-medium text-gray-400 mb-2">Admin Notes</h3>
+                    <div className="bg-[#1E293B]/50 p-4 rounded-lg">
+                      <p className="text-gray-300 text-sm whitespace-pre-wrap">
+                        {selectedRequest.adminNotes}
+                      </p>
+                    </div>
                   </div>
-                  
-                  <div className="flex justify-end gap-4">
-                    <button
-                      className="px-4 py-2 bg-red-600/20 text-red-400 border border-red-600/30 rounded-md hover:bg-red-600/30 focus:outline-none focus:ring-2 focus:ring-red-500/50"
-                      onClick={handleReject}
-                      disabled={isApproving}
-                    >
-                      {isApproving ? 'Processing...' : 'Reject'}
-                    </button>
-                    <button
-                      className="px-4 py-2 bg-gradient-to-r from-[#3CDFFF] to-[#4AFFD4] text-black font-medium rounded-md hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-[#22D3EE]/50"
-                      onClick={handleApprove}
-                      disabled={isApproving}
-                    >
-                      {isApproving ? 'Processing...' : 'Approve & Generate Invite Code'}
-                    </button>
-                  </div>
-                </>
-              )}
-
-              {selectedRequest.status !== 'PENDING' && selectedRequest.adminNotes && (
-                <div className="mb-6">
-                  <h3 className="text-sm font-medium text-gray-400 mb-2">Admin Notes</h3>
-                  <div className="bg-[#1E293B]/50 p-4 rounded-lg">
-                    <p className="text-gray-300 text-sm whitespace-pre-wrap">
-                      {selectedRequest.adminNotes}
-                    </p>
-                  </div>
-                </div>
-              )}
+                )}
+              </div>
             </div>
           </div>
         </div>

@@ -8,6 +8,8 @@ import { sendEmail } from '@/lib/email';
 
 // Validation schema for beta access request
 const betaRequestSchema = z.object({
+  intendedUse: z.string().min(1, 'Intended use is required'),
+  usageFrequency: z.string().min(1, 'Usage frequency is required'),
   isAiConsultant: z.boolean(),
   firstName: z.string().min(1, 'First name is required'),
   lastName: z.string().min(1, 'Last name is required'),
@@ -18,6 +20,7 @@ const betaRequestSchema = z.object({
   industry: z.string().min(1, 'Industry is required'),
   useCase: z.string().min(1, 'Use case is required'),
   additionalInfo: z.string().min(10, 'Please provide more details about your use case'),
+  joinReason: z.string().min(10, 'Please explain why you want to join the beta program'),
 });
 
 export async function POST(req: NextRequest) {
@@ -47,11 +50,16 @@ export async function POST(req: NextRequest) {
         Website: ${validatedData.companyWebsite}
         Industry: ${validatedData.industry}
         
+        Intended Use: ${validatedData.intendedUse}
+        Usage Frequency: ${validatedData.usageFrequency}
         Is AI Consultant: ${validatedData.isAiConsultant ? 'Yes' : 'No'}
         Use Case: ${validatedData.useCase}
         
         Additional Info:
         ${validatedData.additionalInfo}
+        
+        Reason for Joining Beta:
+        ${validatedData.joinReason}
         
         Review this application in the admin dashboard.
       `,
@@ -62,10 +70,14 @@ export async function POST(req: NextRequest) {
         <p><strong>Company:</strong> ${validatedData.companyName} (${validatedData.companySize})</p>
         <p><strong>Website:</strong> ${validatedData.companyWebsite}</p>
         <p><strong>Industry:</strong> ${validatedData.industry}</p>
+        <p><strong>Intended Use:</strong> ${validatedData.intendedUse}</p>
+        <p><strong>Usage Frequency:</strong> ${validatedData.usageFrequency}</p>
         <p><strong>Is AI Consultant:</strong> ${validatedData.isAiConsultant ? 'Yes' : 'No'}</p>
         <p><strong>Use Case:</strong> ${validatedData.useCase}</p>
         <h3>Additional Information:</h3>
         <p>${validatedData.additionalInfo}</p>
+        <h3>Reason for Joining Beta:</h3>
+        <p>${validatedData.joinReason}</p>
         <p>Review this application in the <a href="${process.env.NEXTAUTH_URL}/admin/beta-requests">admin dashboard</a>.</p>
       `,
     });
