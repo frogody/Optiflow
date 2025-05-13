@@ -10,37 +10,41 @@ export default function Footer(): JSX.Element {
     {
       title: 'Product',
       links: [
-        { name: 'Features', href: '/features'     },
-        { name: 'Integrations', href: '/integrations'     },
-        { name: 'Pricing', href: '/pricing'     },
-        { name: 'Enterprise', href: '/enterprise'     },
+        { name: 'Features', href: '/features' },
+        { name: 'Integrations', href: '/integrations' },
+        { name: 'Pricing', href: '/pricing' },
+        { name: 'Enterprise', href: '/enterprise' },
       ]
     },
     {
       title: 'Learn',
       links: [
-        { name: 'AIcademy', href: '/products/aicademy'     },
-        { name: 'AI Factory', href: '/ai-factory'     },
-        { name: 'Documentation', href: '/docs'     },
-        { name: 'FAQ', href: '/faq'     },
+        { name: 'AIcademy', href: '/products/aicademy' },
+        { name: 'AI Factory', href: '/products/ai-factory' },
+        { name: 'Templates', href: '/templates' },
+        { name: 'Documentation', href: '/docs' },
+        { name: 'FAQ', href: '/faq' },
+        { name: 'Blog', href: '/blog' },
+        { name: 'Community', href: '/help/community' },
+        { name: 'Help Center', href: '/help' },
       ]
     },
     {
       title: 'Company',
       links: [
-        { name: 'About', href: '/about'     },
-        { name: 'Blog', href: '/blog'     },
-        { name: 'Careers', href: '/careers'     },
-        { name: 'Contact', href: '/contact'     },
+        { name: 'About', href: '/about' },
+        { name: 'Careers', href: '/careers' },
+        { name: 'Contact', href: '/contact' },
       ]
     },
     {
       title: 'Legal',
       links: [
-        { name: 'Privacy', href: '/privacy'     },
-        { name: 'Terms', href: '/terms'     },
-        { name: 'Security', href: '/security'     },
-        { name: 'Compliance', href: '/compliance'     },
+        { name: 'Privacy', href: '/privacy' },
+        { name: 'Terms', href: '/terms' },
+        { name: 'Cookies', href: '/cookies' },
+        { name: 'Security', href: '/security' },
+        { name: 'Compliance', href: '/compliance' },
       ]
     }
   ];

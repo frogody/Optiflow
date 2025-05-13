@@ -80,15 +80,22 @@ export default function ContactPage() {
   };
 
   return (
-    <div className="bg-[#111111] text-[#E5E7EB] min-h-screen">
-      {/* Header */}
-      <section className="py-16 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto text-center">
-        <h1 className="text-4xl md:text-5xl font-bold mb-6 text-[#22D3EE]">
-          Get in Touch with Optiflow
-        </h1>
-        <p className="text-xl max-w-3xl mx-auto text-[#9CA3AF]">
-          We'd love to hear from you. Reach out with questions, feedback, or partnership inquiries.
-        </p>
+    <div className="min-h-screen text-white bg-[#111111] relative overflow-x-hidden">
+      {/* Animated Gradient Backgrounds */}
+      <div className="absolute inset-0 z-0 pointer-events-none">
+        <div className="absolute w-[700px] h-[700px] left-1/4 top-0 bg-gradient-to-br from-[#3CDFFF]/20 to-[#4AFFD4]/10 rounded-full blur-[180px] animate-pulse" />
+        <div className="absolute w-[600px] h-[600px] right-1/4 bottom-0 bg-gradient-to-br from-purple-500/20 to-indigo-500/10 rounded-full blur-[160px] animate-pulse" style={{ animationDelay: '2s' }} />
+      </div>
+
+      <section className="relative py-24 overflow-hidden z-10">
+        <div className="container mx-auto px-4 text-center relative z-10">
+          <h1 className="text-6xl md:text-7xl lg:text-8xl font-bold mb-8 tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-white via-[#3CDFFF] to-white animate-gradient bg-300%">
+            Get in Touch with Sync
+          </h1>
+          <p className="text-xl md:text-2xl text-gray-300 mb-12 max-w-3xl mx-auto leading-relaxed">
+            We'd love to hear from you. Reach out with questions, feedback, or partnership inquiries.
+          </p>
+        </div>
       </section>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-20">

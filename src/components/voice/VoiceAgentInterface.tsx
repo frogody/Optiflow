@@ -15,6 +15,7 @@ import {
 import { useSession } from 'next-auth/react';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { toast } from 'react-hot-toast';
+import { BarVisualizer } from '@livekit/components-react';
 
 import ErrorMessage from './ErrorMessage';
 
@@ -37,7 +38,7 @@ const VoiceAgentInterface: React.FC<VoiceAgentInterfaceProps> = ({ className }) 
   const [roomName, setRoomName] = useState<string>('');
   const [minimized, setMinimized] = useState<boolean>(() => {
     if (typeof window !== 'undefined') {
-      return localStorage.getItem('jarvis_minimized') === 'true';
+      return localStorage.getItem('sync_minimized') === 'true';
     }
     return false;
   });
@@ -48,23 +49,21 @@ const VoiceAgentInterface: React.FC<VoiceAgentInterfaceProps> = ({ className }) 
   const audioElementRef = useRef<HTMLAudioElement | null>(null);
 
   const connectToLiveKit = useCallback(async () => {
-    if (!session?.user) {
-      setError('You must be logged in to use the voice agent.');
-      return;
-    }
-
     setIsLoading(true);
     
     // Generate a unique room name for this session
-    const generatedRoomName = `optiflow-jarvis-${Date.now()}`;
+    const generatedRoomName = `sync-jarvis-${Date.now()}`;
     setRoomName(generatedRoomName);
+
+    // Use session user ID or generate anonymous ID
+    const userId = session?.user?.id || `anon-${Math.random().toString(36).slice(2)}`;
     
     // First, dispatch the agent to the room
     try {
       const dispatchResponse = await fetch('/api/livekit/dispatch', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ roomName: generatedRoomName })
+        body: JSON.stringify({ roomName: generatedRoomName, userId })
       });
       
       if (!dispatchResponse.ok) {
@@ -87,7 +86,7 @@ const VoiceAgentInterface: React.FC<VoiceAgentInterfaceProps> = ({ className }) 
       const tokenResponse = await fetch('/api/livekit/token', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ room: generatedRoomName })
+        body: JSON.stringify({ room: generatedRoomName, userId })
       });
       
       if (!tokenResponse.ok) {
@@ -121,7 +120,7 @@ const VoiceAgentInterface: React.FC<VoiceAgentInterfaceProps> = ({ className }) 
         
         // Check if this is an agent
         if (participant.identity.startsWith('agent-')) {
-          toast.success('Jarvis agent has joined the room');
+          toast.success('Sync agent has joined the room');
         }
         
         // Listen for agent tracks
@@ -206,7 +205,7 @@ const VoiceAgentInterface: React.FC<VoiceAgentInterfaceProps> = ({ className }) 
       localAudioTrackRef.current = audioTrack;
       console.log('Local audio track published');
       setIsListening(true);
-      toast.success('Connected to Jarvis voice agent');
+      toast.success('Connected to Sync voice agent');
     } catch (e: any) {
       console.error('Failed to connect to LiveKit room or publish audio:', e);
       setError('Connection failed: ' + e.message);
@@ -237,7 +236,7 @@ const VoiceAgentInterface: React.FC<VoiceAgentInterfaceProps> = ({ className }) 
       setTranscript('');
       setAgentResponse('');
       
-      toast.success('Disconnected from Jarvis voice agent');
+      toast.success('Disconnected from Sync voice agent');
     }
   }, [room]);
   
@@ -276,7 +275,7 @@ const VoiceAgentInterface: React.FC<VoiceAgentInterfaceProps> = ({ className }) 
   // Persist minimized state
   useEffect(() => {
     if (typeof window !== 'undefined') {
-      localStorage.setItem('jarvis_minimized', minimized ? 'true' : 'false');
+      localStorage.setItem('sync_minimized', minimized ? 'true' : 'false');
     }
   }, [minimized]);
 
@@ -336,6 +335,10 @@ const VoiceAgentInterface: React.FC<VoiceAgentInterfaceProps> = ({ className }) 
     toast.success('Reconnecting agent with a fresh session...');
   }, [room, disconnectFromRoom, connectToLiveKit]);
 
+  const handleMixerClick = () => {
+    if (!isConnected && !isLoading) connectToLiveKit();
+  };
+
   if (minimized) {
     // Orb mode
     return (
@@ -360,38 +363,69 @@ const VoiceAgentInterface: React.FC<VoiceAgentInterfaceProps> = ({ className }) 
   }
 
   return (
-    <div className={`bg-[#18181B] text-[#E5E7EB] shadow-lg rounded-lg p-6 border border-[#374151] ${className} fixed bottom-6 right-6 z-50 w-[360px] max-w-[90vw]`}>
-      <div className="flex items-center justify-between mb-2">
-        <h2 className="text-xl font-bold text-[#22D3EE]">Jarvis Voice Assistant</h2>
+    <div
+      className={`fixed bottom-6 right-6 z-50 w-[380px] max-w-[95vw] p-0 ${!isConnected ? 'cursor-pointer hover:shadow-xl hover:ring-2 hover:ring-[#22D3EE]/60 transition-all' : ''}`}
+      style={{
+        borderRadius: '1.5rem',
+        background: 'linear-gradient(135deg, #23243a 60%, #2d1e4f 100%)',
+        boxShadow: '0 8px 32px 0 rgba(31, 38, 135, 0.37)',
+        border: '1.5px solid rgba(34,211,238,0.12)',
+        overflow: 'hidden',
+      }}
+      onClick={!isConnected && !isLoading ? handleMixerClick : undefined}
+      tabIndex={!isConnected ? 0 : -1}
+      aria-label={!isConnected ? 'Click to connect to Sync Voice Mixer' : undefined}
+    >
+      {/* Mixer header */}
+      <div className="flex items-center justify-between px-6 pt-5 pb-2 bg-gradient-to-r from-[#23243a]/80 to-[#2d1e4f]/80">
+        <h2 className="text-xl font-bold text-[#22D3EE] tracking-widest drop-shadow">Sync Voice Mixer</h2>
         <button
           onClick={() => setMinimized(true)}
-          className="ml-2 px-2 py-1 rounded hover:bg-[#22223B] text-[#A855F7] text-lg font-bold"
+          className="ml-2 px-2 py-1 rounded-full hover:bg-[#22223B] text-[#A855F7] text-lg font-bold transition"
           title="Minimize"
         >
           &minus;
         </button>
       </div>
-      
-      {error && <ErrorMessage message={error} onDismiss={clearError} />}
-      
-      <div className="flex flex-col space-y-6">
+      {/* Visualizer */}
+      {isConnected && (
+        <div className="flex flex-col items-center justify-center px-6 pt-2 pb-4">
+          <div className="w-full flex flex-col items-center">
+            <BarVisualizer
+              width={320}
+              height={36}
+              barCount={24}
+              className="my-2"
+              // Animate only when agent is speaking
+              isSpeaking={isAgentSpeaking}
+              // Use a digital gradient for bars
+              barColor="linear-gradient(180deg, #22D3EE 0%, #A855F7 100%)"
+              backgroundColor="#23243a"
+            />
+            <div className="text-xs text-[#A855F7] mt-1 tracking-widest uppercase">
+              {isAgentSpeaking ? 'Agent Speaking' : isListening ? 'Listening...' : 'Connected'}
+            </div>
+          </div>
+        </div>
+      )}
+      {/* Controls and status */}
+      <div className="flex flex-col space-y-6 px-6 pb-6">
         <button
           onClick={isConnected ? disconnectFromRoom : connectToLiveKit}
           disabled={isLoading}
-          className={`px-5 py-3 rounded-md font-medium transition-colors ${
-            isConnected 
-              ? 'bg-[#4B5563] hover:bg-[#6B7280] text-[#E5E7EB] border border-[#A855F7]' 
-              : 'bg-[#06B6D4] hover:bg-[#0EA5E9] text-[#111111] font-semibold'
-          } disabled:opacity-50 disabled:cursor-not-allowed`}
+          className={`w-full py-3 rounded-full font-semibold text-lg shadow transition-all duration-200
+            ${isConnected
+              ? 'bg-gradient-to-r from-[#4B5563] to-[#A855F7] text-white hover:from-[#6B7280] hover:to-[#C084FC] border border-[#A855F7]'
+              : 'bg-gradient-to-r from-[#22D3EE] to-[#A855F7] text-[#18181B] hover:from-[#06B6D4] hover:to-[#C084FC]'}
+            disabled:opacity-50 disabled:cursor-not-allowed`}
         >
           {isLoading 
             ? 'Connecting...' 
             : isConnected 
-              ? 'Disconnect from Jarvis' 
-              : 'Connect to Jarvis'
+              ? 'Disconnect from Sync' 
+              : 'Connect to Sync'
           }
         </button>
-        
         {/* Add buttons for force join and reconnect */}
         <div className="flex space-x-2">
           {/* Force join button */}
@@ -399,26 +433,24 @@ const VoiceAgentInterface: React.FC<VoiceAgentInterfaceProps> = ({ className }) 
             <button
               onClick={forceAgentToJoin}
               disabled={isLoading}
-              className="flex-1 px-5 py-3 rounded-md font-medium bg-[#F59E0B] hover:bg-[#D97706] text-[#111111] font-semibold transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              className="flex-1 py-3 rounded-full font-semibold bg-gradient-to-r from-yellow-400 to-orange-500 text-[#18181B] hover:from-yellow-300 hover:to-orange-400 shadow disabled:opacity-50 disabled:cursor-not-allowed transition-all"
             >
-              Force Jarvis to Join
+              Force Sync to Join
             </button>
           )}
-          
           {/* Reconnect button - always visible when connected */}
           {isConnected && (
             <button
               onClick={reconnectAgent}
               disabled={isLoading}
-              className="flex-1 px-5 py-3 rounded-md font-medium bg-[#EC4899] hover:bg-[#DB2777] text-white font-semibold transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              className="flex-1 py-3 rounded-full font-semibold bg-gradient-to-r from-pink-500 to-fuchsia-600 text-white hover:from-pink-400 hover:to-fuchsia-500 shadow disabled:opacity-50 disabled:cursor-not-allowed transition-all"
             >
               Reconnect Agent
             </button>
           )}
         </div>
-        
         {isConnected && (
-          <div className="flex items-center space-x-3 text-sm font-medium bg-[#111111] p-3 rounded-md border border-[#374151]">
+          <div className="flex items-center space-x-3 text-sm font-medium bg-[#23243a] p-3 rounded-xl border border-[#374151] mt-2">
             <StatusIndicator active={isListening} />
             <span>
               {isListening ? 'Listening...' : 'Connected, not listening'}
@@ -430,57 +462,6 @@ const VoiceAgentInterface: React.FC<VoiceAgentInterfaceProps> = ({ className }) 
               </div>
             )}
           </div>
-        )}
-        
-        <div className="border border-[#374151] rounded-md p-4 bg-[#111111] min-h-[240px] max-h-[400px] overflow-y-auto transcript-container">
-          <h3 className="font-medium mb-4 text-[#9CA3AF]">Conversation:</h3>
-          
-          <div className="space-y-2">
-            {!transcript && !agentResponse && (
-              <p className="text-[#6B7280] italic text-sm">
-                {isConnected 
-                  ? 'Start speaking or type a message below to interact with Jarvis' 
-                  : 'Connect to Jarvis to start a conversation'}
-              </p>
-            )}
-            
-            {transcript && (
-              <pre className="whitespace-pre-wrap text-sm font-mono text-white bg-[#1F2937] p-3 rounded-md border-l-2 border-cyan-400">{transcript}</pre>
-            )}
-            
-            {agentResponse && (
-              <pre className="whitespace-pre-wrap text-sm font-mono text-[#22D3EE] bg-[#1E293B] p-3 rounded-md border-l-2 border-[#22D3EE]">{agentResponse}</pre>
-            )}
-          </div>
-        </div>
-        
-        {isConnected && (
-          <form 
-            onSubmit={async (e) => {
-              e.preventDefault();
-              const form = e.target as HTMLFormElement;
-              const input = form.elements.namedItem('message') as HTMLInputElement;
-              
-              if (input.value) {
-                await sendTextMessage(input.value);
-                input.value = '';
-              }
-            }}
-            className="flex space-x-3"
-          >
-            <input
-              type="text"
-              name="message"
-              placeholder="Type a message to Jarvis"
-              className="flex-1 px-4 py-3 bg-[#111111] border border-[#374151] rounded-md focus:outline-none focus:ring-2 focus:ring-[#22D3EE] text-[#E5E7EB] placeholder-[#6B7280]"
-            />
-            <button 
-              type="submit"
-              className="px-5 py-3 bg-[#A855F7] hover:bg-[#C026D3] text-white rounded-md transition-colors font-medium"
-            >
-              Send
-            </button>
-          </form>
         )}
       </div>
     </div>

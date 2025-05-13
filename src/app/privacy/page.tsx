@@ -19,7 +19,7 @@ export default function PrivacyPolicy() {
           <div className="mb-10">
             <h2 className="text-xl font-semibold text-[#22D3EE] mb-4">1. Introduction</h2>
             <p className="text-[#E5E7EB] mb-4">
-              Optiflow, Inc. ("Optiflow," "we," "our," or "us") respects your privacy and is committed to protecting your personal data. This Privacy Policy explains how we collect, use, disclose, and safeguard your information when you use our platform, website, and services (collectively, the "Services").
+              Sync, Inc. ("Sync," "we," "our," or "us") respects your privacy and is committed to protecting your personal data. This Privacy Policy explains how we collect, use, disclose, and safeguard your information when you use our platform, website, and services (collectively, the "Services").
             </p>
             <p className="text-[#E5E7EB] mb-4">
               Please read this Privacy Policy carefully. By accessing or using our Services, you acknowledge that you have read, understood, and agree to be bound by all the terms of this Privacy Policy. If you do not agree with our policies and practices, please do not use our Services.
@@ -62,7 +62,7 @@ export default function PrivacyPolicy() {
             <ul className="list-disc pl-6 text-[#E5E7EB] space-y-2">
               <li><strong>Workflow Data:</strong> The configuration, structure, and content of workflows you create.</li>
               <li><strong>Voice Data:</strong> Audio recordings and transcripts from voice interactions with our Services.</li>
-              <li><strong>Integration Data:</strong> Data from third-party services you connect to Optiflow, such as Pipedream connections.</li>
+              <li><strong>Integration Data:</strong> Data from third-party services you connect to Sync, such as Pipedream connections.</li>
               <li><strong>Communications:</strong> Messages, comments, and other communications within our platform.</li>
             </ul>
           </div>
@@ -200,7 +200,7 @@ export default function PrivacyPolicy() {
               <li>Enforce our rights, privacy policy, and other legal agreements.</li>
               <li>Protect against legal liability.</li>
               <li>Prevent or investigate possible wrongdoing in connection with the Services.</li>
-              <li>Protect the rights, property, or safety of Optiflow, our users, or others.</li>
+              <li>Protect the rights, property, or safety of Sync, our users, or others.</li>
             </ul>
 
             <h3 className="text-lg font-medium text-[#E5E7EB] mb-2 mt-6">6.5. With Your Consent</h3>
@@ -286,7 +286,7 @@ export default function PrivacyPolicy() {
 
             <h3 className="text-lg font-medium text-[#E5E7EB] mb-2 mt-6">10.3. How to Exercise Your Rights</h3>
             <p className="text-[#E5E7EB] mb-4">
-              To exercise your rights, please contact us at privacy@optiflow.com. We will respond to your request within the timeframe required by applicable law.
+              To exercise your rights, please contact us at privacy@sync.com. We will respond to your request within the timeframe required by applicable law.
             </p>
             <p className="text-[#E5E7EB] mb-4">
               For your protection, we may need to verify your identity before implementing your request. We will not discriminate against you for exercising any of your data protection rights.
@@ -296,7 +296,7 @@ export default function PrivacyPolicy() {
           <div className="mb-10">
             <h2 className="text-xl font-semibold text-[#22D3EE] mb-4">11. Children's Privacy</h2>
             <p className="text-[#E5E7EB] mb-4">
-              Our Services are not intended for children under the age of 16. We do not knowingly collect Personal Data from children under 16. If you are a parent or guardian and you believe your child has provided us with Personal Data, please contact us at privacy@optiflow.com, and we will take steps to delete such information.
+              Our Services are not intended for children under the age of 16. We do not knowingly collect Personal Data from children under 16. If you are a parent or guardian and you believe your child has provided us with Personal Data, please contact us at privacy@sync.com, and we will take steps to delete such information.
             </p>
           </div>
 
@@ -340,14 +340,14 @@ export default function PrivacyPolicy() {
               If you have any questions, concerns, or requests regarding this Privacy Policy or our data practices, please contact us at:
             </p>
             <div className="text-[#E5E7EB]">
-              <p>Optiflow, Inc.</p>
+              <p>Sync, Inc.</p>
               <p>Attn: Privacy Officer</p>
               <p>1234 Innovation Way</p>
               <p>San Francisco, CA 94107</p>
-              <p>privacy@optiflow.com</p>
+              <p>privacy@sync.com</p>
             </div>
             <p className="text-[#E5E7EB] mt-4">
-              For users in the EEA, UK, or Switzerland, Optiflow, Inc. is the data controller responsible for your Personal Data. If you are not satisfied with our response, you may have the right to lodge a complaint with a supervisory authority in the country where you reside, work, or where you believe an infringement has occurred.
+              For users in the EEA, UK, or Switzerland, Sync, Inc. is the data controller responsible for your Personal Data. If you are not satisfied with our response, you may have the right to lodge a complaint with a supervisory authority in the country where you reside, work, or where you believe an infringement has occurred.
             </p>
           </div>
         </div>

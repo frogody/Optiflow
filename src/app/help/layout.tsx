@@ -169,35 +169,6 @@ export default function HelpLayout({
               </div>
             </div>
 
-            {/* Navigation */}
-            <div className="hidden md:flex items-center space-x-4">
-              <Link 
-                href="/help" 
-                className="text-sm text-[#9CA3AF] hover:text-[#E5E7EB] transition-colors"
-              >
-                Home
-              </Link>
-              <Link 
-                href="/help/contact-support" 
-                className="text-sm text-[#9CA3AF] hover:text-[#E5E7EB] transition-colors"
-              >
-                Contact Support
-              </Link>
-              <Link 
-                href="/help/community" 
-                className="text-sm text-[#9CA3AF] hover:text-[#E5E7EB] transition-colors"
-              >
-                Community
-              </Link>
-              <Link 
-                href="https://status.optiflow.com" 
-                className="text-sm text-[#9CA3AF] hover:text-[#E5E7EB] transition-colors"
-                target="_blank"
-              >
-                Status
-              </Link>
-            </div>
-            
             {/* Mobile menu button */}
             <div className="flex items-center md:hidden">
               <button

@@ -30,7 +30,7 @@ const securityFeatures = [
   {
     icon: DocumentTextIcon,
     title: 'Compliance & Certifications',
-    description: 'Optiflow maintains compliance with SOC 2, GDPR, HIPAA, and other major regulatory standards to meet your industry requirements.'
+    description: 'Sync maintains compliance with SOC 2, GDPR, HIPAA, and other major regulatory standards to meet your industry requirements.'
   },
 ];
 
@@ -54,7 +54,7 @@ export default function SecurityPage() {
             Security & Compliance
           </h1>
           <p className="text-xl max-w-3xl mx-auto text-[#9CA3AF] mb-12">
-            Your data security is our top priority. Discover how Optiflow keeps your information safe with enterprise-grade security features and rigorous compliance standards.
+            Your data security is our top priority. Discover how Sync keeps your information safe with enterprise-grade security features and rigorous compliance standards.
           </p>
           <div className="inline-flex rounded-md shadow">
             <Link href="/contact" className="px-5 py-3 bg-[#22D3EE] text-[#111111] rounded-md font-medium hover:bg-[#06B6D4] transition-colors inline-flex items-center">
@@ -134,7 +134,7 @@ export default function SecurityPage() {
       <section className="py-16 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
         <h2 className="text-3xl font-bold mb-6 text-[#22D3EE]">Compliance & Certifications</h2>
         <p className="text-[#9CA3AF] mb-12 max-w-3xl">
-          Optiflow maintains compliance with major security frameworks and regulations. Our security practices are regularly audited by independent third parties to ensure we meet or exceed industry standards.
+          Sync maintains compliance with major security frameworks and regulations. Our security practices are regularly audited by independent third parties to ensure we meet or exceed industry standards.
         </p>
         
         <div className="bg-[#18181B] rounded-xl overflow-hidden">
@@ -186,14 +186,14 @@ export default function SecurityPage() {
               Our cloud infrastructure is hosted in secure data centers with 24/7 physical security, biometric access controls, and environmental safeguards.
             </p>
             <p className="text-[#9CA3AF]">
-              All Optiflow offices have physical access controls, including key card systems and security personnel to ensure only authorized personnel have access to our facilities.
+              All Sync offices have physical access controls, including key card systems and security personnel to ensure only authorized personnel have access to our facilities.
             </p>
           </div>
           
           <div className="bg-[#18181B] p-8 rounded-xl">
             <h3 className="text-xl font-medium text-[#E5E7EB] mb-4">Employee Security</h3>
             <p className="text-[#9CA3AF] mb-4">
-              All Optiflow employees undergo background checks and receive regular security awareness training to ensure they understand their role in maintaining our security posture.
+              All Sync employees undergo background checks and receive regular security awareness training to ensure they understand their role in maintaining our security posture.
             </p>
             <p className="text-[#9CA3AF]">
               We enforce strict access controls, multi-factor authentication, and follow the principle of least privilege to ensure employees only have access to the resources necessary for their role.

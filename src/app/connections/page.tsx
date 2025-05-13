@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { toast } from 'react-hot-toast';
+import Image from 'next/image';
 
 import PipedreamConnectButton from '../../components/PipedreamConnectButton';
 import { getUserAccounts } from '../../lib/pipedream/server';
@@ -103,6 +104,43 @@ export default function ConnectionsPage(): JSX.Element {
     { slug: 'invoice_ninja', name: 'Invoice Ninja' },
     { slug: 'rocket_reach', name: 'Rocket Reach' },
   ];
+
+  // Add a mapping of app slugs to brief descriptions
+  const appDescriptions: Record<string, string> = {
+    hubspot: 'CRM platform for inbound marketing, sales, and customer service.',
+    salesforce: 'Leading cloud-based CRM software for businesses.',
+    zoho_crm: 'Online CRM software for managing sales, marketing, and support.',
+    pipedrive: 'Sales pipeline and CRM software for teams.',
+    notion: 'All-in-one workspace for notes, docs, and project management.',
+    slack: 'Team communication and collaboration platform.',
+    microsoft_teams: 'Collaboration and video conferencing by Microsoft.',
+    google_drive: 'Cloud storage and file sharing from Google.',
+    gmail: "Google's email service for business and personal use.",
+    outlook: "Microsoft's email and calendar service.",
+    one_drive: "Microsoft's cloud storage solution.",
+    google_sheets: 'Collaborative online spreadsheet from Google.',
+    google_calendar: 'Online calendar and scheduling by Google.',
+    outlook_calendar: 'Calendar and scheduling from Microsoft Outlook.',
+    google_forms: 'Create and analyze surveys and forms online.',
+    trello: 'Visual project management and collaboration tool.',
+    google: 'Google account integration and services.',
+    jira: 'Project and issue tracking for agile teams.',
+    mailchimp: 'Email marketing and automation platform.',
+    linkedin: 'Professional networking and career platform.',
+    activecampaign: 'Customer experience automation and email marketing.',
+    slack_bot: 'Automated Slack bot integration.',
+    calendly: 'Automated scheduling and meeting booking.',
+    monday: 'Work operating system for project management.',
+    people_data_labs: 'B2B data enrichment and people intelligence.',
+    figma: 'Collaborative interface design tool.',
+    microsoft_dynamics_365: 'Business applications for CRM and ERP.',
+    product_hunt: 'Discover and share new products.',
+    whatsapp_business: 'Business messaging on WhatsApp.',
+    clearbit: 'Business intelligence and data enrichment.',
+    zoho_mail: 'Secure business email by Zoho.',
+    invoice_ninja: 'Online invoicing, billing, and payments.',
+    rocket_reach: 'Find email, phone, and social links for professionals.',
+  };
 
   // Use local storage for development to store mock connections
   useEffect(() => {
@@ -252,18 +290,40 @@ export default function ConnectionsPage(): JSX.Element {
           {commonApps.map((app) => (
             <div
               key={app.slug}
-              className="border dark:border-dark-200 p-6 rounded-xl bg-gray-50 dark:bg-dark-100 flex flex-col items-center hover:shadow-lg dark:hover:shadow-neon transition-all duration-200"
+              className="border dark:border-dark-200 p-6 rounded-xl bg-gray-50 dark:bg-dark-100 flex flex-row items-start hover:shadow-lg dark:hover:shadow-neon transition-all duration-200"
             >
-              <h3 className="text-lg font-semibold mb-4 text-dark-50 dark:text-white">
-                {app.name}
-              </h3>
-              <PipedreamConnectButton
-                appSlug={app.slug}
-                onSuccess={(accountId: string) =>
-                  handleConnectionSuccess(accountId, userId, connections, setConnections, commonApps)
-                }
-                onError={onError}
-              />
+              {/* Logo on the left */}
+              <div className="flex-shrink-0 w-14 h-14 flex items-center justify-center mr-4">
+                <Image
+                  src={`/icons/${app.slug.replace(/_.*$/, '')}.svg`}
+                  alt={`${app.name} logo`}
+                  width={48}
+                  height={48}
+                  className="object-contain rounded"
+                  onError={(e) => {
+                    e.currentTarget.src = '/logo.png';
+                  }}
+                />
+              </div>
+              {/* Name, description, and button */}
+              <div className="flex-1 flex flex-col">
+                <h3 className="text-lg font-semibold mb-1 text-dark-50 dark:text-white">
+                  {app.name}
+                </h3>
+                <p className="text-gray-500 dark:text-gray-300 text-sm mb-4 min-h-[36px]">
+                  {appDescriptions[app.slug] || 'Connect your account to automate workflows.'}
+                </p>
+                <div className="mt-auto">
+                  <PipedreamConnectButton
+                    appSlug={app.slug}
+                    buttonText="Connect"
+                    onSuccess={(accountId: string) =>
+                      handleConnectionSuccess(accountId, userId, connections, setConnections, commonApps)
+                    }
+                    onError={onError}
+                  />
+                </div>
+              </div>
             </div>
           ))}
         </div>

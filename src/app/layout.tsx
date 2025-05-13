@@ -8,6 +8,7 @@ import ClientVoiceWrapper from '@/components/ClientVoiceWrapper';
 import { initializeSentry } from '@/lib/monitoring/sentry';
 import { debugScript } from '@/lib/debug-script';
 import '@/styles/globals.css';
+import Footer from '@/components/Footer';
 
 const inter = Inter({ 
   subsets: ['latin'],
@@ -109,6 +110,7 @@ export default function RootLayout({
           {children}
           {/* Voice Agent Widget loaded via client component */}
           <ClientVoiceWrapper />
+          <Footer />
         </RootProviders>
       </body>
     </html>

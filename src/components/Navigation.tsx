@@ -12,26 +12,6 @@ import { useEffect, useState } from 'react';
 import { useThemeStore } from '@/lib/themeStore';
 import { useUserStore } from '@/lib/userStore';
 
-import LanguageSwitcher from './LanguageSwitcher';
-import TranslatedText from './TranslatedText';
-
-
-interface NavigationItem {
-  name: string;
-  href: string;
-  current: boolean;
-  requiresAuth: boolean;
-  children?: NavigationItem[];
-}
-
-interface UserNavItem {
-  name: string;
-  href: string;
-  description?: string;
-  icon?: string;
-  onClick?: () => void;
-}
-
 export default function Navigation() {
   const router = useRouter();
   const pathname = usePathname();
@@ -90,24 +70,78 @@ export default function Navigation() {
     return () => document.removeEventListener('click', handleClickOutside);
   }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
-  // Navigation items based on auth state
+  // New navigation structure with dropdowns
   const navigationItems: NavigationItem[] = [
-    { 
-      name: 'Optiflow',
+    {
+      name: 'Sync',
       href: '#',
-      current: pathname ? ['/pricing', '/faq', '/features', '/conversational-test', '/voice-test', '/integrations'].includes(pathname) : false,
+      current: false,
       requiresAuth: false,
       children: [
         { name: 'Features', href: '/features', current: pathname === '/features', requiresAuth: false },
         { name: 'Pricing', href: '/pricing', current: pathname === '/pricing', requiresAuth: false },
         { name: 'FAQ', href: '/faq', current: pathname === '/faq', requiresAuth: false },
-      ]
+        { name: 'Integrations', href: '/integrations', current: pathname === '/integrations', requiresAuth: false },
+      ],
     },
-    { name: 'Flows', href: '/workflows', current: pathname === '/workflows', requiresAuth: true     },
-    { name: 'Connections', href: '/connections', current: pathname === '/connections', requiresAuth: true     },
-    { name: 'AI Factory', href: '/products/ai-factory', current: pathname === '/products/ai-factory', requiresAuth: false     },
-    { name: 'AI Cademy', href: '/products/aicademy', current: pathname === '/products/aicademy', requiresAuth: false     },
-    { name: 'Enterprise', href: '/enterprise', current: pathname === '/enterprise', requiresAuth: false     },
+    {
+      name: 'Products',
+      href: '#',
+      current: false,
+      requiresAuth: false,
+      children: [
+        { name: 'AI Factory', href: '/products/ai-factory', current: pathname === '/products/ai-factory', requiresAuth: false },
+        { name: 'AIcademy', href: '/products/aicademy', current: pathname === '/products/aicademy', requiresAuth: false },
+      ],
+    },
+    {
+      name: 'Solutions',
+      href: '#',
+      current: false,
+      requiresAuth: false,
+      children: [
+        { name: 'Enterprise', href: '/enterprise', current: pathname === '/enterprise', requiresAuth: false },
+        { name: 'Custom Development', href: '/services/custom-development', current: pathname === '/services/custom-development', requiresAuth: false },
+        { name: 'API Development', href: '/services/api-development', current: pathname === '/services/api-development', requiresAuth: false },
+        { name: 'Security & Compliance', href: '/services/security-compliance', current: pathname === '/services/security-compliance', requiresAuth: false },
+      ],
+    },
+    {
+      name: 'Resources',
+      href: '#',
+      current: false,
+      requiresAuth: false,
+      children: [
+        { name: 'Documentation', href: '/docs', current: pathname === '/docs', requiresAuth: false },
+        { name: 'Blog', href: '/blog', current: pathname === '/blog', requiresAuth: false },
+        { name: 'Community', href: '/help/community', current: pathname === '/help/community', requiresAuth: false },
+        { name: 'Help Center', href: '/help', current: pathname === '/help', requiresAuth: false },
+      ],
+    },
+    {
+      name: 'Company',
+      href: '#',
+      current: false,
+      requiresAuth: false,
+      children: [
+        { name: 'About', href: '/about', current: pathname === '/about', requiresAuth: false },
+        { name: 'Careers', href: '/careers', current: pathname === '/careers', requiresAuth: false },
+        { name: 'Contact', href: '/contact', current: pathname === '/contact', requiresAuth: false },
+      ],
+    },
+    {
+      name: 'Legal',
+      href: '#',
+      current: false,
+      requiresAuth: false,
+      children: [
+        { name: 'Privacy', href: '/privacy', current: pathname === '/privacy', requiresAuth: false },
+        { name: 'Terms', href: '/terms', current: pathname === '/terms', requiresAuth: false },
+        { name: 'Cookies', href: '/cookies', current: pathname === '/cookies', requiresAuth: false },
+        { name: 'Security', href: '/security', current: pathname === '/security', requiresAuth: false },
+        { name: 'Compliance', href: '/compliance', current: pathname === '/compliance', requiresAuth: false },
+      ],
+    },
   ];
 
   const userNavigation: UserNavItem[] = [
@@ -130,6 +164,11 @@ export default function Navigation() {
       href: '/connections/oneflow',
       description: 'Set up Oneflow API integration',
       icon: '📄'
+        },
+    { name: 'Templates',
+      href: '/templates',
+      description: 'Browse and use workflow templates',
+      icon: '📋'
         },
     { name: 'Onboarding AORA1.5',
       href: '/onboarding',
@@ -202,12 +241,20 @@ export default function Navigation() {
   const renderAuthButtons = () => (
     <div className="flex items-center space-x-3">
       <button
+        onClick={() => handleNavigation('/login')}
+        className={`${buttonPadding} text-sm font-medium text-black rounded-full border border-black/10 dark:border-white/10 bg-white/80 dark:bg-black/40 hover:bg-white/90 dark:hover:bg-black/60 transition-all duration-200`}
+        aria-label="Login"
+        title="Login"
+      >
+        Login
+      </button>
+      <button
         onClick={() => handleNavigation('/signup')}
         className={`${buttonPadding} text-sm font-medium text-black rounded-full bg-gradient-to-r from-[#3CDFFF] to-[#4AFFD4] hover:opacity-90 transition-all duration-200`}
         aria-label="Get Started"
         title="Get Started"
       >
-        <TranslatedText textKey="navigation.signup" fallback="Get Started" />
+        Get Started
       </button>
     </div>
   );
@@ -346,7 +393,7 @@ export default function Navigation() {
                         aria-label={`Open ${item.name} menu`}
                         title={`Open ${item.name} menu`}
                       >
-                        <TranslatedText textKey={`navigation.${item.name.toLowerCase()}`} fallback={item.name} />
+                        {item.name}
                         <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
                         </svg>
@@ -367,7 +414,7 @@ export default function Navigation() {
                               aria-label={`Go to ${child.name}`}
                               title={`Go to ${child.name}`}
                             >
-                              <TranslatedText textKey={`navigation.${child.name.toLowerCase()}`} fallback={child.name} />
+                              {child.name}
                             </button>
                           ))}
                         </div>
@@ -385,7 +432,7 @@ export default function Navigation() {
                       aria-label={`Go to ${item.name}`}
                       title={`Go to ${item.name}`}
                     >
-                      <TranslatedText textKey={`navigation.${item.name.toLowerCase()}`} fallback={item.name} />
+                      {item.name}
                     </button>
                   )}
                 </div>
@@ -402,28 +449,13 @@ export default function Navigation() {
                   aria-label="Go to Dashboard"
                   title="Go to Dashboard"
                 >
-                  <TranslatedText textKey="navigation.dashboard" fallback="Dashboard" />
+                  Dashboard
                 </button>
               )}
             </div>
 
             {/* Right Side Navigation */}
             <div className="flex items-center space-x-3">
-              {/* Language Selector */}
-              <LanguageSwitcher />
-
-              {/* Always render auth buttons when user is not logged in, regardless of loading state */}
-              {userLoading ? (
-                // Show nothing while loading
-                null
-              ) : currentUser ? (
-                // User profile avatar and menu
-                renderUserMenu()
-              ) : (
-                // Auth buttons for non-logged in users (always show these when no user)
-                renderAuthButtons()
-              )}
-
               {/* Mobile menu button */}
               <button
                 onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
@@ -474,7 +506,7 @@ export default function Navigation() {
                         title={`Open ${item.name} menu`}
                       >
                         <div className="flex items-center justify-between">
-                          <TranslatedText textKey={`navigation.${item.name.toLowerCase()}`} fallback={item.name} />
+                          {item.name}
                           <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
                           </svg>
@@ -496,7 +528,7 @@ export default function Navigation() {
                             aria-label={`Go to ${child.name}`}
                             title={`Go to ${child.name}`}
                           >
-                            <TranslatedText textKey={`navigation.${child.name.toLowerCase()}`} fallback={child.name} />
+                            {child.name}
                           </button>
                         ))}
                       </div>
@@ -515,7 +547,7 @@ export default function Navigation() {
                       aria-label={`Go to ${item.name}`}
                       title={`Go to ${item.name}`}
                     >
-                      <TranslatedText textKey={`navigation.${item.name.toLowerCase()}`} fallback={item.name} />
+                      {item.name}
                     </button>
                   )}
                 </div>
@@ -534,7 +566,7 @@ export default function Navigation() {
                   aria-label="Go to Dashboard"
                   title="Go to Dashboard"
                 >
-                  <TranslatedText textKey="navigation.dashboard" fallback="Dashboard" />
+                  Dashboard
                 </button>
               )}
               {currentUser && userNavigation.map((item) => (
@@ -583,7 +615,7 @@ export default function Navigation() {
                     aria-label="Get Started"
                     title="Get Started"
                   >
-                    <TranslatedText textKey="navigation.signup" fallback="Get Started" />
+                    Get Started
                   </button>
                 </div>
               )}

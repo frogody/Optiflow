@@ -14,7 +14,6 @@ import TanstackProvider from '@/components/providers/TanstackProvider';
 import { ThemeProvider } from '@/components/providers/theme-provider';
 import { SessionInitializer } from '@/components/SessionInitializer';
 import ErrorBoundaryWrapper from '@/components/ErrorBoundaryWrapper';
-import { initI18n } from '@/lib/i18n';
 import { initializeErrorHandler } from '@/lib/error-handler';
 
 // Import Navigation normally - we'll control rendering with a state flag
@@ -48,10 +47,6 @@ export function RootProviders({ children }: { children: React.ReactNode }) {
         // Initialize error handler first to catch any errors in other initializations
         console.log('Initializing error handler...');
         initializeErrorHandler();
-        
-        // Initialize i18n on client-side
-        console.log('Initializing i18n...');
-        await initI18n();
         
         if (!mounted) return;
 

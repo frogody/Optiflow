@@ -28,7 +28,7 @@ export default function CommunityForum() {
       name: 'General Discussion',
       href: '/help/community/general',
       icon: ChatBubbleLeftRightIcon,
-      description: 'Chat about anything related to Optiflow',
+      description: 'Chat about anything related to Sync',
       topics: 243,
       posts: 1876,
       color: 'text-[#22D3EE] bg-[#022c22]',
@@ -43,10 +43,10 @@ export default function CommunityForum() {
       color: 'text-[#22D3EE] bg-[#022c22]',
     },
     {
-      name: 'Jarvis Voice Agent',
+      name: 'Sync Voice Agent',
       href: '/help/community/voice-agent',
       icon: MicrophoneIcon,
-      description: 'Discussions about Optiflow\'s voice assistant',
+      description: 'Discussions about Sync\'s voice assistant',
       topics: 86,
       posts: 542,
       color: 'text-[#22D3EE] bg-[#022c22]',
@@ -55,7 +55,7 @@ export default function CommunityForum() {
       name: 'Integrations',
       href: '/help/community/integrations',
       icon: PuzzlePieceIcon,
-      description: 'Connecting Optiflow with other services',
+      description: 'Connecting Sync with other services',
       topics: 175,
       posts: 1243,
       color: 'text-[#22D3EE] bg-[#022c22]',
@@ -186,9 +186,9 @@ export default function CommunityForum() {
   return (
     <div>
       <div className="mb-8">
-        <h1 className="text-3xl font-bold text-[#22D3EE] mb-4">Optiflow Community</h1>
+        <h1 className="text-3xl font-bold text-[#22D3EE] mb-4">Sync Community</h1>
         <p className="text-[#9CA3AF] max-w-3xl mb-6">
-          Join conversations with other Optiflow users, share your workflows, ask questions, and get help from the community and Optiflow team.
+          Join conversations with other Sync users, share your workflows, ask questions, and get help from the community and Sync team.
         </p>
         
         {/* Search */}

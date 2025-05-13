@@ -55,7 +55,7 @@ export default function FeaturesPage(): JSX.Element {
     { name: "Sarah Chen",
       role: "Head of Operations at TechFlow",
       image: "/testimonials/sarah-chen.jpg",
-      quote: "Optiflow has transformed how we handle our daily operations. The automation capabilities have saved us countless hours of manual work.",
+      quote: "Sync has transformed how we handle our daily operations. The automation capabilities have saved us countless hours of manual work.",
       company: "TechFlow Solutions"
         },
     { name: "Marcus Rodriguez",
@@ -158,32 +158,28 @@ export default function FeaturesPage(): JSX.Element {
 
   return (
     <div className="min-h-screen text-white" style={{ background: 'linear-gradient(to bottom, #000000, #0A0A0A)'     }}>
-      {/* Hero Section */}
-      <section className="relative pt-32 pb-24 overflow-hidden">
-        {/* Glow Effects */}
-        <div className="absolute w-[400px] h-[400px] rounded-full left-1/4 top-1/4 bg-[#3CDFFF] opacity-10 blur-[120px]"></div>
-        <div className="absolute w-[400px] h-[400px] rounded-full right-1/4 bottom-1/3 bg-[#4AFFD4] opacity-10 blur-[120px]"></div>
-        
-        <div className="container mx-auto px-4 text-center relative z-10">
-          <motion.div
-            initial={{ opacity: 0, y: 30     }}
-            animate={{ opacity: 1, y: 0     }}
-            transition={{ duration: 0.8     }}
-            className="max-w-4xl mx-auto"
-          >
-            <h1 className="text-5xl md:text-6xl lg:text-7xl font-bold mb-8 tracking-tight">
-              Powerful Features for{" "}
-              <span className="bg-gradient-to-r from-[#3CDFFF] to-[#4AFFD4] text-transparent bg-clip-text">
-                Seamless Automation
-              </span>
-            </h1>
-            
-            <p className="text-xl md:text-2xl text-gray-300 mb-12 max-w-3xl mx-auto leading-relaxed">
-              Discover how our platform can transform your workflow automation with these powerful capabilities.
-            </p>
-          </motion.div>
-        </div>
-      </section>
+      {/* Glow Effects */}
+      <div className="absolute w-[400px] h-[400px] rounded-full left-1/4 top-1/4 bg-[#3CDFFF] opacity-10 blur-[120px]"></div>
+      <div className="absolute w-[400px] h-[400px] rounded-full right-1/4 bottom-1/3 bg-[#4AFFD4] opacity-10 blur-[120px]"></div>
+      <div className="container mx-auto px-4 text-center relative z-10">
+        <motion.div
+          initial={{ opacity: 0, y: 30     }}
+          animate={{ opacity: 1, y: 0     }}
+          transition={{ duration: 0.8     }}
+          className="max-w-4xl mx-auto"
+        >
+          <h1 className="text-5xl md:text-6xl lg:text-7xl font-bold mb-8 tracking-tight">
+            Powerful Features for{" "}
+            <span className="bg-gradient-to-r from-[#3CDFFF] to-[#4AFFD4] text-transparent bg-clip-text">
+              Seamless Automation
+            </span>
+          </h1>
+          
+          <p className="text-xl md:text-2xl text-gray-300 mb-12 max-w-3xl mx-auto leading-relaxed">
+            Discover how our platform can transform your workflow automation with these powerful capabilities.
+          </p>
+        </motion.div>
+      </div>
       
       {/* Features Grid */}
       <section className="py-24">
@@ -232,7 +228,7 @@ export default function FeaturesPage(): JSX.Element {
               Trusted by Industry <span className="bg-gradient-to-r from-[#3CDFFF] to-[#4AFFD4] text-transparent bg-clip-text">Leaders</span>
             </h2>
             <p className="text-xl text-gray-300 max-w-3xl mx-auto">
-              See how professionals across different industries are transforming their workflows with Optiflow.
+              See how professionals across different industries are transforming their workflows with Sync.
             </p>
           </motion.div>
 
@@ -353,7 +349,7 @@ export default function FeaturesPage(): JSX.Element {
               Customer <span className="bg-gradient-to-r from-[#3CDFFF] to-[#4AFFD4] text-transparent bg-clip-text">Success Stories</span>
             </h2>
             <p className="text-xl text-gray-300 max-w-3xl mx-auto">
-              Discover how our customers are achieving remarkable results with Optiflow.
+              Discover how our customers are achieving remarkable results with Sync.
             </p>
           </motion.div>
 
@@ -375,7 +371,7 @@ export default function FeaturesPage(): JSX.Element {
                 </div>
               </div>
               <p className="text-gray-300 leading-relaxed group-hover:text-white transition-colors duration-300">
-                "By implementing Optiflow's automation solutions, we reduced manual work by 75% and improved our team's productivity significantly."
+                "By implementing Sync's automation solutions, we reduced manual work by 75% and improved our team's productivity significantly."
               </p>
             </motion.div>
 
@@ -396,7 +392,7 @@ export default function FeaturesPage(): JSX.Element {
                 </div>
               </div>
               <p className="text-gray-300 leading-relaxed group-hover:text-white transition-colors duration-300">
-                "Our deployment process is now 3x faster thanks to Optiflow's streamlined workflows and automation capabilities."
+                "Our deployment process is now 3x faster thanks to Sync's streamlined workflows and automation capabilities."
               </p>
             </motion.div>
           </div>

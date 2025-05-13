@@ -19,7 +19,7 @@ export default function CookiePolicyPage() {
           <div className="mb-10">
             <h2 className="text-xl font-semibold text-[#22D3EE] mb-4">1. Introduction</h2>
             <p className="text-[#E5E7EB] mb-4">
-              This Cookie Policy explains how Optiflow, Inc. ("Optiflow," "we," "our," or "us") uses cookies and similar technologies when you visit our website, applications, or other online services (collectively, the "Services").
+              This Cookie Policy explains how Sync, Inc. ("Sync," "we," "our," or "us") uses cookies and similar technologies when you visit our website, applications, or other online services (collectively, the "Services").
             </p>
             <p className="text-[#E5E7EB] mb-4">
               By using our Services, you consent to our use of cookies and similar technologies in accordance with this Cookie Policy and our <Link href="/privacy" className="text-[#22D3EE] hover:text-[#06B6D4]">Privacy Policy</Link>.
@@ -207,11 +207,11 @@ export default function CookiePolicyPage() {
               If you have any questions or concerns about our use of cookies or this Cookie Policy, please contact us at:
             </p>
             <div className="text-[#E5E7EB]">
-              <p>Optiflow, Inc.</p>
+              <p>Sync, Inc.</p>
               <p>Attn: Privacy Officer</p>
               <p>1234 Innovation Way</p>
               <p>San Francisco, CA 94107</p>
-              <p>privacy@optiflow.com</p>
+              <p>privacy@sync.com</p>
             </div>
           </div>
         </div>

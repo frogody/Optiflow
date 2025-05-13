@@ -76,7 +76,7 @@ const AuroraEffect = () => {
 
 // Enhanced gradient orb component
 const GradientOrb = ({ delay = 0, size = 600, color = 'blue' }) => {
-  const gradients = { blue: 'from-[#3CDFFF]/20 to-[#4AFFD4]/20',
+  const gradients: { [key: string]: string } = { blue: 'from-[#3CDFFF]/20 to-[#4AFFD4]/20',
     purple: 'from-[#4AFFD4]/20 to-[#3CDFFF]/20',
     mixed: 'from-[#3CDFFF]/20 via-[#4AFFD4]/20 to-[#3CDFFF]/20'
       };
@@ -118,8 +118,21 @@ const CREDIT_RANGES = {
   enterprise: { min: 5000, max: 50000, default: 10000 }
 };
 
-// Updated plan features with clearer structure
-const planFeatures = {
+// Updated plan features with clearer structure and proper typing
+interface PlanFeature {
+  name: string;
+  included: boolean;
+  limit?: string;
+  retention?: string;
+  highlight?: boolean;
+  extra?: boolean;
+}
+
+interface PlanFeatures {
+  [key: string]: PlanFeature[];
+}
+
+const planFeatures: PlanFeatures = {
   core: [
     { name: "Workflow Automation", included: true, limit: "Basic workflows" },
     { name: "Third-party Integrations", included: true, limit: "15 integrations" },
@@ -164,7 +177,7 @@ const planFeatures = {
 const creditConsumption = [
   { action: "Standard workflow execution", credits: 1, description: "Each time a workflow runs" },
   { action: "API call", credits: 2, description: "External API calls within workflows" },
-  { action: "Voice command processing", credits: 5, description: "Each voice interaction with Jarvis" },
+  { action: "Voice command processing", credits: 5, description: "Each voice interaction with Sync" },
   { action: "Data processing (per GB)", credits: 10, description: "Processing large datasets" },
   { action: "AI-powered analysis", credits: 15, description: "Using AI to analyze or generate content" },
 ];
@@ -173,7 +186,7 @@ const creditConsumption = [
 const faqs = [
   {
     question: "How does the credit system work?",
-    answer: "Credits are Optiflow's resource currency. Each credit costs €0.07 and is consumed when you use platform resources like workflow executions, API calls, or voice processing. You can adjust the number of credits in your plan at any time using the slider to match your exact usage needs."
+    answer: "Credits are Sync's resource currency. Each credit costs €0.07 and is consumed when you use platform resources like workflow executions, API calls, or voice processing. You can adjust the number of credits in your plan at any time using the slider to match your exact usage needs."
   },
   {
     question: "What happens if I use all my credits?",
@@ -232,9 +245,12 @@ export default function PricingPage(): JSX.Element {
   };
 
   return (
-    <div ref={containerRef} className="min-h-screen bg-black text-white relative overflow-hidden">
-      {/* Add custom styles for sliders */}
-      <style jsx global>{sliderStyles}</style>
+    <div className="min-h-screen text-white bg-[#111111] relative overflow-x-hidden">
+      {/* Animated Gradient Backgrounds */}
+      <div className="absolute inset-0 z-0 pointer-events-none">
+        <div className="absolute w-[700px] h-[700px] left-1/4 top-0 bg-gradient-to-br from-[#3CDFFF]/20 to-[#4AFFD4]/10 rounded-full blur-[180px] animate-pulse" />
+        <div className="absolute w-[600px] h-[600px] right-1/4 bottom-0 bg-gradient-to-br from-purple-500/20 to-indigo-500/10 rounded-full blur-[160px] animate-pulse" style={{ animationDelay: '2s' }} />
+      </div>
       
       {/* Enhanced Dynamic Background */}
       <motion.div 
@@ -393,7 +409,7 @@ export default function PricingPage(): JSX.Element {
               {/* Feature List */}
               <div className="mb-8 p-4 rounded-xl bg-white/5 border border-white/10">
                 <ul className="space-y-3">
-                  {planFeatures.core.map((feature, idx) => (
+                  {planFeatures['core']?.map((feature, idx) => (
                     <li
                       key={idx}
                       className={`flex items-start ${
@@ -503,7 +519,7 @@ export default function PricingPage(): JSX.Element {
               {/* Feature List */}
               <div className="mb-8 p-4 rounded-xl bg-white/5 border border-white/10">
                 <ul className="space-y-3">
-                  {planFeatures.pro.map((feature, idx) => (
+                  {planFeatures['pro']?.map((feature, idx) => (
                     <li
                       key={idx}
                       className={`flex items-start ${
@@ -609,7 +625,7 @@ export default function PricingPage(): JSX.Element {
               {/* Feature List */}
               <div className="mb-8 p-4 rounded-xl bg-white/5 border border-white/10">
                 <ul className="space-y-3">
-                  {planFeatures.enterprise.map((feature, idx) => (
+                  {planFeatures['enterprise']?.map((feature, idx) => (
                     <li
                       key={idx}
                       className={`flex items-start ${

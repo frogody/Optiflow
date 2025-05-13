@@ -141,9 +141,15 @@ const timelineEvents = [
 
 export default function AboutPage() {
   return (
-    <div className="bg-[#111111] text-[#E5E7EB]">
+    <div className="min-h-screen text-white bg-[#111111] relative overflow-x-hidden">
+      {/* Animated Gradient Backgrounds */}
+      <div className="absolute inset-0 z-0 pointer-events-none">
+        <div className="absolute w-[700px] h-[700px] left-1/4 top-0 bg-gradient-to-br from-[#3CDFFF]/20 to-[#4AFFD4]/10 rounded-full blur-[180px] animate-pulse" />
+        <div className="absolute w-[600px] h-[600px] right-1/4 bottom-0 bg-gradient-to-br from-purple-500/20 to-indigo-500/10 rounded-full blur-[160px] animate-pulse" style={{ animationDelay: '2s' }} />
+      </div>
+      
       {/* Hero Section */}
-      <section className="relative py-16 md:py-24 overflow-hidden">
+      <section className="relative py-24 overflow-hidden z-10">
         <div className="absolute inset-0 z-0 opacity-10">
           <Image 
             src="/images/circuit-pattern.png" 
@@ -155,8 +161,8 @@ export default function AboutPage() {
         
         <div className="container mx-auto px-4 relative z-10">
           <div className="max-w-4xl mx-auto text-center">
-            <h1 className="text-4xl md:text-5xl font-bold mb-6 text-[#22D3EE]">
-              Our Mission Is to <span className="text-white">Empower Everyone</span> With Automation
+            <h1 className="text-6xl md:text-7xl lg:text-8xl font-bold mb-8 tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-white via-[#3CDFFF] to-white animate-gradient bg-300%">
+              Our Mission Is to <span className="bg-gradient-to-r from-[#3CDFFF] via-[#4AFFD4] to-[#3CDFFF] text-transparent bg-clip-text animate-gradient bg-300%">Empower Everyone</span> With Automation
             </h1>
             
             <p className="text-xl text-[#9CA3AF] mb-8">

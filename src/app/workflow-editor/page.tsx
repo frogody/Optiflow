@@ -594,7 +594,7 @@ function WorkflowEditorContent() {
   }, [nodes, edges, settings]);
 
   return (
-    <div className="h-screen flex flex-col">
+    <div className="h-screen flex flex-col pb-24">
       <WorkflowHeader 
         workflowName={settings.name}
         onOpenSettings={() => setShowSettings(true)}

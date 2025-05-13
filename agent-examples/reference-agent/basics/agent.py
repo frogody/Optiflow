@@ -19,7 +19,7 @@ logging.basicConfig(
 logger = logging.getLogger('voice-agent')
 
 # Get environment variables with defaults for Optiflow
-LIVEKIT_URL = os.environ.get("LIVEKIT_URL", "wss://isyncsosync-p1slrjy.livekit.cloud")
+LIVEKIT_WS_URL = os.environ.get("LIVEKIT_WS_URL", "wss://isyncsosync-p1slrjy.livekit.cloud")
 LIVEKIT_API_KEY = os.environ.get("LIVEKIT_API_KEY", "APIcPGS63mCxqbP")
 LIVEKIT_API_SECRET = os.environ.get("LIVEKIT_API_SECRET", "AxD4cT19ffntf1YXfDQDZmbzkj3VwdMiqWlcVbPLgyEB")
 OPENAI_API_KEY = os.environ.get("OPENAI_API_KEY")
@@ -110,7 +110,7 @@ async def main():
             try:
                 logger.info(f"Creating agent (attempt {retry_count+1}/{max_retries})...")
                 agent = VoiceAgent.create_voice_response_agent(
-                    url=LIVEKIT_URL,
+                    url=LIVEKIT_WS_URL,
                     api_key=LIVEKIT_API_KEY,
                     api_secret=LIVEKIT_API_SECRET,
                     identity="optiflow-agent",
@@ -161,7 +161,7 @@ async def main():
 if __name__ == "__main__":
     try:
         # Run the agent
-        logger.info(f"Starting LiveKit voice agent with URL: {LIVEKIT_URL}")
+        logger.info(f"Starting LiveKit voice agent with URL: {LIVEKIT_WS_URL}")
         logger.info(f"Room name: {LIVEKIT_ROOM}")
         asyncio.run(main())
     except KeyboardInterrupt:

@@ -28,7 +28,7 @@ export default function HelpCenter() {
       name: 'Getting Started',
       href: '/help/getting-started',
       icon: RocketLaunchIcon,
-      description: 'Learn the basics of Optiflow and set up your account',
+      description: 'Learn the basics of Sync and set up your account',
     },
     {
       name: 'Workflows',
@@ -111,7 +111,7 @@ export default function HelpCenter() {
       date: 'Updated 4 days ago',
     },
     {
-      title: 'Understanding Optiflow Rate Limits',
+      title: 'Understanding Sync Rate Limits',
       href: '/help/api/rate-limits',
       date: 'Updated 1 week ago',
     },
@@ -138,9 +138,9 @@ export default function HelpCenter() {
     <div>
       {/* Hero section with main search */}
       <div className="text-center mb-10">
-        <h1 className="text-3xl font-bold text-[#22D3EE] mb-4">Optiflow Help Center</h1>
+        <h1 className="text-3xl font-bold text-[#22D3EE] mb-4">Sync Help Center</h1>
         <p className="text-xl text-[#9CA3AF] max-w-2xl mx-auto mb-8">
-          Find guides, tutorials, and answers to help you get the most out of Optiflow
+          Find guides, tutorials, and answers to help you get the most out of Sync
         </p>
         
         <form onSubmit={handleSearch} className="max-w-2xl mx-auto">
@@ -202,7 +202,7 @@ export default function HelpCenter() {
         </Link>
         
         <Link 
-          href="https://status.optiflow.com" 
+          href="https://status.sync.com" 
           className="flex flex-col items-center p-6 bg-[#111111] border border-[#374151] rounded-lg hover:border-[#22D3EE] transition-colors"
           target="_blank"
         >
@@ -352,7 +352,7 @@ export default function HelpCenter() {
       <div className="mt-12 bg-gradient-to-r from-[#134e4a] to-[#1e1b4b] rounded-lg p-8 text-center">
         <h2 className="text-2xl font-bold text-white mb-4">Join Our Community</h2>
         <p className="text-[#D1D5DB] mb-6 max-w-2xl mx-auto">
-          Connect with other Optiflow users, share your workflows, and get help from the community.
+          Connect with other Sync users, share your workflows, and get help from the community.
         </p>
         <Link
           href="/help/community"

@@ -4,11 +4,6 @@ import { SessionProvider, useSession } from 'next-auth/react';
 import { useEffect, useRef, useState } from 'react';
 import dynamic from 'next/dynamic';
 
-// Import custom i18n setup
-import '../lib/i18n';
-import { appWithTranslation } from 'next-i18next';
-import nextI18NextConfig from '../../next-i18next.config.cjs';
-
 // Dynamically import VoiceOrb to ensure it only loads client-side
 const VoiceOrb = dynamic(() => import('../components/VoiceOrb'), {
   ssr: false,
@@ -134,4 +129,4 @@ function MyApp(props: AppProps) {
   );
 }
 
-export default appWithTranslation(MyApp, nextI18NextConfig);
+export default MyApp;

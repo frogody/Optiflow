@@ -1,14 +1,13 @@
 'use client';
 
-import { useEffect, useState } from 'react';
-import Link from 'next/link';
-import { ArrowRightIcon, CheckCircleIcon, PlayCircleIcon } from '@heroicons/react/24/outline';
+import { ArrowRightIcon, CheckCircleIcon, PlayCircleIcon, MicrophoneIcon } from '@heroicons/react/24/outline';
 import { motion } from 'framer-motion';
 import dynamic from 'next/dynamic';
-
-// Dynamically import components that could cause hydration issues
-const Image = dynamic(() => import('next/image'), { ssr: false });
+import Image from 'next/image';
+import Link from 'next/link';
+import { useEffect, useState } from 'react';
 const MotionDiv = dynamic(() => import('framer-motion').then((mod) => mod.motion.div), { ssr: false });
+const VoiceAgentInterface = dynamic(() => import('../components/voice/VoiceAgentInterface'), { ssr: false });
 
 // Define animation variants
 const fadeIn = {
@@ -27,9 +26,9 @@ const fadeIn = {
 
 // Hero section data
 const hero = {
-  title: "The Automation Platform For Your Workflow",
+  title: "Your AI Sidekick To Get Sh*t done.",
   subtitle: "Connect your favorite tools, automate your workflows, and boost productivity with our AI-powered orchestration platform.",
-  highlightWords: ["Automation", "Workflow", "AI-powered"]
+  highlightWords: [] // No highlights for new hero text
 };
 
 // Persona-specific value props
@@ -122,8 +121,9 @@ const features = [
   }
 ];
 
-export default function HomePage() {
+function HomePage() {
   const [mounted, setMounted] = useState(false);
+  const [showVoiceSection, setShowVoiceSection] = useState(false);
   
   // Only run on client-side
   useEffect(() => {
@@ -131,21 +131,9 @@ export default function HomePage() {
   }, []);
 
   // Function to highlight specific words in the hero title
-  const renderHighlightedTitle = (title) => {
-    const words = title.split(" ");
-    return (
-      <>
-        {words.map((word, i) => {
-          const shouldHighlight = hero.highlightWords.some(hw => word.includes(hw));
-          return (
-            <span key={i} className={shouldHighlight ? "text-transparent bg-clip-text bg-gradient-to-r from-[#3CDFFF] to-[#4AFFD4]" : "text-white"}>
-              {word}{" "}
-            </span>
-          );
-        })}
-      </>
-    );
-  };
+  const renderHighlightedTitle = (title: string) => (
+    <span>{title}</span>
+  );
 
   return (
     <div className="min-h-screen flex flex-col bg-[#111111] overflow-hidden">
@@ -172,13 +160,13 @@ export default function HomePage() {
                 className="flex justify-center mb-6"
               >
                 <span className="inline-flex items-center bg-white/5 backdrop-blur-sm text-[#4AFFD4] px-5 py-2 rounded-full text-sm font-medium border border-white/10">
-                  <CheckCircleIcon className="h-5 w-5 mr-2" /> Trusted by 10,000+ teams
+                  <CheckCircleIcon className="h-5 w-5 mr-2" /> All at the tip of your tongue
                 </span>
               </MotionDiv>
             ) : (
               <div className="flex justify-center mb-6">
                 <span className="inline-flex items-center bg-white/5 backdrop-blur-sm text-[#4AFFD4] px-5 py-2 rounded-full text-sm font-medium border border-white/10">
-                  <CheckCircleIcon className="h-5 w-5 mr-2" /> Trusted by 10,000+ teams
+                  <CheckCircleIcon className="h-5 w-5 mr-2" /> All at the tip of your tongue
                 </span>
               </div>
             )}
@@ -190,11 +178,10 @@ export default function HomePage() {
                   initial={{ opacity: 0, y: 30 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.8, delay: 0.3 }}
-                  className="text-5xl md:text-6xl lg:text-7xl font-bold mb-6 tracking-tight"
+                  className="mb-8 text-6xl md:text-8xl font-bold tracking-tight"
                 >
                   {renderHighlightedTitle(hero.title)}
                 </MotionDiv>
-
                 <MotionDiv
                   initial={{ opacity: 0, y: 30 }}
                   animate={{ opacity: 1, y: 0 }}
@@ -206,7 +193,7 @@ export default function HomePage() {
               </>
             ) : (
               <>
-                <h1 className="text-5xl md:text-6xl lg:text-7xl font-bold mb-6 tracking-tight">
+                <h1 className="mb-8 text-6xl md:text-8xl font-bold tracking-tight">
                   {renderHighlightedTitle(hero.title)}
                 </h1>
                 <p className="text-xl md:text-2xl text-gray-300 mb-10 max-w-3xl mx-auto">
@@ -221,7 +208,7 @@ export default function HomePage() {
                 initial={{ opacity: 0, y: 30 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.7, delay: 0.7 }}
-                className="flex flex-wrap justify-center gap-5 mb-16"
+                className="flex flex-wrap justify-center gap-5 mb-8"
               >
                 <Link
                   href="/signup"
@@ -230,15 +217,16 @@ export default function HomePage() {
                   Get Started
                   <ArrowRightIcon className="ml-2 h-5 w-5" />
                 </Link>
-                <Link
-                  href="/demo"
-                  className="px-8 py-3.5 border-2 border-[#3CDFFF] text-[#3CDFFF] font-semibold rounded-lg hover:bg-[#3CDFFF]/10 transition-all duration-300 text-lg flex items-center"
+                <button
+                  type="button"
+                  onClick={() => setShowVoiceSection((v) => !v)}
+                  className="px-8 py-3.5 border-2 border-[#3CDFFF] text-[#3CDFFF] font-semibold rounded-lg hover:bg-[#3CDFFF]/10 transition-all duration-300 text-lg flex items-center focus:outline-none focus:ring-2 focus:ring-[#3CDFFF]/50"
                 >
-                  <PlayCircleIcon className="h-5 w-5 mr-2" /> Watch Demo
-                </Link>
+                  <MicrophoneIcon className="h-5 w-5 mr-2" /> Talk to Sync
+                </button>
               </MotionDiv>
             ) : (
-              <div className="flex flex-wrap justify-center gap-5 mb-16">
+              <div className="flex flex-wrap justify-center gap-5 mb-8">
                 <Link
                   href="/signup"
                   className="px-8 py-3.5 bg-gradient-to-r from-[#3CDFFF] to-[#4AFFD4] text-black font-semibold rounded-lg hover:shadow-glow-cyan transition-all duration-300 text-lg flex items-center"
@@ -246,14 +234,29 @@ export default function HomePage() {
                   Get Started
                   <ArrowRightIcon className="ml-2 h-5 w-5" />
                 </Link>
-                <Link
-                  href="/demo"
-                  className="px-8 py-3.5 border-2 border-[#3CDFFF] text-[#3CDFFF] font-semibold rounded-lg hover:bg-[#3CDFFF]/10 transition-all duration-300 text-lg flex items-center"
+                <button
+                  type="button"
+                  onClick={() => setShowVoiceSection((v) => !v)}
+                  className="px-8 py-3.5 border-2 border-[#3CDFFF] text-[#3CDFFF] font-semibold rounded-lg hover:bg-[#3CDFFF]/10 transition-all duration-300 text-lg flex items-center focus:outline-none focus:ring-2 focus:ring-[#3CDFFF]/50"
                 >
-                  <PlayCircleIcon className="h-5 w-5 mr-2" /> Watch Demo
-                </Link>
+                  <MicrophoneIcon className="h-5 w-5 mr-2" /> Talk to Sync
+                </button>
               </div>
             )}
+
+            {/* Slide-down Voice Visualizer Section */}
+            <div
+              className={`overflow-hidden transition-all duration-700 ${showVoiceSection ? 'max-h-[600px] opacity-100 mt-4' : 'max-h-0 opacity-0'} flex justify-center`}
+              style={{ background: 'linear-gradient(90deg, #18181B 60%, #23243a 100%)', borderRadius: '1.5rem' }}
+            >
+              {showVoiceSection && mounted && (
+                <div className="w-full py-6 flex justify-center items-center">
+                  <div className="w-full">
+                    <VoiceAgentInterface className="w-full" />
+                  </div>
+                </div>
+              )}
+            </div>
 
             {/* Integration Logos */}
             {mounted && (
@@ -564,4 +567,6 @@ export default function HomePage() {
       </section>
     </div>
   );
-} 
+}
+
+export default HomePage; 
