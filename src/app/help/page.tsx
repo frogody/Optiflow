@@ -1,5 +1,6 @@
 'use client';
 
+import { useState } from 'react';
 import {
   ArrowRightIcon,
   BookOpenIcon,
@@ -17,7 +18,6 @@ import {
 import { BookmarkIcon } from '@heroicons/react/24/solid';
 import Image from 'next/image';
 import Link from 'next/link';
-import { useState } from 'react';
 
 export default function HelpCenter() {
   const [searchQuery, setSearchQuery] = useState('');
