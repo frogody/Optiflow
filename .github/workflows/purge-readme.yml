@@ -1,0 +1,17 @@
+name: Purge README Cache
+on: push
+
+jobs:
+  purge-readme:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+        
+      - name: Purge README cache
+        uses: wow-actions/purge-readme@v1
+        with:
+          repo: frogody/Optiflow
+          paths: |
+            README.md
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} 
