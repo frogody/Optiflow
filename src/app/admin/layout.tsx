@@ -45,6 +45,7 @@ export default function AdminLayout({
   const navigationItems = [
     { name: 'Dashboard', href: '/admin', icon: ChartBarIcon },
     { name: 'User Management', href: '/admin/users', icon: UsersIcon },
+    { name: 'Beta Requests', href: '/admin/beta-requests', icon: FlagIcon },
     { name: 'Workflows', href: '/admin/workflows', icon: CogIcon },
     { name: 'Integrations', href: '/admin/integrations', icon: ServerIcon },
     { name: 'Billing', href: '/admin/billing', icon: CreditCardIcon },

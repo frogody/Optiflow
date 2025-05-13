@@ -60,10 +60,66 @@ export default function Signup(): JSX.Element {
     }
   });
 
+  // Add invite code form field and verification
+  const [inviteCode, setInviteCode] = useState('');
+  const [isInviteCodeValid, setIsInviteCodeValid] = useState(false);
+  const [inviteCodeError, setInviteCodeError] = useState('');
+  const [isVerifyingCode, setIsVerifyingCode] = useState(false);
+
+  // Function to verify invite code
+  const verifyInviteCode = async () => {
+    if (!inviteCode.trim()) {
+      setInviteCodeError('Invite code is required');
+      return;
+    }
+    
+    setIsVerifyingCode(true);
+    setInviteCodeError('');
+    
+    try {
+      const response = await fetch('/api/beta-access/verify-invite', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ inviteCode }),
+      });
+      
+      const data = await response.json();
+      
+      if (!response.ok || !data.valid) {
+        setIsInviteCodeValid(false);
+        setInviteCodeError(data.error || 'Invalid invite code');
+        return;
+      }
+      
+      // If valid, set the user's details from the beta application
+      setIsInviteCodeValid(true);
+      setFormData({
+        ...formData,
+        email: data.email || formData.email,
+        name: data.firstName && data.lastName 
+          ? `${data.firstName} ${data.lastName}` 
+          : formData.name,
+      });
+    } catch (error) {
+      setIsInviteCodeValid(false);
+      setInviteCodeError('Failed to verify invite code');
+      console.error('Invite code verification error:', error);
+    } finally {
+      setIsVerifyingCode(false);
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
     setError('');
+
+    // Check if invite code is verified
+    if (!isInviteCodeValid) {
+      setError('Please verify your invite code first');
+      setIsLoading(false);
+      return;
+    }
 
     // Check if passwords match
     if (formData.password !== formData.confirmPassword) {
@@ -75,13 +131,13 @@ export default function Signup(): JSX.Element {
     try {
       const response = await fetch('/api/auth/register', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json',
-            },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-  email: formData.email,
+          email: formData.email,
           password: formData.password,
           name: formData.name || undefined,
-            }),
+          inviteCode, // Include invite code in registration
+        }),
       });
 
       const data = await response.json();
@@ -223,6 +279,54 @@ export default function Signup(): JSX.Element {
               {!isEmailVerificationSent ? (
                 <>
                   <form className="space-y-6" onSubmit={handleSubmit}>
+                    <div>
+                      <label htmlFor="invite-code" className="block text-sm font-medium text-[#9CA3AF]">
+                        Invite Code <span className="text-[#F87171]">*</span>
+                      </label>
+                      <div className="mt-1 relative">
+                        <input
+                          id="invite-code"
+                          name="invite-code"
+                          type="text"
+                          value={inviteCode}
+                          onChange={(e) => setInviteCode(e.target.value)}
+                          className={`block w-full px-3 py-2 bg-[#111111] border ${
+                            inviteCodeError ? 'border-[#F87171]' : isInviteCodeValid ? 'border-[#10B981]' : 'border-[#374151]'
+                          } rounded-md text-[#E5E7EB] focus:outline-none focus:ring-2 focus:ring-[#22D3EE] focus:border-transparent`}
+                          placeholder="Enter your invite code"
+                          aria-label="Your invite code"
+                          title="Your invite code"
+                          required
+                        />
+                        {isInviteCodeValid && (
+                          <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
+                            <CheckCircleIcon className="h-5 w-5 text-[#10B981]" aria-hidden="true" />
+                          </div>
+                        )}
+                      </div>
+                      {inviteCodeError && (
+                        <p className="mt-1 text-sm text-[#F87171]">{inviteCodeError}</p>
+                      )}
+                      {!isInviteCodeValid && !inviteCodeError && (
+                        <div className="mt-2 flex justify-end">
+                          <button
+                            type="button"
+                            className="text-sm text-[#22D3EE] hover:text-[#06B6D4] font-medium"
+                            onClick={verifyInviteCode}
+                            disabled={isVerifyingCode || !inviteCode}
+                          >
+                            {isVerifyingCode ? 'Verifying...' : 'Verify Invite Code'}
+                          </button>
+                        </div>
+                      )}
+                      {isInviteCodeValid && (
+                        <p className="mt-1 text-sm text-[#10B981] flex items-center">
+                          <CheckCircleIcon className="h-4 w-4 mr-1" />
+                          Invite code verified successfully
+                        </p>
+                      )}
+                    </div>
+
                     <div>
                       <label htmlFor="full-name" className="block text-sm font-medium text-[#9CA3AF]">
                         Full Name

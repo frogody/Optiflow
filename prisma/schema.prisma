@@ -518,3 +518,28 @@ model PipedreamConnection {
 
   @@unique([userId, service])
 }
+
+model BetaAccessRequest {
+  id              String    @id @default(uuid())
+  firstName       String
+  lastName        String
+  email           String    @unique
+  companyName     String
+  companyWebsite  String
+  companySize     String
+  industry        String
+  isAiConsultant  Boolean   @default(false)
+  useCase         String
+  additionalInfo  String
+  status          String    @default("PENDING") // PENDING, APPROVED, REJECTED
+  requestDate     DateTime  @default(now())
+  approvalDate    DateTime?
+  rejectionDate   DateTime?
+  inviteCode      String?   @unique
+  inviteCodeUsed  Boolean   @default(false)
+  adminNotes      String?
+  
+  @@index([status])
+  @@index([isAiConsultant])
+  @@map("beta_access_requests")
+}

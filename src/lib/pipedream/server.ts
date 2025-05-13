@@ -277,4 +277,53 @@ export async function deleteAccount(accountId: string) {
     console.error(`Error deleting account ${accountId}:`, error);
     throw error;
   }
+}
+
+/**
+ * Execute a Pipedream workflow with the provided payload
+ * 
+ * @param options Object containing workflowKey and payload
+ * @returns The workflow execution result
+ */
+export async function executeWorkflow({ 
+  workflowKey, 
+  payload 
+}: { 
+  workflowKey: string; 
+  payload: Record<string, any>;
+}): Promise<any> {
+  if (!workflowKey) {
+    throw new Error("Workflow key is required");
+  }
+
+  try {
+    const client = ensureClient();
+    
+    // Attempt to find the workflow ID by key
+    const workflowId = process.env[`PIPEDREAM_WORKFLOW_${workflowKey.toUpperCase()}`];
+    
+    if (!workflowId) {
+      console.warn(`No workflow ID found for key: ${workflowKey}`);
+      
+      // For development, return a mock response
+      if (process.env.NODE_ENV === 'development') {
+        console.log(`[DEV] Mock execution of workflow ${workflowKey} with payload:`, payload);
+        return { success: true, mockId: `mock-${Date.now()}` };
+      }
+      
+      throw new Error(`Workflow not configured: ${workflowKey}`);
+    }
+    
+    console.log(`Executing workflow ${workflowKey} (${workflowId}) with payload:`, 
+      JSON.stringify(payload, null, 2).substring(0, 500) + (JSON.stringify(payload).length > 500 ? '...' : ''));
+    
+    // Execute the workflow
+    const result = await client.executeWorkflow(workflowId, payload);
+    
+    console.log(`Workflow ${workflowKey} execution result:`, result);
+    return result;
+  } catch (error) {
+    console.error(`Error executing workflow ${workflowKey}:`, error);
+    throw error;
+  }
 } 
