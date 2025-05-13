@@ -60,7 +60,14 @@ const VoiceAgentInterface: React.FC<VoiceAgentInterfaceProps> = ({ className }) 
     
     // First, dispatch the agent to the room
     try {
-      const dispatchResponse = await fetch('/api/livekit/dispatch', {
+      // Use debug endpoint in development if not authenticated
+      const dispatchEndpoint = process.env.NODE_ENV === 'development' && !session?.user?.id 
+        ? '/api/livekit/debug-dispatch' 
+        : '/api/livekit/dispatch';
+      
+      console.log(`Using dispatch endpoint: ${dispatchEndpoint}`);
+      
+      const dispatchResponse = await fetch(dispatchEndpoint, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ roomName: generatedRoomName, userId })
@@ -83,7 +90,14 @@ const VoiceAgentInterface: React.FC<VoiceAgentInterfaceProps> = ({ className }) 
     let token = '';
     let livekitUrl = '';
     try {
-      const tokenResponse = await fetch('/api/livekit/token', {
+      // Use debug endpoint in development if not authenticated
+      const tokenEndpoint = process.env.NODE_ENV === 'development' && !session?.user?.id 
+        ? '/api/livekit/debug-token' 
+        : '/api/livekit/token';
+      
+      console.log(`Using token endpoint: ${tokenEndpoint}`);
+      
+      const tokenResponse = await fetch(tokenEndpoint, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ room: generatedRoomName, userId })
@@ -297,7 +311,15 @@ const VoiceAgentInterface: React.FC<VoiceAgentInterfaceProps> = ({ className }) 
     
     try {
       setIsLoading(true);
-      const response = await fetch('/api/livekit/force-join', {
+
+      // Use debug endpoint in development if not authenticated
+      const forceJoinEndpoint = process.env.NODE_ENV === 'development' && !session?.user?.id 
+        ? '/api/livekit/debug-force-join' 
+        : '/api/livekit/force-join';
+      
+      console.log(`Using force-join endpoint: ${forceJoinEndpoint}`);
+
+      const response = await fetch(forceJoinEndpoint, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ roomName })
