@@ -111,9 +111,18 @@ const VoiceAgentInterface: React.FC<VoiceAgentInterfaceProps> = ({ className }) 
       token = tokenData.token;
       livekitUrl = tokenData.url;
       
+      // Fix URL format: ensure we're using a valid URL format that won't trigger TLD errors
+      // Convert from wss:// to https:// if needed
+      if (livekitUrl.startsWith('wss://')) {
+        livekitUrl = livekitUrl.replace('wss://', 'https://');
+        console.log('Converted LiveKit URL to https format:', livekitUrl);
+      }
+      
       if (!token || !livekitUrl) {
         throw new Error('Invalid LiveKit configuration received from server');
       }
+      
+      console.log('Connecting to LiveKit with URL:', livekitUrl);
     } catch (e: any) {
       console.error('Error fetching token:', e);
       setError(`Failed to get LiveKit token: ${e.message}`);
@@ -121,10 +130,12 @@ const VoiceAgentInterface: React.FC<VoiceAgentInterfaceProps> = ({ className }) 
       return;
     }
     
-    // Create and configure room
+    // Create and configure room with increased timeout
     const newRoom = new Room({
       adaptiveStream: true,
       dynacast: true,
+      // Increase connection timeout
+      connectionTimeout: 30000, // 30 seconds
     });
     
     // Set up event listeners
@@ -203,25 +214,55 @@ const VoiceAgentInterface: React.FC<VoiceAgentInterfaceProps> = ({ className }) 
     
     // Connect to room and publish local audio
     try {
-      await newRoom.connect(livekitUrl, token);
+      console.log(`Connecting to LiveKit room with URL: ${livekitUrl}`);
+      await newRoom.connect(livekitUrl, token, {
+        autoSubscribe: true,
+      });
       console.log('Connected to LiveKit room:', newRoom.name);
       setIsConnected(true);
       setRoom(newRoom);
       setError(null);
       
-      // Publish local audio
-      const audioTrack = await createLocalAudioTrack({
-        noiseSuppression: true,
-        echoCancellation: true,
-      });
-      
-      await newRoom.localParticipant.publishTrack(audioTrack);
-      localAudioTrackRef.current = audioTrack;
-      console.log('Local audio track published');
-      setIsListening(true);
-      toast.success('Connected to Sync voice agent');
+      // Request microphone permission and publish local audio
+      try {
+        console.log('Requesting microphone access...');
+        // Give the browser some time after connection before requesting microphone
+        await new Promise(resolve => setTimeout(resolve, 1000));
+        
+        const audioTrack = await createLocalAudioTrack({
+          noiseSuppression: true,
+          echoCancellation: true,
+          // Additional constraints for more reliable audio capture
+          constraints: {
+            audio: {
+              channelCount: 1,
+              sampleRate: 44100,
+            }
+          }
+        });
+        
+        console.log('Audio track created, attempting to publish...');
+        await newRoom.localParticipant.publishTrack(audioTrack, {
+          // Use more reliable publishing options
+          source: 'microphone',
+          stopMicTrackOnMute: false,
+          // Longer timeout for publishing
+          publishTimeout: 15000, // 15 seconds
+        });
+        
+        localAudioTrackRef.current = audioTrack;
+        console.log('Local audio track published successfully');
+        setIsListening(true);
+        toast.success('Connected to Sync voice agent');
+      } catch (audioError: any) {
+        console.error('Failed to publish audio track:', audioError);
+        // Don't disconnect - just update UI to show connected but not listening
+        setIsListening(false);
+        toast.error('Connected, but microphone access failed: ' + audioError.message);
+        // Still stay connected even if audio publishing fails
+      }
     } catch (e: any) {
-      console.error('Failed to connect to LiveKit room or publish audio:', e);
+      console.error('Failed to connect to LiveKit room:', e);
       setError('Connection failed: ' + e.message);
       setIsConnected(false);
       setRoom(null);
@@ -343,19 +384,45 @@ const VoiceAgentInterface: React.FC<VoiceAgentInterfaceProps> = ({ className }) 
 
   // Full disconnect and reconnect
   const reconnectAgent = useCallback(async () => {
+    // First set loading state
+    setIsLoading(true);
+    toast.info('Reconnecting agent with a fresh session...');
+    
+    // Clean up the old room if it exists
     if (room) {
-      // First disconnect properly
-      await disconnectFromRoom();
+      try {
+        // Stop the local audio track
+        if (localAudioTrackRef.current) {
+          localAudioTrackRef.current.stop();
+          localAudioTrackRef.current = null;
+        }
+        
+        // Disconnect from the room
+        await room.disconnect();
+        setRoom(null);
+        setIsConnected(false);
+        setIsListening(false);
+        setIsAgentSpeaking(false);
+        
+        // Clear transcript and response
+        setTranscript('');
+        setAgentResponse('');
+        
+        console.log('Successfully disconnected from previous room');
+      } catch (error) {
+        console.error('Error during disconnect:', error);
+        // Continue with reconnect attempt even if disconnection fails
+      }
     }
     
     // Set a short timeout to ensure cleanup is complete
+    console.log('Waiting before reconnecting...');
+    
     setTimeout(() => {
       // Then connect again, which will create a fresh room and agent
       connectToLiveKit();
-    }, 1000);
-    
-    toast.success('Reconnecting agent with a fresh session...');
-  }, [room, disconnectFromRoom, connectToLiveKit]);
+    }, 2000); // longer delay of 2 seconds
+  }, [room, connectToLiveKit]);
 
   const handleMixerClick = () => {
     if (!isConnected && !isLoading) connectToLiveKit();
