@@ -91,50 +91,7 @@ export default function FeaturesPage(): JSX.Element {
   ];
 
   // Updated team members with more diverse roles
-  const teamMembers = [
-    { name: "Gody Duinsbergen",
-      role: "Founder & CEO",
-      image: "/gody-duinsbergen-ai.png",
-      bio: "Former ML Engineer at Google, passionate about making AI accessible to everyone.",
-      linkedin: "https://linkedin.com/in/davidpark",
-      twitter: "https://twitter.com/davidpark"
-        },
-    { name: "Maria Garcia",
-      role: "Head of Product",
-      image: "/team/maria-garcia.jpg",
-      bio: "10+ years in product development, focused on creating intuitive user experiences.",
-      linkedin: "https://linkedin.com/in/mariagarcia",
-      twitter: "https://twitter.com/mariagarcia"
-        },
-    { name: "James Wilson",
-      role: "Lead Engineer",
-      image: "/team/james-wilson.jpg",
-      bio: "Distributed systems expert, building reliable and scalable automation infrastructure.",
-      linkedin: "https://linkedin.com/in/jameswilson",
-      twitter: "https://twitter.com/jameswilson"
-        },
-    { name: "Aisha Patel",
-      role: "Customer Success Lead",
-      image: "/team/aisha-patel.jpg",
-      bio: "Dedicated to helping teams achieve their automation goals and maximize ROI.",
-      linkedin: "https://linkedin.com/in/aishapatel",
-      twitter: "https://twitter.com/aishapatel"
-        },
-    { name: "Lucas Silva",
-      role: "UX Designer",
-      image: "/team/lucas-silva.jpg",
-      bio: "Creating beautiful and functional interfaces that users love to interact with.",
-      linkedin: "https://linkedin.com/in/lucassilva",
-      twitter: "https://twitter.com/lucassilva"
-        },
-    { name: "Sophie Kim",
-      role: "Data Scientist",
-      image: "/team/sophie-kim.jpg",
-      bio: "Leveraging data to build intelligent automation solutions that drive business value.",
-      linkedin: "https://linkedin.com/in/sophiekim",
-      twitter: "https://twitter.com/sophiekim"
-        }
-  ];
+  const teamMembers = [];
 
   // Animation variants
   const containerVariants = {
@@ -260,73 +217,6 @@ export default function FeaturesPage(): JSX.Element {
                 <blockquote className="text-gray-300 leading-relaxed group-hover:text-white transition-colors duration-300">
                   "{testimonial.quote}"
                 </blockquote>
-              </motion.div>
-            ))}
-          </div>
-        </div>
-      </section>
-      
-      {/* Team Section */}
-      <section className="py-24 relative overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-b from-black via-[#4AFFD4]/5 to-black"></div>
-        
-        <div className="container mx-auto px-4 relative z-10">
-          <motion.div
-            initial={{ opacity: 0, y: 20     }}
-            whileInView={{ opacity: 1, y: 0     }}
-            transition={{ duration: 0.8     }}
-            viewport={{ once: true     }}
-            className="text-center mb-16"
-          >
-            <h2 className="text-4xl md:text-5xl font-bold mb-6">
-              Meet the <span className="bg-gradient-to-r from-[#3CDFFF] to-[#4AFFD4] text-transparent bg-clip-text">Team</span>
-            </h2>
-            <p className="text-xl text-gray-300 max-w-3xl mx-auto">
-              We're a diverse team of engineers, designers, and automation experts passionate about transforming how teams work.
-            </p>
-          </motion.div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {teamMembers.map((member, index) => (
-              <motion.div
-                key={index}
-                initial={{ opacity: 0, y: 20     }}
-                whileInView={{ opacity: 1, y: 0     }}
-                transition={{ duration: 0.5, delay: index * 0.1     }}
-                viewport={{ once: true     }}
-                className="text-center group"
-              >
-                <div className="relative w-48 h-48 mx-auto mb-6 rounded-2xl overflow-hidden group-hover:scale-105 transition-transform duration-300">
-                  <Image
-                    src={member.image}
-                    alt={member.name}
-                    fill
-                    className="object-cover"
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                    <div className="absolute bottom-4 left-0 right-0 flex justify-center space-x-4">
-                      <a
-                        href={member.linkedin}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="text-white hover:text-[#3CDFFF] transition-colors transform hover:scale-110"
-                      >
-                        <FaLinkedin size={24} />
-                      </a>
-                      <a
-                        href={member.twitter}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="text-white hover:text-[#3CDFFF] transition-colors transform hover:scale-110"
-                      >
-                        <FaTwitter size={24} />
-                      </a>
-                    </div>
-                  </div>
-                </div>
-                <h3 className="text-xl font-semibold mb-2 group-hover:text-[#3CDFFF] transition-colors duration-300">{member.name}</h3>
-                <p className="text-[#3CDFFF] mb-3">{member.role}</p>
-                <p className="text-gray-300 text-sm mb-4 group-hover:text-white transition-colors duration-300">{member.bio}</p>
               </motion.div>
             ))}
           </div>

@@ -14,66 +14,66 @@ import Link from 'next/link';
 
 // Team data
 const teamMembers = [
-  {
-    id: 1,
-    name: 'Sarah Chen',
-    role: 'CEO & Co-Founder',
-    image: '/team/sarah-chen.jpg',
-    imageFallback: '/team/placeholder.png',
-    bio: 'Former Google product lead with 15+ years experience in workflow automation and AI. Sarah founded Optiflow to make enterprise-grade automation accessible to everyone.',
-    linkedin: 'https://linkedin.com/in/',
-    twitter: 'https://twitter.com/'
-  },
-  {
-    id: 2,
-    name: 'Michael Rodriguez',
-    role: 'CTO & Co-Founder',
-    image: '/team/michael-rodriguez.jpg',
-    imageFallback: '/team/placeholder.png',
-    bio: 'Ex-AWS engineering leader with deep expertise in distributed systems and API design. Michael leads our technical vision and architecture.',
-    linkedin: 'https://linkedin.com/in/',
-    twitter: 'https://twitter.com/'
-  },
-  {
-    id: 3,
-    name: 'Aisha Johnson',
-    role: 'Head of Product',
-    image: '/team/aisha-johnson.jpg',
-    imageFallback: '/team/placeholder.png',
-    bio: 'Product visionary who previously led teams at Slack and Stripe. Aisha is passionate about creating intuitive user experiences for complex workflows.',
-    linkedin: 'https://linkedin.com/in/',
-    twitter: 'https://twitter.com/'
-  },
-  {
-    id: 4,
-    name: 'David Kim',
-    role: 'Head of AI',
-    image: '/team/david-kim.jpg',
-    imageFallback: '/team/placeholder.png',
-    bio: 'PhD in Machine Learning from MIT with experience at OpenAI. David leads our AI initiatives, including the Jarvis voice agent and workflow intelligence.',
-    linkedin: 'https://linkedin.com/in/',
-    twitter: 'https://twitter.com/'
-  },
-  {
-    id: 5,
-    name: 'Lisa Patel',
-    role: 'Head of Customer Success',
-    image: '/team/lisa-patel.jpg',
-    imageFallback: '/team/placeholder.png',
-    bio: 'Customer-obsessed leader who ensures our users get maximum value from Optiflow. Previously led support teams at Salesforce and Zendesk.',
-    linkedin: 'https://linkedin.com/in/',
-    twitter: 'https://twitter.com/'
-  },
-  {
-    id: 6,
-    name: 'James Wilson',
-    role: 'Head of Engineering',
-    image: '/team/james-wilson.jpg',
-    imageFallback: '/team/placeholder.png',
-    bio: 'Seasoned engineering leader with a track record of building reliable, scalable systems. James oversees our engineering teams and technical operations.',
-    linkedin: 'https://linkedin.com/in/',
-    twitter: 'https://twitter.com/'
-  }
+  // {
+  //   id: 1,
+  //   name: 'Sarah Chen',
+  //   role: 'CEO & Co-Founder',
+  //   image: '/team/sarah-chen.jpg',
+  //   imageFallback: '/team/placeholder.png',
+  //   bio: 'Former Google product lead with 15+ years experience in workflow automation and AI. Sarah founded Optiflow to make enterprise-grade automation accessible to everyone.',
+  //   linkedin: 'https://linkedin.com/in/',
+  //   twitter: 'https://twitter.com/'
+  // },
+  // {
+  //   id: 2,
+  //   name: 'Michael Rodriguez',
+  //   role: 'CTO & Co-Founder',
+  //   image: '/team/michael-rodriguez.jpg',
+  //   imageFallback: '/team/placeholder.png',
+  //   bio: 'Ex-AWS engineering leader with deep expertise in distributed systems and API design. Michael leads our technical vision and architecture.',
+  //   linkedin: 'https://linkedin.com/in/',
+  //   twitter: 'https://twitter.com/'
+  // },
+  // {
+  //   id: 3,
+  //   name: 'Aisha Johnson',
+  //   role: 'Head of Product',
+  //   image: '/team/aisha-johnson.jpg',
+  //   imageFallback: '/team/placeholder.png',
+  //   bio: 'Product visionary who previously led teams at Slack and Stripe. Aisha is passionate about creating intuitive user experiences for complex workflows.',
+  //   linkedin: 'https://linkedin.com/in/',
+  //   twitter: 'https://twitter.com/'
+  // },
+  // {
+  //   id: 4,
+  //   name: 'David Kim',
+  //   role: 'Head of AI',
+  //   image: '/team/david-kim.jpg',
+  //   imageFallback: '/team/placeholder.png',
+  //   bio: 'PhD in Machine Learning from MIT with experience at OpenAI. David leads our AI initiatives, including the Jarvis voice agent and workflow intelligence.',
+  //   linkedin: 'https://linkedin.com/in/',
+  //   twitter: 'https://twitter.com/'
+  // },
+  // {
+  //   id: 5,
+  //   name: 'Lisa Patel',
+  //   role: 'Head of Customer Success',
+  //   image: '/team/lisa-patel.jpg',
+  //   imageFallback: '/team/placeholder.png',
+  //   bio: 'Customer-obsessed leader who ensures our users get maximum value from Optiflow. Previously led support teams at Salesforce and Zendesk.',
+  //   linkedin: 'https://linkedin.com/in/',
+  //   twitter: 'https://twitter.com/'
+  // },
+  // {
+  //   id: 6,
+  //   name: 'James Wilson',
+  //   role: 'Head of Engineering',
+  //   image: '/team/james-wilson.jpg',
+  //   imageFallback: '/team/placeholder.png',
+  //   bio: 'Seasoned engineering leader with a track record of building reliable, scalable systems. James oversees our engineering teams and technical operations.',
+  //   linkedin: 'https://linkedin.com/in/',
+  //   twitter: 'https://twitter.com/'
+  // }
 ];
 
 // Values data
@@ -298,73 +298,6 @@ export default function AboutPage() {
                   </div>
                 ))}
               </div>
-            </div>
-          </div>
-        </div>
-      </section>
-      
-      {/* Team Section */}
-      <section className="py-16 bg-[#111111]">
-        <div className="container mx-auto px-4">
-          <div className="max-w-5xl mx-auto">
-            <h2 className="text-3xl font-bold mb-2 text-center">Our Team</h2>
-            <p className="text-[#9CA3AF] text-center mb-12">The talented people behind Optiflow</p>
-            
-            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-              {teamMembers.map((member) => (
-                <div key={member.id} className="bg-[#18181B] rounded-lg overflow-hidden border border-[#374151]">
-                  <div className="aspect-square relative">
-                    <Image 
-                      src={member.imageFallback} 
-                      alt={member.name}
-                      fill
-                      className="object-cover"
-                    />
-                  </div>
-                  
-                  <div className="p-6">
-                    <h3 className="text-xl font-semibold text-white mb-1">{member.name}</h3>
-                    <p className="text-[#22D3EE] mb-3">{member.role}</p>
-                    <p className="text-[#9CA3AF] text-sm mb-4">{member.bio}</p>
-                    
-                    <div className="flex space-x-3">
-                      <a 
-                        href={member.linkedin} 
-                        target="_blank" 
-                        rel="noopener noreferrer"
-                        className="text-[#9CA3AF] hover:text-[#22D3EE] transition-colors"
-                        aria-label={`${member.name}'s LinkedIn`}
-                      >
-                        <svg className="h-5 w-5" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                          <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z" />
-                        </svg>
-                      </a>
-                      
-                      <a 
-                        href={member.twitter} 
-                        target="_blank" 
-                        rel="noopener noreferrer"
-                        className="text-[#9CA3AF] hover:text-[#22D3EE] transition-colors"
-                        aria-label={`${member.name}'s Twitter`}
-                      >
-                        <svg className="h-5 w-5" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                          <path d="M23.953 4.57a10 10 0 01-2.825.775 4.958 4.958 0 002.163-2.723c-.951.555-2.005.959-3.127 1.184a4.92 4.92 0 00-8.384 4.482C7.69 8.095 4.067 6.13 1.64 3.162a4.822 4.822 0 00-.666 2.475c0 1.71.87 3.213 2.188 4.096a4.904 4.904 0 01-2.228-.616v.06a4.923 4.923 0 003.946 4.827 4.996 4.996 0 01-2.212.085 4.936 4.936 0 004.604 3.417 9.867 9.867 0 01-6.102 2.105c-.39 0-.779-.023-1.17-.067a13.995 13.995 0 007.557 2.209c9.053 0 13.998-7.496 13.998-13.985 0-.21 0-.42-.015-.63A9.935 9.935 0 0024 4.59z" />
-                        </svg>
-                      </a>
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
-            
-            <div className="mt-16 text-center">
-              <Link
-                href="/careers"
-                className="inline-flex items-center px-6 py-3 bg-[#1E293B] text-[#E5E7EB] font-medium rounded-md hover:bg-[#374151] transition-colors"
-              >
-                Join Our Growing Team
-                <ArrowRightIcon className="ml-2 h-5 w-5" />
-              </Link>
             </div>
           </div>
         </div>
