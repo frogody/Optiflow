@@ -96,7 +96,7 @@ async function handleTokenRequest(req: NextRequest) {
       const url = new URL(req.url);
       requestData = {
         room: url.searchParams.get('room') || '',
-        identity: url.searchParams.get('identity') || ''
+        identity: url.searchParams.get('identity') || url.searchParams.get('username') || '' // Support both identity and username params
       };
     }
     

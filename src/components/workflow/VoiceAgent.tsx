@@ -233,7 +233,7 @@ export const VoiceAgent: React.FC<VoiceAgentProps> = ({ onWorkflowGenerated }) =
     setLivekitError(null);
     try {
       // Get token from API
-      const tokenRes = await fetch(`/api/livekit/token?room=${encodeURIComponent(roomName)}&username=${encodeURIComponent(userName)}`);
+      const tokenRes = await fetch(`/api/livekit/token?room=${encodeURIComponent(roomName)}&identity=${encodeURIComponent(userName)}`);
       if (!tokenRes.ok) throw new Error('Failed to get LiveKit token');
       const { token } = await tokenRes.json();
       // Create room and connect
