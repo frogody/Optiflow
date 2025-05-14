@@ -62,11 +62,14 @@ export default function BetaRegistration() {
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const formRef = useRef<HTMLDivElement>(null);
 
   // Update form data
   const updateFormData = (field: keyof FormData, value: any) => {
     setFormData(prev => ({ ...prev, [field]: value }));
+    // Clear error when user makes changes
+    if (errorMessage) setErrorMessage(null);
   };
 
   // Step navigation
@@ -85,8 +88,14 @@ export default function BetaRegistration() {
   // Handle form submission
   const handleSubmit = async () => {
     setIsSubmitting(true);
+    setErrorMessage(null);
     
     try {
+      // Check for required fields before submission
+      if (formData.joinReason.length < 10) {
+        throw new Error('Please provide a reason for joining the beta program (min. 10 characters)');
+      }
+      
       // Send the data to the API
       const response = await fetch('/api/beta-access/request', {
         method: 'POST',
@@ -99,7 +108,16 @@ export default function BetaRegistration() {
       const data = await response.json();
       
       if (!response.ok) {
-        throw new Error(data.error || 'Failed to submit beta request');
+        // Handle different types of errors
+        if (response.status === 409) {
+          throw new Error('An account with this email already exists. Please use a different email address.');
+        } else if (response.status === 400 && data.details) {
+          // Format validation errors
+          const errorDetails = data.details.map((err: any) => `${err.path}: ${err.message}`).join(', ');
+          throw new Error(`Please fix the following issues: ${errorDetails}`);
+        } else {
+          throw new Error(data.error || 'Failed to submit beta request');
+        }
       }
       
       // Show success state
@@ -109,7 +127,7 @@ export default function BetaRegistration() {
       console.log('Beta request submitted:', data);
     } catch (error) {
       console.error('Error submitting form:', error);
-      alert('Failed to submit your application. Please try again later.');
+      setErrorMessage(error instanceof Error ? error.message : 'Failed to submit your application. Please try again later.');
     } finally {
       setIsSubmitting(false);
     }
@@ -515,11 +533,25 @@ export default function BetaRegistration() {
               name="joinReason"
               value={formData.joinReason}
               onChange={(e) => updateFormData('joinReason', e.target.value)}
-              className="w-full px-4 py-2 bg-white/5 border border-white/10 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#3CDFFF]/50 text-white placeholder-gray-500"
+              className={`w-full px-4 py-2 bg-white/5 border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#3CDFFF]/50 text-white placeholder-gray-500 ${
+                formData.joinReason.length < 10 && formData.joinReason.length > 0
+                  ? 'border-red-500/50'
+                  : 'border-white/10'
+              }`}
               placeholder="Tell us why you're interested in being part of our beta program and what you hope to achieve..."
               rows={4}
               required
             />
+            <div className="flex justify-between mt-1 text-xs">
+              <span className={formData.joinReason.length < 10 && formData.joinReason.length > 0 ? 'text-red-400' : 'text-gray-500'}>
+                {formData.joinReason.length < 10 
+                  ? `${formData.joinReason.length}/10 characters (minimum)`
+                  : `${formData.joinReason.length} characters`}
+              </span>
+              {formData.joinReason.length < 10 && formData.joinReason.length > 0 && (
+                <span className="text-red-400">Please enter at least 10 characters</span>
+              )}
+            </div>
           </div>
           
           <div className="pt-4 flex justify-between">
@@ -538,8 +570,20 @@ export default function BetaRegistration() {
               disabled={isSubmitting || formData.joinReason.length < 10}
               className="px-6 py-2 bg-gradient-to-r from-[#3CDFFF] to-[#4AFFD4] rounded-lg text-black text-lg font-medium hover:opacity-90 transition-all duration-300 flex items-center disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              {isSubmitting ? 'Submitting...' : 'Submit Application'}
-              {!isSubmitting && <ArrowRightIcon className="ml-2 h-5 w-5" />}
+              {isSubmitting ? (
+                <>
+                  <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-black" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                  </svg>
+                  Submitting...
+                </>
+              ) : (
+                <>
+                  Submit Application
+                  <ArrowRightIcon className="ml-2 h-5 w-5" />
+                </>
+              )}
             </button>
           </div>
         </div>
@@ -611,6 +655,18 @@ export default function BetaRegistration() {
                   Join our exclusive beta program to get early access to SYNC
                 </p>
               </div>
+              
+              {/* Error Message Display */}
+              {errorMessage && (
+                <div className="mb-6 p-4 bg-red-500/20 border border-red-500/50 rounded-lg text-white">
+                  <p className="flex items-start">
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2 mt-0.5 flex-shrink-0" viewBox="0 0 20 20" fill="currentColor">
+                      <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+                    </svg>
+                    {errorMessage}
+                  </p>
+                </div>
+              )}
               
               {/* Progress Bar */}
               <div className="mb-8">
