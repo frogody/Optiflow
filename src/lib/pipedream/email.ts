@@ -6,7 +6,8 @@
 
 import { z } from 'zod';
 
-import { executeWorkflow } from './server';
+// Changed from importing executeWorkflow to using fetch for webhook
+// import { executeWorkflow } from './server';
 
 /**
  * Email recipient schema with validation
@@ -70,7 +71,7 @@ export const EmailResponseSchema = z.object({
 export type EmailResponse = z.infer<typeof EmailResponseSchema>;
 
 /**
- * Execute an email workflow to send an email via Pipedream
+ * Execute an email workflow to send an email via Pipedream webhook
  * 
  * @param payload The email payload to send
  * @returns Promise containing the email send result
@@ -94,17 +95,46 @@ export type EmailResponse = z.infer<typeof EmailResponseSchema>;
  */
 export async function execute(payload: EmailPayload): Promise<EmailResponse> {
   try {
+    // Get the webhook URL from environment variable
+    const webhookUrl = process.env.PIPEDREAM_EMAIL_WEBHOOK_URL;
+    
+    if (!webhookUrl) {
+      console.error("Missing PIPEDREAM_EMAIL_WEBHOOK_URL environment variable");
+      return {
+        success: false,
+        error: "Email service not configured: missing webhook URL"
+      };
+    }
+    
     // Validate the payload
     const validatedPayload = EmailPayloadSchema.parse(payload);
     
-    // Execute the workflow
-    const response = await executeWorkflow({
-      workflowKey: 'send_email',
-      payload: validatedPayload,
+    // Log sending attempt
+    console.log(`Sending email to ${typeof validatedPayload.to === 'object' && 'email' in validatedPayload.to 
+      ? validatedPayload.to.email 
+      : Array.isArray(validatedPayload.to) ? validatedPayload.to.map(r => r.email).join(', ') : 'unknown recipient'}`);
+    
+    // Send the email via HTTP POST to the Pipedream webhook
+    const response = await fetch(webhookUrl, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(validatedPayload)
     });
     
-    // Validate and return the response
-    return EmailResponseSchema.parse(response);
+    if (!response.ok) {
+      const errorText = await response.text();
+      throw new Error(`Pipedream webhook responded with status ${response.status}: ${errorText}`);
+    }
+    
+    const responseData = await response.json();
+    
+    // Return success response
+    return {
+      success: true,
+      messageId: `webhook-${Date.now()}`
+    };
   } catch (error) {
     if (error instanceof z.ZodError) {
       // Validation error
@@ -113,6 +143,8 @@ export async function execute(payload: EmailPayload): Promise<EmailResponse> {
     
     // Handle other errors
     const errorMessage = error instanceof Error ? error.message : String(error);
+    console.error("Email sending error:", errorMessage);
+    
     return {
       success: false,
       error: `Failed to send email: ${errorMessage}`,
