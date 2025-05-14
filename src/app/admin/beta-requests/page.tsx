@@ -71,10 +71,21 @@ export default function BetaRequestsAdmin() {
       }
     };
 
-    if (status === 'authenticated' && session?.user?.isAdmin) {
+    if (status === 'authenticated' && (session?.user?.isAdmin || session?.user?.role === 'admin')) {
+      console.log('Admin user authenticated, fetching beta requests', {
+        role: session?.user?.role,
+        isAdmin: session?.user?.isAdmin
+      });
       fetchRequests();
     } else if (status === 'unauthenticated') {
+      console.log('User not authenticated, redirecting to login');
       router.push('/admin-login');
+    } else if (status === 'authenticated') {
+      console.log('User authenticated but not admin, redirecting', {
+        role: session?.user?.role,
+        isAdmin: session?.user?.isAdmin
+      });
+      router.push('/dashboard');
     }
   }, [status, session, router]);
 

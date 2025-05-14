@@ -29,8 +29,17 @@ export default function AdminLayout({
   useEffect(() => {
     if (status === 'unauthenticated') {
       router.push('/admin-login');
-    } else if (status === 'authenticated' && session?.user?.role !== 'admin') {
+    } else if (status === 'authenticated' && !session?.user?.isAdmin && session?.user?.role !== 'admin') {
+      console.log('Access denied: Not an admin user', { 
+        role: session?.user?.role, 
+        isAdmin: session?.user?.isAdmin 
+      });
       router.push('/dashboard');
+    } else if (status === 'authenticated') {
+      console.log('Admin access granted', { 
+        role: session?.user?.role, 
+        isAdmin: session?.user?.isAdmin 
+      });
     }
   }, [status, session, router]);
 

@@ -18,26 +18,81 @@ export default function AdminLoginPage(): JSX.Element {
     setError('');
     
     try {
-      const email = process.env['TEST_USER_EMAIL'] || 'demo@isyncso.com';
-      const password = process.env['TEST_USER_PASSWORD'] || 'password123';
+      // Use the admin credentials we created
+      const email = 'admin@isyncso.com';
+      const password = 'admin123';
       
-      console.log('Admin login: Authenticating with test credentials...');
+      console.log('Admin login: Attempting authentication with admin credentials...');
+      
       const result = await signIn('credentials', {
         email,
         password,
         redirect: false,
+        callbackUrl: '/admin',
       });
       
-      if (result?.error) {
-        throw new Error(result.error);
+      console.log('Admin login: Authentication response:', { 
+        status: result?.status,
+        ok: result?.ok,
+        error: result?.error,
+        url: result?.url
+      });
+      
+      if (!result?.ok || result?.error) {
+        throw new Error(result?.error || 'Authentication failed');
       }
       
       console.log('Admin login: Authentication successful');
       toast.success('Logged in as admin user');
-      router.push('/dashboard');
+      
+      // Redirect to admin dashboard
+      router.push('/admin');
     } catch (error) {
       console.error('Admin login error:', error);
       setError(error instanceof Error ? error.message : 'Authentication failed');
+      toast.error('Login failed: ' + (error instanceof Error ? error.message : 'Authentication failed'));
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  // Alternative login method using our direct API endpoint
+  const handleBackupLogin = async () => {
+    setIsLoading(true);
+    setError('');
+    
+    try {
+      // Use the admin credentials we created
+      const email = 'admin@isyncso.com';
+      const password = 'admin123';
+      
+      console.log('Admin login (backup): Attempting authentication with admin credentials...');
+      
+      const response = await fetch('/api/auth/login-debug', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email, password }),
+      });
+      
+      const data = await response.json();
+      
+      console.log('Admin login (backup): Authentication response:', data);
+      
+      if (!response.ok || !data.success) {
+        throw new Error(data.message || 'Authentication failed');
+      }
+      
+      console.log('Admin login (backup): Authentication successful');
+      toast.success('Logged in as admin user (backup method)');
+      
+      // Redirect to admin dashboard
+      router.push('/admin');
+    } catch (error) {
+      console.error('Admin login (backup) error:', error);
+      setError(error instanceof Error ? error.message : 'Authentication failed');
+      toast.error('Backup login failed: ' + (error instanceof Error ? error.message : 'Authentication failed'));
     } finally {
       setIsLoading(false);
     }
@@ -71,9 +126,17 @@ export default function AdminLoginPage(): JSX.Element {
             <button
               onClick={handleDirectLogin}
               disabled={isLoading}
-              className="w-full px-4 py-3 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 transition-colors"
+              className="w-full px-4 py-3 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 transition-colors mb-3"
             >
               {isLoading ? 'Logging in...' : 'Login as Admin User'}
+            </button>
+            
+            <button
+              onClick={handleBackupLogin}
+              disabled={isLoading}
+              className="w-full px-4 py-3 text-sm font-medium text-white bg-indigo-600 rounded-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50 transition-colors"
+            >
+              {isLoading ? 'Logging in...' : 'Alternative Login Method'}
             </button>
             
             <div className="mt-4 text-center text-sm">
@@ -84,8 +147,8 @@ export default function AdminLoginPage(): JSX.Element {
           </div>
           
           <div className="text-center text-xs text-gray-500 mt-8">
-            <p>Using test credentials: {process.env['TEST_USER_EMAIL'] || 'demo@isyncso.com'} / {process.env['TEST_USER_PASSWORD'] || 'password123'}</p>
-            <p>This page bypasses OAuth configuration for testing purposes.</p>
+            <p>Using admin credentials: admin@isyncso.com</p>
+            <p>This page provides direct admin access for authorized personnel.</p>
           </div>
         </div>
       </div>

@@ -10,6 +10,8 @@ const publicPaths = [
   '/register',
   '/reset-password',
   '/forgot-password',
+  '/admin-login',
+  '/api/admin-login',
   '/features',
   '/integrations',
   '/enterprise',
@@ -18,6 +20,10 @@ const publicPaths = [
   '/favicon.ico',
   '/api/health',
   '/api/health/',
+  '/api/auth/debug',
+  '/api/auth/login-debug',
+  '/manifest.json',
+  '/ISYNCSO_LOGO.png',
 ];
 
 // Auth-related paths that should bypass middleware

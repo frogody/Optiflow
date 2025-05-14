@@ -72,13 +72,15 @@ const authOptions: NextAuthOptions = {
 
           console.log('[Auth] Authentication successful:', { 
             email: user.email, 
-            id: user.id 
+            id: user.id,
+            role: user.role
           });
           
           return { 
             id: user.id,
             email: user.email,
-            name: user.name
+            name: user.name,
+            role: user.role
           };
         } catch (error) { 
           console.error('[Auth] Authentication error:', error);
@@ -124,6 +126,7 @@ const authOptions: NextAuthOptions = {
           event: trigger,
           tokenId: token?.id, 
           userId: user?.id,
+          userRole: user?.role,
           accountType: account?.type,
           expires: token?.['exp'],
           issued: token?.['iat'],
@@ -131,50 +134,62 @@ const authOptions: NextAuthOptions = {
         });
         
         // Only update the token if we have user data (during sign-in)
-        if (user && typeof user === 'object') {
+        if (user) {
           token.id = user.id;
           token.email = user.email;
-          if (user.name !== undefined) {
-            token.name = user.name;
+          token.name = user.name || '';
+          token.role = user.role || 'user';
+        } else if (token?.id && !token.role) {
+          // If no role in token but we have user id, look up the user from DB
+          try {
+            const dbUser = await prisma.user.findUnique({
+              where: { id: token.id as string },
+              select: { id: true, role: true }
+            });
+            if (dbUser?.role) {
+              token.role = dbUser.role;
+            }
+          } catch (dbError) {
+            console.error('[Auth] Error looking up user role:', dbError);
           }
         }
+        
         return token;
       } catch (error) {
         console.error('[Auth] JWT callback error:', error);
         return token;
       }
     },
-    async session({ session, token, trigger }) {
+    async session({ session, token }) {
       try {
         console.log('[Auth] Session Callback:', { 
-          event: trigger,
           sessionUserId: session?.user?.id, 
           tokenId: token?.id,
+          tokenRole: token?.role,
           sessionExpiry: session?.expires,
           tokenExpiry: token?.['exp'],
           timestamp: new Date().toISOString()
         });
         
-        // Only update session if we have token data and session exists
-        if (token && typeof token === 'object' && session) {
-          // Initialize the user object if it doesn't exist
-          if (!session.user) {
-            session.user = { id: token.id as string };
-          } else if (!session.user.id) {
-            session.user.id = token.id as string;
-          }
-          
-          // Safely assign properties from token to session.user
-          if (token.id) session.user.id = token.id as string;
-          if (token.email) session.user.email = token.email as string;
-          if (token.name) session.user.name = token.name as string;
+        // Make sure we have a user object in the session
+        if (!session.user) {
+          session.user = { id: '', email: '', name: '' };
         }
+        
+        // Populate session with token data
+        if (token) {
+          session.user.id = token.id as string;
+          session.user.email = token.email as string;
+          session.user.name = token.name as string || '';
+          session.user.role = token.role as string || 'user';
+          session.user.isAdmin = token.role === 'admin';
+        }
+        
         return session;
       } catch (error) {
         console.error('[Auth] Session callback error:', error);
-        // Return a valid empty session object instead of the incomplete one
         return {
-          expires: new Date(Date.now() + 86400000).toISOString(),
+          ...session,
           user: { id: '', email: '', name: '' }
         };
       }
