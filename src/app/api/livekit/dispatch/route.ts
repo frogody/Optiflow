@@ -2,13 +2,6 @@ import { AccessToken, RoomServiceClient } from 'livekit-server-sdk';
 import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth/next';
 
-import { authOptions, verifyAgentBypass } from '@/lib/auth';
-import { prisma } from '@/lib/prisma';
-import { Mem0MemoryService } from '@/services/Mem0MemoryService';
-
-// Initialize Mem0 memory service
-const memoryService = new Mem0MemoryService();
-
 // Helper function to strip quotes from environment variables
 function cleanEnvVar(value: string | undefined): string {
   if (!value) return '';
@@ -20,6 +13,13 @@ function cleanEnvVar(value: string | undefined): string {
 }
 
 export async function POST(req: NextRequest) {
+  // const { authOptions, verifyAgentBypass } = await import('@/lib/auth');
+  const { authOptions, verifyAgentBypass } = await import('@/lib/auth');
+  // Import the actual services
+  const { prisma } = await import('@/lib/prisma');
+  const { Mem0MemoryService } = await import('@/services/Mem0MemoryService');
+  const memoryService = new Mem0MemoryService();
+
   // Check authentication
   const session = await getServerSession(authOptions);
   
@@ -102,18 +102,29 @@ export async function POST(req: NextRequest) {
       // Continue even if memory retrieval fails
     }
     
+    // We need to define or use roomName before using it
+    const initialRoomName = roomName || `user-${targetUserId.substring(0, 8)}-${Date.now()}-${Math.random().toString(36).substring(2, 10)}`;
+    
     // Enhance metadata with memory context and ensure proper agent initialization
     const enhancedMetadata = {
       ...metadata,
       memoryContext,
       mem0Enabled: true,
       userId: targetUserId,
-      sessionId: `${finalRoomName}-${Date.now()}`,
-      systemPrompt: "You are Jarvis, a friendly AI assistant for Optiflow. Greet users warmly when they join.",
+      sessionId: `${initialRoomName}-${Date.now()}`,
+      systemPrompt: "You are Jarvis, a friendly AI assistant for Optiflow. Greet users warmly when they join and always speak audibly.",
       agentConfig: {
         name: "Jarvis",
         identity: `agent-jarvis-${Date.now()}`,
-        autoGreet: true
+        autoGreet: true,
+        voice: {
+          enabled: true,
+          provider: "elevenlabs",
+          voice_id: "21m00Tcm4TlvDq8ikWAM", // Default male voice for Eleven Labs
+          model: "eleven_monolingual_v1"
+        },
+        announceOnJoin: true,
+        defaultGreeting: "Hello, I am Jarvis, your voice assistant. I am now connected and ready to help you. Can you hear me?"
       }
     };
     
@@ -121,9 +132,8 @@ export async function POST(req: NextRequest) {
     let userRoom = await prisma.userRoom.findUnique({ where: { userId: targetUserId } });
     
     if (!userRoom) {
-      const timestamp = Date.now();
-      const randomId = Math.random().toString(36).substring(2, 10);
-      const newRoomName = roomName || `user-${targetUserId.substring(0, 8)}-${timestamp}-${randomId}`;
+      // Use the initialRoomName we created earlier
+      const newRoomName = initialRoomName;
       
       try {
         userRoom = await prisma.userRoom.create({
@@ -139,6 +149,7 @@ export async function POST(req: NextRequest) {
         console.error('Error creating user room:', createError);
         // If we hit a unique constraint error, try again with a different name
         if (createError.code === 'P2002') {
+          const timestamp = Date.now();
           const retryRandomId = Math.random().toString(36).substring(2, 15);
           const retryRoomName = `retry-${timestamp}-${retryRandomId}`;
           console.log(`Room name collision, retrying with name: ${retryRoomName}`);
@@ -202,6 +213,11 @@ export async function POST(req: NextRequest) {
     // Direct API call for agent dispatch instead of using AgentDispatchClient
     // This is a workaround for compatibility with livekit-server-sdk v1.2.7
     const agentIdentity = agent?.id || `agent-jarvis-${Date.now()}`;
+    
+    // Make sure finalRoomName is defined
+    if (!finalRoomName) {
+      throw new Error('Room name is not defined for agent dispatch');
+    }
     
     console.log(`Dispatching agent ${agentIdentity} to room ${finalRoomName} with memory context`);
     

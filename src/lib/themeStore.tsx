@@ -19,7 +19,20 @@ export const useThemeStore = create<ThemeStore>()(
     }),
     {
       name: 'theme-storage', // unique name for localStorage
-      getStorage: () => (typeof window !== 'undefined' ? localStorage : null),
+      storage: {
+        getItem: (name) => 
+          typeof window !== 'undefined' 
+            ? localStorage.getItem(name) 
+            : null,
+        setItem: (name, value) => 
+          typeof window !== 'undefined' 
+            ? localStorage.setItem(name, value) 
+            : undefined,
+        removeItem: (name) => 
+          typeof window !== 'undefined' 
+            ? localStorage.removeItem(name) 
+            : undefined,
+      },
     }
   )
 ); 

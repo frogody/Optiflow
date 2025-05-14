@@ -20,6 +20,36 @@ import ConnectionDebugger from './ConnectionDebugger';
 import DivBarVisualizer from './DivBarVisualizer';
 import ErrorMessage from './ErrorMessage';
 
+// Create a safe toast wrapper to handle missing methods
+const safeToast = {
+  success: (message: string) => {
+    try {
+      toast.success(message);
+    } catch (e) {
+      console.log('Toast success:', message);
+    }
+  },
+  error: (message: string) => {
+    try {
+      toast.error(message);
+    } catch (e) {
+      console.log('Toast error:', message);
+    }
+  },
+  info: (message: string) => {
+    try {
+      if (typeof toast.info === 'function') {
+        toast.info(message);
+      } else {
+        // Fallback if info method doesn't exist
+        toast.success(message);
+      }
+    } catch (e) {
+      console.log('Toast info:', message);
+    }
+  }
+};
+
 interface VoiceAgentInterfaceProps {
   className?: string;
   debug?: boolean;
@@ -68,8 +98,16 @@ const VoiceAgentInterface: React.FC<VoiceAgentInterfaceProps> = ({
   const agentAudioTrackRef = useRef<RemoteAudioTrack | null>(null);
   const audioElementRef = useRef<HTMLAudioElement | null>(null);
   const retryAttemptedRef = useRef<boolean>(false);
+  const connectionInProgressRef = useRef<boolean>(false);
 
   const connectToLiveKit = useCallback(async () => {
+    // Prevent multiple simultaneous connection attempts
+    if (connectionInProgressRef.current) {
+      console.log('Connection already in progress, ignoring duplicate request');
+      return;
+    }
+    
+    connectionInProgressRef.current = true; // Lock the connection
     setIsLoading(true);
     setError(null);
     
@@ -333,7 +371,19 @@ const VoiceAgentInterface: React.FC<VoiceAgentInterfaceProps> = ({
         adaptiveStream: true,
         dynacast: true,
         // Increase connection timeout
-        connectionTimeout: 30000, // 30 seconds
+        connectionTimeout: 60000, // Increased from 30 to 60 seconds
+        // Add reconnection settings
+        reconnectPolicy: {
+          maxRetries: 10,        // Try up to 10 reconnect attempts
+          maxBackoff: 15000,     // Cap backoff at 15 seconds
+          backoffFactor: 1.5,    // Increase backoff by 50% each attempt
+          retryableStatusCodes: [500, 503, 504], // Retry on server errors
+        },
+        // Additional audio-specific settings
+        audioDefaults: {
+          dtx: true,            // Enable discontinuous transmission
+          redForOpus: true,     // Enable redundancy for Opus codec
+        },
       });
       
       // Set up event listeners
@@ -352,20 +402,42 @@ const VoiceAgentInterface: React.FC<VoiceAgentInterfaceProps> = ({
           
           // Check if this is an agent
           if (participant.identity.startsWith('agent-')) {
-            toast.success('Sync agent has joined the room');
+            safeToast.success('Sync agent has joined the room');
+            console.log(`AGENT JOINED: ${participant.identity} - Metadata:`, participant.metadata);
+            
+            // Log all existing tracks on this participant
+            const tracks = participant.getTracks();
+            console.log(`Agent has ${tracks.length} tracks when connecting:`, 
+              tracks.map(t => `${t.kind} (${t.trackSid})`));
+              
+            // Add participant details to UI
+            setAgentResponse(prev => prev + `\n[System: Agent ${participant.identity} has joined]`);
           }
           
           // Listen for agent tracks
           participant.on(ParticipantEvent.TrackSubscribed, (track) => {
+            console.log(`Track subscribed from ${participant.identity}: ${track.kind} (${track.sid})`);
+            
             if (track.kind === 'audio' && participant.identity.startsWith('agent-')) {
+              console.log('Agent audio track detected and being attached');
               agentAudioTrackRef.current = track as RemoteAudioTrack;
               const audioEl = track.attach();
               audioEl.autoplay = true;
               audioEl.playsInline = true;
+              audioEl.volume = 1.0; // Ensure volume is at maximum
+              
+              // Try to force audio playback
+              try {
+                audioEl.play().catch(e => console.error('Audio autoplay failed:', e));
+              } catch (e) {
+                console.error('Error attempting to play audio:', e);
+              }
+              
               audioElementRef.current = audioEl;
               document.body.appendChild(audioEl);
-              console.log('Agent audio track attached');
+              console.log('Agent audio track attached successfully');
               setIsAgentSpeaking(true);
+              setAgentResponse(prev => prev + '\n[System: Agent audio connected]');
             }
           });
           
@@ -378,7 +450,7 @@ const VoiceAgentInterface: React.FC<VoiceAgentInterfaceProps> = ({
         })
         .on(RoomEvent.ParticipantDisconnected, (participant: RemoteParticipant) => {
           if (participant.identity.startsWith('agent-')) {
-            toast.error('Agent has disconnected from the room');
+            safeToast.error('Agent has disconnected from the room');
             setAgentResponse(prev => prev + '\n[System: Agent disconnected from room]');
           }
         })
@@ -398,7 +470,7 @@ const VoiceAgentInterface: React.FC<VoiceAgentInterfaceProps> = ({
                   transcriptContainer.scrollTop = transcriptContainer.scrollHeight;
                 }
               } else if (data.type === 'error') {
-                toast.error(data.message);
+                safeToast.error(data.message);
               }
             } catch (e) {
               console.error('Error parsing data from agent:', e);
@@ -407,15 +479,29 @@ const VoiceAgentInterface: React.FC<VoiceAgentInterfaceProps> = ({
         })
         .on(RoomEvent.Disconnected, (reason) => {
           console.log('Disconnected from LiveKit room. Reason:', reason);
-          setIsConnected(false);
-          setRoom(null);
-          setIsListening(false);
-          setIsLoading(false);
           
-          // Clean up audio elements
-          if (audioElementRef.current) {
-            audioElementRef.current.remove();
-            audioElementRef.current = null;
+          // Map reason code to readable message
+          let reasonText = 'Unknown';
+          switch(reason) {
+            case 1: reasonText = 'Client initiated disconnect'; break;
+            case 2: reasonText = 'Server initiated disconnect'; break;
+            case 3: reasonText = 'Duplicate identity'; break;
+            case 4: reasonText = 'Connection error'; break;
+          }
+          console.log(`Disconnect reason explained: ${reasonText} (code ${reason})`);
+          
+          // Only clean up if not reconnecting
+          if (reason !== 4) { // Don't clean up on connection errors, allow reconnect
+            setIsConnected(false);
+            setRoom(null);
+            setIsListening(false);
+            setIsLoading(false);
+            
+            // Clean up audio elements
+            if (audioElementRef.current) {
+              audioElementRef.current.remove();
+              audioElementRef.current = null;
+            }
           }
         })
         .on(RoomEvent.MediaDevicesError, (e: Error) => {
@@ -460,7 +546,7 @@ const VoiceAgentInterface: React.FC<VoiceAgentInterfaceProps> = ({
           setIsConnected(true);
           setRoom(newRoom);
           setError(null);
-          toast.info('Connected in mock mode (no actual agent available)');
+          safeToast.info('Connected in mock mode (no actual agent available)');
           
           // Add a simulated response after a delay
           setTimeout(() => {
@@ -483,72 +569,153 @@ const VoiceAgentInterface: React.FC<VoiceAgentInterfaceProps> = ({
         try {
           console.log('Requesting microphone access...');
           // Give the browser more time after connection before requesting microphone
-          await new Promise(resolve => setTimeout(resolve, 2000)); // Increased from 1000ms to 2000ms
+          await new Promise(resolve => setTimeout(resolve, 3000)); // Increased from 2000ms to 3000ms
           
+          // First create the audio track without publishing
+          console.log('Creating audio track...');
+          
+          // Use a simpler audio track creation with fewer constraints
           const audioTrack = await createLocalAudioTrack({
-            noiseSuppression: true,
             echoCancellation: true,
-            // Additional constraints for more reliable audio capture
-            constraints: {
-              audio: {
-                channelCount: 1,
-                sampleRate: 44100,
+            noiseSuppression: true
+          });
+          
+          console.log('Audio track created successfully');
+          
+          // Store reference first, then enable the track
+          localAudioTrackRef.current = audioTrack;
+          
+          // Sequential initialization process with proper error handling at each step
+          try {
+            console.log('Enabling audio track...');
+            audioTrack.enable();
+            console.log('Audio track enabled successfully');
+            
+            // Wait longer before attempting to publish
+            await new Promise(resolve => setTimeout(resolve, 3000));
+            
+            console.log('Preparing to publish audio track...');
+            // Use a more reliable publishing configuration
+            await newRoom.localParticipant.publishTrack(audioTrack, {
+              source: 'microphone',
+              stopMicTrackOnMute: false,
+              publishTimeout: 30000, // 30 second timeout is sufficient
+            });
+            
+            console.log('Local audio track published successfully');
+            setIsListening(true);
+            safeToast.success('Connected to Sync voice agent');
+          } catch (publishError: any) {
+            console.error('Error during audio track publishing:', publishError);
+            
+            // Don't disconnect - just update UI to show connected but not listening
+            setIsListening(false);
+            safeToast.error('Microphone connection failed. You can still receive audio from the agent.');
+            
+            // Try again with a simpler approach if it was a publish error
+            if (!retryAttemptedRef.current) {
+              retryAttemptedRef.current = true;
+              
+              try {
+                // Simple retry with minimal options
+                console.log('Attempting simplified audio publishing...');
+                await new Promise(resolve => setTimeout(resolve, 2000));
+                
+                await newRoom.localParticipant.publishTrack(audioTrack, {
+                  source: 'microphone',
+                  publishTimeout: 20000,
+                });
+                
+                console.log('Simplified audio publishing succeeded');
+                setIsListening(true);
+              } catch (retryError) {
+                console.error('Simplified publishing also failed:', retryError);
+                setIsListening(false);
               }
             }
-          });
-          
-          console.log('Audio track created, waiting for engine to be ready...');
-          // Add an additional delay to ensure the audio engine is fully initialized
-          await new Promise(resolve => setTimeout(resolve, 1000));
-          
-          console.log('Attempting to publish audio track...');
-          await newRoom.localParticipant.publishTrack(audioTrack, {
-            // Use more reliable publishing options
-            source: 'microphone',
-            stopMicTrackOnMute: false,
-            // Much longer timeout for publishing
-            publishTimeout: 30000, // 30 seconds (doubled from 15)
-          });
-          
-          localAudioTrackRef.current = audioTrack;
-          console.log('Local audio track published successfully');
-          setIsListening(true);
-          toast.success('Connected to Sync voice agent');
+          }
         } catch (audioError: any) {
           console.error('Failed to publish audio track:', audioError);
           // Don't disconnect - just update UI to show connected but not listening
           setIsListening(false);
           
-          // Make a second attempt to publish the track after a delay
+          // Log detailed error information to help with debugging
+          const errorDetails = {
+            message: audioError.message,
+            name: audioError.name,
+            code: audioError.code,
+            isEngineTimeout: audioError.message?.includes('engine not connected within timeout') || false,
+            stack: audioError.stack
+          };
+          console.error('Audio publishing error details:', errorDetails);
+          
+          // Make a second attempt to publish the track after a longer delay
           if (!retryAttemptedRef.current) {
             retryAttemptedRef.current = true;
             console.log('Scheduling retry for audio publishing...');
             
+            // Show toast message about retry attempt
+            safeToast.info('Audio connection issue detected, trying again in a moment...');
+            
             setTimeout(async () => {
               try {
                 console.log('Retrying audio track publishing...');
+                
+                // Create a new track with simplified options for the retry
                 const retryAudioTrack = await createLocalAudioTrack({
                   noiseSuppression: true,
                   echoCancellation: true,
                 });
                 
+                // Enable the track and wait longer before publishing
+                retryAudioTrack.enable();
+                await new Promise(resolve => setTimeout(resolve, 3000));
+                
+                // Publish with an even longer timeout
                 await newRoom.localParticipant.publishTrack(retryAudioTrack, {
                   source: 'microphone',
                   stopMicTrackOnMute: false,
-                  publishTimeout: 30000,
+                  publishTimeout: 60000, // 60 seconds for the retry attempt
                 });
                 
                 localAudioTrackRef.current = retryAudioTrack;
                 console.log('Retry successful! Audio track published');
                 setIsListening(true);
-                toast.success('Microphone connected successfully');
+                safeToast.success('Microphone connected successfully');
               } catch (retryError) {
                 console.error('Retry failed:', retryError);
-                toast.error('Connected, but microphone access failed even after retry');
+                
+                // Show more detailed error message
+                let errorMessage = 'Connected, but microphone access failed';
+                
+                // Handle specific error cases
+                if (retryError.message?.includes('engine not connected within timeout')) {
+                  errorMessage = 'Audio engine connection timed out. Try refreshing the page and reconnecting.';
+                } else if (retryError.message?.includes('permission')) {
+                  errorMessage = 'Microphone permission was denied. Please check your browser settings.';
+                } else if (retryError.message?.includes('not found') || retryError.message?.includes('NotFoundError')) {
+                  errorMessage = 'No microphone detected. Please connect a microphone and try again.';
+                } else if (retryError.message?.includes('security') || retryError.message?.includes('insecure')) {
+                  errorMessage = 'Connection rejected due to security requirements. Please ensure you\'re using HTTPS.';
+                }
+                
+                safeToast.error(errorMessage);
+                // Set a user-friendly error message in the UI
+                setError(errorMessage);
               }
-            }, 5000); // Wait 5 seconds before retry
+            }, 8000); // Increased from 5000ms to 8000ms
           } else {
-            toast.error('Connected, but microphone access failed: ' + audioError.message);
+            // Show a clear error message based on the type of error
+            let errorMessage = 'Connected, but microphone access failed.';
+            
+            if (audioError.message?.includes('engine not connected within timeout')) {
+              errorMessage = 'Audio engine connection timed out. The agent is still connected but cannot hear you.';
+            } else if (audioError.message?.includes('permission')) {
+              errorMessage = 'Microphone permission was denied. Please check your browser settings.';
+            }
+            
+            safeToast.error(errorMessage);
+            setError(errorMessage);
           }
         }
       } catch (e: any) {
@@ -580,13 +747,14 @@ const VoiceAgentInterface: React.FC<VoiceAgentInterfaceProps> = ({
         setError(errorMessage);
         setIsConnected(false);
         setRoom(null);
-        toast.error('Failed to connect to voice agent');
+        safeToast.error('Failed to connect to voice agent');
       }
     } catch (e: any) {
       console.error('Unexpected error during connection:', e);
       setError(`Unexpected error: ${e.message}`);
     } finally {
       setIsLoading(false);
+      connectionInProgressRef.current = false; // Release the connection lock
     }
   }, [session, connectionAttempts]);
   
@@ -609,7 +777,7 @@ const VoiceAgentInterface: React.FC<VoiceAgentInterfaceProps> = ({
       setTranscript('');
       setAgentResponse('');
       
-      toast.success('Disconnected from Sync voice agent');
+      safeToast.success('Disconnected from Sync voice agent');
     }
   }, [room]);
   
@@ -729,7 +897,7 @@ const VoiceAgentInterface: React.FC<VoiceAgentInterfaceProps> = ({
         throw new Error(`Failed to force agent to join: ${errorData.error || response.statusText}`);
       }
       
-      toast.success('Manual agent join command sent');
+      safeToast.success('Manual agent join command sent');
       setAgentResponse(prev => prev + '\n[System: Manual agent join command sent]');
       
       // Wait for agent to connect for a bit
@@ -741,7 +909,7 @@ const VoiceAgentInterface: React.FC<VoiceAgentInterfaceProps> = ({
         
         if (hasAgent) {
           clearInterval(checkInterval);
-          toast.success('Agent has joined the room!');
+          safeToast.success('Agent has joined the room!');
         } else if (waitTime >= 10000) { // Wait up to 10 seconds
           clearInterval(checkInterval);
           console.log('Agent did not join within timeout period');
@@ -753,7 +921,7 @@ const VoiceAgentInterface: React.FC<VoiceAgentInterfaceProps> = ({
     } catch (e: any) {
       console.error('Error forcing agent to join:', e);
       setError(`Failed to force agent to join: ${e.message}`);
-      toast.error('Failed to force agent to join');
+      safeToast.error('Failed to force agent to join');
     } finally {
       setIsLoading(false);
     }
@@ -763,7 +931,7 @@ const VoiceAgentInterface: React.FC<VoiceAgentInterfaceProps> = ({
   const reconnectAgent = useCallback(async () => {
     // First set loading state
     setIsLoading(true);
-    toast.info('Reconnecting agent with a fresh session...');
+    safeToast.info('Reconnecting agent with a fresh session...');
     
     // Clean up the old room if it exists
     if (room) {
@@ -785,7 +953,7 @@ const VoiceAgentInterface: React.FC<VoiceAgentInterfaceProps> = ({
         setTranscript('');
         setAgentResponse('');
         
-        console.log('Successfully disconnected from previous room');
+        safeToast.success('Disconnected from Sync voice agent');
       } catch (error) {
         console.error('Error during disconnect:', error);
         // Continue with reconnect attempt even if disconnection fails
