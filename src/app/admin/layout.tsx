@@ -65,7 +65,13 @@ export default function AdminLayout({
   ];
 
   return (
-    <div className="min-h-screen flex bg-[#111111] text-[#E5E7EB]">
+    <div className="min-h-screen flex bg-[#111111] text-[#E5E7EB] admin-layout">
+      {/* Add a style tag to hide the footer in admin layout */}
+      <style jsx global>{`
+        .admin-layout ~ footer {
+          display: none;
+        }
+      `}</style>
       {/* Sidebar (desktop) */}
       <div className="hidden md:flex md:w-64 md:flex-col md:fixed md:inset-y-0">
         <div className="flex-1 flex flex-col min-h-0 bg-[#18181B] border-r border-[#374151]">
