@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Voice Agent Tester</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f7f9fc;
+            color: #333;
+        }
+        h1 {
+            color: #2d3748;
+            border-bottom: 2px solid #e2e8f0;
+            padding-bottom: 10px;
+        }
+        .card {
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 600;
+        }
+        input, select, textarea {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-family: inherit;
+        }
+        button {
+            background-color: #4a5568;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        button:hover {
+            background-color: #2d3748;
+        }
+        .result {
+            background-color: #f0f4f8;
+            border-left: 4px solid #4299e1;
+            padding: 15px;
+            margin-top: 20px;
+            border-radius: 4px;
+            min-height: 100px;
+            white-space: pre-wrap;
+            overflow-wrap: break-word;
+        }
+        .logs {
+            font-family: monospace;
+            font-size: 14px;
+            background-color: #1a202c;
+            color: #e2e8f0;
+            padding: 15px;
+            border-radius: 4px;
+            max-height: 300px;
+            overflow-y: auto;
+            margin-top: 20px;
+        }
+        .success {
+            color: #38a169;
+        }
+        .error {
+            color: #e53e3e;
+        }
+    </style>
+</head>
+<body>
+    <h1>Voice Agent Configuration Tester</h1>
+    
+    <div class="card">
+        <h2>Agent Health Check</h2>
+        <p>Test if the voice agent service is properly configured and all dependencies are available.</p>
+        <div class="form-group">
+            <label for="agent-url">Agent URL:</label>
+            <input type="text" id="agent-url" value="http://localhost:8000" placeholder="http://localhost:8000 or your deployed URL">
+        </div>
+        <button id="test-health">Test Health</button>
+        <div class="result" id="health-result">Results will appear here...</div>
+    </div>
+    
+    <div class="card">
+        <h2>Test Agent Connection</h2>
+        <p>Simulate a connection to the agent service.</p>
+        <div class="form-group">
+            <label for="room-name">Room Name:</label>
+            <input type="text" id="room-name" value="test-room-123" placeholder="Enter a room name">
+        </div>
+        <div class="form-group">
+            <label for="user-id">User ID (optional):</label>
+            <input type="text" id="user-id" placeholder="Enter a user ID">
+        </div>
+        <button id="test-connection">Test Connection</button>
+        <div class="result" id="connection-result">Results will appear here...</div>
+    </div>
+    
+    <div class="card">
+        <h2>Logs</h2>
+        <div class="logs" id="logs"></div>
+    </div>
+    
+    <script>
+        // Helper functions
+        function logMessage(message, isError = false) {
+            const logsElement = document.getElementById('logs');
+            const logItem = document.createElement('div');
+            logItem.classList.add(isError ? 'error' : 'success');
+            logItem.textContent = `[${new Date().toISOString()}] ${message}`;
+            logsElement.appendChild(logItem);
+            logsElement.scrollTop = logsElement.scrollHeight;
+        }
+        
+        function displayResult(elementId, data, isSuccess = true) {
+            const resultElement = document.getElementById(elementId);
+            resultElement.innerHTML = '';
+            
+            if (typeof data === 'object') {
+                resultElement.textContent = JSON.stringify(data, null, 2);
+            } else {
+                resultElement.textContent = data;
+            }
+            
+            resultElement.classList.remove('success', 'error');
+            resultElement.classList.add(isSuccess ? 'success' : 'error');
+        }
+        
+        // Health check
+        document.getElementById('test-health').addEventListener('click', async () => {
+            const agentUrl = document.getElementById('agent-url').value.trim();
+            
+            if (!agentUrl) {
+                logMessage('Please enter an agent URL', true);
+                return;
+            }
+            
+            try {
+                logMessage(`Testing health at ${agentUrl}/health...`);
+                
+                const response = await fetch(`${agentUrl}/health`);
+                const data = await response.json();
+                
+                logMessage(`Health check status: ${response.status}`);
+                displayResult('health-result', data, response.ok);
+                
+                if (response.ok) {
+                    logMessage(`✅ Agent is healthy`, false);
+                    if (!data.livekit_connected) {
+                        logMessage(`⚠️ LiveKit connection issue detected`, true);
+                    }
+                    if (!data.openai_available) {
+                        logMessage(`⚠️ OpenAI connection issue detected`, true);
+                    }
+                } else {
+                    logMessage(`❌ Agent returned error: ${response.status}`, true);
+                }
+                
+            } catch (error) {
+                logMessage(`❌ Error testing health: ${error.message}`, true);
+                displayResult('health-result', `Error: ${error.message}`, false);
+            }
+        });
+        
+        // Test connection
+        document.getElementById('test-connection').addEventListener('click', async () => {
+            const agentUrl = document.getElementById('agent-url').value.trim();
+            const roomName = document.getElementById('room-name').value.trim();
+            const userId = document.getElementById('user-id').value.trim();
+            
+            if (!agentUrl) {
+                logMessage('Please enter an agent URL', true);
+                return;
+            }
+            
+            if (!roomName) {
+                logMessage('Please enter a room name', true);
+                return;
+            }
+            
+            try {
+                logMessage(`Testing agent connection for room "${roomName}"...`);
+                
+                const response = await fetch(`${agentUrl}/test/agent`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        room_name: roomName,
+                        user_id: userId || undefined
+                    })
+                });
+                
+                const data = await response.json();
+                
+                logMessage(`Connection test status: ${response.status}`);
+                displayResult('connection-result', data, response.ok);
+                
+                if (response.ok) {
+                    logMessage(`✅ Agent connection test successful`, false);
+                } else {
+                    logMessage(`❌ Agent connection test failed: ${response.status}`, true);
+                }
+                
+            } catch (error) {
+                logMessage(`❌ Error testing connection: ${error.message}`, true);
+                displayResult('connection-result', `Error: ${error.message}`, false);
+            }
+        });
+        
+        // Log initial status
+        logMessage('Voice Agent Tester loaded. Ready to test configuration.');
+    </script>
+</body>
+</html> 

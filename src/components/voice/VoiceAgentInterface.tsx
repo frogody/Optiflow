@@ -57,6 +57,11 @@ interface VoiceAgentInterfaceProps {
 
 const ORB_SIZE = 64;
 
+// Get the voice agent URL from environment variables
+const VOICE_AGENT_URL = typeof window !== 'undefined' 
+  ? (process.env.NEXT_PUBLIC_VOICE_AGENT_URL || '') 
+  : '';
+
 const VoiceAgentInterface: React.FC<VoiceAgentInterfaceProps> = ({ 
   className,
   debug = process.env.NODE_ENV === 'development'
@@ -133,7 +138,14 @@ const VoiceAgentInterface: React.FC<VoiceAgentInterfaceProps> = ({
           ? '/api/livekit/debug-dispatch' 
           : '/api/livekit/dispatch';
         
-        console.log(`Using dispatch endpoint: ${dispatchEndpoint}`);
+        // If we have a direct voice agent URL configured, use it instead
+        const useDirectAgent = VOICE_AGENT_URL && VOICE_AGENT_URL.length > 0;
+        const effectiveDispatchEndpoint = useDirectAgent 
+          ? `${VOICE_AGENT_URL}/agent/dispatch` 
+          : dispatchEndpoint;
+        
+        console.log(`Using dispatch endpoint: ${effectiveDispatchEndpoint}`);
+        console.log(`Direct agent connection: ${useDirectAgent ? 'Yes' : 'No'}`);
         
         // Define headers with bypass token if needed
         const headers: HeadersInit = { 
@@ -146,7 +158,12 @@ const VoiceAgentInterface: React.FC<VoiceAgentInterfaceProps> = ({
           console.log('Adding bypass token header for force-join request');
         }
         
-        const dispatchResponse = await fetch(dispatchEndpoint, {
+        // Add CORS headers when using direct agent
+        if (useDirectAgent) {
+          headers['Origin'] = window.location.origin;
+        }
+        
+        const dispatchResponse = await fetch(effectiveDispatchEndpoint, {
           method: 'POST',
           headers,
           body: JSON.stringify({ roomName: generatedRoomName, userId })
@@ -185,6 +202,13 @@ const VoiceAgentInterface: React.FC<VoiceAgentInterfaceProps> = ({
         let tokenEndpoint = process.env.NODE_ENV === 'development' 
           ? '/api/livekit/debug-token' 
           : '/api/livekit/token';
+        
+        // If we have a direct voice agent URL configured, use it instead
+        const useDirectAgent = VOICE_AGENT_URL && VOICE_AGENT_URL.length > 0;
+        if (useDirectAgent) {
+          tokenEndpoint = `${VOICE_AGENT_URL}/agent/token`;
+          console.log(`Using direct agent token endpoint: ${tokenEndpoint}`);
+        }
         
         console.log(`Using token endpoint: ${tokenEndpoint}`);
         
@@ -844,7 +868,14 @@ const VoiceAgentInterface: React.FC<VoiceAgentInterfaceProps> = ({
         ? '/api/livekit/debug-force-join' 
         : '/api/livekit/force-join';
       
-      console.log(`Using force-join endpoint: ${forceJoinEndpoint}`);
+      // If we have a direct voice agent URL configured, use it instead
+      const useDirectAgent = VOICE_AGENT_URL && VOICE_AGENT_URL.length > 0;
+      const effectiveForceJoinEndpoint = useDirectAgent 
+        ? `${VOICE_AGENT_URL}/agent/force-join` 
+        : forceJoinEndpoint;
+      
+      console.log(`Using force-join endpoint: ${effectiveForceJoinEndpoint}`);
+      console.log(`Direct agent connection: ${useDirectAgent ? 'Yes' : 'No'}`);
 
       // Define headers with bypass token if needed
       const headers: HeadersInit = { 
@@ -858,7 +889,7 @@ const VoiceAgentInterface: React.FC<VoiceAgentInterfaceProps> = ({
       }
       
       // First attempt - include more data to help with agent initialization
-      let response = await fetch(forceJoinEndpoint, {
+      let response = await fetch(effectiveForceJoinEndpoint, {
         method: 'POST',
         headers,
         body: JSON.stringify({ 
@@ -877,7 +908,7 @@ const VoiceAgentInterface: React.FC<VoiceAgentInterfaceProps> = ({
         console.log('First force-join attempt failed, retrying in 2 seconds...');
         await new Promise(resolve => setTimeout(resolve, 2000));
         
-        response = await fetch(forceJoinEndpoint, {
+        response = await fetch(effectiveForceJoinEndpoint, {
           method: 'POST',
           headers,
           body: JSON.stringify({ 

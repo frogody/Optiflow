@@ -1,9 +1,8 @@
 #!/bin/bash
 set -e
 
-# Define variables - replace these with your actual values
-DOCKER_REGISTRY="your-registry.com"
-IMAGE_NAME="optiflow-jarvis-agent"
+# Define variables 
+IMAGE_NAME="optiflow-voice-agent"
 IMAGE_TAG=$(date +%Y%m%d%H%M%S)
 
 # Build the Docker image
@@ -11,31 +10,39 @@ echo "Building Docker image: $IMAGE_NAME:$IMAGE_TAG"
 docker build -t $IMAGE_NAME:$IMAGE_TAG .
 docker tag $IMAGE_NAME:$IMAGE_TAG $IMAGE_NAME:latest
 
-# Push the image to registry (uncomment when ready for production)
-# echo "Pushing image to registry: $DOCKER_REGISTRY/$IMAGE_NAME:$IMAGE_TAG"
-# docker tag $IMAGE_NAME:$IMAGE_TAG $DOCKER_REGISTRY/$IMAGE_NAME:$IMAGE_TAG
-# docker tag $IMAGE_NAME:$IMAGE_TAG $DOCKER_REGISTRY/$IMAGE_NAME:latest
-# docker push $DOCKER_REGISTRY/$IMAGE_NAME:$IMAGE_TAG
-# docker push $DOCKER_REGISTRY/$IMAGE_NAME:latest
-
-echo "Image built successfully: $IMAGE_NAME:$IMAGE_TAG"
-echo "To run the container locally:"
+# Test the container locally
+echo "You can test the container locally with:"
 echo "docker run -p 8000:8000 --env-file .env $IMAGE_NAME:$IMAGE_TAG"
 
-# Deploy to your platform of choice
-# Examples:
-# - AWS ECS
-# - Google Cloud Run
-# - Kubernetes
-# - Azure Container Instances
-
-# Example for Google Cloud Run (uncomment and customize when ready)
-# echo "Deploying to Google Cloud Run..."
-# gcloud run deploy $IMAGE_NAME \
-#   --image $DOCKER_REGISTRY/$IMAGE_NAME:$IMAGE_TAG \
-#   --platform managed \
-#   --region us-central1 \
-#   --allow-unauthenticated \
-#   --set-env-vars="LIVEKIT_WS_URL=wss://your-livekit-server.com"
-
-echo "Deployment completed!" 
+# Deployment instructions for render.com
+echo ""
+echo "==== DEPLOYMENT INSTRUCTIONS ===="
+echo "To deploy this container to render.com:"
+echo ""
+echo "1. Create a new Web Service in render.com"
+echo "2. Choose 'Deploy an existing image from a registry'"
+echo "3. Configure the following settings:"
+echo "   - Name: $IMAGE_NAME"
+echo "   - Image URL: Your Docker registry URL for this image"
+echo "   - Environment Variables: Copy all variables from your .env file"
+echo ""
+echo "4. Add the following environment variables from your .env file:"
+echo "   - LIVEKIT_URL"
+echo "   - LIVEKIT_API_KEY"
+echo "   - LIVEKIT_API_SECRET"
+echo "   - OPENAI_API_KEY"
+echo "   - DEEPGRAM_API_KEY"
+echo "   - ELEVENLABS_API_KEY"
+echo "   - ELEVENLABS_VOICE_ID"
+echo "   - OPTIFLOW_BACKEND_URL"
+echo "   - OPTIFLOW_BACKEND_API_KEY"
+echo ""
+echo "5. Set the health check path to: /health"
+echo ""
+echo "Alternative deployment options:"
+echo "- Railway.app: Supports direct GitHub deployment with Dockerfile"
+echo "- Fly.io: Deploy with 'flyctl deploy'"
+echo "- Google Cloud Run: 'gcloud run deploy $IMAGE_NAME --image [YOUR-IMAGE]'"
+echo ""
+echo "Remember to update the web application to point to your deployed agent URL"
+echo "============================================" 

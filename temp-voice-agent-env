@@ -1,0 +1,14 @@
+# LiveKit Configuration
+LIVEKIT_URL=wss://isyncsosync-p1sl1ryj.livekit.cloud
+LIVEKIT_API_KEY=APIDsO77tjLY9cj
+LIVEKIT_API_SECRET=3jUzWuEsgp2Y7nDkqEE7V4aGQzGgNpnEdyPOJ6zRUYFA
+
+# AI Services (using placeholders - replace with actual keys)
+OPENAI_API_KEY=sk-placeholder
+DEEPGRAM_API_KEY=placeholder
+ELEVENLABS_API_KEY=placeholder
+ELEVENLABS_VOICE_ID=EXAVITQu4vr4xnSDxMaL
+
+# Optiflow Backend
+OPTIFLOW_BACKEND_URL=https://app.isyncso.com
+OPTIFLOW_BACKEND_API_KEY=optiflow-backend-key-placeholder 
