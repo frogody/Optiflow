@@ -1,4 +1,4 @@
-import { AgentDispatchClient, RoomServiceClient } from 'livekit-server-sdk';
+import { AccessToken, RoomServiceClient } from 'livekit-server-sdk';
 import { NextRequest, NextResponse } from 'next/server';
 
 // Helper function to strip quotes from environment variables
@@ -53,24 +53,51 @@ export async function POST(req: NextRequest) {
       });
     }
 
-    // Initialize agent dispatch client
-    const agentDispatchClient = new AgentDispatchClient(livekitUrl, apiKey, apiSecret);
-
     // Create identity for agent
     const agentIdentity = `agent-debug-${Date.now()}`;
 
-    // Dispatch agent to room
+    // Make a direct fetch call to the LiveKit API
+    const headers = {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${await generateAgentDispatchToken(apiKey, apiSecret)}`
+    };
+    
     console.log(`Dispatching agent ${agentIdentity} to room ${roomName}`);
-    const dispatch = await agentDispatchClient.createDispatch(
-      roomName,
-      'Jarvis', // Assuming 'Jarvis' is the registered agent_name
-      {
+    
+    const dispatchResponse = await fetch(`${livekitUrl}/agent/dispatch`, {
+      method: 'POST',
+      headers,
+      body: JSON.stringify({
+        room_name: roomName,
+        agent_name: 'Jarvis',
         metadata: JSON.stringify({
           debug: true,
           timestamp: new Date().toISOString()
         }),
-      }
-    );
+      })
+    });
+    
+    if (!dispatchResponse.ok) {
+      const errorText = await dispatchResponse.text();
+      throw new Error(`Agent dispatch failed: ${dispatchResponse.status} ${errorText}`);
+    }
+    
+    // Check response content type to determine how to parse it
+    const contentType = dispatchResponse.headers.get('content-type');
+    let dispatch;
+    
+    if (contentType && contentType.includes('application/json')) {
+      dispatch = await dispatchResponse.json();
+    } else {
+      // If not JSON, create a simple object with the response text
+      const responseText = await dispatchResponse.text();
+      console.log(`LiveKit dispatch response (non-JSON): ${responseText}`);
+      dispatch = { 
+        id: `dispatch-${Date.now()}`,
+        status: 'success',
+        response: responseText
+      };
+    }
 
     return NextResponse.json({
       success: true,
@@ -91,4 +118,19 @@ export async function POST(req: NextRequest) {
       { status: 500 }
     );
   }
+}
+
+// Helper function to generate a JWT token for agent dispatch
+async function generateAgentDispatchToken(apiKey: string, apiSecret: string): Promise<string> {
+  const token = new AccessToken(apiKey, apiSecret, {
+    identity: 'agent-dispatcher',
+    name: 'Agent Dispatcher',
+  });
+  
+  token.addGrant({ 
+    roomAdmin: true,
+    roomCreate: true,
+  });
+  
+  return token.toJwt();
 } 

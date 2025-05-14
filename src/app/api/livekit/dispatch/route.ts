@@ -1,4 +1,4 @@
-import { AccessToken, RoomServiceClient, AgentDispatchClient } from 'livekit-server-sdk';
+import { AccessToken, RoomServiceClient } from 'livekit-server-sdk';
 import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth/next';
 
@@ -12,7 +12,6 @@ const memoryService = new Mem0MemoryService();
 // Helper function to strip quotes from environment variables
 function cleanEnvVar(value: string | undefined): string {
   if (!value) return '';
-  // Handle both double and single quotes with a better approach
   if ((value.startsWith('"') && value.endsWith('"')) || 
       (value.startsWith("'") && value.endsWith("'"))) {
     return value.substring(1, value.length - 1);
@@ -103,12 +102,19 @@ export async function POST(req: NextRequest) {
       // Continue even if memory retrieval fails
     }
     
-    // Enhance metadata with memory context
+    // Enhance metadata with memory context and ensure proper agent initialization
     const enhancedMetadata = {
       ...metadata,
       memoryContext,
       mem0Enabled: true,
       userId: targetUserId,
+      sessionId: `${finalRoomName}-${Date.now()}`,
+      systemPrompt: "You are Jarvis, a friendly AI assistant for Optiflow. Greet users warmly when they join.",
+      agentConfig: {
+        name: "Jarvis",
+        identity: `agent-jarvis-${Date.now()}`,
+        autoGreet: true
+      }
     };
     
     // Find or create a persistent room for this user
@@ -193,21 +199,49 @@ export async function POST(req: NextRequest) {
       });
     }
 
-    // Initialize agent dispatch client
-    const agentDispatchClient = new AgentDispatchClient(livekitUrl, apiKey, apiSecret);
-
-    // Create identity for agent if not provided
+    // Direct API call for agent dispatch instead of using AgentDispatchClient
+    // This is a workaround for compatibility with livekit-server-sdk v1.2.7
     const agentIdentity = agent?.id || `agent-jarvis-${Date.now()}`;
-
-    // Dispatch agent to room with enhanced metadata including memory context
+    
     console.log(`Dispatching agent ${agentIdentity} to room ${finalRoomName} with memory context`);
-    const dispatch = await agentDispatchClient.createDispatch(
-      finalRoomName,
-      'Jarvis', // Assuming 'Jarvis' is the registered agent_name
-      {
+    
+    // Make a direct fetch call to the LiveKit API
+    const headers = {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${await generateAgentDispatchToken(apiKey, apiSecret)}`
+    };
+    
+    const dispatchResponse = await fetch(`${livekitUrl}/agent/dispatch`, {
+      method: 'POST',
+      headers,
+      body: JSON.stringify({
+        room_name: finalRoomName,
+        agent_name: 'Jarvis',
         metadata: JSON.stringify(enhancedMetadata),
-      }
-    );
+      })
+    });
+    
+    if (!dispatchResponse.ok) {
+      const errorText = await dispatchResponse.text();
+      throw new Error(`Agent dispatch failed: ${dispatchResponse.status} ${errorText}`);
+    }
+    
+    // Check response content type to determine how to parse it
+    const contentType = dispatchResponse.headers.get('content-type');
+    let dispatch;
+    
+    if (contentType && contentType.includes('application/json')) {
+      dispatch = await dispatchResponse.json();
+    } else {
+      // If not JSON, create a simple object with the response text
+      const responseText = await dispatchResponse.text();
+      console.log(`LiveKit dispatch response (non-JSON): ${responseText}`);
+      dispatch = { 
+        id: `dispatch-${Date.now()}`,
+        status: 'success',
+        response: responseText
+      };
+    }
 
     // Register agent if not already present
     let dbAgent = null;
@@ -224,9 +258,12 @@ export async function POST(req: NextRequest) {
       
       // Assign agent to room
       await prisma.orchestratorAssignment.upsert({
-        where: { agentId_roomId: { agentId: dbAgent.id, roomId: userRoom.id } },
+        where: { 
+          id: `${dbAgent.id}-${userRoom.id}` // Construct a unique ID
+        },
         update: { role: agent.role || 'assistant' },
         create: {
+          id: `${dbAgent.id}-${userRoom.id}`,
           agentId: dbAgent.id,
           roomId: userRoom.id,
           role: agent.role || 'assistant',
@@ -254,10 +291,27 @@ export async function POST(req: NextRequest) {
       memoryItemsCount: memoryContext.length,
     });
   } catch (error: any) {
+    // Enhanced error logging
     console.error('Error dispatching agent:', error);
+    if (error && error.stack) {
+      console.error('Error stack:', error.stack);
+    }
     return NextResponse.json(
-      { error: 'Failed to dispatch agent: ' + error.message },
+      { error: 'Failed to dispatch agent: ' + (error.message || error), stack: error && error.stack },
       { status: 500 }
     );
   }
+}
+
+// Helper function to generate a JWT token for agent dispatch
+async function generateAgentDispatchToken(apiKey: string, apiSecret: string): Promise<string> {
+  const token = new AccessToken(apiKey, apiSecret, {
+    identity: 'agent-dispatcher',
+    name: 'Agent Dispatcher',
+  });
+  token.addGrant({ 
+    roomAdmin: true,
+    roomCreate: true,
+  });
+  return token.toJwt();
 } 

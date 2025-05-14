@@ -17,28 +17,32 @@ from livekit.agents import (
     tools as lk_tools,
 )
 from livekit.agents.utils import AudioEncoding
+from livekit.agents.pipeline import llm_node, tts_node, stt_node
 from livekit.plugins import openai as openai_plugin
 from livekit.plugins import deepgram as deepgram_plugin
 from livekit.plugins import elevenlabs as elevenlabs_plugin
 import time
+from livekit import agents
+from livekit.plugins.openai import OpenAITTSPlugin, OpenAIASRPlugin, OpenAIChatCompletionPlugin
+import traceback
 
 load_dotenv()
 
 # Configure logging
 logging.basicConfig(
     level=logging.INFO,
-    format='%(asctime)s - %(levelname)s - %(message)s',
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
     handlers=[
-        logging.FileHandler("jarvis_agent.log"),
+        logging.FileHandler("agent.log"),
         logging.StreamHandler()
     ]
 )
 logger = logging.getLogger(__name__)
 
-# --- Configuration ---
-LIVEKIT_WS_URL = os.getenv("LIVEKIT_WS_URL")
-LIVEKIT_API_KEY = os.getenv("LIVEKIT_API_KEY")
-LIVEKIT_API_SECRET = os.getenv("LIVEKIT_API_SECRET")
+# Environment variables
+LIVEKIT_URL = os.getenv("LIVEKIT_URL") or "wss://isyncsosync-p1sl1ryj.livekit.cloud"
+LIVEKIT_API_KEY = os.getenv("LIVEKIT_API_KEY") or "APIcPGS63mCxqbP"
+LIVEKIT_API_SECRET = os.getenv("LIVEKIT_API_SECRET") or "AxD4cT19ffntf1YXfDQDZmbzkj3VwdMiqWIcVbPLgyEB"
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
 DEEPGRAM_API_KEY = os.getenv("DEEPGRAM_API_KEY")
 ELEVENLABS_API_KEY = os.getenv("ELEVENLABS_API_KEY")
@@ -46,6 +50,22 @@ ELEVENLABS_VOICE_ID = os.getenv("ELEVENLABS_VOICE_ID", "EXAVITQu4vr4xnSDxMaL")  
 OPTIFLOW_BACKEND_URL = os.getenv("OPTIFLOW_BACKEND_URL")
 OPTIFLOW_BACKEND_API_KEY = os.getenv("OPTIFLOW_BACKEND_API_KEY")
 AGENT_EVENT_WEBHOOK_URL = os.getenv("AGENT_EVENT_WEBHOOK_URL")
+
+# System prompt
+SYSTEM_PROMPT = """
+You are a helpful voice assistant for Optiflow. Your name is Jarvis.
+When a user connects, always greet them right away with a friendly introduction.
+Keep your responses clear and concise.
+"""
+
+# Setup plugins
+asr_plugin = OpenAIASRPlugin(api_key=OPENAI_API_KEY)
+tts_plugin = OpenAITTSPlugin(api_key=OPENAI_API_KEY, voice="alloy")
+llm_plugin = OpenAIChatCompletionPlugin(
+    api_key=OPENAI_API_KEY,
+    model="gpt-4o",
+    system_prompt=SYSTEM_PROMPT,
+)
 
 # --- Pipedream Tool Definition ---
 class PipedreamActionTool(lk_tools.Tool):
@@ -223,38 +243,173 @@ async def send_agent_event(event_type, user_id, room_id):
     except Exception as e:
         logger.error(f"Error sending agent event webhook: {e}")
 
-class JarvisAgent(Agent):
+class JarvisAgent:
     def __init__(self):
-        super().__init__()
-        
-        # Initialize STT (Speech-to-Text)
-        self.stt_plugin = deepgram_plugin.STT(api_key=DEEPGRAM_API_KEY) if DEEPGRAM_API_KEY else lk_stt.NoOpSTT()
-        logger.info(f"STT initialized: {type(self.stt_plugin).__name__}")
-        
-        # Initialize LLM (Language Model)
-        self.llm_plugin = openai_plugin.LLM(
-            model="gpt-4-turbo-preview", 
-            api_key=OPENAI_API_KEY
-        ) if OPENAI_API_KEY else lk_llm.NoOpLLM()
-        logger.info(f"LLM initialized: {type(self.llm_plugin).__name__}")
-        
-        # Initialize TTS (Text-to-Speech)
-        self.tts_plugin = elevenlabs_plugin.TTS(
-            api_key=ELEVENLABS_API_KEY,
-            voice_id=ELEVENLABS_VOICE_ID,
-            model_id="eleven_multilingual_v2"
-        ) if ELEVENLABS_API_KEY else lk_tts.NoOpTTS()
-        logger.info(f"TTS initialized: {type(self.tts_plugin).__name__}")
-        
-        # Initialize tools
-        self.pipedream_tool = PipedreamActionTool()
-        self.kb_tool = KnowledgeBaseQueryTool(backend_url=OPTIFLOW_BACKEND_URL, backend_api_key=OPTIFLOW_BACKEND_API_KEY)
-        
-        # Register tools with the LLM
-        self.llm_plugin.tools = [self.pipedream_tool, self.kb_tool]
-        
-        logger.info("JarvisAgent fully initialized.")
+        try:
+            # Initialize STT (Speech-to-Text)
+            self.stt_plugin = deepgram_plugin.STT(api_key=DEEPGRAM_API_KEY) if DEEPGRAM_API_KEY else lk_stt.NoOpSTT()
+            logger.info(f"STT initialized: {type(self.stt_plugin).__name__}")
+            
+            # Initialize LLM (Language Model)
+            self.llm_plugin = openai_plugin.LLM(
+                model="gpt-4-turbo-preview", 
+                api_key=OPENAI_API_KEY
+            ) if OPENAI_API_KEY else lk_llm.NoOpLLM()
+            logger.info(f"LLM initialized: {type(self.llm_plugin).__name__}")
+            
+            # Initialize TTS (Text-to-Speech)
+            self.tts_plugin = elevenlabs_plugin.TTS(
+                api_key=ELEVENLABS_API_KEY,
+                voice_id=ELEVENLABS_VOICE_ID,
+                model_id="eleven_multilingual_v2"
+            ) if ELEVENLABS_API_KEY else lk_tts.NoOpTTS()
+            logger.info(f"TTS initialized: {type(self.tts_plugin).__name__}")
+            
+            # Initialize tools
+            self.pipedream_tool = PipedreamActionTool()
+            self.kb_tool = KnowledgeBaseQueryTool(backend_url=OPTIFLOW_BACKEND_URL, backend_api_key=OPTIFLOW_BACKEND_API_KEY)
+            
+            # Register tools with the LLM
+            self.llm_plugin.tools = [self.pipedream_tool, self.kb_tool]
+            
+            logger.info("JarvisAgent fully initialized.")
+        except Exception as e:
+            logger.error(f"Error initializing JarvisAgent: {e}")
+            logger.error(traceback.format_exc())
+            raise
 
+    async def process_job(self, job: JobContext):
+        try:
+            logger.info(f"JarvisAgent processing job: {job.id} for participant: {job.participant.identity if job.participant else 'N/A'}")
+            
+            # Parse metadata to extract user information and mem0 memory context
+            metadata = {}
+            memory_context = []
+            user_id = None
+            try:
+                if job.metadata:
+                    metadata = json.loads(job.metadata)
+                    logger.info(f"Received metadata with job: {metadata.keys()}")
+                    
+                    # Extract memory context if available
+                    if 'memoryContext' in metadata and isinstance(metadata['memoryContext'], list):
+                        memory_context = metadata['memoryContext']
+                        logger.info(f"Found memory context with {len(memory_context)} items")
+                    
+                    # Extract user ID for memory storage
+                    if 'userId' in metadata:
+                        user_id = metadata['userId']
+                        logger.info(f"Using user ID from metadata: {user_id}")
+            except Exception as e:
+                logger.error(f"Error parsing metadata: {e}")
+                # Continue without memory context
+            
+            # Create initial chat context
+            initial_ctx = lk_llm.ChatContext()
+            initial_ctx.append(
+                role=lk_llm.ChatRole.SYSTEM,
+                content=("You are Jarvis, a highly capable AI assistant for Optiflow. "
+                        "Your primary user is an Optiflow user who is using your voice interface. "
+                        "You can understand voice commands, execute tasks using available tools "
+                        "(like Pipedream for external actions and a knowledge base for information retrieval), "
+                        "and respond in a helpful, concise, and professional manner. "
+                        "When a tool is used, summarize the outcome for the user. "
+                        "If you need clarification, ask the user. "
+                        "Always confirm actions before execution if they are irreversible or sensitive. "
+                        "Keep your responses conversational but efficient.")
+            )
+            
+            # Add memory context to enhance the assistant's knowledge of the user
+            if memory_context and len(memory_context) > 0:
+                memory_str = "\n\nHere is the conversation history with this user that you should use to provide continuity:\n"
+                for memory_item in memory_context:
+                    if isinstance(memory_item, dict) and 'content' in memory_item and 'role' in memory_item:
+                        initial_ctx.append(
+                            role=lk_llm.ChatRole.SYSTEM,
+                            content=f"Previous conversation: {memory_item['role']}: {memory_item['content']}"
+                        )
+                logger.info("Enhanced prompt with memory context")
+            
+            # Create an AgentSession (v1.0 API)
+            session = AgentSession(
+                room=job.room,
+                participant=job.participant,
+                stt=self.stt_plugin,
+                llm=self.llm_plugin,
+                tts=self.tts_plugin,
+                audio_encoding=AudioEncoding.PCM_S16LE,
+                llm_context=initial_ctx
+            )
+            
+            try:
+                # Send welcome message
+                welcome_message = "Hello, I'm Jarvis, your voice assistant for Optiflow. How can I help you today?"
+                await session.tts.synthesize(welcome_message)
+                
+                # Start polling for user presence in the background
+                presence_task = None
+                if job.participant and job.room:
+                    user_id = job.participant.identity
+                    room_id = job.room.name
+                    presence_task = asyncio.create_task(self.poll_user_presence(user_id, room_id, session))
+                
+                # Main conversation loop
+                async for event in session.process_media():
+                    # Event handling based on event type 
+                    # V1.0 uses a different event model
+                    if event.type == "transcript":
+                        # User said something
+                        logger.info(f"User said: {event.text}")
+                    
+                    elif event.type == "agent_speaking_started":
+                        # Agent started speaking
+                        logger.info("Agent started speaking")
+                    
+                    elif event.type == "agent_speaking_finished":
+                        # Agent finished speaking
+                        logger.info("Agent finished speaking")
+                    
+                    elif event.type == "error":
+                        # Handle errors
+                        logger.error(f"Error in session: {event.error}")
+                
+                # Cleanup tasks
+                if presence_task:
+                    presence_task.cancel()
+                    
+            except Exception as e:
+                error_msg = f"Error in agent processing: {e}"
+                logger.error(error_msg, exc_info=True)
+                
+                try:
+                    # Notify the frontend of the error
+                    await session.send_data(json.dumps({
+                        "type": "error",
+                        "message": "An internal error occurred with the agent."
+                    }))
+                    
+                    # Also try to speak the error if TTS is available
+                    await session.tts.synthesize("I'm sorry, but I've encountered an internal error. Please try reconnecting.")
+                except Exception as send_e:
+                    logger.error(f"Failed to send error to client: {send_e}")
+        except Exception as e:
+            error_msg = f"Error in agent processing: {e}"
+            logger.error(error_msg, exc_info=True)
+            logger.error(traceback.format_exc())
+            try:
+                # Notify the frontend of the error
+                await session.send_data(json.dumps({
+                    "type": "error",
+                    "message": "An internal error occurred with the agent."
+                }))
+                # Also try to speak the error if TTS is available
+                await session.tts.synthesize("I'm sorry, but I've encountered an internal error. Please try reconnecting.")
+            except Exception as send_e:
+                logger.error(f"Failed to send error to client: {send_e}")
+        finally:
+            logger.info(f"Agent processing finished for job {job.id}.")
+            await session.close()
+    
     async def poll_user_presence(self, user_id, room_id, session: AgentSession):
         """Poll the Optiflow backend for user presence. If inactive, end the session."""
         poll_interval = 30  # seconds
@@ -276,195 +431,19 @@ class JarvisAgent(Agent):
                             if time.time() - last_active > inactivity_limit:
                                 logger.info(f"[AGENT LEAVE] User {user_id} inactive for over 10 minutes. Jarvis agent leaving room: {room_id}")
                                 await send_agent_event("agent_leave", user_id, room_id)
-                                # TODO: Send agent leave event to monitoring/analytics service
+                                
                                 await session.send_data(json.dumps({
                                     "type": "agent_status",
                                     "status": "leaving_room",
                                     "reason": "user_inactive"
                                 }))
+                                
                                 await session.tts.synthesize("I'll be here when you return. Goodbye!")
                                 await session.close()
                                 return
             except Exception as e:
                 logger.error(f"Error polling user presence: {e}")
             await asyncio.sleep(poll_interval)
-
-    async def _main_agent_loop(self, session: AgentSession, memory_context=None, user_id=None):
-        participant_id = session.participant.identity if session.participant else None
-        room_id = session.room.name if session.room else None
-        logger.info(f"[AGENT JOIN] Jarvis agent joining room: {room_id} for user: {participant_id}")
-        await send_agent_event("agent_join", participant_id, room_id)
-        
-        # Base prompt
-        initial_prompt = (
-            "You are Jarvis, a highly capable AI assistant for Optiflow. "
-            "Your primary user is an Optiflow user who is using your voice interface. "
-            "You can understand voice commands, execute tasks using available tools "
-            "(like Pipedream for external actions and a knowledge base for information retrieval), "
-            "and respond in a helpful, concise, and professional manner. "
-            "When a tool is used, summarize the outcome for the user. "
-            "If you need clarification, ask the user. "
-            "Always confirm actions before execution if they are irreversible or sensitive. "
-            "Keep your responses conversational but efficient."
-        )
-        
-        # Add memory context to enhance the assistant's knowledge of the user
-        if memory_context and len(memory_context) > 0:
-            memory_str = "\n\nHere is the conversation history with this user that you should use to provide continuity:\n"
-            for memory_item in memory_context:
-                if isinstance(memory_item, dict) and 'content' in memory_item and 'role' in memory_item:
-                    memory_str += f"\n{memory_item['role']}: {memory_item['content']}"
-            initial_prompt += memory_str
-            initial_prompt += "\n\nUse this history to maintain context, but do not explicitly mention that you are recalling previous conversations unless directly relevant to the current topic."
-            logger.info("Enhanced prompt with memory context")
-        
-        # Initialize chat history
-        chat_history = [lk_llm.ChatMessage(role=lk_llm.ChatRole.SYSTEM, content=initial_prompt)]
-        
-        # Send welcome message
-        welcome_message = "Hello, I'm Jarvis, your voice assistant for Optiflow. How can I help you today?"
-        await session.tts.synthesize(welcome_message)
-        await session.send_data(json.dumps({
-            "type": "agent_transcript", 
-            "transcript": welcome_message
-        }))
-        
-        # Start polling for user presence in the background
-        presence_task = None
-        if participant_id and room_id:
-            presence_task = asyncio.create_task(self.poll_user_presence(participant_id, room_id, session))
-        
-        # Main conversation loop
-        user_input_audio_stream = await session.stt.stream()
-        async for event in user_input_audio_stream:
-            if event.type == lk_stt.SpeechDataEvent.FINAL_TRANSCRIPT:
-                user_query = event.alternatives[0].text
-                if not user_query.strip():
-                    continue  # Skip empty transcripts
-                
-                logger.info(f"User said: {user_query}")
-                
-                # Send user transcript to frontend
-                await session.send_data(json.dumps({
-                    "type": "user_transcript", 
-                    "transcript": user_query
-                }))
-                
-                # Add user message to chat history
-                chat_history.append(lk_llm.ChatMessage(role=lk_llm.ChatRole.USER, content=user_query))
-                
-                # Stream response from LLM to TTS
-                llm_stream = await self.llm_plugin.chat(history=chat_history)
-                tts_input_stream = lk_tts.SynthesizeStream()
-                await session.tts.play(tts_input_stream)
-                
-                full_response_text = ""
-                async for llm_event in llm_stream:
-                    if llm_event.type == lk_llm.LLMChunkEvent.CHUNK:
-                        full_response_text += llm_event.text
-                        tts_input_stream.push_text(llm_event.text)
-                
-                tts_input_stream.mark_segment_end()
-                
-                # Add assistant message to chat history
-                chat_history.append(lk_llm.ChatMessage(
-                    role=lk_llm.ChatRole.ASSISTANT, 
-                    content=full_response_text
-                ))
-                
-                # Send agent transcript to frontend
-                await session.send_data(json.dumps({
-                    "type": "agent_transcript", 
-                    "transcript": full_response_text
-                }))
-                
-                logger.info(f"Jarvis responded: {full_response_text}")
-                
-                # If we have a user ID, store this exchange in memory service
-                if user_id:
-                    try:
-                        # We would call the memory service API here
-                        # This would be a webhook or direct API call to store the conversation
-                        # For demonstration, we'll just log the intent
-                        logger.info(f"Would store conversation for user {user_id} in Mem0")
-                    except Exception as e:
-                        logger.error(f"Error storing conversation in memory: {e}")
-                        # Continue despite memory storage failure
-            
-            elif event.type == lk_stt.SpeechDataEvent.ERROR:
-                error_msg = f"Speech recognition error: {event.error}"
-                logger.error(error_msg)
-                await session.send_data(json.dumps({
-                    "type": "error", 
-                    "message": error_msg
-                }))
-                
-                # Also synthesize the error message
-                await session.tts.synthesize("I'm having trouble understanding you. Could you try again?")
-                break
-        
-        # Clean up before exiting
-        if presence_task:
-            presence_task.cancel()
-        logger.info(f"[AGENT LEAVE] Jarvis agent leaving room: {room_id} for user: {participant_id}")
-        await send_agent_event("agent_leave", participant_id, room_id)
-
-    async def process_job(self, job: JobContext):
-        logger.info(f"JarvisAgent processing job: {job.id} for participant: {job.participant.identity if job.participant else 'N/A'}")
-        
-        # Parse metadata to extract user information and mem0 memory context
-        metadata = {}
-        memory_context = []
-        user_id = None
-        try:
-            if job.metadata:
-                metadata = json.loads(job.metadata)
-                logger.info(f"Received metadata with job: {metadata.keys()}")
-                
-                # Extract memory context if available
-                if 'memoryContext' in metadata and isinstance(metadata['memoryContext'], list):
-                    memory_context = metadata['memoryContext']
-                    logger.info(f"Found memory context with {len(memory_context)} items")
-                
-                # Extract user ID for memory storage
-                if 'userId' in metadata:
-                    user_id = metadata['userId']
-                    logger.info(f"Using user ID from metadata: {user_id}")
-        except Exception as e:
-            logger.error(f"Error parsing metadata: {e}")
-            # Continue without memory context
-        
-        session = AgentSession(
-            agent=self,
-            room=job.room,
-            participant=job.participant,  # The user participant this agent is serving
-            stt=self.stt_plugin,
-            llm=self.llm_plugin,
-            tts=self.tts_plugin,
-            audio_encoding=AudioEncoding.PCM_S16LE,
-            audio_publish_options=None,  # Agent typically doesn't publish its own mic
-        )
-        
-        try:
-            # Enhance the initial prompt with memory context if available
-            await self._main_agent_loop(session, memory_context=memory_context, user_id=user_id)
-        except Exception as e:
-            error_msg = f"Error in agent processing loop: {e}"
-            logger.error(error_msg, exc_info=True)
-            
-            try:
-                # Notify the frontend of the error
-                await session.send_data(json.dumps({
-                    "type": "error", 
-                    "message": "An internal error occurred with the agent."
-                }))
-                
-                # Also try to speak the error if TTS is available
-                await session.tts.synthesize("I'm sorry, but I've encountered an internal error. Please try reconnecting.")
-            except Exception as send_e:
-                logger.error(f"Failed to send error to client: {send_e}")
-        finally:
-            logger.info(f"Agent processing finished for job {job.id}.")
 
 async def request_fnc(job_request: JobContext):
     logger.info(f"Received job request: {job_request.id}, type: {job_request.type}")
@@ -476,35 +455,105 @@ async def request_fnc(job_request: JobContext):
         logger.warning(f"Unhandled job type: {job_request.type}")
 
 async def run_agent_worker():
-    if not LIVEKIT_WS_URL:
-        raise ValueError("LIVEKIT_WS_URL is not set in environment variables.")
+    if not LIVEKIT_URL:
+        raise ValueError("LIVEKIT_URL is not set in environment variables.")
     
     worker_opts = WorkerOptions(
         request_handler=request_fnc,
     )
     
-    logger.info(f"Starting Jarvis Agent Worker, connecting to LiveKit: {LIVEKIT_WS_URL}")
+    logger.info(f"Starting Jarvis Agent Worker, connecting to LiveKit: {LIVEKIT_URL}")
     
     # This is placeholder code - you would use the livekit-server agent CLI in production
-    # For example: livekit-server agent run main_agent:request_fnc --url $LIVEKIT_WS_URL --api-key $LIVEKIT_API_KEY --api-secret $LIVEKIT_API_SECRET
+    # For example: livekit-server agent run main_agent:request_fnc --url $LIVEKIT_URL --api-key $LIVEKIT_API_KEY --api-secret $LIVEKIT_API_SECRET
     
     print("Jarvis Agent Worker defined. To run:")
-    print("1. Ensure all .env variables are set (LIVEKIT_WS_URL, API keys, etc.).")
-    print("2. Use LiveKit CLI: `livekit-server agent run main_agent:request_fnc --url $LIVEKIT_WS_URL --api-key $LIVEKIT_API_KEY --api-secret $LIVEKIT_API_SECRET`")
+    print("1. Ensure all .env variables are set (LIVEKIT_URL, API keys, etc.).")
+    print("2. Use LiveKit CLI: `livekit-server agent run main_agent:request_fnc --url $LIVEKIT_URL --api-key $LIVEKIT_API_KEY --api-secret $LIVEKIT_API_SECRET`")
+
+# Initialize agent with new v2 structure
+async def main():
+    # Get API keys from environment
+    livekit_api_key = os.environ.get("LIVEKIT_API_KEY")
+    livekit_api_secret = os.environ.get("LIVEKIT_API_SECRET")
+    openai_api_key = os.environ.get("OPENAI_API_KEY")
+    
+    # Create plugins using v2 syntax
+    asr_plugin = OpenAIASRPlugin(api_key=openai_api_key)
+    tts_plugin = OpenAITTSPlugin(api_key=openai_api_key, voice="alloy")
+    llm_plugin = OpenAIChatCompletionPlugin(
+        api_key=openai_api_key,
+        model="gpt-4-turbo",
+        system_prompt="You are an AI assistant helping users with their questions.",
+    )
+    
+    # Define tools the agent can use
+    tools = [
+        {
+            "name": "get_weather",
+            "description": "Get the weather for a specific location",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "location": {
+                        "type": "string",
+                        "description": "The location to get weather for"
+                    }
+                },
+                "required": ["location"]
+            }
+        }
+    ]
+    
+    # Set up agent session with pipeline nodes
+    agent_session = agents.AgentSession(
+        livekit_url=os.environ.get("LIVEKIT_URL"),
+        api_key=livekit_api_key,
+        api_secret=livekit_api_secret,
+        identity="voice-agent",
+    )
+    
+    # Create pipeline with nodes
+    pipeline = agent_session.create_pipeline(room_name="test-room")
+    
+    # Add nodes to pipeline
+    pipeline.add_node(agents.nodes.AudioTranscriptionNode(plugin=asr_plugin))
+    pipeline.add_node(agents.nodes.ChatCompletionNode(plugin=llm_plugin, tools=tools))
+    pipeline.add_node(agents.nodes.TextToSpeechNode(plugin=tts_plugin))
+    
+    # Define tool implementations
+    async def get_weather(location):
+        return f"The weather in {location} is sunny and 75 degrees."
+    
+    # Register tool handlers
+    pipeline.register_tool("get_weather", get_weather)
+    
+    # Start the pipeline
+    await pipeline.start()
+    
+    # Keep the agent running
+    try:
+        while True:
+            await asyncio.sleep(1)
+    except KeyboardInterrupt:
+        print("Shutting down agent...")
+    finally:
+        await pipeline.stop()
 
 if __name__ == "__main__":
     print("Jarvis Voice Agent Script")
     print("========================")
     print("This script defines the agent worker to be used with LiveKit.")
     print("To run this agent, use the LiveKit CLI command as shown below:")
-    print("livekit-server agent run main_agent:request_fnc --url [LIVEKIT_WS_URL] --api-key [LIVEKIT_API_KEY] --api-secret [LIVEKIT_API_SECRET]")
+    print("livekit-server agent run main_agent:request_fnc --url [LIVEKIT_URL] --api-key [LIVEKIT_API_KEY] --api-secret [LIVEKIT_API_SECRET]")
     
     # The following is not necessary if using the livekit-server CLI to run the agent
     # It's here for manual testing or direct execution in development
     try:
-        asyncio.run(run_agent_worker())
+        asyncio.run(main())
     except KeyboardInterrupt:
         print("Agent worker stopped by user.")
     except Exception as e:
         logger.error(f"Error running agent worker: {e}", exc_info=True)
+        logger.error(traceback.format_exc())
         print(f"Error: {e}") 

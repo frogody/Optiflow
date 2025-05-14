@@ -37,25 +37,11 @@ export async function OPTIONS(req: NextRequest) {
 }
 
 async function handleTokenRequest(req: NextRequest) {
-  console.log('LiveKit token endpoint called');
-  
-  // Check all possible environment variables
-  const envVars = {
-    LIVEKIT_API_KEY: !!process.env.LIVEKIT_API_KEY,
-    LIVEKIT_API_SECRET: !!process.env.LIVEKIT_API_SECRET,
-    LIVEKIT_URL: !!process.env.LIVEKIT_URL,
-    // Alternate variables
-    LIVEKIT_KEY: !!process.env.LIVEKIT_KEY,
-    LIVEKIT_SECRET: !!process.env.LIVEKIT_SECRET,
-    LIVEKIT_ENDPOINT: !!process.env.LIVEKIT_ENDPOINT,
-    // Check other possible LiveKit variables
-    LIVEKIT_WS_URL: !!process.env.LIVEKIT_WS_URL,
-    LIVEKIT_SERVER: !!process.env.LIVEKIT_SERVER,
-    NEXT_PUBLIC_LIVEKIT_URL: !!process.env.NEXT_PUBLIC_LIVEKIT_URL,
-    NODE_ENV: process.env.NODE_ENV
-  };
-  
-  console.log('LiveKit environment variables present:', envVars);
+  // Add detailed logging for debugging
+  const reqUrl = new URL(req.url);
+  console.log('LiveKit token endpoint called with URL:', reqUrl.toString());
+  console.log('Token request query params:', Object.fromEntries(reqUrl.searchParams.entries()));
+  console.log('Token request method:', req.method);
   
   // Check authentication
   const session = await getServerSession(authOptions);
@@ -63,16 +49,10 @@ async function handleTokenRequest(req: NextRequest) {
   // Get bypass token from header
   const bypassToken = req.headers.get('x-agent-bypass');
   
-  // Check auth status using helper function  
+  // Check auth status using helper function
   const bypassAuth = process.env.NODE_ENV === 'development' || verifyAgentBypass(bypassToken);
   
-  console.log('Token Auth check:', { 
-    isDev: process.env.NODE_ENV === 'development',
-    hasSession: !!session?.user?.id,
-    bypassToken: bypassToken ? 'present' : 'missing',
-    bypassResult: bypassAuth
-  });
-  
+  // Skip authentication check if bypassed or in development
   if (!bypassAuth && !session?.user?.id) {
     console.error('Authentication required but user not found in session and bypass token invalid');
     return NextResponse.json({ 
@@ -82,29 +62,36 @@ async function handleTokenRequest(req: NextRequest) {
   }
 
   try {
-    // Get request body (with fallback for GET requests)
-    let requestData;
-    if (req.method === 'POST') {
+    // Get request parameters - try multiple sources
+    let requestData: { room?: string, identity?: string } = {};
+    
+    // 1. Check URL query parameters first (most common for GET requests)
+    const url = new URL(req.url);
+    const roomParam = url.searchParams.get('room');
+    const identityParam = url.searchParams.get('identity') || url.searchParams.get('username');
+    
+    if (roomParam) requestData.room = roomParam;
+    if (identityParam) requestData.identity = identityParam;
+    
+    // 2. If no room found in query params and this is a POST request, try the body
+    if (!requestData.room && req.method === 'POST') {
       try {
-        requestData = await req.json();
+        const bodyData = await req.json();
+        if (bodyData.room) requestData.room = bodyData.room;
+        if (bodyData.identity) requestData.identity = bodyData.identity;
       } catch (error) {
-        console.error('Failed to parse JSON body:', error);
-        requestData = {};
+        console.log('No JSON body or invalid JSON in request');
       }
-    } else {
-      // Handle GET requests by parsing URL parameters
-      const url = new URL(req.url);
-      requestData = {
-        room: url.searchParams.get('room') || '',
-        identity: url.searchParams.get('identity') || url.searchParams.get('username') || '' // Support both identity and username params
-      };
     }
+    
+    console.log('Extracted request data:', requestData);
     
     const { room, identity } = requestData;
     
+    // Validate room parameter
     if (!room) {
       return NextResponse.json(
-        { error: 'Room name is required' },
+        { error: 'Room name is required (use ?room=YOUR_ROOM_NAME in the URL)' },
         { status: 400 }
       );
     }
@@ -112,10 +99,10 @@ async function handleTokenRequest(req: NextRequest) {
     // Use session user ID as default identity if available
     const effectiveIdentity = identity || session?.user?.id || `user-${Date.now()}`;
     
-    // Get environment variables with all possible alternates
-    const apiKey = cleanEnvVar(process.env.LIVEKIT_API_KEY || process.env.LIVEKIT_KEY || '');
-    const apiSecret = cleanEnvVar(process.env.LIVEKIT_API_SECRET || process.env.LIVEKIT_SECRET || '');
-    let livekitUrl = cleanEnvVar(process.env.LIVEKIT_URL || process.env.LIVEKIT_ENDPOINT || process.env.LIVEKIT_WS_URL || process.env.NEXT_PUBLIC_LIVEKIT_URL || '');
+    // Get environment variables with standard names
+    const apiKey = cleanEnvVar(process.env.LIVEKIT_API_KEY || '');
+    const apiSecret = cleanEnvVar(process.env.LIVEKIT_API_SECRET || '');
+    let livekitUrl = cleanEnvVar(process.env.LIVEKIT_URL || process.env.LIVEKIT_ENDPOINT || process.env.NEXT_PUBLIC_LIVEKIT_URL || '');
     
     // Ensure URL has the correct wss:// protocol
     if (livekitUrl) {

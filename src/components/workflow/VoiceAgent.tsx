@@ -1,9 +1,10 @@
 'use client';
 
 import { flip, offset, shift, useFloating, useHover, useInteractions } from '@floating-ui/react';
-import { LiveKitRoom, useConnectionState, useRoomContext, createLocalTracks, ConnectionState } from '@livekit/components-react';
+import { LiveKitRoom, useConnectionState, useRoomContext, createLocalTracks } from '@livekit/components-react';
 import React from 'react';
 import { useEffect, useRef, useState } from 'react';
+import { ConnectionState, Room, RoomEvent, DataPacket_Kind } from 'livekit-client';
 
 import MicrophonePermission from '@/components/MicrophonePermission';
 import { useUserStore } from '@/lib/userStore';
@@ -235,17 +236,39 @@ export const VoiceAgent: React.FC<VoiceAgentProps> = ({ onWorkflowGenerated }) =
       // Get token from API
       const tokenRes = await fetch(`/api/livekit/token?room=${encodeURIComponent(roomName)}&identity=${encodeURIComponent(userName)}`);
       if (!tokenRes.ok) throw new Error('Failed to get LiveKit token');
-      const { token } = await tokenRes.json();
+      const { token, url } = await tokenRes.json();
+      
       // Create room and connect
-      const room = new Room();
-      await room.connect(LIVEKIT_URL, token, { autoSubscribe: true,
-        // Add more options as needed
-          } as RoomConnectOptions);
+      const room = new Room({
+        adaptiveStream: true,
+        dynacast: true,
+        // Add v2 specific options
+        disconnectOnWidgetClose: false
+      });
+      
+      await room.connect(url, token);
+      
+      // Set up event listeners using v2 syntax
+      room.addEventListener(RoomEvent.ParticipantConnected, () => {
+        console.log('Remote participant connected');
+      });
+      
+      room.addEventListener(RoomEvent.DataReceived, (data) => {
+        try {
+          const jsonData = JSON.parse(data.data);
+          console.log('Received data:', jsonData);
+          // Handle received data
+        } catch (err) {
+          console.error('Error parsing received data:', err);
+        }
+      });
+      
       setLivekitRoom(room);
       setLivekitConnected(true);
       setShowConnectModal(false);
+      
       // Optionally publish local audio
-      await room.localParticipant.enableCameraAndMicrophone();
+      await room.localParticipant.enableMicrophone();
     } catch (err: any) {
       setLivekitError(err.message || 'Failed to connect to LiveKit');
       setLivekitConnected(false);
@@ -271,6 +294,24 @@ export const VoiceAgent: React.FC<VoiceAgentProps> = ({ onWorkflowGenerated }) =
     };
   }, [livekitRoom]) // eslint-disable-line react-hooks/exhaustive-deps
   
+  const publishData = (data: any) => {
+    if (!livekitRoom || !livekitConnected) {
+      console.error('Cannot publish data: not connected to LiveKit');
+      return;
+    }
+    
+    try {
+      const jsonData = JSON.stringify(data);
+      livekitRoom.localParticipant.publishData(jsonData, {
+        reliable: true,
+        // Use identities instead of SIDs in v2
+        identities: [], // For broadcast, leave empty
+      });
+    } catch (err) {
+      console.error('Error publishing data:', err);
+    }
+  };
+
   return (
     <>
       {/* Floating button with connection status */}

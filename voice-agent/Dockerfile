@@ -20,4 +20,4 @@ RUN pip install --no-cache-dir -r requirements.txt
 COPY . .
 
 # Default command to run
-CMD ["sh", "-c", "livekit-server agent run main_agent:request_fnc --url $LIVEKIT_WS_URL --api-key $LIVEKIT_API_KEY --api-secret $LIVEKIT_API_SECRET"] 
+CMD ["sh", "-c", "livekit-server agent run main_agent:request_fnc --url $LIVEKIT_URL --api-key $LIVEKIT_API_KEY --api-secret $LIVEKIT_API_SECRET"] 

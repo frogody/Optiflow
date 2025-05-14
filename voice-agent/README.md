@@ -47,7 +47,7 @@ This voice agent integrates with:
 The agent is designed to be run with the `livekit-server` CLI:
 
 ```bash
-livekit-server agent run main_agent:request_fnc --url $LIVEKIT_WS_URL --api-key $LIVEKIT_API_KEY --api-secret $LIVEKIT_API_SECRET
+livekit-server agent run main_agent:request_fnc --url $LIVEKIT_URL --api-key $LIVEKIT_API_KEY --api-secret $LIVEKIT_API_SECRET
 ```
 
 ### For Development/Testing
@@ -64,7 +64,7 @@ This will output instructions on how to properly run the agent with LiveKit CLI.
 
 Key environment variables include:
 
-- `LIVEKIT_WS_URL`: WebSocket URL for your LiveKit server
+- `LIVEKIT_URL`: WebSocket URL for your LiveKit server
 - `LIVEKIT_API_KEY` and `LIVEKIT_API_SECRET`: Authentication credentials for LiveKit
 - `OPENAI_API_KEY`: API key for OpenAI
 - `DEEPGRAM_API_KEY`: API key for Deepgram

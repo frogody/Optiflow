@@ -186,19 +186,33 @@ const VoiceAgentInterface: React.FC<VoiceAgentInterfaceProps> = ({
                 tokenEndpoint = nextEndpoint;
                 console.log(`Trying alternate endpoint: ${tokenEndpoint}`);
                 currentEndpointIndex++;
+                
+                // Use explicit query parameters for clarity
+                tokenResponse = await fetch(`${tokenEndpoint}?room=${encodeURIComponent(generatedRoomName)}&identity=${encodeURIComponent(session?.user?.id || `anonymous-${Date.now()}`)}`, {
+                  method: 'GET',
+                  headers: tokenHeaders,
+                });
+                
+                if (tokenResponse.ok) break;
               }
             }
             
-            tokenResponse = await fetch(tokenEndpoint, {
-              method: 'POST',
+            // Always use URL parameters since that seems most reliable
+            tokenResponse = await fetch(`${tokenEndpoint}?room=${encodeURIComponent(generatedRoomName)}&identity=${encodeURIComponent(session?.user?.id || `anonymous-${Date.now()}`)}`, {
+              method: 'GET',
               headers: tokenHeaders,
-              body: JSON.stringify({
-                room: roomName,
-                identity: session?.user?.id || `anonymous-${Date.now()}`
-              })
             });
             
             // If successful, break out of retry loop
+            if (tokenResponse.ok) break;
+            
+            // Try with POST and explicit roomName if GET fails
+            tokenResponse = await fetch(`${tokenEndpoint}?room=${encodeURIComponent(generatedRoomName)}&identity=${encodeURIComponent(session?.user?.id || `anonymous-${Date.now()}`)}`, {
+              method: 'GET',
+              headers: tokenHeaders,
+            });
+            
+            // If successful with explicit query params, break out of loop
             if (tokenResponse.ok) break;
             
             // If server error, wait and retry
@@ -675,11 +689,19 @@ const VoiceAgentInterface: React.FC<VoiceAgentInterfaceProps> = ({
         console.log('Adding bypass token header for force-join request');
       }
       
-      // First attempt
+      // First attempt - include more data to help with agent initialization
       let response = await fetch(forceJoinEndpoint, {
         method: 'POST',
         headers,
-        body: JSON.stringify({ roomName })
+        body: JSON.stringify({ 
+          roomName,
+          userId: session?.user?.id,
+          metadata: {
+            roomName,
+            systemPrompt: "You are Jarvis, a helpful voice assistant. Greet the user warmly.",
+            autoGreet: true
+          }
+        })
       });
       
       // If the first attempt fails, try once more after a delay
@@ -690,7 +712,15 @@ const VoiceAgentInterface: React.FC<VoiceAgentInterfaceProps> = ({
         response = await fetch(forceJoinEndpoint, {
           method: 'POST',
           headers,
-          body: JSON.stringify({ roomName })
+          body: JSON.stringify({ 
+            roomName,
+            userId: session?.user?.id,
+            metadata: {
+              roomName,
+              systemPrompt: "You are Jarvis, a helpful voice assistant. Greet the user warmly.",
+              autoGreet: true
+            }
+          })
         });
       }
       

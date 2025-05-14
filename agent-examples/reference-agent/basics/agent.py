@@ -19,14 +19,14 @@ logging.basicConfig(
 logger = logging.getLogger('voice-agent')
 
 # Get environment variables with defaults for Optiflow
-LIVEKIT_WS_URL = os.environ.get("LIVEKIT_WS_URL", "wss://isyncsosync-p1slrjy.livekit.cloud")
+LIVEKIT_URL = os.environ.get("LIVEKIT_URL", "wss://isyncsosync-p1sl1ryj.livekit.cloud")
 LIVEKIT_API_KEY = os.environ.get("LIVEKIT_API_KEY", "APIcPGS63mCxqbP")
-LIVEKIT_API_SECRET = os.environ.get("LIVEKIT_API_SECRET", "AxD4cT19ffntf1YXfDQDZmbzkj3VwdMiqWlcVbPLgyEB")
+LIVEKIT_API_SECRET = os.environ.get("LIVEKIT_API_SECRET", "AxD4cT19ffntf1YXfDQDZmbzkj3VwdMiqWIcVbPLgyEB")
 OPENAI_API_KEY = os.environ.get("OPENAI_API_KEY")
 
 # Generate a daily consistent room name (same as client-side)
 today = datetime.now().strftime("%Y-%m-%d")
-LIVEKIT_ROOM = os.environ.get("LIVEKIT_ROOM", f"optiflow-voice-{today}")
+LIVEKIT_ROOM = os.environ.get("LIVEKIT_ROOM", f"sync-jarvis-{int(datetime.now().timestamp())}")  # Use a timestamp for testing
 
 # Check required environment variables
 if not OPENAI_API_KEY:
@@ -94,31 +94,28 @@ async def main():
     global agent_instance
     
     try:
-        # Check for participants in the room first (to prevent duplicates)
-        try:
-            logger.info(f"Checking for existing agents in room {LIVEKIT_ROOM}...")
-            # TODO: Implement actual check for existing agents in the room
-            # This would require additional LiveKit APIs
-        except Exception as check_err:
-            logger.warning(f"Failed to check room participants: {check_err}")
-        
         # Configure the agent with a retry mechanism
         max_retries = 3
         retry_count = 0
         
+        # Allow agent to join any room it's dispatched to
+        LIVEKIT_AGENT_IDENTITY = f"agent-jarvis-{int(datetime.now().timestamp())}"
+        
         while retry_count < max_retries and not should_exit:
             try:
                 logger.info(f"Creating agent (attempt {retry_count+1}/{max_retries})...")
+                # Create worker agent instead of room-specific agent
                 agent = VoiceAgent.create_voice_response_agent(
-                    url=LIVEKIT_WS_URL,
+                    url=LIVEKIT_URL,
                     api_key=LIVEKIT_API_KEY,
                     api_secret=LIVEKIT_API_SECRET,
-                    identity="optiflow-agent",
+                    identity=LIVEKIT_AGENT_IDENTITY,
                     name="Optiflow Voice Assistant",
                     llm=openai_llm,
                     tts=openai_voice,
                     vad=vad,
-                    room_name=LIVEKIT_ROOM,
+                    # Don't specify a specific room, let server dispatch determine it
+                    listen_for_prompts=True,  # Listen for incoming dispatch requests
                     turn_detector=turn_detector,
                 )
                 
@@ -129,7 +126,7 @@ async def main():
                 agent_instance = agent
                 
                 # Log successful agent creation
-                logger.info(f"Agent created, connecting to room: {LIVEKIT_ROOM}")
+                logger.info(f"Agent created, waiting for dispatch to rooms...")
                 
                 # Add welcome message when users join
                 @agent.on_user_joined
@@ -137,11 +134,11 @@ async def main():
                     try:
                         logger.info(f"User joined: {participant.identity}")
                         await asyncio.sleep(1)  # Brief delay for better user experience
-                        await agent.speak("Hello! I'm your Optiflow assistant. How can I help you today?")
+                        await agent.speak("Hello! I'm your voice assistant. How can I help you today?")
                     except Exception as e:
                         logger.error(f"Error in welcome message: {e}")
                 
-                # Connect and run the agent
+                # Connect and run the agent worker
                 await run_agent(agent)
                 break  # If we get here without error, break the retry loop
                 
@@ -161,7 +158,7 @@ async def main():
 if __name__ == "__main__":
     try:
         # Run the agent
-        logger.info(f"Starting LiveKit voice agent with URL: {LIVEKIT_WS_URL}")
+        logger.info(f"Starting LiveKit voice agent with URL: {LIVEKIT_URL}")
         logger.info(f"Room name: {LIVEKIT_ROOM}")
         asyncio.run(main())
     except KeyboardInterrupt:
