@@ -50,6 +50,16 @@ This guide will help you set up and deploy the Optiflow Voice Agent service, whi
 
    Use the test page to check if the endpoints are working correctly.
 
+6. **Test CORS configuration:**
+
+   You can use the included test script to verify that CORS is properly configured:
+   ```bash
+   cd voice-agent-service
+   python test_cors.py --url http://localhost:8000 --origin https://app.isyncso.com
+   ```
+
+   This will test OPTIONS requests to all endpoints and check that the proper CORS headers are returned.
+
 ## Configuration Options
 
 The voice agent service can be configured using environment variables:
@@ -58,8 +68,7 @@ The voice agent service can be configured using environment variables:
 |----------|-------------|---------|
 | `PORT` | Port on which the service runs | `8000` |
 | `CORS_ALLOW_ORIGIN` | Comma-separated list of allowed origins | `https://app.isyncso.com,http://localhost:3000` |
-| `CORS_ALLOW_METHODS` | HTTP methods allowed for CORS | `GET,POST,OPTIONS` |
-| `CORS_ALLOW_HEADERS` | Headers allowed for CORS | `Content-Type,Authorization` |
+| `DEBUG` | Enable debug logging | `False` |
 | `LIVEKIT_URL` | URL for the LiveKit server | `wss://example.livekit.cloud` |
 
 ## Deploying to Production
@@ -71,10 +80,33 @@ The voice agent service can be configured using environment variables:
 3. Select the `voice-agent-service` directory as your root directory
 4. Set the build command to: `pip install -r requirements.txt`
 5. Set the start command to: `python main.py`
-6. Add the necessary environment variables:
+6. Add the following environment variables:
    - `PORT`: 10000 (default port for Render web services)
    - `CORS_ALLOW_ORIGIN`: Your website domain (e.g., `https://app.isyncso.com`)
-   - Other environment variables as needed
+   - `DEBUG`: true (initially, for better troubleshooting)
+
+   **Important:** Make sure the `CORS_ALLOW_ORIGIN` value exactly matches your website's origin. No trailing slashes, and it must be an exact match.
+
+7. Deploy the service and wait for it to become available.
+
+8. Verify your deployment by visiting the health endpoint:
+   ```
+   https://your-render-service-url.onrender.com/health
+   ```
+
+9. Test CORS using curl:
+   ```bash
+   curl -v -X OPTIONS \
+     -H "Origin: https://app.isyncso.com" \
+     -H "Access-Control-Request-Method: POST" \
+     https://your-render-service-url.onrender.com/agent/dispatch
+   ```
+
+   Look for the following response headers:
+   ```
+   Access-Control-Allow-Origin: https://app.isyncso.com
+   Access-Control-Allow-Methods: POST, OPTIONS, GET
+   ```
 
 ### Connecting the Frontend
 
@@ -102,9 +134,22 @@ The voice agent service can be configured using environment variables:
 
 If you're experiencing CORS issues (errors in the browser console stating "Access to fetch at 'x' from origin 'y' has been blocked by CORS policy"):
 
-1. Make sure your `CORS_ALLOW_ORIGIN` environment variable includes your website's domain
-2. Verify that the voice agent service is properly handling OPTIONS preflight requests
-3. Check that your frontend is using the correct URL for the voice agent service
+1. Check that your `CORS_ALLOW_ORIGIN` environment variable includes your website's domain
+   - Make sure it's an exact match (e.g., `https://app.isyncso.com`, not `https://app.isyncso.com/`)
+   - Don't use wildcards (`*`) if you need credentials support
+
+2. Verify that the OPTIONS preflight requests are working:
+   - Use the browser's developer tools Network tab to check if OPTIONS requests return 200 status
+   - Look for the appropriate CORS headers in the response
+
+3. Try the test script to diagnose issues:
+   ```bash
+   python test_cors.py --url https://your-render-service-url.onrender.com
+   ```
+
+4. If using credentials, make sure both the server and client are properly configured:
+   - On server: `allow_credentials=True` and specific origins (not `*`)
+   - On client: `credentials: 'include'` in fetch options
 
 ### API Endpoint Issues
 
@@ -113,6 +158,13 @@ If endpoints are returning 404 errors:
 1. Make sure the voice agent service is running
 2. Verify the URL being used in your frontend matches the deployed service
 3. Check the service logs for any errors
+
+### Render.com Specific Issues
+
+1. If your service keeps restarting, check the logs for errors
+2. Verify that all required environment variables are properly set
+3. Make sure the `PORT` environment variable matches the port in your code (10000 is standard for Render)
+4. Check that your build and start commands are correct
 
 ## Additional Features
 

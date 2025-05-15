@@ -4,4 +4,6 @@ python-multipart>=0.0.5
 pydantic>=2.0.0
 websockets>=10.0
 requests>=2.28.0
-python-dotenv>=0.20.0 
+python-dotenv>=0.20.0
+httpx>=0.23.0
+starlette>=0.25.0 

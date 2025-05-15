@@ -3,30 +3,29 @@ from fastapi.middleware.cors import CORSMiddleware
 import os
 import json
 import uvicorn
+import logging
+from config import CORS_ORIGINS, PORT, DEBUG, LIVEKIT_URL, logger
 
 # Create FastAPI app
 app = FastAPI()
 
-# Configure CORS - read origins from environment or use defaults
-# Allow the website domain where your voice agent will be embedded
-origins = os.getenv("CORS_ALLOW_ORIGIN", "https://app.isyncso.com,http://localhost:3000").split(",")
-if origins == [""]:
-    origins = ["https://app.isyncso.com", "http://localhost:3000"]  # Fallback
+# Configure CORS with proper settings
+logger.info(f"Configuring CORS with origins: {CORS_ORIGINS}")
 
-print(f"Configuring CORS with origins: {origins}")
-
+# Ensure proper CORS middleware configuration
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=origins,
+    allow_origins=CORS_ORIGINS,
     allow_credentials=True,
-    allow_methods=os.getenv("CORS_ALLOW_METHODS", "GET,POST,OPTIONS").split(","),
-    allow_headers=os.getenv("CORS_ALLOW_HEADERS", "Content-Type,Authorization").split(","),
+    allow_methods=["GET", "POST", "OPTIONS", "DELETE", "PUT", "PATCH"],
+    allow_headers=["Content-Type", "Authorization", "X-Requested-With", "Accept", "Origin"],
+    max_age=86400,  # 24 hours
 )
 
 # Current health endpoint that's working
 @app.get("/health")
 async def health_check():
-    return {"status": "ok"}
+    return {"status": "ok", "cors_origins": CORS_ORIGINS}
 
 # Add the missing agent/dispatch endpoint
 @app.post("/agent/dispatch")
@@ -38,7 +37,7 @@ async def agent_dispatch(request: Request):
         body = {}
     
     # Log the request for debugging
-    print(f"Received agent dispatch request: {body}")
+    logger.info(f"Received agent dispatch request: {body}")
     
     # Return a proper response with connection details
     return {
@@ -50,21 +49,22 @@ async def agent_dispatch(request: Request):
                 "token": "mock-token-xyz",
                 "room": body.get("roomName", "default-room"),
                 "service": "livekit",
-                "server_url": os.getenv("LIVEKIT_URL", "wss://example.livekit.cloud")
+                "server_url": LIVEKIT_URL
             }
         }
     }
 
-# Also handle OPTIONS requests explicitly for CORS preflight
+# Explicit OPTIONS route for /agent/dispatch with proper CORS headers
 @app.options("/agent/dispatch")
 async def agent_dispatch_options():
     return Response(
         status_code=200,
         headers={
-            "Access-Control-Allow-Origin": origins[0] if origins else "*",
-            "Access-Control-Allow-Methods": "POST, OPTIONS",
-            "Access-Control-Allow-Headers": "Content-Type, Authorization",
+            "Access-Control-Allow-Origin": ", ".join(CORS_ORIGINS),
+            "Access-Control-Allow-Methods": "POST, OPTIONS, GET",
+            "Access-Control-Allow-Headers": "Content-Type, Authorization, X-Requested-With, Accept, Origin",
             "Access-Control-Allow-Credentials": "true",
+            "Access-Control-Max-Age": "86400",
         }
     )
 
@@ -72,7 +72,7 @@ async def agent_dispatch_options():
 @app.get("/agent/token")
 async def agent_token(room: str = None, identity: str = None):
     # Log the request for debugging
-    print(f"Received token request - Room: {room}, Identity: {identity}")
+    logger.info(f"Received token request - Room: {room}, Identity: {identity}")
     
     # Use provided values or defaults
     room_name = room or "default-room"
@@ -85,20 +85,36 @@ async def agent_token(room: str = None, identity: str = None):
         "identity": user_id
     }
 
+# Explicit OPTIONS route for /agent/token with proper CORS headers
 @app.options("/agent/token")
 async def agent_token_options():
     return Response(
         status_code=200,
         headers={
-            "Access-Control-Allow-Origin": origins[0] if origins else "*",
+            "Access-Control-Allow-Origin": ", ".join(CORS_ORIGINS),
             "Access-Control-Allow-Methods": "GET, OPTIONS",
-            "Access-Control-Allow-Headers": "Content-Type, Authorization",
+            "Access-Control-Allow-Headers": "Content-Type, Authorization, X-Requested-With, Accept, Origin",
             "Access-Control-Allow-Credentials": "true",
+            "Access-Control-Max-Age": "86400",
+        }
+    )
+
+# Add a catchall OPTIONS route to handle preflight requests for any endpoint
+@app.options("/{rest_of_path:path}")
+async def options_route(rest_of_path: str):
+    logger.info(f"OPTIONS request received for path: /{rest_of_path}")
+    return Response(
+        status_code=200,
+        headers={
+            "Access-Control-Allow-Origin": ", ".join(CORS_ORIGINS),
+            "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, OPTIONS, PATCH",
+            "Access-Control-Allow-Headers": "Content-Type, Authorization, X-Requested-With, Accept, Origin",
+            "Access-Control-Allow-Credentials": "true",
+            "Access-Control-Max-Age": "86400",
         }
     )
 
 if __name__ == "__main__":
-    # Get port from environment variable or default to the one used by FastAPI
-    port = int(os.environ.get("PORT", 8000))
-    print(f"Starting voice agent service on port {port}")
-    uvicorn.run(app, host="0.0.0.0", port=port) 
+    # Get port from configuration
+    logger.info(f"Starting voice agent service on port {PORT}")
+    uvicorn.run(app, host="0.0.0.0", port=PORT, log_level="debug" if DEBUG else "info") 

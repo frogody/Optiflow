@@ -48,7 +48,7 @@ fi
 
 # Stage changes in voice-agent-service directory
 echo "Staging changes in voice-agent-service directory..."
-git add voice-agent-service/*
+git add voice-agent-service/
 
 # Check if there are changes to commit
 if git diff --cached --quiet; then
@@ -59,7 +59,7 @@ else
     
     # Commit the changes
     if [ -z "$commit_message" ]; then
-        commit_message="Update voice agent service"
+        commit_message="Update voice agent service with improved CORS configuration"
     fi
     
     git commit -m "$commit_message"
@@ -87,7 +87,7 @@ echo "===== Render.com Deployment Guide ====="
 echo "To deploy the voice agent service to Render.com:"
 echo ""
 echo "1. Sign in to your Render.com account"
-echo "2. Create a new Web Service"
+echo "2. Create a new Web Service or update your existing one"
 echo "3. Connect your GitHub repository"
 echo "4. Configure the service with these settings:"
 echo "   - Name: optiflow-voice-agent"
@@ -97,7 +97,13 @@ echo "   - Build Command: pip install -r requirements.txt"
 echo "   - Start Command: python main.py"
 echo "5. Add the following environment variables:"
 echo "   - PORT: 10000"
-echo "   - CORS_ALLOW_ORIGIN: https://your-website-domain.com"
+echo "   - CORS_ALLOW_ORIGIN: https://app.isyncso.com"
+echo "   - DEBUG: true"
+echo ""
+echo "IMPORTANT CORS CONFIGURATION:"
+echo "Make sure your CORS_ALLOW_ORIGIN includes 'https://app.isyncso.com' EXACTLY as shown"
+echo "  - No trailing slashes"
+echo "  - Must match your website's origin perfectly"
 echo ""
 echo "After deployment, update your frontend configuration with:"
 echo "NEXT_PUBLIC_VOICE_AGENT_URL=https://your-render-service-url.onrender.com"
@@ -105,4 +111,9 @@ echo "NEXT_PUBLIC_VOICE_AGENT_ENABLED=true"
 echo ""
 echo "For more detailed instructions, refer to VOICE_AGENT_SETUP.md"
 echo ""
-echo "Deployment guide completed. Your code is ready to be deployed." 
+echo "Deployment guide completed. Your code is ready to be deployed to Render."
+echo ""
+echo "Once deployed, test with the following command:"
+echo "curl -v -X OPTIONS -H \"Origin: https://app.isyncso.com\" -H \"Access-Control-Request-Method: POST\" https://your-render-service-url.onrender.com/agent/dispatch"
+echo ""
+echo "You should see 'Access-Control-Allow-Origin: https://app.isyncso.com' in the response headers." 
