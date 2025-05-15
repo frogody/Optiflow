@@ -65,9 +65,11 @@ const VOICE_AGENT_URL = typeof window !== 'undefined'
 
 // Configure AWS API Gateway auth - use environment variables for production
 const AWS_API_KEY = process.env.NEXT_PUBLIC_AWS_API_KEY || '';
-const AWS_API_ENDPOINT = process.env.NEXT_PUBLIC_AWS_API_ENDPOINT || 'sfd8q2ch3k.execute-api.us-east-2.amazonaws.com';
+const AWS_API_ENDPOINT = process.env.NEXT_PUBLIC_AWS_API_ENDPOINT || '';
 
-// AWS API Gateway auth is handled in a useEffect below
+// Determine if we're using direct agent URL or AWS API Gateway
+const USE_DIRECT_AGENT = VOICE_AGENT_URL && VOICE_AGENT_URL.length > 0;
+const USE_AWS_GATEWAY = AWS_API_ENDPOINT && AWS_API_ENDPOINT.length > 0 && !USE_DIRECT_AGENT;
 
 // If in development mode, install the endpoint logger
 if (process.env.NODE_ENV === 'development' && typeof window !== 'undefined') {
@@ -98,7 +100,7 @@ const VoiceAgentInterface: React.FC<VoiceAgentInterfaceProps> = ({
   
   // Apply AWS API Key to all requests to the API Gateway endpoint with enhanced logging
   useEffect(() => {
-    if (typeof window !== 'undefined' && AWS_API_ENDPOINT) {
+    if (typeof window !== 'undefined' && (AWS_API_ENDPOINT || VOICE_AGENT_URL)) {
       const originalFetch = window.fetch;
       // Keep track of endpoints encountered to help with debugging
       const encounteredEndpoints = new Set();
@@ -107,7 +109,7 @@ const VoiceAgentInterface: React.FC<VoiceAgentInterfaceProps> = ({
         const url = input.toString();
         
         // Check if this is a call to the AWS API Gateway
-        if (url.includes(AWS_API_ENDPOINT)) {
+        if (AWS_API_ENDPOINT && url.includes(AWS_API_ENDPOINT)) {
           try {
             // Extract the path for debugging and endpoint detection
             const urlObj = new URL(url);
@@ -160,35 +162,72 @@ const VoiceAgentInterface: React.FC<VoiceAgentInterfaceProps> = ({
             headers
           };
           
-          // Add a global function for developers to access all endpoints
-          if (typeof window !== 'undefined' && !window.printAwsEndpoints) {
-            window.printAwsEndpoints = function() {
-              const endpoints = Array.from(encounteredEndpoints);
-              console.log('AWS API Gateway endpoints encountered:');
-              endpoints.forEach((path, i) => {
-                console.log(`  ${i+1}. ${path}`);
-              });
-              return endpoints;
-            };
-            console.log('[AWS Gateway] Added window.printAwsEndpoints() helper function');
-          }
-          
           console.log('[AWS Gateway] Sending authenticated request');
           return originalFetch.apply(this, [input, newInit]);
+        }
+        
+        // Check if this is a call to the direct VOICE_AGENT_URL
+        if (VOICE_AGENT_URL && url.includes(VOICE_AGENT_URL)) {
+          try {
+            // Extract the path for debugging
+            const urlObj = new URL(url);
+            const path = urlObj.pathname;
+            
+            // Store the endpoint for debugging
+            if (!encounteredEndpoints.has(path)) {
+              encounteredEndpoints.add(path);
+              console.log(`[Voice Agent] New endpoint detected: ${path}`);
+              
+              // Store in localStorage for persistence
+              try {
+                const storedEndpoints = JSON.parse(localStorage.getItem('voice_agent_endpoints') || '[]');
+                if (!storedEndpoints.includes(path)) {
+                  storedEndpoints.push(path);
+                  localStorage.setItem('voice_agent_endpoints', JSON.stringify(storedEndpoints));
+                }
+              } catch (e) {
+                console.error('Error storing endpoint in localStorage:', e);
+              }
+            }
+            
+            console.log(`[Voice Agent] Processing request to: ${url}`);
+          } catch (e) {
+            console.error('Error parsing URL:', e);
+          }
         }
         
         // Otherwise, proceed with the original fetch
         return originalFetch.apply(this, [input, init]);
       };
-      console.log('Fetch patched to add authentication to AWS API Gateway calls');
-      console.log('Run window.printAwsEndpoints() in console to see detected endpoints');
+      console.log('Fetch patched to add authentication to API requests');
+      
+      // Add a global function for developers to access all endpoints
+      if (typeof window !== 'undefined' && !window.printAwsEndpoints) {
+        window.printAwsEndpoints = function() {
+          const endpoints = Array.from(encounteredEndpoints);
+          console.log('Voice Agent endpoints encountered:');
+          endpoints.forEach((path, i) => {
+            console.log(`  ${i+1}. ${path}`);
+          });
+          return endpoints;
+        };
+      }
       
       // Try to load and print any saved endpoints
       try {
-        const savedEndpoints = JSON.parse(localStorage.getItem('aws_gateway_endpoints') || '[]');
-        if (savedEndpoints.length > 0) {
+        const savedAwsEndpoints = JSON.parse(localStorage.getItem('aws_gateway_endpoints') || '[]');
+        const savedVoiceEndpoints = JSON.parse(localStorage.getItem('voice_agent_endpoints') || '[]');
+        
+        if (savedAwsEndpoints.length > 0) {
           console.log('[AWS Gateway] Previously detected endpoints:');
-          savedEndpoints.forEach((path: string, i: number) => {
+          savedAwsEndpoints.forEach((path: string, i: number) => {
+            console.log(`  ${i+1}. ${path}`);
+          });
+        }
+        
+        if (savedVoiceEndpoints.length > 0) {
+          console.log('[Voice Agent] Previously detected endpoints:');
+          savedVoiceEndpoints.forEach((path: string, i: number) => {
             console.log(`  ${i+1}. ${path}`);
           });
         }
