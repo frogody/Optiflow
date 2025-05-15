@@ -101,7 +101,12 @@ const VoiceAgentInterface: React.FC<VoiceAgentInterfaceProps> = ({
   // Apply AWS API Key to all requests to the API Gateway endpoint with enhanced logging
   useEffect(() => {
     if (typeof window !== 'undefined' && (AWS_API_ENDPOINT || VOICE_AGENT_URL)) {
-      const originalFetch = window.fetch;
+      // Declare originalFetch in the same scope where it's used later
+      let originalFetch: typeof window.fetch;
+      
+      // Store the original fetch function
+      originalFetch = window.fetch;
+      
       // Keep track of endpoints encountered to help with debugging
       const encounteredEndpoints = new Set();
       
@@ -163,6 +168,7 @@ const VoiceAgentInterface: React.FC<VoiceAgentInterfaceProps> = ({
           };
           
           console.log('[AWS Gateway] Sending authenticated request');
+          // Use the originalFetch from the parent scope
           return originalFetch.apply(this, [input, newInit]);
         }
         
@@ -196,7 +202,7 @@ const VoiceAgentInterface: React.FC<VoiceAgentInterfaceProps> = ({
           }
         }
         
-        // Otherwise, proceed with the original fetch
+        // Otherwise, proceed with the original fetch - use the originalFetch from parent scope
         return originalFetch.apply(this, [input, init]);
       };
       console.log('Fetch patched to add authentication to API requests');
@@ -234,15 +240,18 @@ const VoiceAgentInterface: React.FC<VoiceAgentInterfaceProps> = ({
       } catch (e) {
         console.error('Error loading saved endpoints:', e);
       }
+      
+      // Store the cleanup function
+      return () => {
+        if (typeof window !== 'undefined') {
+          // Make sure window exists and restore the original fetch
+          window.fetch = originalFetch;
+        }
+      };
     }
     
-    // Cleanup function to restore original fetch when component unmounts
-    return () => {
-      if (typeof window !== 'undefined') {
-        // @ts-ignore - We know window.fetch exists since we modified it
-        window.fetch = originalFetch;
-      }
-    };
+    // Return an empty cleanup function if conditions aren't met
+    return () => {};
   }, [sessionData?.data]);
   
   // Handle undefined data property safely
