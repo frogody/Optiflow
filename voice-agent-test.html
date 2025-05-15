@@ -3,228 +3,163 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Voice Agent Tester</title>
+    <title>Voice Agent Test</title>
     <style>
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+            line-height: 1.6;
             max-width: 800px;
             margin: 0 auto;
             padding: 20px;
-            background-color: #f7f9fc;
+            background-color: #f5f5f5;
             color: #333;
         }
         h1 {
-            color: #2d3748;
-            border-bottom: 2px solid #e2e8f0;
-            padding-bottom: 10px;
+            color: #0066cc;
+            margin-bottom: 20px;
         }
         .card {
             background-color: white;
             border-radius: 8px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
             padding: 20px;
             margin-bottom: 20px;
-        }
-        .form-group {
-            margin-bottom: 15px;
-        }
-        label {
-            display: block;
-            margin-bottom: 5px;
-            font-weight: 600;
-        }
-        input, select, textarea {
-            width: 100%;
-            padding: 8px;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            font-family: inherit;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
         }
         button {
-            background-color: #4a5568;
+            background-color: #0066cc;
             color: white;
             border: none;
-            padding: 10px 15px;
             border-radius: 4px;
+            padding: 10px 15px;
             cursor: pointer;
-            font-size: 16px;
+            margin-right: 10px;
+            margin-bottom: 10px;
+            font-size: 14px;
         }
         button:hover {
-            background-color: #2d3748;
+            background-color: #0055aa;
         }
-        .result {
-            background-color: #f0f4f8;
-            border-left: 4px solid #4299e1;
-            padding: 15px;
-            margin-top: 20px;
-            border-radius: 4px;
-            min-height: 100px;
-            white-space: pre-wrap;
-            overflow-wrap: break-word;
-        }
-        .logs {
-            font-family: monospace;
-            font-size: 14px;
-            background-color: #1a202c;
-            color: #e2e8f0;
+        pre {
+            background-color: #f0f0f0;
             padding: 15px;
             border-radius: 4px;
-            max-height: 300px;
-            overflow-y: auto;
-            margin-top: 20px;
+            overflow-x: auto;
+            margin-top: 10px;
+        }
+        input {
+            padding: 10px;
+            margin-bottom: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            width: 100%;
+            box-sizing: border-box;
         }
         .success {
-            color: #38a169;
+            color: #00aa00;
         }
         .error {
-            color: #e53e3e;
+            color: #cc0000;
         }
     </style>
 </head>
 <body>
-    <h1>Voice Agent Configuration Tester</h1>
+    <h1>Voice Agent API Test</h1>
     
     <div class="card">
-        <h2>Agent Health Check</h2>
-        <p>Test if the voice agent service is properly configured and all dependencies are available.</p>
-        <div class="form-group">
-            <label for="agent-url">Agent URL:</label>
-            <input type="text" id="agent-url" value="http://localhost:8000" placeholder="http://localhost:8000 or your deployed URL">
-        </div>
-        <button id="test-health">Test Health</button>
-        <div class="result" id="health-result">Results will appear here...</div>
+        <h2>Health Check</h2>
+        <button id="checkHealth">Check Health</button>
+        <pre id="healthResult">Results will appear here...</pre>
     </div>
     
     <div class="card">
-        <h2>Test Agent Connection</h2>
-        <p>Simulate a connection to the agent service.</p>
-        <div class="form-group">
-            <label for="room-name">Room Name:</label>
-            <input type="text" id="room-name" value="test-room-123" placeholder="Enter a room name">
-        </div>
-        <div class="form-group">
-            <label for="user-id">User ID (optional):</label>
-            <input type="text" id="user-id" placeholder="Enter a user ID">
-        </div>
-        <button id="test-connection">Test Connection</button>
-        <div class="result" id="connection-result">Results will appear here...</div>
+        <h2>Agent Dispatch</h2>
+        <input id="roomName" type="text" placeholder="Room Name (optional)" value="test-room-123">
+        <button id="dispatchAgent">Dispatch Agent</button>
+        <pre id="dispatchResult">Results will appear here...</pre>
     </div>
     
     <div class="card">
-        <h2>Logs</h2>
-        <div class="logs" id="logs"></div>
+        <h2>Get Token</h2>
+        <input id="tokenRoom" type="text" placeholder="Room Name" value="test-room-123">
+        <input id="tokenIdentity" type="text" placeholder="User Identity" value="test-user-456">
+        <button id="getToken">Get Token</button>
+        <pre id="tokenResult">Results will appear here...</pre>
     </div>
-    
+
     <script>
-        // Helper functions
-        function logMessage(message, isError = false) {
-            const logsElement = document.getElementById('logs');
-            const logItem = document.createElement('div');
-            logItem.classList.add(isError ? 'error' : 'success');
-            logItem.textContent = `[${new Date().toISOString()}] ${message}`;
-            logsElement.appendChild(logItem);
-            logsElement.scrollTop = logsElement.scrollHeight;
+        // Base URL for voice agent service
+        const apiBaseUrl = 'http://localhost:8000';
+        
+        // Get DOM elements
+        const checkHealthBtn = document.getElementById('checkHealth');
+        const healthResult = document.getElementById('healthResult');
+        const dispatchAgentBtn = document.getElementById('dispatchAgent');
+        const dispatchResult = document.getElementById('dispatchResult');
+        const roomNameInput = document.getElementById('roomName');
+        const getTokenBtn = document.getElementById('getToken');
+        const tokenResult = document.getElementById('tokenResult');
+        const tokenRoomInput = document.getElementById('tokenRoom');
+        const tokenIdentityInput = document.getElementById('tokenIdentity');
+        
+        // Helper function to display results
+        function displayResult(element, data, isError = false) {
+            element.innerHTML = JSON.stringify(data, null, 2);
+            element.className = isError ? 'error' : 'success';
         }
         
-        function displayResult(elementId, data, isSuccess = true) {
-            const resultElement = document.getElementById(elementId);
-            resultElement.innerHTML = '';
-            
-            if (typeof data === 'object') {
-                resultElement.textContent = JSON.stringify(data, null, 2);
-            } else {
-                resultElement.textContent = data;
-            }
-            
-            resultElement.classList.remove('success', 'error');
-            resultElement.classList.add(isSuccess ? 'success' : 'error');
-        }
-        
-        // Health check
-        document.getElementById('test-health').addEventListener('click', async () => {
-            const agentUrl = document.getElementById('agent-url').value.trim();
-            
-            if (!agentUrl) {
-                logMessage('Please enter an agent URL', true);
-                return;
-            }
-            
+        // Check Health endpoint
+        checkHealthBtn.addEventListener('click', async () => {
             try {
-                logMessage(`Testing health at ${agentUrl}/health...`);
-                
-                const response = await fetch(`${agentUrl}/health`);
+                const response = await fetch(`${apiBaseUrl}/health`);
                 const data = await response.json();
-                
-                logMessage(`Health check status: ${response.status}`);
-                displayResult('health-result', data, response.ok);
-                
-                if (response.ok) {
-                    logMessage(`✅ Agent is healthy`, false);
-                    if (!data.livekit_connected) {
-                        logMessage(`⚠️ LiveKit connection issue detected`, true);
-                    }
-                    if (!data.openai_available) {
-                        logMessage(`⚠️ OpenAI connection issue detected`, true);
-                    }
-                } else {
-                    logMessage(`❌ Agent returned error: ${response.status}`, true);
-                }
-                
+                displayResult(healthResult, data);
             } catch (error) {
-                logMessage(`❌ Error testing health: ${error.message}`, true);
-                displayResult('health-result', `Error: ${error.message}`, false);
+                displayResult(healthResult, { error: error.message }, true);
             }
         });
         
-        // Test connection
-        document.getElementById('test-connection').addEventListener('click', async () => {
-            const agentUrl = document.getElementById('agent-url').value.trim();
-            const roomName = document.getElementById('room-name').value.trim();
-            const userId = document.getElementById('user-id').value.trim();
-            
-            if (!agentUrl) {
-                logMessage('Please enter an agent URL', true);
-                return;
-            }
-            
-            if (!roomName) {
-                logMessage('Please enter a room name', true);
-                return;
-            }
-            
+        // Dispatch Agent endpoint
+        dispatchAgentBtn.addEventListener('click', async () => {
             try {
-                logMessage(`Testing agent connection for room "${roomName}"...`);
-                
-                const response = await fetch(`${agentUrl}/test/agent`, {
+                const roomName = roomNameInput.value.trim() || `test-room-${Date.now()}`;
+                const response = await fetch(`${apiBaseUrl}/agent/dispatch`, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json'
                     },
-                    body: JSON.stringify({
-                        room_name: roomName,
-                        user_id: userId || undefined
-                    })
+                    body: JSON.stringify({ roomName, userId: 'test-user' })
                 });
                 
                 const data = await response.json();
+                displayResult(dispatchResult, data);
                 
-                logMessage(`Connection test status: ${response.status}`);
-                displayResult('connection-result', data, response.ok);
-                
-                if (response.ok) {
-                    logMessage(`✅ Agent connection test successful`, false);
-                } else {
-                    logMessage(`❌ Agent connection test failed: ${response.status}`, true);
-                }
-                
+                // Auto-fill token form with the room name
+                tokenRoomInput.value = roomName;
             } catch (error) {
-                logMessage(`❌ Error testing connection: ${error.message}`, true);
-                displayResult('connection-result', `Error: ${error.message}`, false);
+                displayResult(dispatchResult, { error: error.message }, true);
             }
         });
         
-        // Log initial status
-        logMessage('Voice Agent Tester loaded. Ready to test configuration.');
+        // Get Token endpoint
+        getTokenBtn.addEventListener('click', async () => {
+            try {
+                const room = tokenRoomInput.value.trim();
+                const identity = tokenIdentityInput.value.trim();
+                
+                if (!room || !identity) {
+                    throw new Error("Room name and identity are required");
+                }
+                
+                const response = await fetch(
+                    `${apiBaseUrl}/agent/token?room=${encodeURIComponent(room)}&identity=${encodeURIComponent(identity)}`
+                );
+                
+                const data = await response.json();
+                displayResult(tokenResult, data);
+            } catch (error) {
+                displayResult(tokenResult, { error: error.message }, true);
+            }
+        });
     </script>
 </body>
 </html> 
