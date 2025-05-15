@@ -25,7 +25,11 @@ app.add_middleware(
 # Current health endpoint that's working
 @app.get("/health")
 async def health_check():
-    return {"status": "ok", "cors_origins": CORS_ORIGINS}
+    return {
+        "status": "ok", 
+        "cors_origins": CORS_ORIGINS,
+        "livekit_url": LIVEKIT_URL
+    }
 
 # Add the missing agent/dispatch endpoint
 @app.post("/agent/dispatch")
@@ -54,20 +58,6 @@ async def agent_dispatch(request: Request):
         }
     }
 
-# Explicit OPTIONS route for /agent/dispatch with proper CORS headers
-@app.options("/agent/dispatch")
-async def agent_dispatch_options():
-    return Response(
-        status_code=200,
-        headers={
-            "Access-Control-Allow-Origin": ", ".join(CORS_ORIGINS),
-            "Access-Control-Allow-Methods": "POST, OPTIONS, GET",
-            "Access-Control-Allow-Headers": "Content-Type, Authorization, X-Requested-With, Accept, Origin",
-            "Access-Control-Allow-Credentials": "true",
-            "Access-Control-Max-Age": "86400",
-        }
-    )
-
 # Add token generation endpoint
 @app.get("/agent/token")
 async def agent_token(room: str = None, identity: str = None):
@@ -80,41 +70,24 @@ async def agent_token(room: str = None, identity: str = None):
     
     return {
         "token": f"mock-token-{room_name}-{user_id}",
-        "expires_at": "2025-05-16T00:00:00Z",
+        "expires_at": "2025-05-16T00:00:00Z", 
         "room": room_name,
         "identity": user_id
     }
 
-# Explicit OPTIONS route for /agent/token with proper CORS headers
-@app.options("/agent/token")
-async def agent_token_options():
-    return Response(
-        status_code=200,
-        headers={
-            "Access-Control-Allow-Origin": ", ".join(CORS_ORIGINS),
-            "Access-Control-Allow-Methods": "GET, OPTIONS",
-            "Access-Control-Allow-Headers": "Content-Type, Authorization, X-Requested-With, Accept, Origin",
-            "Access-Control-Allow-Credentials": "true",
-            "Access-Control-Max-Age": "86400",
-        }
-    )
-
 # Add a catchall OPTIONS route to handle preflight requests for any endpoint
-@app.options("/{rest_of_path:path}")
-async def options_route(rest_of_path: str):
-    logger.info(f"OPTIONS request received for path: /{rest_of_path}")
+@app.options("/{path:path}")
+async def options_route(path: str):
     return Response(
         status_code=200,
         headers={
-            "Access-Control-Allow-Origin": ", ".join(CORS_ORIGINS),
+            "Access-Control-Allow-Origin": "*",
             "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, OPTIONS, PATCH",
             "Access-Control-Allow-Headers": "Content-Type, Authorization, X-Requested-With, Accept, Origin",
-            "Access-Control-Allow-Credentials": "true",
             "Access-Control-Max-Age": "86400",
         }
     )
 
 if __name__ == "__main__":
-    # Get port from configuration
     logger.info(f"Starting voice agent service on port {PORT}")
-    uvicorn.run(app, host="0.0.0.0", port=PORT, log_level="debug" if DEBUG else "info") 
+    uvicorn.run(app, host="0.0.0.0", port=PORT) 

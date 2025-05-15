@@ -26,7 +26,7 @@ app.add_middleware(
 
 @app.get("/health")
 async def health_check():
-    return {"status": "healthy"}
+    return {"status": "healthy", "cors_origins": origins}
 
 # Add the missing agent/dispatch endpoint
 @app.post("/agent/dispatch")
@@ -101,15 +101,14 @@ async def agent_token_options():
     )
 
 # Add a catchall OPTIONS route to handle preflight requests for any endpoint
-@app.options("/{rest_of_path:path}")
-async def options_route(rest_of_path: str):
+@app.options("/{path:path}")
+async def options_route(path: str):
     return Response(
         status_code=200,
         headers={
-            "Access-Control-Allow-Origin": ", ".join(origins),
+            "Access-Control-Allow-Origin": "*",
             "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, OPTIONS, PATCH",
             "Access-Control-Allow-Headers": "Content-Type, Authorization, X-Requested-With, Accept, Origin",
-            "Access-Control-Allow-Credentials": "true",
             "Access-Control-Max-Age": "86400",
         }
     )

@@ -1,59 +1,106 @@
-# Voice Agent Render Deployment Guide
+# Deploying Optiflow Voice Agent to Render.com
 
-This guide helps you deploy the voice agent to Render with the proper CORS configuration and endpoints.
+This guide explains how to deploy the Optiflow Voice Agent service to Render.com.
 
-## Files
-- `voice_agent_fix.py`: The FastAPI application with proper CORS and the `/agent/dispatch` endpoint
-- `voice_agent_requirements.txt`: Required Python packages
+## Pre-deployment Checklist
+
+1. Make sure your code has the correct CORS configuration:
+   - app.py and voice-agent-service/main.py should have proper CORS middleware
+   - OPTIONS endpoints should return 200 status codes
+   - CORS headers should include your website domain in allow-origins
+
+2. Ensure requirements.txt has all necessary packages:
+   - fastapi
+   - uvicorn
+   - python-multipart
+   - pydantic
+   - websockets
+   - requests
+   - python-dotenv
+
+3. Configure your environment variables:
+   - CORS_ALLOW_ORIGIN=https://app.isyncso.com,http://localhost:3000
+   - LIVEKIT_URL=wss://your-livekit-instance.livekit.cloud
+   - PORT=8000 (Render will override this)
 
 ## Deployment Steps
 
-1. **Create a Git Repository**
-   - Create a new GitHub/GitLab repository
-   - Add `voice_agent_fix.py` and `voice_agent_requirements.txt` to the repository
-   - Rename `voice_agent_fix.py` to `main.py` and `voice_agent_requirements.txt` to `requirements.txt`
-   - Commit and push to your repository
+### Option 1: Using the Automated Script
 
-2. **Create a New Web Service on Render**
-   - Log in to your Render dashboard
-   - Click "New" and select "Web Service"
-   - Connect your Git repository
-   - Configure the service:
-     - **Name**: optiflow-voice-agent (or your preferred name)
-     - **Region**: Choose the one closest to your users
-     - **Branch**: main (or your default branch)
-     - **Runtime**: Python 3
-     - **Build Command**: `pip install -r requirements.txt`
-     - **Start Command**: `uvicorn main:app --host 0.0.0.0 --port $PORT`
+1. Run the deployment script:
+   ```bash
+   ./deploy-voice-agent-to-render.sh
+   ```
 
-3. **Configure Environment Variables**
-   - In the Render Dashboard, go to your web service
-   - Click on the "Environment" tab
-   - Add these variables:
-     - `CORS_ALLOW_ORIGIN`: `https://app.isyncso.com`
-     - `CORS_ALLOW_CREDENTIALS`: `true`
-     - `CORS_ALLOW_METHODS`: `GET,POST,PUT,DELETE,OPTIONS`
-     - `CORS_ALLOW_HEADERS`: `X-CSRF-Token,X-Requested-With,Accept,Accept-Version,Content-Length,Content-MD5,Content-Type,Date,X-Api-Version`
+2. Follow the instructions provided by the script to complete the deployment.
 
-4. **Deploy the Service**
-   - Click "Create Web Service" or "Manual Deploy" if you're updating an existing service
-   - Wait for the deployment to complete (usually takes 2-5 minutes)
+### Option 2: Manual Deployment
 
-5. **Verify the Deployment**
-   - Once deployed, Render will provide a URL (like `https://optiflow-voice-agent.onrender.com`)
-   - Test the health endpoint: `https://optiflow-voice-agent.onrender.com/health`
-   - It should return `{"status":"ok"}`
+1. Commit your changes:
+   ```bash
+   git add voice-agent-service/main.py voice-agent-service/config.py voice-agent-service/requirements.txt voice-agent-service/render.yaml app.py
+   git commit -m "Update voice agent service with improved CORS configuration"
+   git push origin main
+   ```
 
-6. **Update Your Vercel Environment Variables**
-   - Make sure your Vercel deployment has the correct `NEXT_PUBLIC_VOICE_AGENT_URL` environment variable
-   - It should be set to your Render service URL (e.g., `https://optiflow-voice-agent.onrender.com`)
+2. Log into your Render.com dashboard at https://dashboard.render.com
 
-## Testing
+3. Click "New +" and select "Blueprint" or "Web Service"
 
-After deployment, you should test the voice agent integration from your frontend. The Render deployment includes:
+4. Connect to your GitHub repository (https://github.com/frogody/optiflow-voice-agent)
 
-- `/health` - Health check endpoint
-- `/agent/dispatch` - The endpoint to dispatch an agent
-- `/agent/token` - An endpoint providing a mock token
+5. For manual setup (without render.yaml):
+   - Name: optiflow-voice-agent
+   - Runtime: Python
+   - Build Command: pip install -r requirements.txt
+   - Start Command: python main.py
+   - Set the following environment variables:
+     - CORS_ALLOW_ORIGIN=https://app.isyncso.com,http://localhost:3000
+     - LIVEKIT_URL=wss://your-livekit-instance.livekit.cloud
 
-This simple implementation will help diagnose if the CORS issues are fixed. You can later replace it with your actual voice agent implementation. 
+6. Deploy the service
+
+## Testing Your Deployment
+
+1. Check the health endpoint:
+   ```
+   https://optiflow-voice-agent.onrender.com/health
+   ```
+
+2. Test CORS configuration:
+   ```bash
+   curl -X OPTIONS -H "Origin: https://app.isyncso.com" \
+   -H "Access-Control-Request-Method: POST" \
+   -H "Access-Control-Request-Headers: Content-Type" \
+   https://optiflow-voice-agent.onrender.com/agent/dispatch
+   ```
+
+## Troubleshooting
+
+### CORS Issues
+
+If you're still experiencing CORS issues:
+
+1. Check Render.com logs for any errors
+2. Ensure the correct domains are in your CORS_ALLOW_ORIGIN
+3. Verify the OPTIONS endpoint returns 200 status
+4. Try setting Access-Control-Allow-Origin to "*" temporarily for testing
+
+### Deployment Failures
+
+1. Check Render.com build logs
+2. Verify requirements.txt has all necessary dependencies
+3. Ensure your main.py runs locally without errors
+4. Check for Python version compatibility issues
+
+## Frontend Integration
+
+Update your frontend to connect to the Render.com endpoint:
+
+```javascript
+const VOICE_AGENT_URL = "https://optiflow-voice-agent.onrender.com";
+```
+
+## Monitoring
+
+Monitor your service health and performance in the Render.com dashboard. Set up uptime monitoring and notifications for any service disruptions. 

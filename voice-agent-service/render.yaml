@@ -1,0 +1,18 @@
+services:
+  - type: web
+    name: optiflow-voice-agent
+    runtime: python
+    buildCommand: pip install -r requirements.txt
+    startCommand: python main.py
+    repo: https://github.com/frogody/optiflow-voice-agent
+    branch: main
+    plan: free
+    region: oregon
+    envVars:
+      - key: CORS_ALLOW_ORIGIN
+        value: https://app.isyncso.com,http://localhost:3000
+      - key: LIVEKIT_URL
+        sync: false
+      - key: PORT
+        value: 8000
+    healthCheckPath: /health 
