@@ -8,7 +8,12 @@ app = FastAPI()
 
 # Configure CORS - read origins from environment or use defaults
 # Allow the website domain where your voice agent will be embedded
-origins = os.getenv("CORS_ALLOW_ORIGIN", "https://app.isyncso.com,http://localhost:3000").split(",")
+origins_str = os.getenv("CORS_ALLOW_ORIGIN", "https://app.isyncso.com,http://localhost:3000")
+# Also check for CORS_ALLOWED_ORIGINS as seen in the Render dashboard
+if not origins_str:
+    origins_str = os.getenv("CORS_ALLOWED_ORIGINS", "https://app.isyncso.com,http://localhost:3000")
+
+origins = origins_str.split(",")
 if origins == [""]:
     origins = ["https://app.isyncso.com", "http://localhost:3000"]  # Fallback
 
@@ -17,10 +22,10 @@ print(f"Configuring CORS with origins: {origins}")
 # Ensure proper CORS middleware configuration
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=origins,
+    allow_origins=["*"],  # Use wildcard for testing, more permissive
     allow_credentials=True,
-    allow_methods=["GET", "POST", "OPTIONS", "DELETE", "PUT", "PATCH"],
-    allow_headers=["Content-Type", "Authorization", "X-Requested-With", "Accept", "Origin"],
+    allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"],
+    allow_headers=["*"],  # Use wildcard for headers too
     max_age=86400,  # 24 hours
 )
 
@@ -50,7 +55,7 @@ async def agent_dispatch(request: Request):
                 "token": "mock-token-xyz",
                 "room": body.get("roomName", "default-room"),
                 "service": "livekit",
-                "server_url": os.getenv("LIVEKIT_URL", "wss://example.livekit.cloud")
+                "server_url": os.getenv("LIVEKIT_URL", "wss://isyncsosync-p1sl1ryj.livekit.cloud")
             }
         }
     }
@@ -74,23 +79,15 @@ async def agent_token(room: str = None, identity: str = None):
 
 # Add a catchall OPTIONS route to handle preflight requests for any endpoint
 @app.options("/{path:path}")
-async def options_route(path: str, request: Request):
-    # Get the origin from the request
-    origin = request.headers.get("origin", "")
-    
-    # Check if the origin is in our allowed origins list
-    allow_origin = "*"
-    if origin and any(origin == allowed_origin for allowed_origin in origins):
-        allow_origin = origin
-    
+async def options_route(path: str):
+    # More permissive CORS handling for OPTIONS requests
     return Response(
         status_code=200,
         headers={
-            "Access-Control-Allow-Origin": allow_origin,
+            "Access-Control-Allow-Origin": "*",
             "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, OPTIONS, PATCH",
-            "Access-Control-Allow-Headers": "Content-Type, Authorization, X-Requested-With, Accept, Origin",
+            "Access-Control-Allow-Headers": "*",
             "Access-Control-Max-Age": "86400",
-            "Access-Control-Allow-Credentials": "true" if origin != "*" else "false",
         }
     )
 

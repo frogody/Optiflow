@@ -4,10 +4,17 @@ import os
 import json
 import uvicorn
 import logging
-from config import CORS_ORIGINS, PORT, DEBUG, LIVEKIT_URL, logger
+from config import PORT, DEBUG, LIVEKIT_URL, logger
 
 # Create FastAPI app
 app = FastAPI()
+
+# Get CORS origins from environment variables
+cors_origin_env = os.getenv("CORS_ALLOW_ORIGIN", "")
+if not cors_origin_env:
+    cors_origin_env = os.getenv("CORS_ALLOWED_ORIGINS", "https://app.isyncso.com,http://localhost:3000")
+
+CORS_ORIGINS = cors_origin_env.split(",") if cors_origin_env else ["https://app.isyncso.com", "http://localhost:3000"]
 
 # Configure CORS with proper settings
 logger.info(f"Configuring CORS with origins: {CORS_ORIGINS}")
@@ -15,10 +22,10 @@ logger.info(f"Configuring CORS with origins: {CORS_ORIGINS}")
 # Ensure proper CORS middleware configuration
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=CORS_ORIGINS,
+    allow_origins=["*"],  # Use wildcard for testing, more permissive
     allow_credentials=True,
-    allow_methods=["GET", "POST", "OPTIONS", "DELETE", "PUT", "PATCH"],
-    allow_headers=["Content-Type", "Authorization", "X-Requested-With", "Accept", "Origin"],
+    allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"],
+    allow_headers=["*"],  # Use wildcard for headers too
     max_age=86400,  # 24 hours
 )
 
@@ -77,30 +84,18 @@ async def agent_token(room: str = None, identity: str = None):
 
 # Add a catchall OPTIONS route to handle preflight requests for any endpoint
 @app.options("/{path:path}")
-async def options_route(path: str, request: Request):
+async def options_route(path: str):
     # Log the OPTIONS request
     logger.info(f"OPTIONS request received for path: /{path}")
     
-    # Get the origin from the request
-    origin = request.headers.get("origin", "")
-    logger.info(f"Request origin: {origin}")
-    
-    # Check if the origin is in our allowed origins list
-    allow_origin = "*"
-    if origin and any(origin == allowed_origin for allowed_origin in CORS_ORIGINS):
-        allow_origin = origin
-        logger.info(f"Using specific origin: {allow_origin}")
-    else:
-        logger.info(f"Using wildcard origin. Allowed origins: {CORS_ORIGINS}")
-    
+    # More permissive CORS handling for OPTIONS requests
     return Response(
         status_code=200,
         headers={
-            "Access-Control-Allow-Origin": allow_origin,
+            "Access-Control-Allow-Origin": "*",
             "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, OPTIONS, PATCH",
-            "Access-Control-Allow-Headers": "Content-Type, Authorization, X-Requested-With, Accept, Origin",
+            "Access-Control-Allow-Headers": "*",
             "Access-Control-Max-Age": "86400",
-            "Access-Control-Allow-Credentials": "true" if origin != "*" else "false",
         }
     )
 

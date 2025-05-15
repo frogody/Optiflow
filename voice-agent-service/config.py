@@ -17,15 +17,18 @@ if os.path.exists(dotenv_path):
 else:
     logger.info("No .env file found, using system environment variables")
 
-# CORS Configuration
-CORS_ALLOW_ORIGIN = os.getenv("CORS_ALLOW_ORIGIN", "https://app.isyncso.com,http://localhost:3000")
-CORS_ORIGINS = CORS_ALLOW_ORIGIN.split(",")
+# CORS Configuration - check both environment variable names
+CORS_ALLOW_ORIGIN = os.getenv("CORS_ALLOW_ORIGIN", "")
+if not CORS_ALLOW_ORIGIN:
+    CORS_ALLOW_ORIGIN = os.getenv("CORS_ALLOWED_ORIGINS", "https://app.isyncso.com,http://localhost:3000")
+
+CORS_ORIGINS = CORS_ALLOW_ORIGIN.split(",") if CORS_ALLOW_ORIGIN else ["https://app.isyncso.com", "http://localhost:3000"]
 logger.info(f"CORS origins: {CORS_ORIGINS}")
 
 # Service Configuration
 PORT = int(os.getenv("PORT", 8000))
 DEBUG = os.getenv("DEBUG", "False").lower() in ("true", "1", "t")
-LIVEKIT_URL = os.getenv("LIVEKIT_URL", "wss://example.livekit.cloud")
+LIVEKIT_URL = os.getenv("LIVEKIT_URL", "wss://isyncsosync-p1sl1ryj.livekit.cloud")
 
 # Print configuration
 logger.info(f"Running with configuration:")
