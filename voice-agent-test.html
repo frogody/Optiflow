@@ -25,141 +25,305 @@
             margin-bottom: 20px;
             box-shadow: 0 2px 4px rgba(0,0,0,0.1);
         }
-        button {
+        .button {
             background-color: #0066cc;
             color: white;
             border: none;
-            border-radius: 4px;
             padding: 10px 15px;
+            border-radius: 4px;
             cursor: pointer;
-            margin-right: 10px;
-            margin-bottom: 10px;
             font-size: 14px;
+            transition: background-color 0.2s;
         }
-        button:hover {
+        .button:hover {
             background-color: #0055aa;
         }
-        pre {
-            background-color: #f0f0f0;
-            padding: 15px;
-            border-radius: 4px;
-            overflow-x: auto;
-            margin-top: 10px;
+        .button:disabled {
+            background-color: #cccccc;
+            cursor: not-allowed;
         }
-        input {
-            padding: 10px;
-            margin-bottom: 10px;
-            border: 1px solid #ddd;
+        .response {
+            background-color: #f0f0f0;
             border-radius: 4px;
-            width: 100%;
-            box-sizing: border-box;
+            padding: 15px;
+            margin-top: 15px;
+            overflow-x: auto;
+            font-family: monospace;
+            white-space: pre-wrap;
         }
         .success {
-            color: #00aa00;
+            color: #00aa55;
         }
         .error {
-            color: #cc0000;
+            color: #cc3300;
+        }
+        .input-group {
+            margin-bottom: 15px;
+        }
+        .input-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 500;
+        }
+        .input-group input {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        .tabs {
+            display: flex;
+            border-bottom: 1px solid #ddd;
+            margin-bottom: 20px;
+        }
+        .tab {
+            padding: 10px 20px;
+            cursor: pointer;
+            border-bottom: 2px solid transparent;
+        }
+        .tab.active {
+            border-bottom: 2px solid #0066cc;
+            color: #0066cc;
+            font-weight: 500;
+        }
+        .tab-content {
+            display: none;
+        }
+        .tab-content.active {
+            display: block;
         }
     </style>
 </head>
 <body>
-    <h1>Voice Agent API Test</h1>
+    <h1>Optiflow Voice Agent API Tester</h1>
     
-    <div class="card">
-        <h2>Health Check</h2>
-        <button id="checkHealth">Check Health</button>
-        <pre id="healthResult">Results will appear here...</pre>
+    <div class="tabs">
+        <div class="tab active" data-tab="local">Local</div>
+        <div class="tab" data-tab="render">Render.com</div>
+        <div class="tab" data-tab="custom">Custom URL</div>
     </div>
     
-    <div class="card">
-        <h2>Agent Dispatch</h2>
-        <input id="roomName" type="text" placeholder="Room Name (optional)" value="test-room-123">
-        <button id="dispatchAgent">Dispatch Agent</button>
-        <pre id="dispatchResult">Results will appear here...</pre>
+    <div class="card tab-content active" id="local-content">
+        <h2>Test Local Voice Agent API</h2>
+        <p>This will test the voice agent API running locally on http://localhost:8000</p>
+        <div class="input-group">
+            <label for="local-room">Room Name:</label>
+            <input type="text" id="local-room" value="test-room-123">
+        </div>
+        <div class="input-group">
+            <label for="local-user">User ID:</label>
+            <input type="text" id="local-user" value="test-user-456">
+        </div>
+        <button class="button" onclick="testEndpoint('http://localhost:8000', 'health', 'GET')">Test Health</button>
+        <button class="button" onclick="testOptionsEndpoint('http://localhost:8000', 'agent/dispatch')">Test OPTIONS</button>
+        <button class="button" onclick="testEndpoint('http://localhost:8000', 'agent/dispatch', 'POST', getLocalPayload())">Test Dispatch</button>
+        <button class="button" onclick="testEndpoint('http://localhost:8000', `agent/token?room=${document.getElementById('local-room').value}&identity=${document.getElementById('local-user').value}`, 'GET')">Test Token</button>
+        <div class="response" id="local-response"></div>
     </div>
     
-    <div class="card">
-        <h2>Get Token</h2>
-        <input id="tokenRoom" type="text" placeholder="Room Name" value="test-room-123">
-        <input id="tokenIdentity" type="text" placeholder="User Identity" value="test-user-456">
-        <button id="getToken">Get Token</button>
-        <pre id="tokenResult">Results will appear here...</pre>
+    <div class="card tab-content" id="render-content">
+        <h2>Test Render.com Voice Agent API</h2>
+        <p>This will test the voice agent API on Render.com at https://optiflow-voice-agent.onrender.com</p>
+        <div class="input-group">
+            <label for="render-room">Room Name:</label>
+            <input type="text" id="render-room" value="test-room-123">
+        </div>
+        <div class="input-group">
+            <label for="render-user">User ID:</label>
+            <input type="text" id="render-user" value="test-user-456">
+        </div>
+        <button class="button" onclick="testEndpoint('https://optiflow-voice-agent.onrender.com', 'health', 'GET')">Test Health</button>
+        <button class="button" onclick="testOptionsEndpoint('https://optiflow-voice-agent.onrender.com', 'agent/dispatch')">Test OPTIONS</button>
+        <button class="button" onclick="testEndpoint('https://optiflow-voice-agent.onrender.com', 'agent/dispatch', 'POST', getRenderPayload())">Test Dispatch</button>
+        <button class="button" onclick="testEndpoint('https://optiflow-voice-agent.onrender.com', `agent/token?room=${document.getElementById('render-room').value}&identity=${document.getElementById('render-user').value}`, 'GET')">Test Token</button>
+        <div class="response" id="render-response"></div>
+    </div>
+    
+    <div class="card tab-content" id="custom-content">
+        <h2>Test Custom Voice Agent API</h2>
+        <p>Enter a custom URL to test your voice agent API</p>
+        <div class="input-group">
+            <label for="custom-url">API Base URL:</label>
+            <input type="text" id="custom-url" value="https://your-custom-url.com">
+        </div>
+        <div class="input-group">
+            <label for="custom-room">Room Name:</label>
+            <input type="text" id="custom-room" value="test-room-123">
+        </div>
+        <div class="input-group">
+            <label for="custom-user">User ID:</label>
+            <input type="text" id="custom-user" value="test-user-456">
+        </div>
+        <button class="button" onclick="testEndpoint(document.getElementById('custom-url').value, 'health', 'GET')">Test Health</button>
+        <button class="button" onclick="testOptionsEndpoint(document.getElementById('custom-url').value, 'agent/dispatch')">Test OPTIONS</button>
+        <button class="button" onclick="testEndpoint(document.getElementById('custom-url').value, 'agent/dispatch', 'POST', getCustomPayload())">Test Dispatch</button>
+        <button class="button" onclick="testEndpoint(document.getElementById('custom-url').value, `agent/token?room=${document.getElementById('custom-room').value}&identity=${document.getElementById('custom-user').value}`, 'GET')">Test Token</button>
+        <div class="response" id="custom-response"></div>
     </div>
 
     <script>
-        // Base URL for voice agent service
-        const apiBaseUrl = 'http://localhost:8000';
-        
-        // Get DOM elements
-        const checkHealthBtn = document.getElementById('checkHealth');
-        const healthResult = document.getElementById('healthResult');
-        const dispatchAgentBtn = document.getElementById('dispatchAgent');
-        const dispatchResult = document.getElementById('dispatchResult');
-        const roomNameInput = document.getElementById('roomName');
-        const getTokenBtn = document.getElementById('getToken');
-        const tokenResult = document.getElementById('tokenResult');
-        const tokenRoomInput = document.getElementById('tokenRoom');
-        const tokenIdentityInput = document.getElementById('tokenIdentity');
-        
-        // Helper function to display results
-        function displayResult(element, data, isError = false) {
-            element.innerHTML = JSON.stringify(data, null, 2);
-            element.className = isError ? 'error' : 'success';
+        // Tab functionality
+        document.querySelectorAll('.tab').forEach(tab => {
+            tab.addEventListener('click', () => {
+                // Remove active class from all tabs and contents
+                document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+                document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+                
+                // Add active class to clicked tab and corresponding content
+                tab.classList.add('active');
+                document.getElementById(`${tab.dataset.tab}-content`).classList.add('active');
+            });
+        });
+
+        // Get payloads for different environments
+        function getLocalPayload() {
+            return {
+                roomName: document.getElementById('local-room').value,
+                userId: document.getElementById('local-user').value
+            };
         }
         
-        // Check Health endpoint
-        checkHealthBtn.addEventListener('click', async () => {
-            try {
-                const response = await fetch(`${apiBaseUrl}/health`);
-                const data = await response.json();
-                displayResult(healthResult, data);
-            } catch (error) {
-                displayResult(healthResult, { error: error.message }, true);
-            }
-        });
+        function getRenderPayload() {
+            return {
+                roomName: document.getElementById('render-room').value,
+                userId: document.getElementById('render-user').value
+            };
+        }
         
-        // Dispatch Agent endpoint
-        dispatchAgentBtn.addEventListener('click', async () => {
+        function getCustomPayload() {
+            return {
+                roomName: document.getElementById('custom-room').value,
+                userId: document.getElementById('custom-user').value
+            };
+        }
+
+        // Test an endpoint
+        async function testEndpoint(baseUrl, endpoint, method, payload = null) {
+            const url = `${baseUrl}/${endpoint}`;
+            const responseDiv = document.getElementById(`${getEnvironmentFromUrl(baseUrl)}-response`);
+            
+            responseDiv.innerHTML = `Testing ${method} ${url}...\n`;
+            
             try {
-                const roomName = roomNameInput.value.trim() || `test-room-${Date.now()}`;
-                const response = await fetch(`${apiBaseUrl}/agent/dispatch`, {
-                    method: 'POST',
+                const options = {
+                    method: method,
                     headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({ roomName, userId: 'test-user' })
-                });
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json'
+                    }
+                };
                 
-                const data = await response.json();
-                displayResult(dispatchResult, data);
-                
-                // Auto-fill token form with the room name
-                tokenRoomInput.value = roomName;
-            } catch (error) {
-                displayResult(dispatchResult, { error: error.message }, true);
-            }
-        });
-        
-        // Get Token endpoint
-        getTokenBtn.addEventListener('click', async () => {
-            try {
-                const room = tokenRoomInput.value.trim();
-                const identity = tokenIdentityInput.value.trim();
-                
-                if (!room || !identity) {
-                    throw new Error("Room name and identity are required");
+                if (payload && (method === 'POST' || method === 'PUT')) {
+                    options.body = JSON.stringify(payload);
                 }
                 
-                const response = await fetch(
-                    `${apiBaseUrl}/agent/token?room=${encodeURIComponent(room)}&identity=${encodeURIComponent(identity)}`
-                );
+                const startTime = performance.now();
+                const response = await fetch(url, options);
+                const endTime = performance.now();
+                const responseTime = Math.round(endTime - startTime);
                 
                 const data = await response.json();
-                displayResult(tokenResult, data);
-            } catch (error) {
-                displayResult(tokenResult, { error: error.message }, true);
+                
+                responseDiv.innerHTML += `Status: ${response.status} ${response.statusText}\n`;
+                responseDiv.innerHTML += `Response Time: ${responseTime}ms\n\n`;
+                
+                // Show response headers
+                responseDiv.innerHTML += `Response Headers:\n`;
+                response.headers.forEach((value, key) => {
+                    responseDiv.innerHTML += `${key}: ${value}\n`;
+                });
+                
+                responseDiv.innerHTML += `\nResponse Body:\n${JSON.stringify(data, null, 2)}`;
+                
+                if (response.ok) {
+                    responseDiv.innerHTML = `<div class="success">✅ Request Succeeded</div>\n` + responseDiv.innerHTML;
+                } else {
+                    responseDiv.innerHTML = `<div class="error">❌ Request Failed</div>\n` + responseDiv.innerHTML;
+                }
+            } catch (err) {
+                responseDiv.innerHTML = `<div class="error">❌ Error: ${err.message}</div>\n` + responseDiv.innerHTML;
+                console.error(err);
             }
-        });
+        }
+        
+        // Test OPTIONS preflight request
+        async function testOptionsEndpoint(baseUrl, endpoint) {
+            const url = `${baseUrl}/${endpoint}`;
+            const responseDiv = document.getElementById(`${getEnvironmentFromUrl(baseUrl)}-response`);
+            
+            responseDiv.innerHTML = `Testing OPTIONS ${url}...\n`;
+            
+            try {
+                const options = {
+                    method: 'OPTIONS',
+                    headers: {
+                        'Origin': 'https://app.isyncso.com',
+                        'Access-Control-Request-Method': 'POST',
+                        'Access-Control-Request-Headers': 'Content-Type,Authorization'
+                    }
+                };
+                
+                const startTime = performance.now();
+                const response = await fetch(url, options);
+                const endTime = performance.now();
+                const responseTime = Math.round(endTime - startTime);
+                
+                responseDiv.innerHTML += `Status: ${response.status} ${response.statusText}\n`;
+                responseDiv.innerHTML += `Response Time: ${responseTime}ms\n\n`;
+                
+                // Show response headers
+                responseDiv.innerHTML += `Response Headers:\n`;
+                response.headers.forEach((value, key) => {
+                    responseDiv.innerHTML += `${key}: ${value}\n`;
+                });
+                
+                // Check CORS headers
+                const corsHeaders = [
+                    'access-control-allow-origin',
+                    'access-control-allow-methods',
+                    'access-control-allow-headers',
+                    'access-control-max-age'
+                ];
+                
+                let corsSuccess = true;
+                
+                responseDiv.innerHTML += `\nCORS Headers Check:\n`;
+                corsHeaders.forEach(header => {
+                    if (response.headers.has(header)) {
+                        responseDiv.innerHTML += `✅ ${header}: ${response.headers.get(header)}\n`;
+                    } else {
+                        responseDiv.innerHTML += `❌ Missing ${header}\n`;
+                        corsSuccess = false;
+                    }
+                });
+                
+                // Check if OPTIONS returns 200
+                if (response.status === 200) {
+                    responseDiv.innerHTML = `<div class="success">✅ OPTIONS Request Succeeded</div>\n` + responseDiv.innerHTML;
+                } else {
+                    responseDiv.innerHTML = `<div class="error">❌ OPTIONS Request Failed with status ${response.status}</div>\n` + responseDiv.innerHTML;
+                    corsSuccess = false;
+                }
+                
+                // Overall CORS assessment
+                if (corsSuccess) {
+                    responseDiv.innerHTML += `\n<div class="success">✅ CORS configuration appears correct!</div>`;
+                } else {
+                    responseDiv.innerHTML += `\n<div class="error">❌ CORS configuration needs fixing! Check headers above.</div>`;
+                }
+                
+            } catch (err) {
+                responseDiv.innerHTML = `<div class="error">❌ Error: ${err.message}</div>\n` + responseDiv.innerHTML;
+                console.error(err);
+            }
+        }
+        
+        // Extract environment name from URL for finding the right response div
+        function getEnvironmentFromUrl(url) {
+            if (url.includes('localhost')) return 'local';
+            if (url.includes('render')) return 'render';
+            return 'custom';
+        }
     </script>
 </body>
 </html> 
