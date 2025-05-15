@@ -121,4 +121,39 @@ Then open `voice-agent-test.html` in your browser to test the deployment.
 - **Google Cloud Run**: Deploy using `gcloud run deploy`
 - **AWS ECS/Fargate**: Deploy using AWS CLI or Console
 
-For any issues, please refer to the [Voice Agent Debug Guide](./VOICE_AGENT_DEBUG.md). 
+For any issues, please refer to the [Voice Agent Debug Guide](./VOICE_AGENT_DEBUG.md).
+
+# Voice Agent Integration
+
+## AWS API Gateway Integration
+
+The voice agent now uses an AWS API Gateway for secure communication. To set up the AWS API Gateway:
+
+1. Run the setup script to generate an API key and configure your environment:
+   ```bash
+   ./setup-aws-api-key.sh
+   ```
+
+2. Verify the AWS API Gateway configuration:
+   ```bash
+   ./test-aws-api-gateway.js
+   ```
+
+3. Make sure the following environment variables are set:
+   - `NEXT_PUBLIC_AWS_API_KEY`: Your API Gateway key
+   - `NEXT_PUBLIC_AWS_API_ENDPOINT`: The API Gateway endpoint (e.g., 'sfd8q2ch3k.execute-api.us-east-2.amazonaws.com')
+
+See [AWS_API_GATEWAY_SETUP.md](./AWS_API_GATEWAY_SETUP.md) for detailed setup instructions.
+
+## Troubleshooting
+
+If you're experiencing 403 Forbidden errors when accessing the AWS API Gateway:
+
+1. Verify your API key is set correctly in the environment variables
+2. Make sure the API key is being sent with the `x-api-key` header
+3. Validate API Gateway permissions in AWS console
+
+Run the test script to diagnose issues:
+```bash
+./test-aws-api-gateway.js
+``` 

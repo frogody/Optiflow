@@ -15,6 +15,7 @@ import {
 import { useSession } from 'next-auth/react';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { toast } from 'react-hot-toast';
+import { installEndpointLogger } from '../../../aws-endpoint-logger';
 
 import ConnectionDebugger from './ConnectionDebugger';
 import DivBarVisualizer from './DivBarVisualizer';
@@ -62,35 +63,21 @@ const VOICE_AGENT_URL = typeof window !== 'undefined'
   ? (process.env.NEXT_PUBLIC_VOICE_AGENT_URL || '') 
   : '';
 
-// Flag to bypass AWS API Gateway (temporary fix for 403 error)
-const BYPASS_AWS_API = true;
+// Configure AWS API Gateway auth - use environment variables for production
+const AWS_API_KEY = process.env.NEXT_PUBLIC_AWS_API_KEY || '';
+const AWS_API_ENDPOINT = process.env.NEXT_PUBLIC_AWS_API_ENDPOINT || 'sfd8q2ch3k.execute-api.us-east-2.amazonaws.com';
 
-// This function patches the global fetch to intercept calls to the AWS API Gateway
-function patchFetch() {
-  if (typeof window !== 'undefined') {
-    const originalFetch = window.fetch;
-    window.fetch = async function(input, init) {
-      const url = input.toString();
-      
-      // Check if this is a call to the problematic AWS API Gateway
-      if (BYPASS_AWS_API && url.includes('sfd8q2ch3k.execute-api.us-east-2.amazonaws.com')) {
-        console.log('Bypassing AWS API Gateway call to:', url);
-        // Return a mock successful response
-        return new Response(JSON.stringify({ 
-          success: true, 
-          message: 'AWS API Gateway call bypassed',
-          data: {}
-        }), {
-          status: 200,
-          headers: { 'Content-Type': 'application/json' }
-        });
-      }
-      
-      // Otherwise, proceed with the original fetch
-      return originalFetch.apply(this, [input, init]);
-    };
-    console.log('Fetch patched to bypass AWS API Gateway calls');
-  }
+// AWS API Gateway auth is handled in a useEffect below
+
+// If in development mode, install the endpoint logger
+if (process.env.NODE_ENV === 'development' && typeof window !== 'undefined') {
+  setTimeout(() => {
+    try {
+      installEndpointLogger();
+    } catch (e) {
+      console.error('Failed to install endpoint logger:', e);
+    }
+  }, 1000); // Delay to ensure it runs after other initialization
 }
 
 const VoiceAgentInterface: React.FC<VoiceAgentInterfaceProps> = ({ 
@@ -107,10 +94,117 @@ const VoiceAgentInterface: React.FC<VoiceAgentInterfaceProps> = ({
     }
   })();
   
-  // Apply fetch patch when component mounts
+  // AWS API Gateway auth is now handled in a dedicated useEffect below
+  
+  // Apply AWS API Key to all requests to the API Gateway endpoint with enhanced logging
   useEffect(() => {
-    patchFetch();
-  }, []);
+    if (typeof window !== 'undefined' && AWS_API_ENDPOINT) {
+      const originalFetch = window.fetch;
+      // Keep track of endpoints encountered to help with debugging
+      const encounteredEndpoints = new Set();
+      
+      window.fetch = async function(input, init) {
+        const url = input.toString();
+        
+        // Check if this is a call to the AWS API Gateway
+        if (url.includes(AWS_API_ENDPOINT)) {
+          try {
+            // Extract the path for debugging and endpoint detection
+            const urlObj = new URL(url);
+            const path = urlObj.pathname;
+            
+            // Store the endpoint for debugging
+            if (!encounteredEndpoints.has(path)) {
+              encounteredEndpoints.add(path);
+              console.log(`[AWS Gateway] New endpoint detected: ${path}`);
+              console.log(`[AWS Gateway] Current endpoints: ${Array.from(encounteredEndpoints).join(', ')}`);
+              
+              // Store in localStorage for persistence
+              try {
+                const storedEndpoints = JSON.parse(localStorage.getItem('aws_gateway_endpoints') || '[]');
+                if (!storedEndpoints.includes(path)) {
+                  storedEndpoints.push(path);
+                  localStorage.setItem('aws_gateway_endpoints', JSON.stringify(storedEndpoints));
+                }
+              } catch (e) {
+                console.error('Error storing endpoint in localStorage:', e);
+              }
+            }
+            
+            console.log(`[AWS Gateway] Adding authentication to request: ${url}`);
+          } catch (e) {
+            console.error('Error parsing URL:', e);
+          }
+          
+          // Clone headers or create new headers object
+          const headers = new Headers(init?.headers || {});
+          
+          // Add the API key header if available
+          if (AWS_API_KEY) {
+            headers.set('x-api-key', AWS_API_KEY);
+            console.log('[AWS Gateway] Added x-api-key header');
+          } else {
+            console.warn('[AWS Gateway] No API key available for request');
+          }
+          
+          // Add session auth token if available
+          const session = sessionData?.data;
+          if (session?.accessToken) {
+            headers.set('Authorization', `Bearer ${session.accessToken}`);
+            console.log('[AWS Gateway] Added Authorization header');
+          }
+          
+          // Create new init object with updated headers
+          const newInit = {
+            ...init,
+            headers
+          };
+          
+          // Add a global function for developers to access all endpoints
+          if (typeof window !== 'undefined' && !window.printAwsEndpoints) {
+            window.printAwsEndpoints = function() {
+              const endpoints = Array.from(encounteredEndpoints);
+              console.log('AWS API Gateway endpoints encountered:');
+              endpoints.forEach((path, i) => {
+                console.log(`  ${i+1}. ${path}`);
+              });
+              return endpoints;
+            };
+            console.log('[AWS Gateway] Added window.printAwsEndpoints() helper function');
+          }
+          
+          console.log('[AWS Gateway] Sending authenticated request');
+          return originalFetch.apply(this, [input, newInit]);
+        }
+        
+        // Otherwise, proceed with the original fetch
+        return originalFetch.apply(this, [input, init]);
+      };
+      console.log('Fetch patched to add authentication to AWS API Gateway calls');
+      console.log('Run window.printAwsEndpoints() in console to see detected endpoints');
+      
+      // Try to load and print any saved endpoints
+      try {
+        const savedEndpoints = JSON.parse(localStorage.getItem('aws_gateway_endpoints') || '[]');
+        if (savedEndpoints.length > 0) {
+          console.log('[AWS Gateway] Previously detected endpoints:');
+          savedEndpoints.forEach((path: string, i: number) => {
+            console.log(`  ${i+1}. ${path}`);
+          });
+        }
+      } catch (e) {
+        console.error('Error loading saved endpoints:', e);
+      }
+    }
+    
+    // Cleanup function to restore original fetch when component unmounts
+    return () => {
+      if (typeof window !== 'undefined') {
+        // @ts-ignore - We know window.fetch exists since we modified it
+        window.fetch = originalFetch;
+      }
+    };
+  }, [sessionData?.data]);
   
   // Handle undefined data property safely
   const session = sessionData?.data || null;

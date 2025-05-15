@@ -7,7 +7,7 @@ import requests
 import aiohttp
 from livekit.agents import (
     JobContext,
-    JobType,
+    AgentJobType,
     WorkerOptions,
     Agent,
     AgentSession,
@@ -448,7 +448,7 @@ class JarvisAgent:
 async def request_fnc(job_request: JobContext):
     logger.info(f"Received job request: {job_request.id}, type: {job_request.type}")
     
-    if job_request.type == JobType.JT_AGENT:
+    if job_request.type == AgentJobType.AGENT:
         agent = JarvisAgent()
         await agent.process_job(job_request)
     else:

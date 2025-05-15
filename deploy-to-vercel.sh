@@ -24,7 +24,7 @@ fi
 echo -e "${YELLOW}Logging in to Vercel...${NC}"
 vercel login || handle_error "Failed to login to Vercel"
 
-# Add LiveKit v2 environment variable checks
+# Function to check LiveKit environment variables
 check_livekit_vars() {
   echo "Checking LiveKit environment variables..."
   if [ -z "$LIVEKIT_URL" ]; then
@@ -53,8 +53,74 @@ check_livekit_vars() {
   echo "LiveKit environment variables are set correctly ✅"
 }
 
+# Function to check AWS API Gateway environment variables
+check_aws_api_gateway_vars() {
+  echo -e "\n${YELLOW}Checking AWS API Gateway environment variables...${NC}"
+  
+  # Check .env.production file for AWS API Key and Endpoint
+  if [ -f .env.production ]; then
+    source .env.production
+    if [ -z "$NEXT_PUBLIC_AWS_API_KEY" ] || [ -z "$NEXT_PUBLIC_AWS_API_ENDPOINT" ]; then
+      echo -e "${YELLOW}Warning: AWS API Gateway configuration missing in .env.production${NC}"
+      echo -e "${YELLOW}Run ./setup-aws-api-key.sh to configure AWS API Gateway access${NC}"
+      
+      # Ask if user wants to continue without AWS API Gateway config
+      read -p "Continue deployment without AWS API Gateway configuration? (y/n): " continue_deploy
+      if [[ "$continue_deploy" != "y" && "$continue_deploy" != "Y" ]]; then
+        handle_error "Deployment cancelled by user"
+      fi
+      
+      echo -e "${YELLOW}Continuing deployment without AWS API Gateway configuration...${NC}"
+      return 1
+    else
+      echo -e "${GREEN}AWS API Gateway configuration found in .env.production${NC}"
+      return 0
+    fi
+  else
+    echo -e "${RED}Warning: .env.production file not found${NC}"
+    read -p "Continue anyway? (y/n): " continue_deploy
+    if [[ "$continue_deploy" != "y" && "$continue_deploy" != "Y" ]]; then
+      handle_error "Deployment cancelled by user"
+    fi
+    return 1
+  fi
+}
+
 # Add LiveKit check before deployment
 check_livekit_vars
+
+# Add AWS API Gateway check before deployment
+check_aws_api_gateway_vars
+aws_config_status=$?
+
+# Check if .env file exists
+if [ ! -f .env.production ]; then
+  echo "Error: .env.production file not found"
+  exit 1
+fi
+
+# Load environment variables
+source .env.production
+
+# Deploy to Vercel with the environment variables
+echo "Deploying to Vercel..."
+
+# Run the Vercel deployment command with the environment variables
+vercel deploy --prod \
+  --env NEXTAUTH_URL="$NEXTAUTH_URL" \
+  --env NEXTAUTH_SECRET="$NEXTAUTH_SECRET" \
+  --env GOOGLE_CLIENT_ID="$GOOGLE_CLIENT_ID" \
+  --env GOOGLE_CLIENT_SECRET="$GOOGLE_CLIENT_SECRET" \
+  --env DATABASE_URL="$DATABASE_URL" \
+  --env LIVEKIT_API_URL="$LIVEKIT_API_URL" \
+  --env LIVEKIT_API_KEY="$LIVEKIT_API_KEY" \
+  --env LIVEKIT_API_SECRET="$LIVEKIT_API_SECRET" \
+  --env NEXT_PUBLIC_LIVEKIT_URL="$NEXT_PUBLIC_LIVEKIT_URL" \
+  --env NEXT_PUBLIC_VOICE_AGENT_URL="$NEXT_PUBLIC_VOICE_AGENT_URL" \
+  --env NEXT_PUBLIC_AWS_API_KEY="$NEXT_PUBLIC_AWS_API_KEY" \
+  --env NEXT_PUBLIC_AWS_API_ENDPOINT="$NEXT_PUBLIC_AWS_API_ENDPOINT"
+
+echo "Deployment complete!"
 
 # Deploy to preview environment
 echo -e "\n${YELLOW}Deploying to preview environment...${NC}"
@@ -68,10 +134,18 @@ vercel --confirm --env NEXT_PUBLIC_DEPLOYMENT_ENV=development || handle_error "F
 echo -e "\n${YELLOW}Deploying to production environment...${NC}"
 vercel --prod --confirm || handle_error "Failed to deploy to production environment"
 
-# Add LiveKit v2 environment variables if needed
-if ! vercel env ls | grep -q "LIVEKIT_URL"; then
-  echo "Adding LIVEKIT_URL to Vercel environment..."
-  vercel env add LIVEKIT_URL
+# Add AWS API Gateway environment variables to Vercel if they exist
+if [ $aws_config_status -eq 0 ]; then
+  # Check if variables already exist in Vercel
+  if ! vercel env ls | grep -q "NEXT_PUBLIC_AWS_API_KEY"; then
+    echo "Adding NEXT_PUBLIC_AWS_API_KEY to Vercel environment..."
+    vercel env add NEXT_PUBLIC_AWS_API_KEY
+  fi
+  
+  if ! vercel env ls | grep -q "NEXT_PUBLIC_AWS_API_ENDPOINT"; then
+    echo "Adding NEXT_PUBLIC_AWS_API_ENDPOINT to Vercel environment..."
+    vercel env add NEXT_PUBLIC_AWS_API_ENDPOINT
+  fi
 fi
 
 # Remove deprecated environment variable if exists
