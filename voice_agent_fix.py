@@ -4,26 +4,29 @@ import os
 import json
 import uvicorn
 
+# Create FastAPI app
 app = FastAPI()
 
-# Configure CORS - read origins from environment or use defaults
-origins = os.getenv("CORS_ALLOW_ORIGIN", "https://app.isyncso.com").split(",")
-if origins == [""]:
-    origins = ["https://app.isyncso.com"]  # Fallback
-
-print(f"Configuring CORS with origins: {origins}")
+# Configure CORS
+origins = [
+    "https://app.isyncso.com",    # Your frontend domain
+    "http://localhost:3000",       # Development URL
+    "http://localhost:3987",       # Another development URL
+    "*",                           # Allow all origins as fallback (not recommended for production)
+]
 
 app.add_middleware(
     CORSMiddleware,
     allow_origins=origins,
     allow_credentials=True,
-    allow_methods=os.getenv("CORS_ALLOW_METHODS", "*").split(","),
-    allow_headers=os.getenv("CORS_ALLOW_HEADERS", "*").split(","),
+    allow_methods=["*"],
+    allow_headers=["*"],
 )
 
+# Current health endpoint that's working
 @app.get("/health")
 async def health_check():
-    return {"status": "healthy"}
+    return {"status": "ok"}
 
 # Add the missing agent/dispatch endpoint
 @app.post("/agent/dispatch")
@@ -50,15 +53,7 @@ async def agent_dispatch(request: Request):
 # Also handle OPTIONS requests explicitly for CORS preflight
 @app.options("/agent/dispatch")
 async def agent_dispatch_options():
-    return Response(
-        status_code=200,
-        headers={
-            "Access-Control-Allow-Origin": origins[0],
-            "Access-Control-Allow-Methods": "POST, OPTIONS",
-            "Access-Control-Allow-Headers": "Content-Type, Authorization",
-            "Access-Control-Allow-Credentials": "true",
-        }
-    )
+    return Response(status_code=200)
 
 # Add other needed endpoints here
 @app.get("/agent/token")
@@ -69,4 +64,6 @@ async def agent_token():
     }
 
 if __name__ == "__main__":
-    uvicorn.run(app, host="0.0.0.0", port=8000) 
+    # Get port from environment variable or default to the one used by FastAPI
+    port = int(os.environ.get("PORT", 8000))
+    uvicorn.run(app, host="0.0.0.0", port=port) 

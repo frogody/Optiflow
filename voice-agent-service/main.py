@@ -4,6 +4,7 @@ import os
 import json
 import uvicorn
 
+# Create FastAPI app
 app = FastAPI()
 
 # Configure CORS - read origins from environment or use defaults
@@ -21,9 +22,10 @@ app.add_middleware(
     allow_headers=os.getenv("CORS_ALLOW_HEADERS", "*").split(","),
 )
 
+# Current health endpoint that's working
 @app.get("/health")
 async def health_check():
-    return {"status": "healthy"}
+    return {"status": "ok"}
 
 # Add the missing agent/dispatch endpoint
 @app.post("/agent/dispatch")
@@ -69,4 +71,6 @@ async def agent_token():
     }
 
 if __name__ == "__main__":
-    uvicorn.run(app, host="0.0.0.0", port=8000) 
+    # Get port from environment variable or default to the one used by FastAPI
+    port = int(os.environ.get("PORT", 8000))
+    uvicorn.run(app, host="0.0.0.0", port=port) 
