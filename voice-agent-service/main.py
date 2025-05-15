@@ -77,17 +77,33 @@ async def agent_token(room: str = None, identity: str = None):
 
 # Add a catchall OPTIONS route to handle preflight requests for any endpoint
 @app.options("/{path:path}")
-async def options_route(path: str):
+async def options_route(path: str, request: Request):
+    # Log the OPTIONS request
+    logger.info(f"OPTIONS request received for path: /{path}")
+    
+    # Get the origin from the request
+    origin = request.headers.get("origin", "")
+    logger.info(f"Request origin: {origin}")
+    
+    # Check if the origin is in our allowed origins list
+    allow_origin = "*"
+    if origin and any(origin == allowed_origin for allowed_origin in CORS_ORIGINS):
+        allow_origin = origin
+        logger.info(f"Using specific origin: {allow_origin}")
+    else:
+        logger.info(f"Using wildcard origin. Allowed origins: {CORS_ORIGINS}")
+    
     return Response(
         status_code=200,
         headers={
-            "Access-Control-Allow-Origin": "*",
+            "Access-Control-Allow-Origin": allow_origin,
             "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, OPTIONS, PATCH",
             "Access-Control-Allow-Headers": "Content-Type, Authorization, X-Requested-With, Accept, Origin",
             "Access-Control-Max-Age": "86400",
+            "Access-Control-Allow-Credentials": "true" if origin != "*" else "false",
         }
     )
 
 if __name__ == "__main__":
     logger.info(f"Starting voice agent service on port {PORT}")
-    uvicorn.run(app, host="0.0.0.0", port=PORT) 
+    uvicorn.run(app, host="0.0.0.0", port=PORT, log_level="debug" if DEBUG else "info") 

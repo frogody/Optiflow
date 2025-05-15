@@ -77,14 +77,75 @@ This guide explains how to deploy the Optiflow Voice Agent service to Render.com
 
 ## Troubleshooting
 
-### CORS Issues
+### Understanding CORS Errors
+
+CORS (Cross-Origin Resource Sharing) errors occur when a web page tries to make a request to a domain that's different from the one serving the web page. The browser enforces this security mechanism.
+
+When your browser console shows something like:
+```
+Access to fetch at 'https://optiflow-voice-agent.onrender.com/agent/dispatch' from origin 'https://app.isyncso.com' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource.
+```
+
+Remember these key points:
+1. CORS errors are **browser errors**, not server errors
+2. The server needs to include special headers to tell the browser it's safe to allow the cross-origin request
+3. For requests with credentials, specific origins must be listed (wildcard `*` won't work)
+
+### How Browser CORS Works
+
+When a web page makes a cross-origin request:
+
+1. For simple requests, the browser adds an `Origin` header to the request
+2. For complex requests (like POST with JSON), the browser first sends a "preflight" OPTIONS request
+3. The server must respond to the OPTIONS request with proper CORS headers
+4. The browser checks these headers to decide whether to allow the actual request
+
+### CORS Troubleshooting Steps
 
 If you're still experiencing CORS issues:
 
-1. Check Render.com logs for any errors
-2. Ensure the correct domains are in your CORS_ALLOW_ORIGIN
-3. Verify the OPTIONS endpoint returns 200 status
-4. Try setting Access-Control-Allow-Origin to "*" temporarily for testing
+1. **Check server logs** in the Render.com dashboard to see if OPTIONS requests are being received
+   
+2. **Verify your environment variables**:
+   - Ensure `CORS_ALLOW_ORIGIN` includes your frontend domain **exactly as it appears in the browser**
+   - Check for typos and make sure there are no trailing slashes
+   - Example: `https://app.isyncso.com` not `https://app.isyncso.com/`
+
+3. **Test with curl** to see if the server is responding properly:
+   ```bash
+   curl -v -X OPTIONS -H "Origin: https://app.isyncso.com" \
+   -H "Access-Control-Request-Method: POST" \
+   -H "Access-Control-Request-Headers: Content-Type" \
+   https://optiflow-voice-agent.onrender.com/agent/dispatch
+   ```
+   
+   Look for these headers in the response:
+   ```
+   Access-Control-Allow-Origin: https://app.isyncso.com
+   Access-Control-Allow-Methods: GET, POST, PUT, DELETE, OPTIONS, PATCH
+   Access-Control-Allow-Headers: Content-Type, Authorization, X-Requested-With, Accept, Origin
+   ```
+
+4. **Try temporary solutions for local testing**:
+   - For Chrome: Install the [Allow CORS extension](https://chrome.google.com/webstore/detail/allow-cors-access-control/lhobafahddgcelffkeicbaginigeejlf)
+   - For Firefox: Install the [CORS Everywhere extension](https://addons.mozilla.org/en-US/firefox/addon/cors-everywhere/)
+   
+   Note: These are for development only and won't help your end users.
+
+5. **Check header values**:
+   - If using credentials, `Access-Control-Allow-Origin` cannot be `*`
+   - `Access-Control-Allow-Credentials` must be set to `true` when using credentials
+   - Ensure your `Access-Control-Allow-Headers` includes all headers your frontend is sending
+
+### Advanced Solution: Using a Proxy
+
+If you can't modify the server directly or need a more robust solution:
+
+1. Create a proxy server that forwards requests to your voice agent service
+2. The proxy server adds the correct CORS headers to responses
+3. Your frontend connects to the proxy instead of directly to the voice agent service
+
+This approach works because CORS is enforced by browsers but not by server-to-server communication.
 
 ### Deployment Failures
 

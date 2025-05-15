@@ -55,20 +55,6 @@ async def agent_dispatch(request: Request):
         }
     }
 
-# Explicit OPTIONS route for /agent/dispatch with proper CORS headers
-@app.options("/agent/dispatch")
-async def agent_dispatch_options():
-    return Response(
-        status_code=200,
-        headers={
-            "Access-Control-Allow-Origin": ", ".join(origins),
-            "Access-Control-Allow-Methods": "POST, OPTIONS, GET",
-            "Access-Control-Allow-Headers": "Content-Type, Authorization, X-Requested-With, Accept, Origin",
-            "Access-Control-Allow-Credentials": "true",
-            "Access-Control-Max-Age": "86400",
-        }
-    )
-
 # Add token generation endpoint
 @app.get("/agent/token")
 async def agent_token(room: str = None, identity: str = None):
@@ -86,30 +72,25 @@ async def agent_token(room: str = None, identity: str = None):
         "identity": user_id
     }
 
-# Explicit OPTIONS route for /agent/token with proper CORS headers
-@app.options("/agent/token")
-async def agent_token_options():
-    return Response(
-        status_code=200,
-        headers={
-            "Access-Control-Allow-Origin": ", ".join(origins),
-            "Access-Control-Allow-Methods": "GET, OPTIONS",
-            "Access-Control-Allow-Headers": "Content-Type, Authorization, X-Requested-With, Accept, Origin",
-            "Access-Control-Allow-Credentials": "true",
-            "Access-Control-Max-Age": "86400",
-        }
-    )
-
 # Add a catchall OPTIONS route to handle preflight requests for any endpoint
 @app.options("/{path:path}")
-async def options_route(path: str):
+async def options_route(path: str, request: Request):
+    # Get the origin from the request
+    origin = request.headers.get("origin", "")
+    
+    # Check if the origin is in our allowed origins list
+    allow_origin = "*"
+    if origin and any(origin == allowed_origin for allowed_origin in origins):
+        allow_origin = origin
+    
     return Response(
         status_code=200,
         headers={
-            "Access-Control-Allow-Origin": "*",
+            "Access-Control-Allow-Origin": allow_origin,
             "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, OPTIONS, PATCH",
             "Access-Control-Allow-Headers": "Content-Type, Authorization, X-Requested-With, Accept, Origin",
             "Access-Control-Max-Age": "86400",
+            "Access-Control-Allow-Credentials": "true" if origin != "*" else "false",
         }
     )
 
