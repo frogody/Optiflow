@@ -13,7 +13,7 @@ const nextConfig = {
     // Also ignore ESLint errors during production builds if needed
     ignoreDuringBuilds: true,
   },
-  // Enable static generation where possible while preserving dynamic features
+  // Enable strict mode
   reactStrictMode: true,
   
   // Avoiding React version conflicts by transpiling specific packages
@@ -40,12 +40,9 @@ const nextConfig = {
   
   // Configure experimental features
   experimental: {
-    serverActions: {
-      bodySizeLimit: '2mb',
-    },
-    // Disable static generation
-    appDir: true,
     serverComponentsExternalPackages: ['prisma', '@prisma/client', 'bcrypt', 'react', 'react-dom', '@swc/wasm-web'],
+    // Force everything to be server-side rendered
+    appDir: true,
   },
   
   // Keep trailing slash consistent
@@ -69,6 +66,10 @@ const nextConfig = {
             key: 'X-XSS-Protection',
             value: '1; mode=block',
           },
+          {
+            key: 'Cache-Control',
+            value: 'no-store, must-revalidate',
+          }
         ],
       },
     ];
@@ -76,30 +77,20 @@ const nextConfig = {
   
   // Configure image domains
   images: {
-    unoptimized: true, // Consider changing to false if memory issues are resolved
+    unoptimized: true,
     domains: ['localhost', 'app.isyncso.com', 'optiflow-nmyk05sho-isyncso.vercel.app', 'cdn.discordapp.com', 'avatars.githubusercontent.com', 'lh3.googleusercontent.com', 'www.gravatar.com'],
-  },
-  
-  // Handle static asset errors
-  async rewrites() {
-    return [
-      {
-        source: '/manifest.json',
-        destination: '/api/manifest',
-      },
-    ];
   },
   
   // Configure compiler to handle specific requirements
   compiler: {
     // Remove console logs in production
-    removeConsole: process.env.NODE_ENV === 'production',
+    removeConsole: false,
   },
   
   // Set custom dist directory
   distDir: '.next',
-
-  // Use server-side rendering for production to avoid icon component issues
+  
+  // Use server-side rendering
   output: 'standalone',
 };
 
