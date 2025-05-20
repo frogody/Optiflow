@@ -10,7 +10,7 @@ const nextConfig = {
   },
   // Ignore ESLint errors during production build
   eslint: {
-    // Also ignore ESLint errors during production build if needed
+    // Also ignore ESLint errors during production builds if needed
     ignoreDuringBuilds: true,
   },
   // Enable static generation where possible while preserving dynamic features
@@ -29,31 +29,34 @@ const nextConfig = {
     '@mdx-js/react'
   ],
   
-  // External packages configuration - updated syntax for Next.js 15
-  // Including React packages to avoid "is not a function" errors
-  serverExternalPackages: ['bcrypt', 'react', 'react-dom'],
-  
   // Set a reasonable timeout for static page generation
-  // Longer timeout allows more complex pages to be generated
-  staticPageGenerationTimeout: 300,
+  staticPageGenerationTimeout: 180,
   
-  // Enhanced stability for build process
+  // Build configuration
+  swcMinify: true,
+  
+  // Configure webpack for better compatibility
+  webpack: (config) => {
+    // Add resolution for missing dependencies
+    config.resolve.fallback = { fs: false, net: false, tls: false };
+    return config;
+  },
+  
+  // Configure experimental features
   experimental: {
-    // Disable optimizeCss to prevent potential CSS issues
-    optimizeCss: false,
-    // Use React server components more sparingly
-    serverMinification: true,
-    // Use the same React version for all components
     serverActions: {
       bodySizeLimit: '2mb',
-    }
+    },
+    // Disable static generation
+    appDir: true,
+    serverComponentsExternalPackages: ['prisma', '@prisma/client', 'bcrypt', 'react', 'react-dom', '@swc/wasm-web'],
   },
   
   // Keep trailing slash consistent
-  trailingSlash: false,
+  trailingSlash: true,
   
   // Configure security headers
-  headers: async () => {
+  async headers() {
     return [
       {
         source: '/(.*)',
@@ -75,10 +78,10 @@ const nextConfig = {
     ];
   },
   
-  // Configure image optimization
+  // Configure image domains
   images: {
     unoptimized: true, // Consider changing to false if memory issues are resolved
-    domains: ['localhost', 'app.isyncso.com', 'optiflow-nmyk05sho-isyncso.vercel.app'],
+    domains: ['localhost', 'app.isyncso.com', 'optiflow-nmyk05sho-isyncso.vercel.app', 'cdn.discordapp.com', 'avatars.githubusercontent.com', 'lh3.googleusercontent.com', 'www.gravatar.com'],
   },
   
   // Handle static asset errors
@@ -91,40 +94,14 @@ const nextConfig = {
     ];
   },
   
-  // Simple webpack configuration - ESM compatible version
-  webpack: (config, { isServer }) => {
-    // Only apply fallbacks for client-side bundle
-    if (!isServer) {
-      config.resolve.fallback = {
-        ...config.resolve.fallback,
-        fs: false,
-        path: false,
-      };
-    }
-    
-    // Fix React version conflicts in MDX and markdown libraries
-    // Using ESM compatible approach
-    config.resolve.alias = {
-      ...config.resolve.alias,
-      // We can't use require in ESM, so we remove this section
-    };
-    
-    return config;
-  },
-  
-  // Force all pages to be dynamically rendered for production
-  // This avoids React version conflicts during static generation
-  serverRuntimeConfig: {
-    forceStatic: false,
-    // Force all pages to be dynamically rendered
-    dynamicPages: true
-  },
-  
-  // Configuration to handle React version conflicts
+  // Configure compiler to handle specific requirements
   compiler: {
     // Remove console logs in production
     removeConsole: process.env.NODE_ENV === 'production',
-  }
+  },
+  
+  // Set custom dist directory
+  distDir: '.next',
 };
 
 export default nextConfig; 

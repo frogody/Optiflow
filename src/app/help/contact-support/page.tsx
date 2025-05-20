@@ -9,7 +9,8 @@ export const dynamic = 'force-dynamic';
 export const revalidate = 0;
 
 // Heroicons removed to prevent React version conflicts
-import { useState } from 'react';
+// Removing duplicate useState import
+// // Removed duplicate useState import: import { useState } from 'react';
 
 // Simple icon component to replace Heroicons
 const Icon = ({ name, className }) => {

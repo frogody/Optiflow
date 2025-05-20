@@ -1,5 +1,7 @@
 'use client';
 
+// Ensure no duplicate useState imports
+
 import { useState, useEffect } from 'react';
 
 
@@ -12,7 +14,6 @@ export const revalidate = 0;
 import { BookmarkIcon } from '@heroicons/react/24/solid';
 import Image from 'next/image';
 import Link from 'next/link';
-import { useState } from 'react';
 
 // Simple icon component to replace Heroicons
 const Icon = ({ name, className }) => {

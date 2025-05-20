@@ -1,5 +1,7 @@
 'use client';
 
+// Ensure no duplicate useState imports
+
 import { useState, useEffect } from 'react';
 
 
@@ -11,7 +13,6 @@ export const revalidate = 0;
 // Heroicons removed to prevent React version conflicts
 import { CheckBadgeIcon } from '@heroicons/react/24/solid';
 import Link from 'next/link';
-import { useState } from 'react';
 
 // Simple icon component to replace Heroicons
 const Icon = ({ name, className }) => {
