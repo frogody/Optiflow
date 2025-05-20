@@ -102,6 +102,9 @@ const nextConfig = {
   
   // Set custom dist directory
   distDir: '.next',
+
+  // Disable static exports when there are issues with icon components
+  output: process.env.NEXT_PUBLIC_VERCEL_ENV === 'production' ? 'standalone' : undefined,
 };
 
-export default nextConfig; 
+module.exports = nextConfig; 
