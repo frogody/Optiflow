@@ -15,7 +15,6 @@ const nextConfig = {
   },
   // Enable static generation where possible while preserving dynamic features
   reactStrictMode: true,
-  output: 'standalone',
   
   // Avoiding React version conflicts by transpiling specific packages
   transpilePackages: [
@@ -28,9 +27,6 @@ const nextConfig = {
     'react-markdown',
     '@mdx-js/react'
   ],
-  
-  // Set a reasonable timeout for static page generation
-  staticPageGenerationTimeout: 180,
   
   // Build configuration
   swcMinify: true,
@@ -103,8 +99,8 @@ const nextConfig = {
   // Set custom dist directory
   distDir: '.next',
 
-  // Disable static exports when there are issues with icon components
-  output: process.env.NEXT_PUBLIC_VERCEL_ENV === 'production' ? 'standalone' : undefined,
+  // Use server-side rendering for production to avoid icon component issues
+  output: 'standalone',
 };
 
 module.exports = nextConfig; 

@@ -57,7 +57,7 @@ function isValidRedirectUrl(url: string): boolean {
 }
 
 // This middleware runs on every request
-export function middleware(request: NextRequest) {
+export async function middleware(request: NextRequest) {
   const { pathname, origin, host, searchParams } = request.nextUrl;
 
   // Enhanced debug logging for URL information and request details
@@ -104,7 +104,11 @@ export function middleware(request: NextRequest) {
     pathname.includes('.') ||
     matchesPath(pathname, [...authPaths, ...publicPaths])
   ) {
-    return NextResponse.next();
+    // Even for public/static paths, force dynamic rendering to avoid build issues
+    const response = NextResponse.next();
+    response.headers.set('x-nextjs-cache', 'no-store');
+    response.headers.set('Cache-Control', 'no-store, must-revalidate');
+    return response;
   }
 
   try {
@@ -146,6 +150,9 @@ export function middleware(request: NextRequest) {
         new URL('/dashboard', request.url)
       );
       response.headers.set('x-redirect-count', (redirectCount + 1).toString());
+      // Force dynamic rendering
+      response.headers.set('x-nextjs-cache', 'no-store');
+      response.headers.set('Cache-Control', 'no-store, must-revalidate');
       // Ensure cookies are set with proper security
       response.cookies.set({
         name:
@@ -182,6 +189,9 @@ export function middleware(request: NextRequest) {
       loginUrl.searchParams.set('callbackUrl', pathname);
       const response = NextResponse.redirect(loginUrl);
       response.headers.set('x-redirect-count', (redirectCount + 1).toString());
+      // Force dynamic rendering
+      response.headers.set('x-nextjs-cache', 'no-store');
+      response.headers.set('Cache-Control', 'no-store, must-revalidate');
       return response;
     }
 
@@ -193,9 +203,10 @@ export function middleware(request: NextRequest) {
     response.headers.set('X-Content-Type-Options', 'nosniff');
     response.headers.set('Referrer-Policy', 'origin-when-cross-origin');
 
-    // Add a custom header that will force dynamic rendering for all pages
+    // Add headers that force dynamic rendering for all pages
     // This prevents React version conflicts during static generation
-    response.headers.set('x-middleware-cache', 'no-cache');
+    response.headers.set('x-nextjs-cache', 'no-store');
+    response.headers.set('Cache-Control', 'no-store, must-revalidate');
 
     return response;
   } catch (error) {
@@ -214,6 +225,9 @@ export function middleware(request: NextRequest) {
     );
     const response = NextResponse.redirect(loginUrl);
     response.headers.set('x-redirect-count', (redirectCount + 1).toString());
+    // Force dynamic rendering
+    response.headers.set('x-nextjs-cache', 'no-store');
+    response.headers.set('Cache-Control', 'no-store, must-revalidate');
     return response;
   }
 }
