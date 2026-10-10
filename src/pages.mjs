@@ -573,7 +573,7 @@ function privacy(ctx) {
   return legal(ctx, {
     path: '/privacy/',
     name: 'Privacyverklaring',
-    title: 'Privacyverklaring',
+    title: 'Privacy&shy;verklaring',
     lead: 'Welke gegevens we gebruiken, waarvoor en hoe lang.',
     description: `Privacyverklaring van ${site.name}: welke persoonsgegevens we verwerken voor je taxirit en welke rechten je hebt.`,
     prose: `<p>${todo('Concept — laat deze tekst juridisch controleren vóór publicatie', 'privacy')}</p>
@@ -612,7 +612,7 @@ function cookies(ctx) {
   return legal(ctx, {
     path: '/cookies/',
     name: 'Cookies',
-    title: 'Cookieverklaring',
+    title: 'Cookie&shy;verklaring',
     lead: 'Kort: we volgen je niet.',
     description: `${site.name} plaatst geen tracking- of advertentiecookies.`,
     prose: `<p>Deze website plaatst geen tracking-, analyse- of advertentiecookies. Daarom vragen we ook geen toestemming met een cookiebanner.</p>
