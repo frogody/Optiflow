@@ -11,6 +11,14 @@ const HOME = { name: 'Home', path: '/' };
 const pct = Math.round((site.busFactor - 1) * 100);
 const regio = places.map((p) => p.route).filter((id) => id !== 'utrecht');
 const priced = (ids) => ids.filter((id) => routes[id] && routes[id].price != null);
+// Tables read best with known prices first (cheapest up top), then "op aanvraag" alphabetically.
+const byPrice = (ids) =>
+  [...ids].sort((a, b) => {
+    const pa = routes[a].price, pb = routes[b].price;
+    if (pa != null && pb != null) return pa - pb;
+    if (pa != null || pb != null) return pa != null ? -1 : 1;
+    return routes[a].name.localeCompare(routes[b].name, 'nl');
+  });
 const ticks = (items) => `<ul class="ticks">${items.map((t) => `<li>${tick()}${t}</li>`).join('')}</ul>`;
 
 function inkHero({ ctx, trail, eyebrow, title, lead, extra = '', aside = '', grid = true }) {
@@ -104,8 +112,8 @@ function tarieven(ctx) {
 <section class="sec sec--tight sec--line"><div class="wrap">${rules()}</div></section>
 <section class="sec"><div class="wrap stack" style="gap:56px">
   ${group('Binnen Utrecht', `Ophalen meestal binnen ${site.pickupMinutes} min`, ['utrecht', 'leidsche-rijn'])}
-  ${group('Regio', 'Van en naar Utrecht Centraal', regio.filter((id) => id !== 'leidsche-rijn'))}
-  ${group('Luchthavens', 'Ook om 04:00 · geen nachttoeslag', airports.map((a) => a.route))}
+  ${group('Regio', 'Van en naar Utrecht Centraal', byPrice(regio.filter((id) => id !== 'leidsche-rijn')))}
+  ${group('Luchthavens', 'Ook om 04:00 · geen nachttoeslag', byPrice(airports.map((a) => a.route)))}
   <p class="muted" style="max-width:62ch">Prijzen van en naar Utrecht Centraal, voor een standaardauto of Tesla met 1–4 personen. Taxibus (${site.busPassengers} personen): ca. ${pct}% boven het standaardtarief. Staat er “op aanvraag”? Dan hoor je de vaste prijs bij het boeken, voordat je bevestigt.</p>
 </div></section>
 <section class="sec sec--mist"><div class="wrap cta"><div class="stack"><h2 class="h2">Zakelijk vaak onderweg?</h2><p class="lead">Dezelfde vaste prijzen, op één maandfactuur.</p></div><a class="btn btn--primary btn--lg" href="${link('/zakelijk/')}">Zakelijk account ${arrow()}</a></div></section>
@@ -269,7 +277,7 @@ function werkgebied(ctx) {
 <section class="sec"><div class="wrap">${townsGrid(ctx)}</div></section>
 <section class="sec sec--ink"><div class="wrap">
   ${secHead({ eyebrow: 'Van en naar Utrecht Centraal', title: 'Vaste prijzen in de regio', side: `<a class="link-arrow" href="${link('/tarieven/')}">Alle tarieven ${icon('arrow', { size: 18 })}</a>` })}
-  ${board(['utrecht', ...regio], { link, caption: 'Vaste prijzen in de regio' })}
+  ${board(byPrice(['utrecht', ...regio]), { link, caption: 'Vaste prijzen in de regio' })}
 </div></section>
 ${cta(ctx)}`;
   return {
