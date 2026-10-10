@@ -33,7 +33,7 @@ export function boeken(ctx) {
 
   const body = `<section class="sec sec--mist" style="padding-block:clamp(28px,4vw,48px) clamp(64px,8vw,96px)">
 <div class="wrap stack stack--lg">
-  <div class="stack" style="gap:10px">${crumbs(trail, ctx).replace('class="crumbs"', 'class="crumbs" style="color:var(--muted);padding-top:0"')}<h1 class="h2">Taxi boeken</h1></div>
+  <div class="stack" style="gap:10px">${crumbs(trail, ctx).replace('class="crumbs"', 'class="crumbs crumbs--light"')}<h1 class="h2">Taxi boeken</h1></div>
   <ol class="bk__progress js-only" aria-label="Stappen" data-progress>
     <li aria-current="step"><span class="n">1</span><span>Route</span></li>
     <li><span class="n">2</span><span>Auto</span></li>

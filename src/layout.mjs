@@ -104,9 +104,15 @@ ${page.noindex ? '<meta name="robots" content="noindex">' : `<link rel="canonica
 <meta property="og:title" content="${esc(page.title)}">
 <meta property="og:description" content="${esc(page.description)}">
 <meta property="og:url" content="${canonical}">
+<meta property="og:image" content="${site.origin}/assets/og.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="${esc(site.name)}: je taxi in Utrecht, de prijs weet je vooraf">
+<meta name="twitter:card" content="summary_large_image">
 <meta name="theme-color" content="#0E1726">
 <meta name="format-detection" content="telephone=no">
 <link rel="icon" href="${asset('/assets/favicon.svg')}" type="image/svg+xml">
+<link rel="apple-touch-icon" href="${asset('/assets/apple-touch-icon.png')}">
 <link rel="manifest" href="${asset('/site.webmanifest')}">
 ${fonts}
 <link rel="stylesheet" href="${asset('/assets/site.css')}">

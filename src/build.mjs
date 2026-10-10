@@ -15,7 +15,7 @@ const out = join(root, outArg > -1 ? args[outArg + 1] : mode === 'preview' ? 'di
 
 rmSync(out, { recursive: true, force: true });
 mkdirSync(join(out, 'assets'), { recursive: true });
-for (const f of ['site.css', 'site.js', 'favicon.svg']) cpSync(join(root, 'src/assets', f), join(out, 'assets', f));
+for (const f of ['site.css', 'site.js', 'favicon.svg', 'og.png', 'apple-touch-icon.png', 'icon-512.png']) cpSync(join(root, 'src/assets', f), join(out, 'assets', f));
 if (mode === 'production') {
   cpSync(join(root, 'src/assets/fonts.css'), join(out, 'assets/fonts.css'));
   cpSync(join(root, 'src/assets/fonts'), join(out, 'assets/fonts'), { recursive: true });
@@ -48,7 +48,7 @@ writeFileSync(join(out, 'sitemap.xml'), `<?xml version="1.0" encoding="UTF-8"?>\
 writeFileSync(join(out, 'robots.txt'), `User-agent: *\nAllow: /\n\nSitemap: ${site.origin}/sitemap.xml\n`);
 writeFileSync(
   join(out, 'site.webmanifest'),
-  JSON.stringify({ name: site.name, short_name: 'Taxi Utrecht', start_url: '/', display: 'standalone', background_color: '#0E1726', theme_color: '#0E1726', icons: [{ src: '/assets/favicon.svg', sizes: 'any', type: 'image/svg+xml' }] }, null, 2),
+  JSON.stringify({ name: site.name, short_name: 'Taxi Utrecht', start_url: '/', display: 'standalone', background_color: '#0E1726', theme_color: '#0E1726', icons: [{ src: '/assets/favicon.svg', sizes: 'any', type: 'image/svg+xml' }, { src: '/assets/icon-512.png', sizes: '512x512', type: 'image/png' }, { src: '/assets/apple-touch-icon.png', sizes: '180x180', type: 'image/png' }] }, null, 2),
 );
 
 // 301s from the old site's URLs so existing rankings and links carry over.

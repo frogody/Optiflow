@@ -53,7 +53,8 @@ After launch: submit the sitemap in Google Search Console and check that every o
 
 ## Built in
 
-- Built to WCAG 2.2 AA, with text contrast at AAA (≥ 7:1): real form controls with labels, visible focus, skip link, 44px+ touch targets, `prefers-reduced-motion`, light and dark themes
+- WCAG 2.2 AA: zero axe-core violations on every page in light and dark at desktop and phone width; text contrast at AAA (≥ 7:1): real form controls with labels, visible focus, skip link, 44px+ touch targets, `prefers-reduced-motion`, light and dark themes
 - Works without JavaScript: the fare widget submits to the booking page, and booking falls back to a single form
 - Structured data per page: LocalBusiness, TaxiService with price, BreadcrumbList, FAQPage
+- Share image (`og.png`, 1200×630) and app icons for link previews and home screens
 - No cookies, no trackers, fonts self-hosted (Archivo, IBM Plex Mono, SIL OFL)

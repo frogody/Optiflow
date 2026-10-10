@@ -354,7 +354,7 @@ function zakelijk(ctx) {
   const { link } = ctx;
   const trail = [HOME, { name: 'Zakelijk', path: '/zakelijk/' }];
   const body = `<section class="band--signal band--full">
-  <div class="wrap">${crumbs(trail, ctx).replace('class="crumbs"', 'class="crumbs" style="color:var(--on-signal)"')}</div>
+  <div class="wrap">${crumbs(trail, ctx).replace('class="crumbs"', 'class="crumbs crumbs--signal"')}</div>
   <div class="wrap hero__in">
     <div class="hero__copy"><span class="eyebrow">Zakelijk vervoer Utrecht</span><h1 class="display">Zakelijk rijden zonder bonnetjes.</h1></div>
     <div class="stack"><p style="font-size:20px;max-width:30em">Eén account voor je hele team. Vaste prijzen, één maandfactuur en één contactpersoon die je vervoer regelt.</p>
@@ -435,7 +435,7 @@ function taxibus(ctx) {
     title: `Met z’n allen in één taxi`,
     lead: `Een taxibus voor ${site.busPassengers} personen, inclusief bagage. Je betaalt per rit, niet per persoon: ca. ${pct}% boven het standaardtarief.`,
     extra: `<div class="row"><a class="btn btn--signal btn--lg" href="${link('/boeken/')}?auto=bus">Taxibus boeken</a><a class="btn btn--ghost-ink btn--lg" href="${telHref}">Bel ${esc(site.phone)}</a></div>`,
-    aside: `<div class="card" style="align-items:stretch">${vehicleArt.bus}<dl class="sum-dl" style="border-top:0;color:var(--fg)"><dt class="muted">Personen</dt><dd>Tot 8, incl. bagage</dd><dt class="muted">Prijs</dt><dd>ca. +${pct}% per rit</dd><dt class="muted">Beschikbaar</dt><dd>24/7</dd></dl></div>`,
+    aside: `<div class="card" style="align-items:stretch">${vehicleArt.bus}<dl class="sum-dl"><dt>Personen</dt><dd>Tot 8, incl. bagage</dd><dt>Prijs</dt><dd>ca. +${pct}% per rit</dd><dt>Beschikbaar</dt><dd>24/7</dd></dl></div>`,
   })}
 <section class="sec"><div class="wrap">
   ${secHead({ eyebrow: 'Vaste prijzen', title: 'Wat kost een taxibus?', lead: 'De taxibusprijs is het standaardtarief plus ca. ' + pct + '%. Altijd goedkoper dan twee aparte taxi’s.' })}
@@ -470,7 +470,7 @@ function elektrisch(ctx) {
     title: 'Elektrisch rijden kost bij ons niets extra',
     lead: 'Een Tesla Model 3 of Model Y voor hetzelfde vaste tarief als een standaardauto. Stil, zonder uitstoot en met ruim 400 km bereik.',
     extra: `<div class="row"><a class="btn btn--signal btn--lg" href="${link('/boeken/')}?auto=ev">Tesla boeken</a></div>`,
-    aside: `<div class="card">${vehicleArt.ev}<dl class="sum-dl" style="border-top:0;color:var(--fg)"><dt class="muted">Modellen</dt><dd>Tesla Model 3 · Model Y</dd><dt class="muted">Bereik</dt><dd>Ruim 400 km</dd><dt class="muted">Meerprijs</dt><dd>Geen</dd></dl></div>`,
+    aside: `<div class="card">${vehicleArt.ev}<dl class="sum-dl"><dt>Modellen</dt><dd>Tesla Model 3 · Model Y</dd><dt>Bereik</dt><dd>Ruim 400 km</dd><dt>Meerprijs</dt><dd>Geen</dd></dl></div>`,
   })}
 <section class="sec"><div class="wrap split">
   <div class="stack"><h2 class="h2">Waarom elektrisch</h2></div>
