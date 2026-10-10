@@ -1,13 +1,99 @@
 {
-  "version": 2,
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "framework": null,
   "buildCommand": "npm run build",
-  "installCommand": "if [ -f 'pnpm-lock.yaml' ]; then pnpm install --no-frozen-lockfile; else npm install --no-frozen-lockfile; fi",
-  "framework": "nextjs",
-  "github": {
-    "enabled": true,
-    "silent": true
-  },
-  "env": {
-    "NEXT_PUBLIC_DEPLOYMENT_ENV": "production"
-  }
-} 
+  "outputDirectory": "dist",
+  "trailingSlash": true,
+  "redirects": [
+    {
+      "source": "/reserveren",
+      "destination": "/boeken/",
+      "permanent": true
+    },
+    {
+      "source": "/taxi-schiphol-airport",
+      "destination": "/luchthavens/schiphol/",
+      "permanent": true
+    },
+    {
+      "source": "/taxi-eindhoven-airport",
+      "destination": "/luchthavens/eindhoven-airport/",
+      "permanent": true
+    },
+    {
+      "source": "/zakelijk-vervoer-utrecht",
+      "destination": "/zakelijk/",
+      "permanent": true
+    },
+    {
+      "source": "/elektrische-taxi-utrecht",
+      "destination": "/elektrische-taxi/",
+      "permanent": true
+    },
+    {
+      "source": "/groepsvervoer",
+      "destination": "/taxibus/",
+      "permanent": true
+    },
+    {
+      "source": "/taxi-utrecht",
+      "destination": "/werkgebied/utrecht/",
+      "permanent": true
+    },
+    {
+      "source": "/taxi-leidsche-rijn",
+      "destination": "/werkgebied/leidsche-rijn/",
+      "permanent": true
+    },
+    {
+      "source": "/taxi-nieuwegein",
+      "destination": "/werkgebied/nieuwegein/",
+      "permanent": true
+    },
+    {
+      "source": "/taxi-de-bilt",
+      "destination": "/werkgebied/de-bilt/",
+      "permanent": true
+    },
+    {
+      "source": "/taxi-zeist",
+      "destination": "/werkgebied/zeist/",
+      "permanent": true
+    },
+    {
+      "source": "/taxi-houten",
+      "destination": "/werkgebied/houten/",
+      "permanent": true
+    },
+    {
+      "source": "/taxi-bunnik",
+      "destination": "/werkgebied/bunnik/",
+      "permanent": true
+    },
+    {
+      "source": "/taxi-ijsselstein",
+      "destination": "/werkgebied/ijsselstein/",
+      "permanent": true
+    },
+    {
+      "source": "/taxi-maarssen",
+      "destination": "/werkgebied/maarssen/",
+      "permanent": true
+    },
+    {
+      "source": "/taxi-vianen",
+      "destination": "/werkgebied/vianen/",
+      "permanent": true
+    },
+    {
+      "source": "/taxi-odijk",
+      "destination": "/werkgebied/odijk/",
+      "permanent": true
+    },
+    {
+      "source": "/taxi-groenekan",
+      "destination": "/werkgebied/groenekan/",
+      "permanent": true
+    }
+  ]
+}

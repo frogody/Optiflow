@@ -1,0 +1,160 @@
+[
+  {
+    "slug": "utrecht",
+    "route": "utrecht",
+    "name": "Utrecht",
+    "intro": "Van de Binnenstad tot Overvecht en van Lunetten tot Zuilen. Binnen Utrecht rijd je vanaf € 10 vast, en meestal staan we binnen 10–15 minuten voor de deur.",
+    "area": "Utrecht is onze thuisbasis. We rijden dag en nacht door alle wijken, naar het station, de Jaarbeurs, het Utrecht Science Park en alles daartussen.",
+    "districts": ["Binnenstad", "Oost", "Noordoost", "Noordwest", "Overvecht", "West", "Zuid", "Zuidwest", "Leidsche Rijn", "Vleuten-De Meern"],
+    "spots": [
+      { "name": "Utrecht Centraal", "note": "Ophalen en afzetten aan de stationszijde die je doorgeeft bij het boeken." },
+      { "name": "Jaarbeurs", "note": "Beurzen, congressen en concerten. Boek vooruit voor het einde van een evenement." },
+      { "name": "UMC Utrecht en Utrecht Science Park", "note": "Ziekenhuis, universiteit en hogeschool aan de oostkant van de stad." },
+      { "name": "TivoliVredenburg", "note": "Na het concert direct naar huis, ook laat op de avond." }
+    ],
+    "nearby": ["leidsche-rijn", "nieuwegein", "de-bilt", "zeist"]
+  },
+  {
+    "slug": "leidsche-rijn",
+    "route": "leidsche-rijn",
+    "name": "Leidsche Rijn",
+    "intro": "Leidsche Rijn – Utrecht Centraal is 5 km en ongeveer 10 minuten rijden, voor € 15 vast. Ook ’s nachts.",
+    "area": "Van Terwijde tot Parkwijk en van Leidsche Rijn Centrum tot Vleuterweide: we halen je op in de hele westkant van Utrecht.",
+    "districts": ["Leidsche Rijn Centrum", "Terwijde", "Parkwijk", "Langerak", "Het Zand", "Vleuterweide", "De Meern"],
+    "spots": [
+      { "name": "Station Utrecht Leidsche Rijn", "note": "Overstappen van de trein op de taxi, of andersom." },
+      { "name": "Leidsche Rijn Centrum", "note": "Winkels, bioscoop en theater in het hart van de wijk." },
+      { "name": "Máximapark", "note": "Evenementen en zomerfestivals: plan je terugrit vooruit." }
+    ],
+    "nearby": ["utrecht", "maarssen", "ijsselstein", "nieuwegein"]
+  },
+  {
+    "slug": "nieuwegein",
+    "route": "nieuwegein",
+    "name": "Nieuwegein",
+    "intro": "Ophalen in heel Nieuwegein, van Galecop tot Vreeswijk. Naar Utrecht Centraal voor € 35 vast, 24/7 en zonder nachttoeslag.",
+    "area": "Nieuwegein ligt direct ten zuiden van Utrecht. We rijden naar en vanuit alle wijken, het stadscentrum en de kantoren op Rijnhuizen.",
+    "districts": ["Batau", "Blokhoeve", "Doorslag", "Fokkesteeg", "Galecop", "Hoog Zandveld", "Huis de Geer", "Jutphaas", "Lekboulevard", "Merwestein", "Rijnhuizen", "Vreeswijk", "Zuilenstein"],
+    "spots": [
+      { "name": "St. Antonius Ziekenhuis", "note": "Geef bij het boeken door bij welke ingang je wilt instappen." },
+      { "name": "City Plaza", "note": "Het winkelhart van Nieuwegein." },
+      { "name": "Rijnhuizen", "note": "Zakelijke ritten op maandfactuur met een zakelijk account." },
+      { "name": "Vreeswijk", "note": "De oude kern aan de Lek en het Merwedekanaal." }
+    ],
+    "nearby": ["ijsselstein", "vianen", "houten", "utrecht"]
+  },
+  {
+    "slug": "de-bilt",
+    "route": "de-bilt",
+    "name": "De Bilt",
+    "intro": "De Bilt – Utrecht Centraal is 7 km en ongeveer 12 minuten rijden. We rijden in De Bilt, Bilthoven en de dorpen eromheen.",
+    "area": "De gemeente De Bilt ligt tegen de noordoostkant van Utrecht. Naast De Bilt en Bilthoven halen we je ook op in Maartensdijk, Groenekan, Westbroek en Hollandsche Rading.",
+    "districts": ["De Bilt", "Bilthoven", "Maartensdijk", "Groenekan", "Westbroek", "Hollandsche Rading"],
+    "spots": [
+      { "name": "Station Bilthoven", "note": "Van de trein naar huis, of op tijd voor de eerste trein." },
+      { "name": "KNMI", "note": "Zakelijke ritten naar het instituut aan de Utrechtseweg." }
+    ],
+    "nearby": ["groenekan", "zeist", "utrecht", "maarssen"]
+  },
+  {
+    "slug": "zeist",
+    "route": "zeist",
+    "name": "Zeist",
+    "intro": "Een taxi in Zeist, Den Dolder of Huis ter Heide. Vaste prijs vooraf, ook voor de rit naar Schiphol.",
+    "area": "Zeist ligt aan de oostkant van Utrecht, tussen de Utrechtse Heuvelrug en de stad. We rijden in alle kernen van de gemeente.",
+    "districts": ["Zeist", "Den Dolder", "Huis ter Heide", "Austerlitz", "Bosch en Duin"],
+    "spots": [
+      { "name": "Station Driebergen-Zeist", "note": "Aansluiting op de trein richting Utrecht en Arnhem." },
+      { "name": "Slot Zeist", "note": "Bruiloften, diners en evenementen. Taxibus voor groepen tot 8 personen." }
+    ],
+    "nearby": ["de-bilt", "bunnik", "odijk", "utrecht"]
+  },
+  {
+    "slug": "houten",
+    "route": "houten",
+    "name": "Houten",
+    "intro": "Een taxi in Houten, ’t Goy, Schalkwijk of Tull en ’t Waal. Vaste prijs vooraf en 24/7 bereikbaar.",
+    "area": "Houten ligt ten zuidoosten van Utrecht. We rijden naar en vanuit beide stations en alle buurten van de gemeente.",
+    "districts": ["Houten", "’t Goy", "Schalkwijk", "Tull en ’t Waal"],
+    "spots": [
+      { "name": "Station Houten", "note": "In het centrum van Houten." },
+      { "name": "Station Houten Castellum", "note": "Aan de zuidkant van Houten." }
+    ],
+    "nearby": ["nieuwegein", "bunnik", "vianen", "utrecht"]
+  },
+  {
+    "slug": "bunnik",
+    "route": "bunnik",
+    "name": "Bunnik",
+    "intro": "Een taxi in Bunnik, Odijk of Werkhoven. Ook voor transfers naar Schiphol, Eindhoven en Rotterdam The Hague Airport, altijd tegen een vaste prijs.",
+    "area": "De gemeente Bunnik ligt direct naast het Utrecht Science Park. We rijden in Bunnik zelf en in de dorpen Odijk en Werkhoven.",
+    "districts": ["Bunnik", "Odijk", "Werkhoven"],
+    "spots": [
+      { "name": "Station Bunnik", "note": "Aan de spoorlijn Utrecht – Arnhem." },
+      { "name": "Utrecht Science Park", "note": "Universiteit en UMC Utrecht, net over de gemeentegrens." }
+    ],
+    "nearby": ["odijk", "zeist", "houten", "utrecht"]
+  },
+  {
+    "slug": "ijsselstein",
+    "route": "ijsselstein",
+    "name": "IJsselstein",
+    "intro": "Een taxi in IJsselstein, van de historische binnenstad tot Zenderpark. Vaste prijs vooraf, dag en nacht.",
+    "area": "IJsselstein ligt aan de Hollandse IJssel, ten zuidwesten van Utrecht en naast Nieuwegein.",
+    "districts": ["Binnenstad", "Zenderpark", "Achtersloot"],
+    "spots": [
+      { "name": "Binnenstad IJsselstein", "note": "De historische kern rond de Sint-Nicolaasbasiliek." },
+      { "name": "Zenderpark", "note": "De nieuwbouwwijk aan de westkant van IJsselstein." }
+    ],
+    "nearby": ["nieuwegein", "leidsche-rijn", "vianen", "utrecht"]
+  },
+  {
+    "slug": "maarssen",
+    "route": "maarssen",
+    "name": "Maarssen",
+    "intro": "Een taxi in Maarssen-Dorp, Maarssenbroek of Oud-Zuilen. Vaste prijs vooraf, ook naar Schiphol.",
+    "area": "Maarssen ligt aan de Vecht, ten noordwesten van Utrecht, in de gemeente Stichtse Vecht.",
+    "districts": ["Maarssen-Dorp", "Maarssenbroek", "Oud-Zuilen", "Tienhoven"],
+    "spots": [
+      { "name": "Station Maarssen", "note": "Tussen Maarssen-Dorp en Maarssenbroek." },
+      { "name": "Winkelcentrum Bisonspoor", "note": "Het winkelcentrum van Maarssenbroek." }
+    ],
+    "nearby": ["leidsche-rijn", "utrecht", "de-bilt", "groenekan"]
+  },
+  {
+    "slug": "vianen",
+    "route": "vianen",
+    "name": "Vianen",
+    "intro": "Een taxi in Vianen, net over de Lek. Vaste prijs vooraf en 24/7 bereikbaar.",
+    "area": "Vianen ligt ten zuiden van Nieuwegein, aan de overkant van de Lek, in de gemeente Vijfheerenlanden. We rijden ook in Hagestein en Everdingen.",
+    "districts": ["Vianen", "Hagestein", "Everdingen"],
+    "spots": [
+      { "name": "Voorstraat", "note": "De historische hoofdstraat van Vianen." }
+    ],
+    "nearby": ["nieuwegein", "ijsselstein", "houten", "utrecht"]
+  },
+  {
+    "slug": "odijk",
+    "route": "odijk",
+    "name": "Odijk",
+    "intro": "Odijk – Utrecht Centraal is 10 km en ongeveer 15 minuten rijden, voor € 30 vast.",
+    "area": "Odijk hoort bij de gemeente Bunnik en ligt tussen Bunnik, Zeist en Werkhoven.",
+    "districts": ["Odijk", "Werkhoven"],
+    "spots": [
+      { "name": "Dorpskern Odijk", "note": "Ophalen aan de deur, ook in het buitengebied." }
+    ],
+    "nearby": ["bunnik", "zeist", "houten", "utrecht"]
+  },
+  {
+    "slug": "groenekan",
+    "route": "groenekan",
+    "name": "Groenekan",
+    "intro": "Groenekan – Utrecht Centraal is 8 km en ongeveer 12 minuten rijden, voor € 25 vast.",
+    "area": "Groenekan hoort bij de gemeente De Bilt en ligt tussen Utrecht-Overvecht en Maartensdijk.",
+    "districts": ["Groenekan", "Maartensdijk", "Westbroek"],
+    "spots": [
+      { "name": "Fort Ruigenhoek", "note": "Evenementen aan de Nieuwe Hollandse Waterlinie." }
+    ],
+    "nearby": ["de-bilt", "maarssen", "utrecht", "zeist"]
+  }
+]
