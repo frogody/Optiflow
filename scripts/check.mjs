@@ -49,6 +49,15 @@ for (const file of files) {
     if (!existsSync(target)) errors.push(`${rel}: broken link ${raw}`);
   }
 }
+// Every 301 from the old site must land on a page that exists, or old Google links would 404.
+const redirectsFile = join(dir, '_redirects');
+if (!preview && existsSync(redirectsFile)) {
+  for (const line of readFileSync(redirectsFile, 'utf8').split('\n').filter(Boolean)) {
+    const [from, to] = line.split(/\s+/);
+    if (!existsSync(join(dir, to, 'index.html'))) errors.push(`_redirects: ${from} → ${to} points to a page that does not exist`);
+    if (existsSync(join(dir, from.replace(/\/?$/, '/'), 'index.html'))) errors.push(`_redirects: ${from} would shadow a real page`);
+  }
+}
 // Vercel reads the repo-root vercel.json, so it must match what the build generates.
 const genVercel = join(dir, 'vercel.json');
 if (!preview && existsSync(genVercel)) {
@@ -63,4 +72,4 @@ if (errors.length) {
   console.error(errors.join('\n'));
   process.exit(1);
 }
-console.log('✓ no broken links, duplicate ids or invalid JSON-LD');
+console.log('✓ no broken links, duplicate ids, invalid JSON-LD, dead redirects or config drift');
