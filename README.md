@@ -47,7 +47,7 @@ The build prints this list every time. Currently open:
 - `_redirects` (Netlify, Cloudflare Pages), `vercel.json` (Vercel) and `.htaccess` (Apache), with 301 redirects from the old URLs (`/taxi-schiphol-airport/`, `/zakelijk-vervoer-utrecht/`, `/taxi-nieuwegein/` …) so existing rankings and links carry over
 - `sitemap.xml`, `robots.txt`, `site.webmanifest`, `404.html`
 
-From this repository: Vercel and Netlify pick up `vercel.json` and `netlify.toml` (build command `npm run build`, output `dist/`). If you add a town page, regenerate the redirect list in the root `vercel.json` from `dist/vercel.json`. Every push runs `npm run check` in GitHub Actions.
+From this repository: Vercel and Netlify pick up `vercel.json` and `netlify.toml` (build command `npm run build`, output `dist/`). If you add a town page or change the form endpoint, copy `headers` and `redirects` from `dist/vercel.json` into the root `vercel.json` (`npm run check` tells you when they differ). Every push runs `npm run check` in GitHub Actions.
 
 After launch: submit the sitemap in Google Search Console and check that every old URL redirects.
 
@@ -56,5 +56,8 @@ After launch: submit the sitemap in Google Search Console and check that every o
 - WCAG 2.2 AA: zero axe-core violations on every page in light and dark at desktop and phone width; text contrast at AAA (≥ 7:1): real form controls with labels, visible focus, skip link, 44px+ touch targets, `prefers-reduced-motion`, light and dark themes
 - Works without JavaScript: the fare widget submits to the booking page, and booking falls back to a single form
 - Structured data per page: LocalBusiness, TaxiService with price, BreadcrumbList, FAQPage
+- Security headers (CSP with a hashed inline script, HSTS, nosniff, frame-ancestors, Permissions-Policy) in `_headers` and `vercel.json`; `npm run check` fails if the root `vercel.json` drifts from the generated one
+- One minified, fingerprinted stylesheet and script (`/assets/build/`), cached for a year; fonts preloaded
+- Valid HTML (html-validate), Lighthouse 100 for accessibility, best practices and SEO
 - Share image (`og.png`, 1200×630) and app icons for link previews and home screens
 - No cookies, no trackers, fonts self-hosted (Archivo, IBM Plex Mono, SIL OFL)

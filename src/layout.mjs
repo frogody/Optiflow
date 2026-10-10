@@ -1,4 +1,5 @@
-import { site, esc, icon, logoMark, telHref, waHref, mailHref, places, airports } from './lib.mjs';
+export const INLINE_JS = "document.documentElement.classList.add('js')";
+import { site, esc, icon, logoMark, telHref, phoneNb, waHref, mailHref, places, airports } from './lib.mjs';
 
 const NAV = [
   ['/boeken/', 'Boeken', 'boeken'],
@@ -17,11 +18,11 @@ function header(page, { link }) {
   return `<a class="skip" href="#inhoud">Naar de inhoud</a>
 <header class="hdr">
   <div class="wrap hdr__in">
-    <a class="logo" href="${link('/')}" aria-label="${esc(site.name)} — home">${logoMark()}<span class="logo__txt"><span class="logo__name">Taxi Bestellen</span><span class="logo__city">UTRECHT</span></span></a>
+    <a class="logo" href="${link('/')}">${logoMark()}<span class="logo__txt"><span class="logo__name">Taxi Bestellen</span><span class="logo__city">Utrecht</span></span></a>
     <nav class="nav" id="menu" aria-label="Hoofdmenu"><ul class="nav__list">${items}</ul></nav>
     <div class="hdr__act">
       ${waHref ? `<a class="btn btn--ghost-ink btn--sm hdr__wa" href="${waHref}">${icon('chat', { size: 18 })}WhatsApp</a>` : ''}
-      <a class="btn btn--signal btn--sm hdr__call" href="${telHref}" aria-label="Bel ${esc(site.phone)}">${icon('phone', { size: 18, sw: 2.2 })}<span class="hdr__call-num">${esc(site.phone)}</span></a>
+      <a class="btn btn--signal btn--sm hdr__call" href="${telHref}" aria-label="Bel&nbsp;${esc(phoneNb)}">${icon('phone', { size: 18, sw: 2.2 })}<span class="hdr__call-num">${esc(phoneNb)}</span></a>
       <button class="menu-btn" type="button" aria-expanded="false" aria-controls="menu" data-menu><span class="sr-only">Menu</span>${icon('menu')}</button>
     </div>
   </div>
@@ -38,7 +39,7 @@ function footer({ link }) {
     <div class="ftr__cols">
       <div class="ftr__col">
         <span class="eyebrow">Bestellen · 24/7</span>
-        <a class="ftr__phone" href="${telHref}">${esc(site.phone)}</a>
+        <a class="ftr__phone" href="${telHref}">${esc(phoneNb)}</a>
         ${waHref ? `<a href="${waHref}">WhatsApp</a>` : ''}
         <a href="${mailHref}">${esc(site.email)}</a>
         <a href="${link('/boeken/')}">Online boeken</a>
@@ -93,7 +94,7 @@ export function document(page, ctx) {
   const fonts =
     mode === 'preview'
       ? `<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,100..900&amp;family=IBM+Plex+Mono:wght@400;500;600&amp;display=swap">`
-      : `<link rel="preload" href="${asset('/assets/fonts/archivo-latin-wdth-normal.woff2')}" as="font" type="font/woff2" crossorigin><link rel="stylesheet" href="${asset('/assets/fonts.css')}">`;
+      : `<link rel="preload" href="${asset('/assets/fonts/archivo-latin-wdth-normal.woff2')}" as="font" type="font/woff2" crossorigin>`;
   const ld = (page.jsonld || []).map((o) => `<script type="application/ld+json">${JSON.stringify(o).replace(/</g, '\\u003c')}</script>`).join('\n');
   const head = `<title>${esc(title)}</title>
 <meta name="description" content="${esc(page.description)}">
@@ -116,7 +117,7 @@ ${page.noindex ? '<meta name="robots" content="noindex">' : `<link rel="canonica
 <link rel="manifest" href="${asset('/site.webmanifest')}">
 ${fonts}
 <link rel="stylesheet" href="${asset('/assets/site.css')}">
-<script>document.documentElement.classList.add('js')</script>
+<script>${INLINE_JS}</script>
 ${ld}`;
   const body = `${header(page, ctx)}
 <main id="inhoud">

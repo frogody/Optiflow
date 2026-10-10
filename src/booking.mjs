@@ -1,4 +1,4 @@
-import { site, fares, routes, esc, icon, money, busPrice, metaLabel, telHref, waHref, mailHref } from './lib.mjs';
+import { site, fares, routes, esc, icon, money, busPrice, metaLabel, telHref, phoneNb, waHref, mailHref } from './lib.mjs';
 import { VEHICLES, arrow, crumbs, crumbsLd } from './components.mjs';
 
 const DEF = routes.schiphol;
@@ -34,7 +34,7 @@ export function boeken(ctx) {
   const body = `<section class="sec sec--mist" style="padding-block:clamp(28px,4vw,48px) clamp(64px,8vw,96px)">
 <div class="wrap stack stack--lg">
   <div class="stack" style="gap:10px">${crumbs(trail, ctx).replace('class="crumbs"', 'class="crumbs crumbs--light"')}<h1 class="h2">Taxi boeken</h1></div>
-  <ol class="bk__progress js-only" aria-label="Stappen" data-progress>
+  <ol class="bk__progress js-only" data-progress>
     <li aria-current="step"><span class="n">1</span><span>Route</span></li>
     <li><span class="n">2</span><span>Auto</span></li>
     <li><span class="n">3</span><span>Gegevens</span></li>
@@ -48,16 +48,16 @@ export function boeken(ctx) {
 
       <fieldset class="bk__step" data-step="1">
         <legend>Waar en wanneer?</legend>
-        <label class="field" for="bk-van">Ophaaladres<input class="input" id="bk-van" name="Ophaaladres" type="text" autocomplete="street-address" placeholder="Straat en huisnummer, plaats" required></label>
-        <label class="field" for="bk-naar">Bestemming<select class="select" id="bk-naar" name="Bestemming" data-dest>${options}<option value="anders" data-price="">Ander adres…</option></select></label>
-        <label class="field" for="bk-naar-adres" data-other hidden>Bestemmingsadres<input class="input" id="bk-naar-adres" name="Bestemmingsadres" type="text" placeholder="Straat, plaats of luchthaven"></label>
+        <label class="field">Ophaaladres<input class="input" id="bk-van" name="Ophaaladres" type="text" autocomplete="address-line1" placeholder="Straat en huisnummer, plaats" required></label>
+        <label class="field">Bestemming<select class="select" id="bk-naar" name="Bestemming" data-dest>${options}<option value="anders" data-price="">Ander adres…</option></select></label>
+        <label class="field" data-other hidden>Bestemmingsadres<input class="input" id="bk-naar-adres" name="Bestemmingsadres" type="text" placeholder="Straat, plaats of luchthaven"></label>
         <fieldset class="seg" style="justify-self:start"><legend>Wanneer</legend>
           <label><input type="radio" name="Wanneer" value="Zo snel mogelijk" checked data-when="nu"><span>Zo snel mogelijk</span></label>
           <label><input type="radio" name="Wanneer" value="Op een tijdstip" data-when="later"><span>Op een tijdstip</span></label>
         </fieldset>
         <div class="fields" data-later>
-          <label class="field" for="bk-datum">Datum<input class="input" id="bk-datum" name="Datum" type="date"></label>
-          <label class="field" for="bk-tijd">Ophaaltijd<input class="input" id="bk-tijd" name="Ophaaltijd" type="time"></label>
+          <label class="field">Datum<input class="input" id="bk-datum" name="Datum" type="date"></label>
+          <label class="field">Ophaaltijd<input class="input" id="bk-tijd" name="Ophaaltijd" type="time"></label>
         </div>
         <p class="small muted" data-now>In Utrecht en directe omgeving meestal binnen ${site.pickupMinutes} minuten.</p>
       </fieldset>
@@ -66,9 +66,9 @@ export function boeken(ctx) {
         <legend>Kies je auto</legend>
         <fieldset class="opts opts--list"><legend class="sr-only">Auto</legend>${vehicles}</fieldset>
         <div class="fields">
-          <label class="field" for="bk-pers">Personen<select class="select" id="bk-pers" name="Personen"><option>1</option><option selected>2</option><option>3</option><option>4</option><option>5</option><option>6</option><option>7</option><option>8</option></select></label>
-          <label class="field" for="bk-koffers">Koffers<select class="select" id="bk-koffers" name="Koffers"><option>Geen</option><option selected>1–2</option><option>3–4</option><option>Meer dan 4</option></select></label>
-          <label class="field" for="bk-vlucht" data-air-field>Vluchtnummer <span class="field__hint">optioneel</span><input class="input" id="bk-vlucht" name="Vluchtnummer" type="text" autocapitalize="characters" placeholder="bijv. KL1234"></label>
+          <label class="field">Personen<select class="select" id="bk-pers" name="Personen"><option>1</option><option selected>2</option><option>3</option><option>4</option><option>5</option><option>6</option><option>7</option><option>8</option></select></label>
+          <label class="field">Koffers<select class="select" id="bk-koffers" name="Koffers"><option>Geen</option><option selected>1–2</option><option>3–4</option><option>Meer dan 4</option></select></label>
+          <label class="field" data-air-field>Vluchtnummer <span class="field__hint">optioneel</span><input class="input" id="bk-vlucht" name="Vluchtnummer" type="text" autocapitalize="characters" placeholder="bijv. KL1234"></label>
         </div>
         <p class="small muted" data-bus-hint hidden>Meer dan 4 personen? Kies de taxibus, dan past iedereen en alle bagage in één auto.</p>
       </fieldset>
@@ -76,18 +76,18 @@ export function boeken(ctx) {
       <fieldset class="bk__step" data-step="3">
         <legend>Je gegevens</legend>
         <div class="fields">
-          <label class="field" for="bk-naam">Naam<input class="input" id="bk-naam" name="Naam" type="text" autocomplete="name" required></label>
-          <label class="field" for="bk-tel">Mobiel nummer<input class="input" id="bk-tel" name="Telefoon" type="tel" autocomplete="tel" inputmode="tel" placeholder="06 …" required></label>
+          <label class="field">Naam<input class="input" id="bk-naam" name="Naam" type="text" autocomplete="name" required></label>
+          <label class="field">Mobiel nummer<input class="input" id="bk-tel" name="Telefoon" type="tel" autocomplete="tel" inputmode="tel" placeholder="06 …" required></label>
         </div>
-        <label class="field" for="bk-mail">E-mail <span class="field__hint">voor je bevestiging</span><input class="input" id="bk-mail" name="E-mail" type="email" autocomplete="email" required></label>
-        <label class="field" for="bk-msg">Bericht voor de chauffeur <span class="field__hint">optioneel</span><textarea class="textarea" id="bk-msg" name="Bericht" rows="3" placeholder="bijv. achteringang, kinderzitje nodig"></textarea></label>
+        <label class="field">E-mail <span class="field__hint">voor je bevestiging</span><input class="input" id="bk-mail" name="E-mail" type="email" autocomplete="email" required></label>
+        <label class="field">Bericht voor de chauffeur <span class="field__hint">optioneel</span><textarea class="textarea" id="bk-msg" name="Bericht" rows="3" placeholder="bijv. achteringang, kinderzitje nodig"></textarea></label>
         <fieldset class="chips"><legend>Betalen</legend>
           <label class="chip"><input type="radio" name="Betaalwijze" value="Pin in de taxi" checked><span>Pin in de taxi</span></label>
           <label class="chip"><input type="radio" name="Betaalwijze" value="Creditcard"><span>Creditcard</span></label>
           <label class="chip"><input type="radio" name="Betaalwijze" value="Contant"><span>Contant</span></label>
           <label class="chip"><input type="radio" name="Betaalwijze" value="Op rekening (zakelijk)"><span>Op rekening (zakelijk)</span></label>
         </fieldset>
-        <label class="check" for="bk-ok"><input id="bk-ok" type="checkbox" name="Akkoord" value="Ja" required><span>Ik ga akkoord met de <a href="${link('/algemene-voorwaarden/')}">voorwaarden</a> en de <a href="${link('/privacy/')}">privacyverklaring</a>.</span></label>
+        <label class="check"><input id="bk-ok" type="checkbox" name="Akkoord" value="Ja" required><span>Ik ga akkoord met de <a href="${link('/algemene-voorwaarden/')}">voorwaarden</a> en de <a href="${link('/privacy/')}">privacyverklaring</a>.</span></label>
       </fieldset>
 
       <p class="form-error" data-form-error hidden></p>
@@ -106,7 +106,7 @@ export function boeken(ctx) {
         <pre data-done-summary></pre>
         <div class="row">
           <a class="btn btn--primary" href="${mailHref}" data-done-mail>Open e-mail opnieuw</a>
-          <a class="btn btn--ghost" href="${telHref}">Bel ${esc(site.phone)}</a>
+          <a class="btn btn--ghost" href="${telHref}">Bel&nbsp;${esc(phoneNb)}</a>
           ${waHref ? `<a class="btn btn--ghost" href="${waHref}" data-done-wa>Stuur via WhatsApp</a>` : ''}
         </div>
         <button class="btn btn--ghost btn--sm" type="button" data-restart>Nog een rit plannen</button>

@@ -49,6 +49,15 @@ for (const file of files) {
     if (!existsSync(target)) errors.push(`${rel}: broken link ${raw}`);
   }
 }
+// Vercel reads the repo-root vercel.json, so it must match what the build generates.
+const genVercel = join(dir, 'vercel.json');
+if (!preview && existsSync(genVercel)) {
+  const want = JSON.parse(readFileSync(genVercel, 'utf8'));
+  const have = JSON.parse(readFileSync(resolve('vercel.json'), 'utf8'));
+  for (const k of ['headers', 'redirects']) {
+    if (JSON.stringify(want[k]) !== JSON.stringify(have[k])) errors.push(`vercel.json: "${k}" differs from the generated ${relative(process.cwd(), genVercel)}; copy it over`);
+  }
+}
 console.log(`${files.length} pages, ${links} internal links checked in ${relative(process.cwd(), dir) || '.'}`);
 if (errors.length) {
   console.error(errors.join('\n'));

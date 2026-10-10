@@ -1,6 +1,6 @@
 import {
   site, routes, places, airports, placeBySlug, esc, icon, money, busPrice, priceLabel, kmLabel, minLabel, metaLabel,
-  telHref, waHref, mailHref, todo, vehicleArt, NB,
+  telHref, phoneNb, waHref, mailHref, todo, vehicleArt, NB,
 } from './lib.mjs';
 import {
   VEHICLES, arrow, tick, secHead, crumbs, crumbsLd, fareWidget, board, faq, faqLd, FAQ, channels, fleet, airportList,
@@ -99,7 +99,7 @@ function tarieven(ctx) {
     lead: 'De prijs hangt af van de afstand tussen ophaal- en bestemmingsadres. Niet van het tijdstip, het verkeer of de drukte.',
     aside: `<div class="card"><h2 class="card__title">Prijs voor jouw adres</h2><p class="muted">Staat je adres er niet bij? Kies je route in de boekingsmodule of bel ons: je hoort de vaste prijs vóór je boekt.</p><div class="row"><a class="btn btn--primary" href="${link(
       '/boeken/',
-    )}">Rit plannen ${arrow()}</a><a class="btn btn--ghost" href="${telHref}">Bel ${esc(site.phone)}</a></div></div>`,
+    )}">Rit plannen ${arrow()}</a><a class="btn btn--ghost" href="${telHref}">Bel&nbsp;${esc(phoneNb)}</a></div></div>`,
   })}
 <section class="sec sec--tight sec--line"><div class="wrap">${rules()}</div></section>
 <section class="sec"><div class="wrap stack" style="gap:56px">
@@ -175,10 +175,10 @@ function airportCard(r, a, { link }) {
   return `<form class="card" action="${link('/boeken/')}" method="get" data-fare aria-labelledby="ac-t">
   <h2 class="card__title" id="ac-t">Plan je rit naar ${esc(a.name)}</h2>
   <input type="hidden" name="naar" value="${r.id}" data-name="${esc(r.name)}" data-price="${r.price ?? ''}" data-meta="${esc(metaLabel(r))}">
-  <label class="field" for="ac-van">Ophaaladres<input class="input" id="ac-van" name="van" type="text" autocomplete="street-address" placeholder="Straat en huisnummer, plaats"></label>
+  <label class="field">Ophaaladres<input class="input" id="ac-van" name="van" type="text" autocomplete="address-line1" placeholder="Straat en huisnummer, plaats"></label>
   <div class="fields">
-    <label class="field" for="ac-datum">Datum<input class="input" id="ac-datum" name="datum" type="date"></label>
-    <label class="field" for="ac-tijd">Ophaaltijd<input class="input" id="ac-tijd" name="tijd" type="time"></label>
+    <label class="field">Datum<input class="input" id="ac-datum" name="datum" type="date"></label>
+    <label class="field">Ophaaltijd<input class="input" id="ac-tijd" name="tijd" type="time"></label>
   </div>
   <input type="hidden" name="wanneer" value="later">
   <fieldset class="opts"><legend class="sr-only">Auto</legend>${vehs}</fieldset>
@@ -207,7 +207,7 @@ function airportPage(a) {
     const qa = [
       p
         ? { q: `Wat kost een taxi van Utrecht naar ${a.name}?`, a: `${money(r.price)} vast, inclusief btw, voor 1–4 personen. Met de taxibus (${site.busPassengers} personen) ca. ${money(busPrice(r.price))} per rit.` }
-        : { q: `Wat kost een taxi van Utrecht naar ${a.name}?`, a: `Je krijgt een vaste prijs voor je ophaaladres voordat je boekt. Bel <a href="${telHref}">${esc(site.phone)}</a> of plan je rit online.` },
+        : { q: `Wat kost een taxi van Utrecht naar ${a.name}?`, a: `Je krijgt een vaste prijs voor je ophaaladres voordat je boekt. Bel <a href="${telHref}">${esc(phoneNb)}</a> of plan je rit online.` },
       r.min ? { q: 'Hoe lang duurt de rit?', a: `Ongeveer ${r.min} minuten${r.km ? ` voor ${r.km} km` : ''}, afhankelijk van het verkeer. De prijs verandert daardoor niet.` } : null,
       { q: 'Kan ik midden in de nacht vertrekken?', a: 'Ja. We rijden 24/7 en rekenen geen nachttoeslag.' },
       { q: `Kan ik ook vanaf ${a.name} worden opgehaald?`, a: 'Ja. Geef bij het boeken je vluchtnummer en de aankomsttijd door.' },
@@ -297,12 +297,12 @@ function placePage(pl) {
     ${metaLabel(r) ? `<span class="leg__meta">${esc(metaLabel(r))}</span>` : ''}
   </div>
   ${p ? `<p class="small muted">Taxibus (${site.busPassengers} personen): ${priceLabel(r, { bus: true })}</p>` : ''}
-  <div class="row"><a class="btn btn--primary" href="${link('/boeken/')}?naar=${r.id}">Taxi in ${esc(pl.name)} boeken ${arrow()}</a><a class="btn btn--ghost" href="${telHref}">Bel ${esc(site.phone)}</a></div>
+  <div class="row"><a class="btn btn--primary" href="${link('/boeken/')}?naar=${r.id}">Taxi in ${esc(pl.name)} boeken ${arrow()}</a><a class="btn btn--ghost" href="${telHref}">Bel&nbsp;${esc(phoneNb)}</a></div>
 </div>`;
     const qa = [
       p
         ? { q: isCity ? 'Wat kost een taxi binnen Utrecht?' : `Wat kost een taxi van ${pl.name} naar Utrecht Centraal?`, a: `${p} vast, inclusief btw, voor 1–4 personen. Ook ’s nachts en in de spits.` }
-        : { q: `Wat kost een taxi in ${pl.name}?`, a: `Je krijgt een vaste prijs voor je adres voordat je boekt. Bel <a href="${telHref}">${esc(site.phone)}</a> of plan je rit online.` },
+        : { q: `Wat kost een taxi in ${pl.name}?`, a: `Je krijgt een vaste prijs voor je adres voordat je boekt. Bel <a href="${telHref}">${esc(phoneNb)}</a> of plan je rit online.` },
       { q: `Rijden jullie vanuit ${pl.name} naar Schiphol?`, a: 'Ja, tegen een vaste prijs die je hoort voordat je boekt. Boek vooruit voor een vroege vlucht.' },
       FAQ.speed,
       FAQ.pay,
@@ -358,7 +358,7 @@ function zakelijk(ctx) {
   <div class="wrap hero__in">
     <div class="hero__copy"><span class="eyebrow">Zakelijk vervoer Utrecht</span><h1 class="display">Zakelijk rijden zonder bonnetjes.</h1></div>
     <div class="stack"><p style="font-size:20px;max-width:30em">Eén account voor je hele team. Vaste prijzen, één maandfactuur en één contactpersoon die je vervoer regelt.</p>
-    <div class="row"><a class="btn btn--ink btn--lg" href="#aanvraag">Account aanvragen ${arrow()}</a><a class="btn btn--lg" style="box-shadow:inset 0 0 0 2px var(--ink);color:var(--ink)" href="${telHref}">Bel ons</a></div></div>
+    <div class="row"><a class="btn btn--ink btn--lg" href="#aanvraag">Account aanvragen ${arrow()}</a><a class="btn btn--lg" style="box-shadow:inset 0 0 0 2px var(--ink);color:var(--ink)" href="${telHref}">Bel&nbsp;ons</a></div></div>
   </div>
 </section>
 <section class="sec"><div class="wrap features">
@@ -376,20 +376,20 @@ function zakelijk(ctx) {
   </ol>
 </div></section>
 <section class="sec" id="aanvraag"><div class="wrap split">
-  <div class="stack"><span class="eyebrow">Account aanvragen</span><h2 class="h2">Vertel ons wie je bent</h2><p class="lead">Liever eerst praten? Bel <a href="${telHref}"><strong>${esc(site.phone)}</strong></a> of mail <a href="${mailHref}"><strong>${esc(site.email)}</strong></a>.</p></div>
+  <div class="stack"><span class="eyebrow">Account aanvragen</span><h2 class="h2">Vertel ons wie je bent</h2><p class="lead">Liever eerst praten? Bel <a href="${telHref}"><strong>${esc(phoneNb)}</strong></a> of mail <a href="${mailHref}"><strong>${esc(site.email)}</strong></a>.</p></div>
   ${mailForm({
     id: 'zakelijk',
     subject: 'Aanvraag zakelijk account',
     submit: 'Aanvraag versturen',
     fields: `<div class="fields">
-      <label class="field" for="z-bedrijf">Bedrijfsnaam<input class="input" id="z-bedrijf" name="Bedrijfsnaam" autocomplete="organization" required></label>
-      <label class="field" for="z-kvk">KVK-nummer<input class="input" id="z-kvk" name="KVK-nummer" inputmode="numeric" pattern="[0-9]{8}" title="8 cijfers"></label>
-      <label class="field" for="z-naam">Contactpersoon<input class="input" id="z-naam" name="Contactpersoon" autocomplete="name" required></label>
-      <label class="field" for="z-tel">Telefoon<input class="input" id="z-tel" name="Telefoon" type="tel" autocomplete="tel" required></label>
+      <label class="field">Bedrijfsnaam<input class="input" id="z-bedrijf" type="text" name="Bedrijfsnaam" autocomplete="organization" required></label>
+      <label class="field">KVK-nummer<input class="input" id="z-kvk" type="text" name="KVK-nummer" inputmode="numeric" pattern="[0-9]{8}" title="8 cijfers"></label>
+      <label class="field">Contactpersoon<input class="input" id="z-naam" type="text" name="Contactpersoon" autocomplete="name" required></label>
+      <label class="field">Telefoon<input class="input" id="z-tel" name="Telefoon" type="tel" autocomplete="tel" required></label>
     </div>
-    <label class="field" for="z-mail">Zakelijk e-mailadres<input class="input" id="z-mail" name="E-mail" type="email" autocomplete="email" required></label>
-    <label class="field" for="z-ritten">Ritten per maand, ongeveer<select class="select" id="z-ritten" name="Ritten per maand"><option>Minder dan 10</option><option>10–50</option><option>Meer dan 50</option><option>Weet ik nog niet</option></select></label>
-    <label class="field" for="z-msg">Waar kunnen we mee helpen? <span class="field__hint">optioneel</span><textarea class="textarea" id="z-msg" name="Bericht" rows="3" placeholder="bijv. vaste ritten naar Schiphol, gasten ophalen op Utrecht Centraal"></textarea></label>`,
+    <label class="field">Zakelijk e-mailadres<input class="input" id="z-mail" name="E-mail" type="email" autocomplete="email" required></label>
+    <label class="field">Ritten per maand, ongeveer<select class="select" id="z-ritten" name="Ritten per maand"><option>Minder dan 10</option><option>10–50</option><option>Meer dan 50</option><option>Weet ik nog niet</option></select></label>
+    <label class="field">Waar kunnen we mee helpen? <span class="field__hint">optioneel</span><textarea class="textarea" id="z-msg" name="Bericht" rows="3" placeholder="bijv. vaste ritten naar Schiphol, gasten ophalen op Utrecht Centraal"></textarea></label>`,
     link,
   })}
 </div></section>
@@ -420,7 +420,7 @@ export function mailForm({ id, subject, submit, fields, link }) {
     <h2 class="h3" data-done-title>Bijna klaar</h2>
     <p class="muted" data-done-text>Je e-mailprogramma opent met je bericht. Verstuur het daar, dan reageren we zo snel mogelijk.</p>
     <pre data-done-summary></pre>
-    <div class="row"><a class="btn btn--primary" data-done-mail href="${mailHref}">Open e-mail opnieuw</a><a class="btn btn--ghost" href="${telHref}">Of bel ${esc(site.phone)}</a></div>
+    <div class="row"><a class="btn btn--primary" data-done-mail href="${mailHref}">Open e-mail opnieuw</a><a class="btn btn--ghost" href="${telHref}">Of&nbsp;bel&nbsp;${esc(phoneNb)}</a></div>
   </div>
 </form>`;
 }
@@ -431,10 +431,10 @@ function taxibus(ctx) {
   const body = `${inkHero({
     ctx,
     trail,
-    eyebrow: 'Taxibus & groepsvervoer',
+    eyebrow: 'Taxibus &amp; groepsvervoer',
     title: `Met z’n allen in één taxi`,
     lead: `Een taxibus voor ${site.busPassengers} personen, inclusief bagage. Je betaalt per rit, niet per persoon: ca. ${pct}% boven het standaardtarief.`,
-    extra: `<div class="row"><a class="btn btn--signal btn--lg" href="${link('/boeken/')}?auto=bus">Taxibus boeken</a><a class="btn btn--ghost-ink btn--lg" href="${telHref}">Bel ${esc(site.phone)}</a></div>`,
+    extra: `<div class="row"><a class="btn btn--signal btn--lg" href="${link('/boeken/')}?auto=bus">Taxibus boeken</a><a class="btn btn--ghost-ink btn--lg" href="${telHref}">Bel&nbsp;${esc(phoneNb)}</a></div>`,
     aside: `<div class="card" style="align-items:stretch">${vehicleArt.bus}<dl class="sum-dl"><dt>Personen</dt><dd>Tot 8, incl. bagage</dd><dt>Prijs</dt><dd>ca. +${pct}% per rit</dd><dt>Beschikbaar</dt><dd>24/7</dd></dl></div>`,
   })}
 <section class="sec"><div class="wrap">
@@ -522,7 +522,7 @@ function contact(ctx) {
   const body = `${inkHero({ ctx, trail, eyebrow: 'Contact · 24/7', title: 'We zijn er, dag en nacht', lead: 'Voor een rit bel je het snelst. Voor vragen, offertes en zakelijke afspraken kun je ook mailen of het formulier gebruiken.' })}
 <section class="sec"><div class="wrap split">
   <ul class="contact-list">
-    <li><span class="k">Telefoon</span><a class="v" href="${telHref}">${esc(site.phone)}</a></li>
+    <li><span class="k">Telefoon</span><a class="v" href="${telHref}">${esc(phoneNb)}</a></li>
     ${waHref ? `<li><span class="k">WhatsApp</span><a class="v" href="${waHref}">Stuur een bericht</a></li>` : ''}
     <li><span class="k">E-mail</span><a class="v" href="${mailHref}">${esc(site.email)}</a></li>
     <li><span class="k">Adres</span><span class="v">${esc(a.street)}<br>${esc(a.postalCode)} ${esc(a.city)}<br><a class="small" style="font-weight:600" href="${maps}">Bekijk op de kaart</a></span></li>
@@ -534,11 +534,11 @@ function contact(ctx) {
     subject: 'Vraag via de website',
     submit: 'Bericht versturen',
     fields: `<div class="fields">
-      <label class="field" for="c-naam">Naam<input class="input" id="c-naam" name="Naam" autocomplete="name" required></label>
-      <label class="field" for="c-mail">E-mail<input class="input" id="c-mail" name="E-mail" type="email" autocomplete="email" required></label>
+      <label class="field">Naam<input class="input" id="c-naam" type="text" name="Naam" autocomplete="name" required></label>
+      <label class="field">E-mail<input class="input" id="c-mail" name="E-mail" type="email" autocomplete="email" required></label>
     </div>
-    <label class="field" for="c-tel">Telefoon <span class="field__hint">optioneel</span><input class="input" id="c-tel" name="Telefoon" type="tel" autocomplete="tel"></label>
-    <label class="field" for="c-msg">Je vraag<textarea class="textarea" id="c-msg" name="Bericht" rows="5" required></textarea></label>`,
+    <label class="field">Telefoon <span class="field__hint">optioneel</span><input class="input" id="c-tel" name="Telefoon" type="tel" autocomplete="tel"></label>
+    <label class="field">Je vraag<textarea class="textarea" id="c-msg" name="Bericht" rows="5" required></textarea></label>`,
     link,
   })}
 </div></section>`;
@@ -554,7 +554,7 @@ function vragen(ctx) {
     ['Luchthavens', [FAQ.schiphol, FAQ.airports]],
   ];
   const all = groups.flatMap((g) => g[1]);
-  const body = `${inkHero({ ctx, trail, eyebrow: 'Veelgestelde vragen', title: 'Antwoorden, kort en duidelijk', lead: `Staat je vraag er niet bij? Bel ${esc(site.phone)}, ook ’s nachts.` })}
+  const body = `${inkHero({ ctx, trail, eyebrow: 'Veelgestelde vragen', title: 'Antwoorden, kort en duidelijk', lead: `Staat je vraag er niet bij? Bel&nbsp;${esc(phoneNb)}, ook ’s nachts.` })}
 ${groups.map(([t, items], i) => `<section class="sec${i % 2 ? ' sec--mist' : ''}"><div class="wrap split"><h2 class="h2">${t}</h2>${faq(items)}</div></section>`).join('\n')}
 ${cta(ctx)}`;
   return { path: '/veelgestelde-vragen/', title: 'Veelgestelde vragen', description: 'Antwoorden over taxi bestellen in Utrecht: prijzen, nachttoeslag, betalen, taxibus, elektrisch en luchthavenvervoer.', body, jsonld: [crumbsLd(trail), faqLd(all)] };
@@ -629,7 +629,7 @@ function notFound(ctx) {
     title: 'Pagina niet gevonden',
     description: 'Deze pagina bestaat niet (meer).',
     body: `<section class="sec"><div class="wrap lost"><span class="eyebrow">Fout 404</span><h1 class="display">Deze afslag bestaat niet.</h1><p class="lead">De pagina is verplaatst of bestaat niet meer. Waar wil je heen?</p>
-<div class="row"><a class="btn btn--primary btn--lg" href="${link('/boeken/')}">Rit plannen</a><a class="btn btn--ghost btn--lg" href="${link('/')}">Naar de homepage</a><a class="btn btn--ghost btn--lg" href="${telHref}">Bel ${esc(site.phone)}</a></div></div></section>`,
+<div class="row"><a class="btn btn--primary btn--lg" href="${link('/boeken/')}">Rit plannen</a><a class="btn btn--ghost btn--lg" href="${link('/')}">Naar de homepage</a><a class="btn btn--ghost btn--lg" href="${telHref}">Bel&nbsp;${esc(phoneNb)}</a></div></div></section>`,
   };
 }
 

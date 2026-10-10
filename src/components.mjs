@@ -1,6 +1,6 @@
 import {
   site, routes, places, airports, placeBySlug, esc, icon, money, busPrice, priceLabel, kmLabel, minLabel, metaLabel,
-  telHref, waHref, vehicleArt, NB,
+  telHref, phoneNb, waHref, vehicleArt, NB,
 } from './lib.mjs';
 
 export const VEHICLES = [
@@ -59,7 +59,7 @@ export function fareWidget({ ids, selected, title = 'Waar wil je heen?', link, i
     </fieldset>
   </div>
   <div class="legs">
-    <label class="leg" for="${idp}-van"><span class="leg__dot"></span><span class="leg__body"><span class="leg__lbl">VAN</span><input id="${idp}-van" name="van" type="text" autocomplete="street-address" placeholder="Ophaaladres, bijv. Oudegracht 1"></span></label>
+    <label class="leg"><span class="leg__dot"></span><span class="leg__body"><span class="leg__lbl">VAN</span><input id="${idp}-van" name="van" type="text" autocomplete="address-line1" placeholder="Ophaaladres, bijv. Oudegracht 1"></span></label>
     <div class="leg"><span class="leg__sq"></span><span class="leg__body"><span class="leg__lbl">NAAR</span><output data-out="name" for="${idp}-naar">${esc(sel.name)}</output></span><span class="leg__meta" data-out="meta">${esc(metaLabel(sel))}</span></div>
   </div>
   <fieldset class="chips" id="${idp}-naar"><legend class="sr-only">Bestemming</legend>${chips}</fieldset>
@@ -70,7 +70,7 @@ export function fareWidget({ ids, selected, title = 'Waar wil je heen?', link, i
     }" data-out="price" aria-live="polite">${p || 'Prijs op aanvraag'}</output></div>
     <button class="btn btn--primary btn--lg" type="submit">Boek deze rit ${arrow()}</button>
   </div>
-  <p class="small muted">Liever bellen? <a href="${telHref}"><strong>${esc(site.phone)}</strong></a> — ook midden in de nacht.</p>
+  <p class="small muted">Liever bellen? <a href="${telHref}"><strong>${esc(phoneNb)}</strong></a> — ook midden in de nacht.</p>
 </form>`;
 }
 
@@ -127,7 +127,7 @@ export const FAQ = {
   },
   bus: { q: 'Wat kost een taxibus?', a: `Een taxibus voor ${site.busPassengers} personen kost ca. ${Math.round((site.busFactor - 1) * 100)}% meer dan een standaardrit. Je betaalt per rit, niet per persoon.` },
   ev: { q: 'Is een elektrische taxi duurder?', a: 'Nee. Een rit in een Tesla Model 3 of Model Y kost hetzelfde als in een standaardauto.' },
-  book: { q: 'Hoe bestel ik een taxi?', a: `Bel <a href="${telHref}">${esc(site.phone)}</a>, boek online${waHref ? ' of stuur een WhatsApp-bericht' : ''}. Je hoort of ziet de vaste prijs voordat je bevestigt.` },
+  book: { q: 'Hoe bestel ik een taxi?', a: `Bel <a href="${telHref}">${esc(phoneNb)}</a>, boek online${waHref ? ' of stuur een WhatsApp-bericht' : ''}. Je hoort of ziet de vaste prijs voordat je bevestigt.` },
   reserve: { q: 'Kan ik vooruit reserveren?', a: 'Ja. Geef bij het boeken de datum en ophaaltijd door. Voor een vroege vlucht raden we aan de avond ervoor te boeken.' },
   business: { q: 'Kan ik zakelijk op rekening rijden?', a: 'Ja. Met een zakelijk account boeken meerdere collega’s op rekening van het bedrijf en ontvang je één factuur per maand.' },
   schiphol: {
@@ -139,7 +139,7 @@ export const FAQ = {
 /* ---------- blocks ---------- */
 export function channels({ link }) {
   return `<div class="channels">
-  <div class="channel"><span class="eyebrow">Bellen</span><h3 class="h3">Direct iemand aan de lijn</h3><p>Dag en nacht bereikbaar. Je hoort meteen de vaste prijs voor je route.</p><a class="channel__big" href="${telHref}">${esc(site.phone)}</a></div>
+  <div class="channel"><span class="eyebrow">Bellen</span><h3 class="h3">Direct iemand aan de lijn</h3><p>Dag en nacht bereikbaar. Je hoort meteen de vaste prijs voor je route.</p><a class="channel__big" href="${telHref}">${esc(phoneNb)}</a></div>
   <div class="channel"><span class="eyebrow">Online</span><h3 class="h3">Boek in een paar stappen</h3><p>Adres, tijd en auto kiezen. Je ziet de prijs voordat je je aanvraag verstuurt.</p><a class="link-arrow" href="${link('/boeken/')}">Rit plannen ${icon('arrow', { size: 18 })}</a></div>
   ${
     waHref
@@ -219,7 +219,7 @@ export function rules() {
 export function cta({ link, title = 'Waar mogen we je naartoe brengen?' }) {
   return `<section class="sec sec--ink"><div class="wrap cta"><h2 class="display">${title}</h2><div class="row">
   <a class="btn btn--signal btn--lg" href="${link('/boeken/')}">Rit plannen</a>
-  <a class="btn btn--ghost-ink btn--lg" href="${telHref}">Bel ${esc(site.phone)}</a>
+  <a class="btn btn--ghost-ink btn--lg" href="${telHref}">Bel&nbsp;${esc(phoneNb)}</a>
 </div></div></section>`;
 }
 

@@ -1,10 +1,11 @@
 #!/usr/bin/env node
 // Static site build. Usage: node src/build.mjs [--preview] [--out dist]
-import { mkdirSync, rmSync, writeFileSync, cpSync } from 'node:fs';
+import { mkdirSync, rmSync, writeFileSync, cpSync, readFileSync } from 'node:fs';
+import { createHash } from 'node:crypto';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { site, fares, places, todos, linker } from './lib.mjs';
-import { document } from './layout.mjs';
+import { site, fares, places, todos, linker, assetNames } from './lib.mjs';
+import { document, INLINE_JS } from './layout.mjs';
 import { pageFactories, boeken } from './pages.mjs';
 
 const args = process.argv.slice(2);
@@ -15,10 +16,25 @@ const out = join(root, outArg > -1 ? args[outArg + 1] : mode === 'preview' ? 'di
 
 rmSync(out, { recursive: true, force: true });
 mkdirSync(join(out, 'assets'), { recursive: true });
-for (const f of ['site.css', 'site.js', 'favicon.svg', 'og.png', 'apple-touch-icon.png', 'icon-512.png']) cpSync(join(root, 'src/assets', f), join(out, 'assets', f));
+for (const f of ['favicon.svg', 'og.png', 'apple-touch-icon.png', 'icon-512.png']) cpSync(join(root, 'src/assets', f), join(out, 'assets', f));
+const src = (f) => readFileSync(join(root, 'src/assets', f), 'utf8');
+const hash = (s) => createHash('sha256').update(s).digest('hex').slice(0, 10);
+// Safe minifier: drops comments and collapses whitespace around { } ; , only (never around ":" — ".a :focus" ≠ ".a:focus").
+const minifyCss = (css) => css.replace(/\/\*[\s\S]*?\*\//g, '').replace(/\s+/g, ' ').replace(/\s*([{};,])\s*/g, '$1').replace(/;}/g, '}').trim();
 if (mode === 'production') {
-  cpSync(join(root, 'src/assets/fonts.css'), join(out, 'assets/fonts.css'));
+  // One stylesheet (fonts + site), fingerprinted so it can be cached for a year.
   cpSync(join(root, 'src/assets/fonts'), join(out, 'assets/fonts'), { recursive: true });
+  mkdirSync(join(out, 'assets/build'), { recursive: true });
+  const css = minifyCss(src('fonts.css').replace(/url\(fonts\//g, 'url(../fonts/') + '\n' + src('site.css'));
+  const js = src('site.js');
+  for (const [name, body] of [['site.css', css], ['site.js', js]]) {
+    const [base, ext] = name.split('.');
+    const file = `/assets/build/${base}.${hash(body)}.${ext}`;
+    writeFileSync(join(out, file), body);
+    assetNames[`/assets/${name}`] = file;
+  }
+} else {
+  for (const f of ['site.css', 'site.js']) cpSync(join(root, 'src/assets', f), join(out, 'assets', f));
 }
 
 const fileFor = (p) => (p.endsWith('.html') ? p.slice(1) : join(p.slice(1), 'index.html'));
@@ -63,10 +79,38 @@ const redirects = [
 ];
 const variants = redirects.flatMap(([from, to]) => [[from, to], [from.replace(/\/$/, ''), to]]);
 writeFileSync(join(out, '_redirects'), variants.map(([f, t]) => `${f} ${t} 301`).join('\n') + '\n');
+const endpointOrigin = site.bookingEndpoint ? new URL(site.bookingEndpoint).origin : '';
+const csp = [
+  "default-src 'self'",
+  `script-src 'self' 'sha256-${createHash('sha256').update(INLINE_JS).digest('base64')}'`,
+  "style-src 'self' 'unsafe-inline'",
+  "img-src 'self' data:",
+  "font-src 'self'",
+  `connect-src 'self'${endpointOrigin ? ` ${endpointOrigin}` : ''}`,
+  `form-action 'self' mailto:${endpointOrigin ? ` ${endpointOrigin}` : ''}`,
+  "frame-ancestors 'none'",
+  "base-uri 'self'",
+  "object-src 'none'",
+  'upgrade-insecure-requests',
+].join('; ');
+export const headers = [
+  { source: '/(.*)', headers: [
+    ['Content-Security-Policy', csp],
+    ['Strict-Transport-Security', 'max-age=63072000; includeSubDomains'],
+    ['X-Content-Type-Options', 'nosniff'],
+    ['X-Frame-Options', 'DENY'],
+    ['Referrer-Policy', 'strict-origin-when-cross-origin'],
+    ['Permissions-Policy', 'camera=(), microphone=(), geolocation=(), payment=()'],
+  ] },
+  { source: '/assets/build/(.*)', headers: [['Cache-Control', 'public, max-age=31536000, immutable']] },
+  { source: '/assets/fonts/(.*)', headers: [['Cache-Control', 'public, max-age=31536000, immutable']] },
+];
+const vercelHeaders = headers.map((h) => ({ source: h.source, headers: h.headers.map(([key, value]) => ({ key, value })) }));
 writeFileSync(
   join(out, 'vercel.json'),
-  JSON.stringify({ cleanUrls: false, trailingSlash: true, redirects: redirects.map(([source, destination]) => ({ source: source.replace(/\/$/, ''), destination, permanent: true })) }, null, 2),
+  JSON.stringify({ cleanUrls: false, trailingSlash: true, headers: vercelHeaders, redirects: redirects.map(([source, destination]) => ({ source: source.replace(/\/$/, ''), destination, permanent: true })) }, null, 2),
 );
+writeFileSync(join(out, '_headers'), headers.map((h) => `${h.source.replace('(.*)', '*')}\n${h.headers.map(([k, v]) => `  ${k}: ${v}`).join('\n')}`).join('\n\n') + '\n');
 writeFileSync(
   join(out, '.htaccess'),
   `ErrorDocument 404 /404.html\n${redirects.map(([f, t]) => `Redirect 301 ${f.replace(/\/$/, '')} ${t}`).join('\n')}\n`,

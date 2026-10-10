@@ -32,6 +32,7 @@ export const kmLabel = (r) => (r && r.km ? `${r.km}${NB}km` : null);
 export const minLabel = (r) => (r && r.min ? `±${NB}${r.min}${NB}min` : null);
 export const metaLabel = (r) => [kmLabel(r), minLabel(r)].filter(Boolean).join(' · ');
 
+export const phoneNb = site.phone.replace(/ /g, NB);
 export const telHref = `tel:${site.phoneE164}`;
 export const waHref = site.whatsapp ? `https://wa.me/${site.whatsapp.replace(/\D/g, '')}` : null;
 export const mailHref = `mailto:${site.email}`;
@@ -42,6 +43,9 @@ export function todo(label, where = '') {
   todos.push(`${label}${where ? ` (${where})` : ''}`);
   return `<mark class="todo">[${esc(label)}]</mark>`;
 }
+
+/** Fingerprinted asset names, filled in by the production build (e.g. /assets/site.css → /assets/site.3f9a1c2b.css). */
+export const assetNames = {};
 
 /** Link builder. Production: clean absolute URLs. Preview: relative links to index.html files. */
 export function linker(pagePath, mode) {
@@ -55,7 +59,10 @@ export function linker(pagePath, mode) {
     const rel = p === '/' ? 'index.html' : p.replace(/^\//, '') + (p.endsWith('/') ? 'index.html' : '');
     return up + rel + (hash ? `#${hash}` : '');
   };
-  const asset = (p) => (mode === 'preview' ? up + p.replace(/^\//, '') : p);
+  const asset = (p) => {
+    const q = assetNames[p] || p;
+    return mode === 'preview' ? up + q.replace(/^\//, '') : q;
+  };
   return { link, asset };
 }
 

@@ -204,7 +204,7 @@ button, input, select, textarea { font: inherit; color: inherit; }
 .logo__mark { width: 40px; height: 40px; }
 .logo__txt { display: flex; flex-direction: column; line-height: 1; }
 .logo__name { font-weight: 800; font-stretch: 112%; font-size: 19px; letter-spacing: -0.01em; }
-.logo__city { font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.24em; color: var(--signal); margin-top: 5px; }
+.logo__city { font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.24em; text-transform: uppercase; color: var(--signal); margin-top: 5px; }
 .nav { margin-left: auto; }
 .nav__list { display: flex; gap: 4px 26px; }
 .nav__list a { display: block; padding: 10px 0; color: var(--on-ink); text-decoration: none; font-size: 15px; font-weight: 500; }
@@ -596,6 +596,8 @@ html:not(.js) .js-only { display: none !important; }
   .actionbar a svg { width: 20px; height: 20px; }
   .actionbar .actionbar__main { grid-column: span 2; flex-direction: row; background: var(--btn); color: var(--btn-fg); font-size: 16px; font-weight: 800; }
   body { padding-bottom: calc(88px + env(safe-area-inset-bottom, 0px)); }
+  /* keep focused/scrolled-to elements clear of the fixed bar (WCAG 2.4.11) */
+  html { scroll-padding-bottom: calc(96px + env(safe-area-inset-bottom, 0px)); }
   .bk__aside { position: static; }
 }
 
