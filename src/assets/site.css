@@ -579,6 +579,33 @@ html:not(.js) .js-only { display: none !important; }
 .done pre { white-space: pre-wrap; font-family: var(--font-mono); font-size: 14px; background: var(--surface); padding: 16px; border-radius: 10px; width: 100%; overflow-wrap: anywhere; margin: 0; }
 .form-error { color: var(--danger); font-weight: 600; font-size: 15px; }
 
+/* ---------- maps (Mapbox; only present when a token is configured) ---------- */
+.field-wrap { position: relative; display: flex; flex-direction: column; gap: 8px; }
+.ac { position: absolute; z-index: 30; left: 0; right: 0; top: calc(100% - 2px); margin: 0; padding: 6px; list-style: none; background: var(--raised); color: var(--fg); border: 1.5px solid var(--fg); border-radius: 10px; box-shadow: var(--shadow); max-height: 320px; overflow-y: auto; }
+.ac li { display: flex; flex-direction: column; gap: 2px; padding: 10px 12px; border-radius: 8px; cursor: pointer; min-height: 44px; justify-content: center; }
+.ac li:hover, .ac li[aria-selected="true"] { background: var(--surface); }
+.ac li[aria-selected="true"] { box-shadow: inset 3px 0 0 var(--signal); }
+.ac__p { font-weight: 700; font-size: 15.5px; }
+.ac__s { font-size: 13px; color: var(--muted); }
+.locate { align-self: flex-start; display: inline-flex; align-items: center; gap: 8px; min-height: 44px; padding: 0 2px; background: none; border: 0; color: var(--fg); font-size: 14.5px; font-weight: 700; text-decoration: underline; text-underline-offset: 0.2em; cursor: pointer; }
+.locate:disabled { opacity: .6; cursor: progress; }
+.route-hint { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 14px; padding: 14px 16px; border-radius: 10px; background: var(--surface); font-size: 15px; font-weight: 600; }
+.route-map, .area-map { width: 100%; max-width: 100%; border-radius: var(--r-md); overflow: hidden; }
+.route-map { height: 220px; background: var(--band-grid); }
+.area-map { height: clamp(320px, 50vw, 520px); border: 1px solid var(--line); background: var(--surface); }
+.route-map:not(.is-live) { display: none; }
+/* the area map keeps its frame while loading (it loads when scrolled into view), drawn as a quiet street grid */
+.area-map:not(.is-live) { background-image: linear-gradient(var(--line) 1px, transparent 1px), linear-gradient(90deg, var(--line) 1px, transparent 1px); background-size: 48px 48px; }
+.pin { width: 18px; height: 18px; cursor: grab; }
+.pin--a { border-radius: 50%; background: var(--ink); border: 4px solid #FFFFFF; box-shadow: 0 0 0 2px var(--ink); }
+.pin--b { background: var(--signal); border: 3px solid var(--ink); }
+.town-pin { display: inline-flex; align-items: center; gap: 6px; text-decoration: none; color: var(--ink); }
+.town-pin--left { flex-direction: row-reverse; }
+.town-pin__dot { width: 14px; height: 14px; background: var(--signal); border: 3px solid var(--ink); flex: none; }
+.town-pin__label { background: #FFFFFF; color: #0E1726; border: 1px solid #0E1726; border-radius: 4px; padding: 3px 7px; font-size: 13px; font-weight: 700; white-space: nowrap; box-shadow: 0 2px 6px rgba(14, 23, 38, .25); }
+.town-pin:hover .town-pin__label, .town-pin:focus-visible .town-pin__label { background: var(--signal); }
+.mapboxgl-ctrl-attrib, .mapboxgl-ctrl-attrib a { font-family: var(--font-sans); font-size: 11px; }
+
 /* ---------- footer ---------- */
 .ftr { background: var(--night); color: var(--on-ink-muted); font-size: 15px; }
 .ftr__in { padding-block: 72px 40px; display: flex; flex-direction: column; gap: 48px; }

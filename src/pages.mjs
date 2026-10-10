@@ -1,6 +1,6 @@
 import {
   site, routes, places, airports, placeBySlug, esc, icon, money, busPrice, priceLabel, kmLabel, minLabel, metaLabel,
-  telHref, phoneNb, waHref, mailHref, todo, vehicleArt, NB,
+  telHref, phoneNb, waHref, mailHref, todo, vehicleArt, NB, hasMap,
 } from './lib.mjs';
 import {
   VEHICLES, arrow, tick, secHead, crumbs, crumbsLd, fareWidget, board, faq, faqLd, FAQ, channels, fleet, airportList,
@@ -274,7 +274,7 @@ function werkgebied(ctx) {
     title: 'Utrecht en de hele regio',
     lead: 'We halen je op in de stad en in de dorpen eromheen, dag en nacht. Kies je plaats voor lokale ritten en prijzen.',
   })}
-<section class="sec"><div class="wrap">${townsGrid(ctx)}</div></section>
+<section class="sec"><div class="wrap stack stack--lg">${townsGrid(ctx)}${hasMap() ? '<div class="area-map" data-area-map role="region" aria-label="Kaart van het werkgebied"></div>' : ''}</div></section>
 <section class="sec sec--ink"><div class="wrap">
   ${secHead({ eyebrow: 'Van en naar Utrecht Centraal', title: 'Vaste prijzen in de regio', side: `<a class="link-arrow" href="${link('/tarieven/')}">Alle tarieven ${icon('arrow', { size: 18 })}</a>` })}
   ${board(byPrice(['utrecht', ...regio]), { link, caption: 'Vaste prijzen in de regio' })}
@@ -283,6 +283,7 @@ ${cta(ctx)}`;
   return {
     path: '/werkgebied/',
     nav: 'werkgebied',
+    map: true,
     title: 'Werkgebied: taxi in Utrecht en omgeving',
     description: 'Taxi in Utrecht, Leidsche Rijn, Nieuwegein, De Bilt, Zeist, Houten, Bunnik, IJsselstein, Maarssen, Vianen, Odijk en Groenekan. Vaste prijs vooraf.',
     body,
@@ -597,7 +598,11 @@ function privacy(ctx) {
 <h2>Met wie we gegevens delen</h2>
 <p>Alleen met de chauffeur die je rit uitvoert en met partijen die ons helpen de dienst te leveren, zoals ${todo('verwerkers: bijv. hosting, e-mail, boekingssysteem', 'privacy')}. We verkopen je gegevens nooit.</p>
 <h2>Cookies en analyse</h2>
-<p>Deze website plaatst geen tracking- of advertentiecookies en laadt geen lettertypen of scripts van derden. Zie ook onze <a href="${ctx.link('/cookies/')}">cookieverklaring</a>.</p>
+${hasMap()
+  ? `<p>Deze website plaatst geen tracking- of advertentiecookies en laadt geen lettertypen van derden. Zie ook onze <a href="${ctx.link('/cookies/')}">cookieverklaring</a>.</p>
+<h2>Kaart en adressuggesties (Mapbox)</h2>
+<p>Op de boekingspagina en de pagina Werkgebied gebruiken we Mapbox voor de kaart, adressuggesties en de routeberekening. Mapbox ontvangt daarvoor je IP-adres, de adressen die je typt of op de kaart aanwijst en, alleen als je op “Gebruik mijn locatie” tikt en toestemming geeft, je locatie. Mapbox kan gegevens buiten de EU verwerken; lees het <a href="https://www.mapbox.com/legal/privacy">privacybeleid van Mapbox</a>. De kaart laadt pas als je het boekingsformulier gebruikt of naar de kaart scrolt.</p>`
+  : `<p>Deze website plaatst geen tracking- of advertentiecookies en laadt geen lettertypen of scripts van derden. Zie ook onze <a href="${ctx.link('/cookies/')}">cookieverklaring</a>.</p>`}
 <h2>Je rechten</h2>
 <p>Je mag je gegevens inzien, laten corrigeren of laten verwijderen, en bezwaar maken tegen het gebruik ervan. Mail daarvoor naar <a href="${mailHref}">${esc(site.email)}</a>. Ben je het niet eens met hoe we met je gegevens omgaan, dan kun je een klacht indienen bij de Autoriteit Persoonsgegevens.</p>`,
   });
@@ -625,7 +630,8 @@ function cookies(ctx) {
     description: `${site.name} plaatst geen tracking- of advertentiecookies.`,
     prose: `<p>Deze website plaatst geen tracking-, analyse- of advertentiecookies. Daarom vragen we ook geen toestemming met een cookiebanner.</p>
 <p>Als je een route kiest en doorklikt naar het boekingsformulier, onthoudt je browser die keuze tijdelijk (sessionStorage), zodat je hem niet opnieuw hoeft in te vullen. Die gegevens blijven op je eigen apparaat en verdwijnen als je het tabblad sluit.</p>
-<p>Lettertypen en scripts worden vanaf onze eigen server geladen. Er gaan dus geen gegevens naar externe partijen zoals Google Fonts.</p>`,
+<p>Lettertypen en scripts worden vanaf onze eigen server geladen. Er gaan dus geen gegevens naar externe partijen zoals Google Fonts.</p>${hasMap() ? `
+<p>Uitzondering is de kaart op de boekingspagina en de pagina Werkgebied. Die komt van Mapbox en laadt pas als je het formulier gebruikt of naar de kaart scrolt. Mapbox ontvangt daarbij je IP-adres en kan technische gegevens in je browser opslaan. Zie de <a href="${ctx.link('/privacy/')}">privacyverklaring</a>.</p>` : ''}`,
   });
 }
 

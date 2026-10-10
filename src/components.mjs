@@ -1,6 +1,6 @@
 import {
   site, routes, places, airports, placeBySlug, esc, icon, money, busPrice, priceLabel, kmLabel, minLabel, metaLabel,
-  telHref, phoneNb, waHref, vehicleArt, NB,
+  telHref, phoneNb, waHref, vehicleArt, NB, MAPBOX_GL_VERSION,
 } from './lib.mjs';
 
 export const VEHICLES = [
@@ -270,6 +270,29 @@ export function serviceLd(r, name, path) {
         }
       : {}),
   };
+}
+
+// Town labels that would overlap a neighbour are drawn to the left of their pin.
+const LEFT_LABELS = ['leidsche-rijn', 'maarssen', 'ijsselstein'];
+
+/** Data the map script needs, embedded as a JSON data block (not executed, CSP-safe). */
+export function mapConfig({ link }) {
+  // Map Mapbox locality/town names to our routes: district names first, town names win collisions.
+  const townOf = {};
+  for (const p of places) {
+    if (p.slug === 'utrecht') continue; // Utrecht's district names (Oost, Zuid…) are too generic to match on
+    for (const d of p.districts) if (d !== 'Binnenstad') townOf[d.toLowerCase()] = p.route;
+  }
+  for (const p of places) townOf[p.name.toLowerCase()] = p.route;
+  const airportsById = Object.fromEntries(airports.map((a) => [a.route, { name: a.name, lat: a.lat, lng: a.lng }]));
+  const cfg = {
+    token: site.mapboxToken,
+    glVersion: MAPBOX_GL_VERSION,
+    townOf,
+    airports: airportsById,
+    places: places.map((p) => ({ name: p.name, lat: p.lat, lng: p.lng, price: priceLabel(routes[p.route]), href: link(`/werkgebied/${p.slug}/`), left: LEFT_LABELS.includes(p.slug) })),
+  };
+  return `<script type="application/json" id="tbu-map-config">${JSON.stringify(cfg).replace(/</g, '\\u003c')}</script>`;
 }
 
 export { placeBySlug, NB };

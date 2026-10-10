@@ -73,3 +73,21 @@ test('CSS minifier keeps descendant pseudo-class selectors intact', () => {
   assert.equal(minifyCss('/* x */\n.a :focus-visible { color: red; }\n'), '.a :focus-visible{color: red}');
   assert.equal(minifyCss('a,\nb { x: 1 ; y: 2; }'), 'a,b{x: 1;y: 2}');
 });
+
+test('map config: town names map to the right fixed-price route', async () => {
+  const { mapConfig } = await import('../src/components.mjs');
+  const html = mapConfig({ link: (p) => p });
+  const cfg = JSON.parse(html.replace(/^<script[^>]*>/, '').replace(/<\/script>$/, '').replace(/\\u003c/g, '<'));
+  assert.equal(cfg.townOf['bilthoven'], 'de-bilt');
+  assert.equal(cfg.townOf['groenekan'], 'groenekan', 'a town name beats the same name listed as a district elsewhere');
+  assert.equal(cfg.townOf['vreeswijk'], 'nieuwegein');
+  assert.equal(cfg.townOf['oost'], undefined, 'generic Utrecht district names are not matched');
+  assert.equal(Object.keys(cfg.airports).length, airports.length);
+  assert.ok(cfg.places.every((p) => p.href.startsWith('/werkgebied/')));
+});
+
+test('validation refuses a secret Mapbox token', () => {
+  const d = data();
+  d.site.mapboxToken = 'sk.eyJ1IjoieCJ9.secret';
+  assert.match(validateData(d).join('\n'), /PUBLIC token/);
+});

@@ -17,6 +17,7 @@ export function validateData({ site, fares, places, airports }) {
   if (site.whatsapp != null && !/^\d{10,15}$/.test(site.whatsapp)) err('site.whatsapp must be digits only, with country code (e.g. 31612345678)');
   if (site.bookingEndpoint != null && !/^https:\/\//.test(site.bookingEndpoint)) err('site.bookingEndpoint must be an https:// URL');
   if (site.kvk != null && !/^\d{8}$/.test(site.kvk)) err('site.kvk must be 8 digits');
+  if (site.mapboxToken != null && !/^pk\.[\w-]+\.[\w-]+$/.test(site.mapboxToken)) err('site.mapboxToken must be a Mapbox PUBLIC token (pk.…); never put a secret sk. token in the site');
   if (!(typeof site.busFactor === 'number' && site.busFactor >= 1 && site.busFactor <= 3)) err('site.busFactor must be a number between 1 and 3');
   if (site.reviews != null) {
     const r = site.reviews;
@@ -46,6 +47,7 @@ export function validateData({ site, fares, places, airports }) {
     if (!p.intro || !p.area) err(`places: "${p.slug}" needs an intro and an area text`);
     if (!p.districts?.length) err(`places: "${p.slug}" needs at least one district`);
     if (!p.spots?.length) err(`places: "${p.slug}" needs at least one spot`);
+    if (!(p.lat > 50 && p.lat < 54 && p.lng > 3 && p.lng < 8)) err(`places: "${p.slug}" needs lat/lng in the Netherlands`);
     for (const n of p.nearby || []) {
       if (n === p.slug) err(`places: "${p.slug}" lists itself as nearby`);
       else if (!slugs.has(n)) err(`places: "${p.slug}" lists unknown nearby place "${n}"`);
@@ -60,6 +62,7 @@ export function validateData({ site, fares, places, airports }) {
     const r = route(a.route);
     if (!r) err(`airports: "${a.slug}" points to unknown route "${a.route}"`);
     else if (r.group !== 'luchthaven') err(`airports: "${a.slug}" route "${a.route}" is not in group "luchthaven"`);
+    if (!(a.lat > 49 && a.lat < 54 && a.lng > 2 && a.lng < 9)) err(`airports: "${a.slug}" needs lat/lng`);
   }
   return errors;
 }

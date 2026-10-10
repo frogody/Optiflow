@@ -19,5 +19,6 @@
   "busFactor": 1.4,
   "busPassengers": "5–8",
   "freeCancelHours": null,
-  "termsName": null
+  "termsName": null,
+  "mapboxToken": null
 }

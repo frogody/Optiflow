@@ -1,5 +1,6 @@
 export const INLINE_JS = "document.documentElement.classList.add('js')";
-import { site, esc, icon, logoMark, telHref, phoneNb, waHref, mailHref, places, airports } from './lib.mjs';
+import { site, esc, icon, logoMark, telHref, phoneNb, waHref, mailHref, places, airports, hasMap } from './lib.mjs';
+import { mapConfig } from './components.mjs';
 
 const NAV = [
   ['/boeken/', 'Boeken', 'boeken'],
@@ -125,7 +126,7 @@ ${page.body}
 </main>
 ${footer(ctx)}
 ${page.path === '/boeken/' ? '' : actionbar(ctx)}
-<script src="${asset('/assets/site.js')}" defer></script>`;
+<script src="${asset('/assets/site.js')}" defer></script>${page.map && hasMap() ? `\n${mapConfig(ctx)}\n<script src="${asset('/assets/map.js')}" defer></script>` : ''}`;
 
   // The preview host wraps its entry page in its own document skeleton.
   if (mode === 'preview' && page.path === '/') return `${head}\n${body}\n`;

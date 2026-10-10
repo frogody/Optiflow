@@ -9,6 +9,18 @@ export const fares = read('./data/fares.json');
 export const places = read('./data/places.json');
 export const airports = read('./data/airports.json');
 export const routes = Object.fromEntries(fares.routes.map((r) => [r.id, r]));
+// The Mapbox token never lives in the repository: it comes from MAPBOX_TOKEN in the environment
+// (Vercel/Netlify project settings) or, for local builds, a git-ignored .env.local / .env file.
+for (const f of ['../.env.local', '../.env']) {
+  if (process.env.MAPBOX_TOKEN) break;
+  try {
+    const m = readFileSync(new URL(f, import.meta.url), 'utf8').match(/^MAPBOX_TOKEN=(.+)$/m);
+    if (m) process.env.MAPBOX_TOKEN = m[1].trim();
+  } catch { /* no local env file */ }
+}
+if (process.env.MAPBOX_TOKEN) site.mapboxToken = process.env.MAPBOX_TOKEN;
+export const MAPBOX_GL_VERSION = '3.2.0';
+export const hasMap = () => Boolean(site.mapboxToken);
 export const placeBySlug = Object.fromEntries(places.map((p) => [p.slug, p]));
 
 export const NB = ' ';

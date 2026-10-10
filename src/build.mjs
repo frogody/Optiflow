@@ -4,7 +4,7 @@ import { mkdirSync, rmSync, writeFileSync, cpSync, readFileSync } from 'node:fs'
 import { createHash } from 'node:crypto';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { site, fares, places, airports, todos, linker, assetNames, minifyCss } from './lib.mjs';
+import { site, fares, places, airports, todos, linker, assetNames, minifyCss, hasMap } from './lib.mjs';
 import { validateData } from './validate.mjs';
 import { document, INLINE_JS } from './layout.mjs';
 import { pageFactories, boeken } from './pages.mjs';
@@ -32,14 +32,14 @@ if (mode === 'production') {
   mkdirSync(join(out, 'assets/build'), { recursive: true });
   const css = minifyCss(src('fonts.css').replace(/url\(fonts\//g, 'url(../fonts/') + '\n' + src('site.css'));
   const js = src('site.js');
-  for (const [name, body] of [['site.css', css], ['site.js', js]]) {
+  for (const [name, body] of [['site.css', css], ['site.js', js], ['map.js', src('map.js')]]) {
     const [base, ext] = name.split('.');
     const file = `/assets/build/${base}.${hash(body)}.${ext}`;
     writeFileSync(join(out, file), body);
     assetNames[`/assets/${name}`] = file;
   }
 } else {
-  for (const f of ['site.css', 'site.js']) cpSync(join(root, 'src/assets', f), join(out, 'assets', f));
+  for (const f of ['site.css', 'site.js', 'map.js']) cpSync(join(root, 'src/assets', f), join(out, 'assets', f));
 }
 
 const fileFor = (p) => (p.endsWith('.html') ? p.slice(1) : join(p.slice(1), 'index.html'));
@@ -87,13 +87,17 @@ const redirects = [
 const variants = redirects.flatMap(([from, to]) => [[from, to], [from.replace(/\/$/, ''), to]]);
 writeFileSync(join(out, '_redirects'), variants.map(([f, t]) => `${f} ${t} 301`).join('\n') + '\n');
 const endpointOrigin = site.bookingEndpoint ? new URL(site.bookingEndpoint).origin : '';
+// The token arrives via the host's environment, so the committed headers (vercel.json) must always
+// allow Mapbox, whether or not this particular build had a token.
+const allowMapbox = true;
 const csp = [
   "default-src 'self'",
-  `script-src 'self' 'sha256-${createHash('sha256').update(INLINE_JS).digest('base64')}'`,
-  "style-src 'self' 'unsafe-inline'",
-  "img-src 'self' data:",
+  `script-src 'self' 'sha256-${createHash('sha256').update(INLINE_JS).digest('base64')}'${allowMapbox ? ' https://api.mapbox.com' : ''}`,
+  `style-src 'self' 'unsafe-inline'${allowMapbox ? ' https://api.mapbox.com' : ''}`,
+  `img-src 'self' data:${allowMapbox ? ' blob: https://api.mapbox.com' : ''}`,
   "font-src 'self'",
-  `connect-src 'self'${endpointOrigin ? ` ${endpointOrigin}` : ''}`,
+  `connect-src 'self'${endpointOrigin ? ` ${endpointOrigin}` : ''}${allowMapbox ? ' https://api.mapbox.com https://*.tiles.mapbox.com https://events.mapbox.com' : ''}`,
+  ...(allowMapbox ? ['worker-src blob:', 'child-src blob:'] : []),
   `form-action 'self' mailto:${endpointOrigin ? ` ${endpointOrigin}` : ''}`,
   "frame-ancestors 'none'",
   "base-uri 'self'",
@@ -107,7 +111,7 @@ export const headers = [
     ['X-Content-Type-Options', 'nosniff'],
     ['X-Frame-Options', 'DENY'],
     ['Referrer-Policy', 'strict-origin-when-cross-origin'],
-    ['Permissions-Policy', 'camera=(), microphone=(), geolocation=(), payment=()'],
+    ['Permissions-Policy', `camera=(), microphone=(), geolocation=(${allowMapbox ? 'self' : ''}), payment=()`],
   ] },
   { source: '/assets/build/(.*)', headers: [['Cache-Control', 'public, max-age=31536000, immutable']] },
   { source: '/assets/fonts/(.*)', headers: [['Cache-Control', 'public, max-age=31536000, immutable']] },

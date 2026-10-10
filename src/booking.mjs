@@ -1,4 +1,4 @@
-import { site, fares, routes, esc, icon, money, busPrice, metaLabel, telHref, phoneNb, waHref, mailHref } from './lib.mjs';
+import { site, fares, routes, hasMap, esc, icon, money, busPrice, metaLabel, telHref, phoneNb, waHref, mailHref } from './lib.mjs';
 import { VEHICLES, arrow, crumbs, crumbsLd } from './components.mjs';
 
 const DEF = routes.schiphol;
@@ -50,9 +50,10 @@ export function boeken(ctx) {
 
       <fieldset class="bk__step" data-step="1">
         <legend>Waar en wanneer?</legend>
-        <label class="field">Ophaaladres<input class="input" id="bk-van" name="Ophaaladres" type="text" autocomplete="address-line1" placeholder="Straat en huisnummer, plaats" required></label>
+        <div class="field-wrap"><label class="field">Ophaaladres<input class="input" id="bk-van" name="Ophaaladres" type="text" autocomplete="address-line1" placeholder="Straat en huisnummer, plaats" required></label>${hasMap() ? '<button class="locate" type="button" data-locate hidden>Gebruik mijn locatie</button>' : ''}</div>
         <label class="field">Rit <span class="field__hint">vaste prijs, heen of terug</span><select class="select" id="bk-naar" name="Rit" data-dest>${options}<option value="anders" data-price="" data-name="Andere rit">Andere rit (prijs op aanvraag)</option></select></label>
-        <label class="field">Afzetadres <span class="field__hint" data-drop-hint>waar moeten we je afzetten?</span><input class="input" id="bk-naar-adres" name="Afzetadres" type="text" autocomplete="off" placeholder="Straat en huisnummer, plaats"></label>
+        <div class="field-wrap"><label class="field">Afzetadres <span class="field__hint" data-drop-hint>waar moeten we je afzetten?</span><input class="input" id="bk-naar-adres" name="Afzetadres" type="text" autocomplete="off" placeholder="Straat en huisnummer, plaats"></label></div>
+        ${hasMap() ? `<p class="route-hint" data-route-hint hidden><span data-route-hint-text></span> <button class="btn btn--ghost btn--sm" type="button" data-route-hint-use>Kies deze rit</button></p>` : ''}
         <fieldset class="seg" style="justify-self:start"><legend>Wanneer</legend>
           <label><input type="radio" name="Wanneer" value="Zo snel mogelijk" checked data-when="nu"><span>Zo snel mogelijk</span></label>
           <label><input type="radio" name="Wanneer" value="Op een tijdstip" data-when="later"><span>Op een tijdstip</span></label>
@@ -117,6 +118,7 @@ export function boeken(ctx) {
 
     <aside class="bk__aside" aria-label="Overzicht van je rit">
       <span class="eyebrow">Jouw rit</span>
+      ${hasMap() ? '<div class="route-map" data-route-map role="region" aria-label="Kaart met je route"></div>' : ''}
       <div class="sum">
         <span class="sum__dot"></span><span><span class="sum__k">Ophalen</span><span class="sum__v" data-sum="van">Je ophaaladres</span></span>
         <span class="sum__line"></span><span></span>
@@ -137,6 +139,7 @@ export function boeken(ctx) {
   return {
     path: '/boeken/',
     nav: 'boeken',
+    map: true,
     title: 'Taxi boeken',
     description: `Boek je taxi in Utrecht online: kies je route en auto en zie direct de vaste prijs. Of bel ${site.phone}, 24/7.`,
     body,

@@ -26,12 +26,24 @@ Requires Node 18+. The site has no dependencies; only the optional browser QA in
 | Header, footer, mobile action bar, `<head>` | `src/layout.mjs` |
 | Design system (tokens, light + dark theme) | `src/assets/site.css` |
 | Fare widget, booking steps, form handling | `src/assets/site.js` |
+| Maps: address suggestions, live route, service-area map (Mapbox) | `src/assets/map.js` |
 | Data rules the build enforces | `src/validate.mjs` |
 | Unit tests / browser QA | `tests/site.test.mjs` / `qa/run.mjs` |
 
 **The build checks the data first.** A route that doesn't exist, a nearby place with a typo, a price that isn't a whole number or a phone number that doesn't match its `+31` form stops the build with a message saying what to fix.
 
 **One price source.** A price is entered once in `fares.json` and from there appears on the homepage, the tariffs page, the town or airport page, the booking form, the taxibus price (`busFactor`, rounded) and the structured data search engines read. A route with `"price": null` shows "op aanvraag" everywhere rather than a guess.
+
+## Maps (Mapbox)
+
+With a Mapbox **public** token (`pk.…`) available at build time, the site adds the features below. The token is not in the repository (GitHub push protection blocks Mapbox tokens): set `MAPBOX_TOKEN` as an environment variable in the Vercel or Netlify project, or put `MAPBOX_TOKEN=pk.…` in a git-ignored `.env.local` for local builds. The build refuses a secret `sk.` token. Without a token the site builds exactly as before, with no maps.
+
+- **Booking:** address suggestions while typing (pickup and drop-off), "Gebruik mijn locatie", and a live map in the summary with draggable pickup and drop-off pins and the driving route. The summary shows the real distance and travel time, and the form offers the matching fixed-price route ("Deze rit past bij: Utrecht – Nieuwegein (€ 35)") without forcing it.
+- **Werkgebied:** an interactive map of all towns; each pin shows the price and links to the town page.
+
+Mapbox GL JS (v3.2.0, from Mapbox's CDN) loads only on those two pages, and only when someone starts filling in the booking form or scrolls to the map. Without a token, or if Mapbox can't be reached, the plain fields and lists keep working. The CSP, `Permissions-Policy: geolocation=(self)`, privacy statement and cookie page switch to their Mapbox versions automatically.
+
+The token is the one from the sweebers site. In the Mapbox account, add `taxibestellenutrecht.nl` (and any preview domain) to the token's **URL restrictions** so it can't be reused elsewhere; if it is already restricted to the sweebers domain only, the maps on this site stay empty until the new domain is added. Prices still come only from `fares.json`; the route distance is shown for information.
 
 ## Before going live
 

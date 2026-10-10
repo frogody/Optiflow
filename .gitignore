@@ -2,3 +2,5 @@ node_modules/
 dist/
 dist-preview/
 dist-qa-endpoint/
+.env.local
+.env
