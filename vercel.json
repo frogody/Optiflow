@@ -1,13 +1,148 @@
 {
-  "version": 2,
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "framework": null,
   "buildCommand": "npm run build",
-  "installCommand": "if [ -f 'pnpm-lock.yaml' ]; then pnpm install --no-frozen-lockfile; else npm install --no-frozen-lockfile; fi",
-  "framework": "nextjs",
-  "github": {
-    "enabled": true,
-    "silent": true
-  },
-  "env": {
-    "NEXT_PUBLIC_DEPLOYMENT_ENV": "production"
-  }
-} 
+  "outputDirectory": "dist",
+  "trailingSlash": true,
+  "redirects": [
+    {
+      "source": "/reserveren",
+      "destination": "/boeken/",
+      "permanent": true
+    },
+    {
+      "source": "/taxi-schiphol-airport",
+      "destination": "/luchthavens/schiphol/",
+      "permanent": true
+    },
+    {
+      "source": "/taxi-eindhoven-airport",
+      "destination": "/luchthavens/eindhoven-airport/",
+      "permanent": true
+    },
+    {
+      "source": "/zakelijk-vervoer-utrecht",
+      "destination": "/zakelijk/",
+      "permanent": true
+    },
+    {
+      "source": "/elektrische-taxi-utrecht",
+      "destination": "/elektrische-taxi/",
+      "permanent": true
+    },
+    {
+      "source": "/groepsvervoer",
+      "destination": "/taxibus/",
+      "permanent": true
+    },
+    {
+      "source": "/taxi-utrecht",
+      "destination": "/werkgebied/utrecht/",
+      "permanent": true
+    },
+    {
+      "source": "/taxi-leidsche-rijn",
+      "destination": "/werkgebied/leidsche-rijn/",
+      "permanent": true
+    },
+    {
+      "source": "/taxi-nieuwegein",
+      "destination": "/werkgebied/nieuwegein/",
+      "permanent": true
+    },
+    {
+      "source": "/taxi-de-bilt",
+      "destination": "/werkgebied/de-bilt/",
+      "permanent": true
+    },
+    {
+      "source": "/taxi-zeist",
+      "destination": "/werkgebied/zeist/",
+      "permanent": true
+    },
+    {
+      "source": "/taxi-houten",
+      "destination": "/werkgebied/houten/",
+      "permanent": true
+    },
+    {
+      "source": "/taxi-bunnik",
+      "destination": "/werkgebied/bunnik/",
+      "permanent": true
+    },
+    {
+      "source": "/taxi-ijsselstein",
+      "destination": "/werkgebied/ijsselstein/",
+      "permanent": true
+    },
+    {
+      "source": "/taxi-maarssen",
+      "destination": "/werkgebied/maarssen/",
+      "permanent": true
+    },
+    {
+      "source": "/taxi-vianen",
+      "destination": "/werkgebied/vianen/",
+      "permanent": true
+    },
+    {
+      "source": "/taxi-odijk",
+      "destination": "/werkgebied/odijk/",
+      "permanent": true
+    },
+    {
+      "source": "/taxi-groenekan",
+      "destination": "/werkgebied/groenekan/",
+      "permanent": true
+    }
+  ],
+  "headers": [
+    {
+      "source": "/(.*)",
+      "headers": [
+        {
+          "key": "Content-Security-Policy",
+          "value": "default-src 'self'; script-src 'self' 'sha256-Du+OJKJSbdUgz5nrHeWWINvez6XKDDU/tyj/5c2uvwo=' https://api.mapbox.com; style-src 'self' 'unsafe-inline' https://api.mapbox.com; img-src 'self' data: blob: https://api.mapbox.com; font-src 'self'; connect-src 'self' https://api.mapbox.com https://*.tiles.mapbox.com https://events.mapbox.com; worker-src blob:; child-src blob:; form-action 'self' mailto:; frame-ancestors 'none'; base-uri 'self'; object-src 'none'; upgrade-insecure-requests"
+        },
+        {
+          "key": "Strict-Transport-Security",
+          "value": "max-age=63072000; includeSubDomains"
+        },
+        {
+          "key": "X-Content-Type-Options",
+          "value": "nosniff"
+        },
+        {
+          "key": "X-Frame-Options",
+          "value": "DENY"
+        },
+        {
+          "key": "Referrer-Policy",
+          "value": "strict-origin-when-cross-origin"
+        },
+        {
+          "key": "Permissions-Policy",
+          "value": "camera=(), microphone=(), geolocation=(self), payment=()"
+        }
+      ]
+    },
+    {
+      "source": "/assets/build/(.*)",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=31536000, immutable"
+        }
+      ]
+    },
+    {
+      "source": "/assets/fonts/(.*)",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=31536000, immutable"
+        }
+      ]
+    }
+  ]
+}

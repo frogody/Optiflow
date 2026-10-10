@@ -1,0 +1,23 @@
+{
+  "basis": "Vaste ritprijs van en naar Utrecht Centraal, inclusief btw, voor een standaardauto of Tesla met 1–4 personen. Taxibus: busFactor × prijs (afgerond op hele euro's).",
+  "routes": [
+    { "id": "utrecht", "name": "Utrecht stad", "group": "stad", "km": null, "min": null, "price": 10, "from": true },
+    { "id": "leidsche-rijn", "name": "Leidsche Rijn", "group": "stad", "km": 5, "min": 10, "price": 15 },
+    { "id": "groenekan", "name": "Groenekan", "group": "regio", "km": 8, "min": 12, "price": 25 },
+    { "id": "odijk", "name": "Odijk", "group": "regio", "km": 10, "min": 15, "price": 30 },
+    { "id": "nieuwegein", "name": "Nieuwegein", "group": "regio", "km": 12, "min": 15, "price": 35 },
+    { "id": "de-bilt", "name": "De Bilt", "group": "regio", "km": 7, "min": 12, "price": null },
+    { "id": "bunnik", "name": "Bunnik", "group": "regio", "km": null, "min": null, "price": null },
+    { "id": "zeist", "name": "Zeist", "group": "regio", "km": null, "min": null, "price": null },
+    { "id": "houten", "name": "Houten", "group": "regio", "km": null, "min": null, "price": null },
+    { "id": "ijsselstein", "name": "IJsselstein", "group": "regio", "km": null, "min": null, "price": null },
+    { "id": "maarssen", "name": "Maarssen", "group": "regio", "km": null, "min": null, "price": null },
+    { "id": "vianen", "name": "Vianen", "group": "regio", "km": null, "min": null, "price": null },
+    { "id": "schiphol", "name": "Schiphol", "group": "luchthaven", "code": "AMS", "km": 47, "min": 45, "price": 89 },
+    { "id": "eindhoven", "name": "Eindhoven Airport", "group": "luchthaven", "code": "EIN", "km": null, "min": null, "price": null },
+    { "id": "rotterdam", "name": "Rotterdam The Hague Airport", "group": "luchthaven", "code": "RTM", "km": null, "min": null, "price": null },
+    { "id": "dusseldorf", "name": "Düsseldorf Airport", "group": "luchthaven", "code": "DUS", "km": null, "min": null, "price": null },
+    { "id": "brussel", "name": "Brussels Airport", "group": "luchthaven", "code": "BRU", "km": null, "min": null, "price": null },
+    { "id": "maastricht", "name": "Maastricht Aachen Airport", "group": "luchthaven", "code": "MST", "km": null, "min": null, "price": null }
+  ]
+}

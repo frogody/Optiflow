@@ -1,128 +1,82 @@
-# 🚀 Introducing Sync: AI-Powered Workflow & Communication
+# taxibestellenutrecht.nl
 
-## 🤔 What is Sync?
+The new website for Taxi Bestellen Utrecht: a fast, accessible static site, generated from one fare table and one business config. No framework, no dependencies, no tracking.
 
-Sync is redefining how enterprises work by providing an AI-powered workflow and communication platform that empowers teams to achieve more—faster, smarter, and with less friction. Sync serves as an intelligent digital workspace that orchestrates tasks, connects your favorite SaaS tools, and enables seamless collaboration between people and AI agents in real-time.
+```
+npm run build          # → dist/          (production: clean URLs, self-hosted fonts)
+npm run build:preview  # → dist-preview/  (relative links, opens from any folder)
+npm test               # unit tests: pricing rules, data validation, link paths
+npm run check          # tests + both builds + links, anchors, ids, JSON-LD and vercel.json drift
+npm run serve          # build + serve dist/ on http://localhost:8080
+npm run qa             # browser QA in Chromium (installs qa/ dev dependencies first)
+```
 
-## ✨ Core Features
+Requires Node 18+. The site has no dependencies; only the optional browser QA in `qa/` installs two dev packages (Playwright core and axe-core).
 
-- **Intelligent Voice Agents**: Interact naturally with Jarvis-like voice assistants that understand context and execute complex workflows
-- **Workflow Automation**: Design, deploy, and monitor custom workflows without code
-- **Deep Integrations**: Connect directly with 2,400+ SaaS applications through Pipedream
-- **Team Collaboration**: Real-time workspaces for teams to collaborate with AI agents and each other
-- **Enterprise Security**: Robust authentication, granular permissions, and compliance features
-- **Advanced AI Reasoning**: Powered by Claude AI for sophisticated understanding, reasoning, and creative problem-solving
+## Where things live
 
-## 🌟 Real-World Use Cases
+| What | File |
+| --- | --- |
+| Phone, e-mail, WhatsApp, address, KVK, btw, reviews, form endpoint | `src/data/site.json` |
+| Every price, distance and travel time | `src/data/fares.json` |
+| Town pages (intro, districts, local addresses, nearby towns) | `src/data/places.json` |
+| Airport pages | `src/data/airports.json` |
+| Page templates | `src/pages.mjs`, `src/booking.mjs` |
+| Shared blocks (fare widget, departure board, FAQ, structured data) | `src/components.mjs` |
+| Header, footer, mobile action bar, `<head>` | `src/layout.mjs` |
+| Design system (tokens, light + dark theme) | `src/assets/site.css` |
+| Fare widget, booking steps, form handling | `src/assets/site.js` |
+| Maps: address suggestions, live route, service-area map (Mapbox) | `src/assets/map.js` |
+| Data rules the build enforces | `src/validate.mjs` |
+| Unit tests / browser QA | `tests/site.test.mjs` / `qa/run.mjs` |
 
-### Executive Productivity
+**The build checks the data first.** A route that doesn't exist, a nearby place with a typo, a price that isn't a whole number or a phone number that doesn't match its `+31` form stops the build with a message saying what to fix.
 
-Sarah, a busy CMO, starts her day with Sync's voice assistant:
+**One price source.** A price is entered once in `fares.json` and from there appears on the homepage, the tariffs page, the town or airport page, the booking form, the taxibus price (`busFactor`, rounded) and the structured data search engines read. A route with `"price": null` shows "op aanvraag" everywhere rather than a guess.
 
-"Good morning, I need to prepare for the marketing review meeting this afternoon."
+## Maps (Mapbox)
 
-Sync's voice agent, powered by LiveKit and Claude AI, immediately:
-- Retrieves the latest campaign analytics from HubSpot
-- Gathers team progress updates from Asana
-- Compiles feedback from Slack conversations
-- Creates a meeting brief with actionable insights
-- Adds it to her calendar with notifications to the team
+With a Mapbox **public** token (`pk.…`) available at build time, the site adds the features below. The token is not in the repository (GitHub push protection blocks Mapbox tokens): set `MAPBOX_TOKEN` as an environment variable in the Vercel or Netlify project, or put `MAPBOX_TOKEN=pk.…` in a git-ignored `.env.local` for local builds. The build refuses a secret `sk.` token. Without a token the site builds exactly as before, with no maps.
 
-All of this happens through a single voice interaction, saving Sarah hours of manual work across multiple platforms.
+- **Booking:** address suggestions while typing (pickup and drop-off), "Gebruik mijn locatie", and a live map in the summary with draggable pickup and drop-off pins and the driving route. The summary shows the real distance and travel time, and the form offers the matching fixed-price route ("Deze rit past bij: Utrecht – Nieuwegein (€ 35)") without forcing it.
+- **Werkgebied:** an interactive map of all towns; each pin shows the price and links to the town page.
 
-### Sales Team Efficiency
+Mapbox GL JS (v3.2.0, from Mapbox's CDN) loads only on those two pages, and only when someone starts filling in the booking form or scrolls to the map. Without a token, or if Mapbox can't be reached, the plain fields and lists keep working. The CSP, `Permissions-Policy: geolocation=(self)`, privacy statement and cookie page switch to their Mapbox versions automatically.
 
-The sales team at TechCorp uses Sync to streamline their deal process:
+The token is the one from the sweebers site. In the Mapbox account, add `taxibestellenutrecht.nl` (and any preview domain) to the token's **URL restrictions** so it can't be reused elsewhere; if it is already restricted to the sweebers domain only, the maps on this site stay empty until the new domain is added. Prices still come only from `fares.json`; the route distance is shown for information.
 
-1. When a sales rep conducts a customer call through Sync, the voice agent automatically:
-   - Transcribes the entire conversation
-   - Updates the Salesforce opportunity record
-   - Creates follow-up tasks in the CRM
-   - Drafts a personalized email for approval
-   - Schedules the next meeting with calendar integration
+## Before going live
 
-2. This process, which previously took 45 minutes of manual work after each call, now happens instantly—allowing the team to focus on building relationships instead of data entry.
+The build prints this list every time. Currently open:
 
-### Cross-Functional Project Collaboration
+1. **Prices still to confirm:** De Bilt, Bunnik, Zeist, Houten, IJsselstein, Maarssen, Vianen and all airports except Schiphol. The old site gave conflicting figures for some of these (De Bilt "vanaf €30" vs "€15–30", Vianen €60), so they were left out rather than copied.
+2. **`site.kvk` and `site.btw`.** A KVK number on the website is a legal requirement.
+3. **`site.address`.** Amerikalaan 625 comes from a business directory. Confirm it, then set `"verified": true`.
+4. **`site.whatsapp`.** WhatsApp buttons appear automatically once a number is set (digits only, e.g. `31612345678`).
+5. **`site.reviews`.** Real score, count, source and URL, e.g. `{"score": 4.7, "count": 213, "source": "Google", "url": "…"}`. Until then no rating is shown anywhere.
+6. **`site.bookingEndpoint`.** Without it, the booking, contact and business forms open the visitor's e-mail program with the request filled in. With an endpoint (Formspree, Basin, or your own API that accepts JSON `POST`), forms send directly and show a confirmation.
+7. **Visible `[placeholders]`** on Over ons, Privacy and Algemene voorwaarden: company story, retention period, processors, which terms apply, cancellation policy. Have the privacy statement and terms reviewed before publishing. Until a page's placeholders are filled in, the build marks it `noindex` and leaves it out of the sitemap, so draft texts never appear in search results.
+8. **Photos (optional).** The fleet uses line drawings. Real photos of your own cars and drivers would strengthen trust; stock photos would not.
 
-When launching a new product, teams across marketing, product, and engineering use Sync to coordinate:
+## Deploying
 
-1. The workflow editor creates a custom approval process that:
-   - Routes designs from Figma to the right stakeholders
-   - Tracks approvals and feedback through a unified dashboard
-   - Automates notifications across Slack and email
-   - Triggers downstream actions when milestones are completed
+`dist/` is plain HTML/CSS/JS and runs on any static host. It includes:
 
-2. Teams collaborate in real-time with AI agents that provide insights, documentation, and automation—all within the same platform.
+- `_redirects` (Netlify, Cloudflare Pages), `vercel.json` (Vercel) and `.htaccess` (Apache), with 301 redirects from the old URLs (`/taxi-schiphol-airport/`, `/zakelijk-vervoer-utrecht/`, `/taxi-nieuwegein/` …) so existing rankings and links carry over
+- `sitemap.xml`, `robots.txt`, `site.webmanifest`, `404.html`
 
-## 🛠️ Technology Stack
+From this repository: Vercel and Netlify pick up `vercel.json` and `netlify.toml` (build command `npm run build`, output `dist/`). If you add a town page or change the form endpoint, copy `headers` and `redirects` from `dist/vercel.json` into the root `vercel.json` (`npm run check` tells you when they differ, and also fails if an old-site redirect points to a page that no longer exists). Every push runs `npm run check` and the browser QA (`qa/run.mjs`: overflow at 320–1440px, axe on every page in light and dark, the production CSP, booking flows, no-JS, a mocked form endpoint) in GitHub Actions.
 
-Sync leverages cutting-edge technologies to deliver its powerful capabilities:
+After launch: submit the sitemap in Google Search Console and check that every old URL redirects.
 
-### Core Infrastructure
-- **Next.js 15**: Modern React framework for the frontend and API routes
-- **Prisma**: Type-safe database ORM for data management
-- **NextAuth**: Authentication framework with JWT sessions
-- **Tailwind CSS**: Utility-first CSS for a responsive UI
-- **Zustand**: State management for reactive components
+## Built in
 
-### AI & Voice Processing
-- **Claude AI**: Advanced reasoning, contextual understanding, and creative problem-solving
-- **LiveKit**: WebRTC platform for real-time voice communication
-- **Deepgram**: Speech-to-text processing for voice recognition
-- **ElevenLabs**: High-quality text-to-speech generation
-
-### Integration & Automation
-- **Pipedream**: Integration platform connecting 2,400+ applications
-- **ReactFlow**: Visual workflow editor for no-code automation
-- **Socket.io**: Real-time bi-directional communication
-- **Redis**: High-performance caching and pub/sub messaging
-
-### Security & Monitoring
-- **Sentry**: Error tracking and performance monitoring
-- **Bcrypt**: Secure password hashing
-- **JWT**: Stateless authentication tokens
-- **Role-based access control**: Granular permissions system
-
-## ⚙️ How Sync Works
-
-### User Journey Example
-
-1. **Login & Authentication**:
-   - Sarah logs into Sync using Google OAuth or username/password
-   - NextAuth creates a JWT session for secure access across the application
-
-2. **Voice Agent Interaction**:
-   - Sarah clicks the "Connect to Voice Agent" button in her dashboard
-   - The React frontend establishes a WebRTC connection through LiveKit
-   - A LiveKit agent joins the room, running a Claude-powered reasoning system
-   - When Sarah speaks, Deepgram converts her speech to text
-   - Claude AI processes her intent with multi-step reasoning and formulates a response
-   - The agent accesses connected apps through Pipedream integrations
-   - ElevenLabs generates natural-sounding voice responses
-
-3. **Advanced AI Capabilities**:
-   - Claude's powerful reasoning understands complex, nuanced requests
-   - The system performs multi-step planning to break down complex tasks
-   - It leverages long-context understanding to maintain conversation thread
-   - Creative problem-solving helps generate novel solutions to unique challenges
-   - Adaptive learning improves responses based on user feedback and preferences
-
-4. **Workflow Automation**:
-   - Based on Sarah's request, a workflow is triggered in the background
-   - The workflow orchestrator routes requests through the right integrations
-   - Connected services (Salesforce, Slack, Google Calendar, etc.) are updated
-   - Real-time progress is visible in the dashboard
-   - Results are stored in the database for future context
-
-5. **Team Collaboration**:
-   - Team members receive notifications about completed actions
-   - They can join the same workspace to collaborate in real-time
-   - AI agents provide assistance and automation throughout the process
-   - All activities are logged for compliance and analytics
-
-This seamless flow demonstrates how Sync's architecture enables complex business processes to be executed through simple, natural interactions—saving time, reducing context switching, and empowering teams to focus on high-value work.
-
----
-
-By combining advanced AI from Claude, enterprise integrations, and intuitive design, Sync is transforming how work gets done in the modern enterprise—making digital workspaces more intelligent, connected, and human. As a flagship product from ISYNCSO, Sync embodies the company's mission to synchronize people, processes, and technology for optimal business performance.
+- WCAG 2.2 AA: zero axe-core violations on every page in light and dark at desktop and phone width; text contrast at AAA (≥ 7:1): real form controls with labels, visible focus, skip link, 44px+ touch targets, `prefers-reduced-motion`, light and dark themes
+- Works without JavaScript: the fare widget submits to the booking page, and booking falls back to a single form
+- Structured data per page: LocalBusiness, TaxiService with price, BreadcrumbList, FAQPage
+- Security headers (CSP with a hashed inline script, HSTS, nosniff, frame-ancestors, Permissions-Policy) in `_headers` and `vercel.json`; `npm run check` fails if the root `vercel.json` drifts from the generated one
+- One minified, fingerprinted stylesheet and script (`/assets/build/`), cached for a year
+- Fonts subset to the characters the site uses and Archivo limited to the weights/widths it uses: about 63 KB instead of 120 KB, preloaded (Lighthouse performance 99–100 on simulated mobile 4G)
+- Valid HTML (html-validate), Lighthouse 100 for accessibility, best practices and SEO
+- Share image (`og.png`, 1200×630) and app icons for link previews and home screens
+- No cookies, no trackers, fonts self-hosted (Archivo, IBM Plex Mono, SIL OFL)

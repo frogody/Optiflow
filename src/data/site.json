@@ -1,0 +1,24 @@
+{
+  "name": "Taxi Bestellen Utrecht",
+  "origin": "https://taxibestellenutrecht.nl",
+  "phone": "030 744 0233",
+  "phoneE164": "+31307440233",
+  "email": "info@taxibestellenutrecht.nl",
+  "whatsapp": null,
+  "address": {
+    "street": "Amerikalaan 625",
+    "postalCode": "3526 VX",
+    "city": "Utrecht",
+    "verified": false
+  },
+  "kvk": null,
+  "btw": null,
+  "bookingEndpoint": null,
+  "reviews": null,
+  "pickupMinutes": "10–15",
+  "busFactor": 1.4,
+  "busPassengers": "5–8",
+  "freeCancelHours": null,
+  "termsName": null,
+  "mapboxToken": null
+}

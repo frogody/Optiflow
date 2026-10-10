@@ -1,0 +1,56 @@
+[
+  {
+    "slug": "schiphol",
+    "route": "schiphol",
+    "name": "Schiphol",
+    "title": "Taxi Utrecht – Schiphol",
+    "intro": "Van je voordeur in Utrecht tot de vertrekhal op Schiphol, voor een vaste prijs. Ook voor de vroege vlucht, zonder nachttoeslag.",
+    "lat": 52.3105,
+    "lng": 4.7683
+  },
+  {
+    "slug": "eindhoven-airport",
+    "route": "eindhoven",
+    "name": "Eindhoven Airport",
+    "title": "Taxi Utrecht – Eindhoven Airport",
+    "intro": "Vanuit Utrecht en omgeving naar Eindhoven Airport, tegen een vaste prijs die je vooraf weet.",
+    "lat": 51.4501,
+    "lng": 5.3745
+  },
+  {
+    "slug": "rotterdam-the-hague-airport",
+    "route": "rotterdam",
+    "name": "Rotterdam The Hague Airport",
+    "title": "Taxi Utrecht – Rotterdam The Hague Airport",
+    "intro": "Vanuit Utrecht en omgeving naar Rotterdam The Hague Airport, tegen een vaste prijs die je vooraf weet.",
+    "lat": 51.9569,
+    "lng": 4.4375
+  },
+  {
+    "slug": "dusseldorf-airport",
+    "route": "dusseldorf",
+    "name": "Düsseldorf Airport",
+    "title": "Taxi Utrecht – Düsseldorf Airport",
+    "intro": "Over de grens naar Düsseldorf Airport, tegen een vaste prijs die je vooraf weet.",
+    "lat": 51.2895,
+    "lng": 6.7668
+  },
+  {
+    "slug": "brussels-airport",
+    "route": "brussel",
+    "name": "Brussels Airport",
+    "title": "Taxi Utrecht – Brussels Airport",
+    "intro": "Naar Brussels Airport in Zaventem, tegen een vaste prijs die je vooraf weet.",
+    "lat": 50.9014,
+    "lng": 4.4844
+  },
+  {
+    "slug": "maastricht-aachen-airport",
+    "route": "maastricht",
+    "name": "Maastricht Aachen Airport",
+    "title": "Taxi Utrecht – Maastricht Aachen Airport",
+    "intro": "Naar Maastricht Aachen Airport, tegen een vaste prijs die je vooraf weet.",
+    "lat": 50.9117,
+    "lng": 5.7701
+  }
+]
