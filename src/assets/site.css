@@ -323,27 +323,27 @@ button, input, select, textarea { font: inherit; color: inherit; }
 .chips legend, .opts legend, .seg legend { padding: 0; margin-bottom: 8px; font-size: 14px; font-weight: 700; }
 .chip { position: relative; }
 .chip input, .opt input, .seg input { position: absolute; opacity: 0; width: 1px; height: 1px; }
-.chip span {
+.chip > span {
   display: inline-flex; align-items: center; min-height: 44px; padding: 0 15px;
   border: 1.5px solid var(--field); border-radius: 999px;
   font-size: 14.5px; font-weight: 600; cursor: pointer; background: var(--raised);
   transition: background-color .15s, border-color .15s, color .15s;
 }
-.chip span:hover { border-color: var(--fg); }
+.chip > span:hover { border-color: var(--fg); }
 .chip input:checked + span { background: var(--chip-on); color: var(--chip-on-fg); border-color: var(--chip-on); }
 .chip input:focus-visible + span, .opt input:focus-visible + span, .seg input:focus-visible + span { outline: 3px solid var(--signal); outline-offset: 2px; }
 
 /* vehicle options */
 .opts { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(140px, 100%), 1fr)); gap: 8px; border: 0; padding: 0; margin: 0; min-width: 0; }
 .opts--list { grid-template-columns: 1fr; }
-.opt span {
+.opt > span {
   display: flex; flex-direction: column; gap: 3px; height: 100%;
   min-height: 64px; padding: 11px 13px;
   border: 1.5px solid var(--field); border-radius: 10px; cursor: pointer; background: var(--raised);
   transition: background-color .15s, border-color .15s, color .15s;
 }
-.opts--list .opt span { flex-direction: row; justify-content: space-between; align-items: center; min-height: 76px; padding: 14px 18px; }
-.opt span:hover { border-color: var(--fg); }
+.opts--list .opt > span { flex-direction: row; justify-content: space-between; align-items: center; min-height: 76px; padding: 14px 18px; }
+.opt > span:hover { border-color: var(--fg); }
 .opt b { font-size: 15.5px; }
 .opt small { font-size: 13px; opacity: .85; }
 .opt .opt__price { font-family: var(--font-mono); font-size: 18px; font-weight: 600; white-space: nowrap; }
@@ -351,7 +351,7 @@ button, input, select, textarea { font: inherit; color: inherit; }
 @media (max-width: 520px) {
   /* three vehicles always fit one row: never leave one alone */
   .opts:not(.opts--list) { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px; }
-  .opts:not(.opts--list) .opt span { padding: 10px 9px; min-height: 60px; }
+  .opts:not(.opts--list) .opt > span { padding: 10px 9px; min-height: 60px; }
   .opts:not(.opts--list) .opt b { font-size: 14.5px; }
   .opts:not(.opts--list) .opt small { font-size: 12px; line-height: 1.3; }
 }
