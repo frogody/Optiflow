@@ -84,8 +84,12 @@
     var done = $('[data-form-done]', form);
     var err = $('[data-form-error]', form);
     var subject = form.dataset.subject || 'Bericht via de website';
+    var action = form.getAttribute('action') || '';
+    var to = action.indexOf('mailto:') === 0 ? action.slice(7).split('?')[0] : email;
+    var btn = $('button[type="submit"]', form);
     form.addEventListener('submit', function (e) {
       e.preventDefault();
+      if (btn.disabled) return;
       var text = composeText(form, subject);
       $('[data-done-summary]', done).textContent = text;
       var finish = function (sent) {
@@ -100,11 +104,13 @@
       };
       if (form.dataset.endpoint) {
         err.hidden = true;
+        btn.disabled = true;
         sendJSON(form.dataset.endpoint, form, { Onderwerp: subject })
           .then(function () { finish(true); })
-          .catch(function () { err.textContent = 'Versturen lukte niet. Probeer het opnieuw of bel ' + phone + '.'; err.hidden = false; });
+          .catch(function () { err.textContent = 'Versturen lukte niet. Probeer het opnieuw of bel ' + phone + '.'; err.hidden = false; })
+          .then(function () { btn.disabled = false; });
       } else {
-        var href = mailto(email, subject, text);
+        var href = mailto(to, subject, text);
         $('[data-done-mail]', done).setAttribute('href', href);
         finish(false);
         window.location.href = href;
@@ -303,7 +309,7 @@
     if (bk.dataset.endpoint) {
       submitBtn.disabled = true;
       err.hidden = true;
-      sendJSON(bk.dataset.endpoint, bk, { Prijs: s.price || 'op aanvraag', Samenvatting: text })
+      sendJSON(bk.dataset.endpoint, bk, { Rit: s.route, RitId: dest.value, Prijs: s.price || 'op aanvraag', Samenvatting: text })
         .then(function () { finish(true, text); })
         .catch(function () { err.textContent = 'Versturen lukte niet. Probeer het opnieuw of bel ' + phone + '.'; err.hidden = false; })
         .then(function () { submitBtn.disabled = false; });
