@@ -2,10 +2,12 @@ import { site, fares, routes, esc, icon, money, busPrice, metaLabel, telHref, ph
 import { VEHICLES, arrow, crumbs, crumbsLd } from './components.mjs';
 
 const DEF = routes.schiphol;
+// Fixed prices are for a route to or from Utrecht, so the select names the route, not a destination.
+const routeLabel = (r) => (r.id === 'utrecht' ? 'Binnen Utrecht' : `Utrecht – ${r.name}`);
 const GROUPS = [
   ['stad', 'Utrecht'],
-  ['regio', 'Regio'],
-  ['luchthaven', 'Luchthavens'],
+  ['regio', 'Regio (heen of terug)'],
+  ['luchthaven', 'Luchthavens (heen of terug)'],
 ];
 
 export function boeken(ctx) {
@@ -19,7 +21,7 @@ export function boeken(ctx) {
           (r) =>
             `<option value="${r.id}" data-price="${r.price ?? ''}" data-from="${r.from ? 1 : ''}" data-meta="${esc(metaLabel(r))}" data-air="${r.group === 'luchthaven' ? 1 : ''}"${
               r.id === 'schiphol' ? ' selected' : ''
-            }>${esc(r.name)}</option>`,
+            } data-name="${esc(r.name)}">${esc(routeLabel(r))}</option>`,
         )
         .join('')}</optgroup>`,
   ).join('');
@@ -49,8 +51,8 @@ export function boeken(ctx) {
       <fieldset class="bk__step" data-step="1">
         <legend>Waar en wanneer?</legend>
         <label class="field">Ophaaladres<input class="input" id="bk-van" name="Ophaaladres" type="text" autocomplete="address-line1" placeholder="Straat en huisnummer, plaats" required></label>
-        <label class="field">Bestemming<select class="select" id="bk-naar" name="Bestemming" data-dest>${options}<option value="anders" data-price="">Ander adres…</option></select></label>
-        <label class="field" data-other hidden>Bestemmingsadres<input class="input" id="bk-naar-adres" name="Bestemmingsadres" type="text" placeholder="Straat, plaats of luchthaven"></label>
+        <label class="field">Rit <span class="field__hint">vaste prijs, heen of terug</span><select class="select" id="bk-naar" name="Rit" data-dest>${options}<option value="anders" data-price="" data-name="Andere rit">Andere rit (prijs op aanvraag)</option></select></label>
+        <label class="field">Afzetadres <span class="field__hint" data-drop-hint>waar moeten we je afzetten?</span><input class="input" id="bk-naar-adres" name="Afzetadres" type="text" autocomplete="off" placeholder="Straat en huisnummer, plaats"></label>
         <fieldset class="seg" style="justify-self:start"><legend>Wanneer</legend>
           <label><input type="radio" name="Wanneer" value="Zo snel mogelijk" checked data-when="nu"><span>Zo snel mogelijk</span></label>
           <label><input type="radio" name="Wanneer" value="Op een tijdstip" data-when="later"><span>Op een tijdstip</span></label>
@@ -116,11 +118,12 @@ export function boeken(ctx) {
     <aside class="bk__aside" aria-label="Overzicht van je rit">
       <span class="eyebrow">Jouw rit</span>
       <div class="sum">
-        <span class="sum__dot"></span><span><span class="sum__k">Van</span><span class="sum__v" data-sum="van">Je ophaaladres</span></span>
+        <span class="sum__dot"></span><span><span class="sum__k">Ophalen</span><span class="sum__v" data-sum="van">Je ophaaladres</span></span>
         <span class="sum__line"></span><span></span>
-        <span class="sum__sq"></span><span><span class="sum__k">Naar</span><span class="sum__v" data-sum="naar">Schiphol</span></span>
+        <span class="sum__sq"></span><span><span class="sum__k">Afzetten</span><span class="sum__v" data-sum="naar">${esc(DEF.name)}</span></span>
       </div>
       <dl class="sum-dl">
+        <dt>Rit</dt><dd data-sum="route">${esc(routeLabel(DEF))}</dd>
         <dt>Wanneer</dt><dd data-sum="wanneer">Zo snel mogelijk</dd>
         <dt>Auto</dt><dd data-sum="auto">Standaard</dd>
         <dt>Afstand</dt><dd data-sum="meta">${esc(metaLabel(DEF))}</dd>

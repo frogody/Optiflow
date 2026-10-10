@@ -119,8 +119,8 @@
   var steps = $$('[data-step]', bk);
   var progress = $$('[data-progress] li');
   var dest = $('[data-dest]', bk);
-  var other = $('[data-other]', bk);
-  var otherInput = $('#bk-naar-adres');
+  var drop = $('#bk-naar-adres');
+  var dropHint = $('[data-drop-hint]', bk);
   var later = $('[data-later]', bk);
   var now = $('[data-now]', bk);
   var airField = $('[data-air-field]', bk);
@@ -180,8 +180,9 @@
     var factor = +veh.dataset.factor;
     var isLater = $('[data-when="later"]', bk).checked;
     var isOther = dest.value === 'anders';
-    other.hidden = !isOther;
-    otherInput.required = isOther;
+    // A drop-off address is needed for every ride, except an airport run (the terminal is the address).
+    drop.required = !opt.dataset.air;
+    dropHint.textContent = opt.dataset.air ? 'optioneel: we brengen je naar de vertrekhal' : 'waar moeten we je afzetten?';
     later.hidden = !isLater;
     now.hidden = isLater;
     date.required = isLater;
@@ -198,7 +199,8 @@
     });
     busHint.hidden = !(+$('#bk-pers').value > 4 && veh.value !== 'bus');
     sum('van').textContent = $('#bk-van').value.trim() || 'Je ophaaladres';
-    sum('naar').textContent = isOther ? otherInput.value.trim() || 'Ander adres' : opt.textContent;
+    sum('naar').textContent = drop.value.trim() || (opt.dataset.air ? opt.dataset.name : 'Je afzetadres');
+    sum('route').textContent = opt.textContent;
     sum('wanneer').textContent = isLater ? [fmtDate(date.value), time.value].filter(Boolean).join(' · ') || 'Op een tijdstip' : 'Zo snel mogelijk';
     sum('auto').textContent = veh.dataset.label;
     sum('meta').textContent = isOther ? '—' : opt.dataset.meta || '—';
@@ -207,7 +209,7 @@
     out.textContent = p || 'Bij bevestiging';
     out.classList.toggle('is-ask', !p);
     sum('note').textContent = p ? (factor > 1 ? 'Taxibus, ca. ' + pct(factor) + '% boven standaard' : 'Vaste prijs, incl. btw') : 'Je hoort de vaste prijs voordat je rit vastligt';
-    return { price: p, dest: isOther ? otherInput.value.trim() : opt.textContent, veh: veh.dataset.label, isLater: isLater };
+    return { price: p, route: opt.textContent, dest: drop.value.trim() || opt.dataset.name, veh: veh.dataset.label, isLater: isLater };
   }
   bk.addEventListener('input', function () { update(); saveDraft(); });
   bk.addEventListener('change', function () { update(); saveDraft(); });
@@ -246,8 +248,9 @@
     var v = function (id) { var el = $(id); return el ? el.value.trim() : ''; };
     var radio = function (n) { var el = $('input[name="' + n + '"]:checked', bk); return el ? el.value : ''; };
     var rows = [
-      ['Van', v('#bk-van')],
-      ['Naar', s.dest],
+      ['Rit', s.route],
+      ['Ophalen', v('#bk-van')],
+      ['Afzetten', v('#bk-naar-adres') || s.dest],
       ['Wanneer', s.isLater ? [fmtDate(date.value), time.value].filter(Boolean).join(' om ') : 'Zo snel mogelijk'],
       ['Auto', s.veh],
       ['Personen', v('#bk-pers')],
