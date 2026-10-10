@@ -5,7 +5,8 @@ The new website for Taxi Bestellen Utrecht: a fast, accessible static site, gene
 ```
 npm run build          # → dist/          (production: clean URLs, self-hosted fonts)
 npm run build:preview  # → dist-preview/  (relative links, opens from any folder)
-npm run check          # builds both and verifies links, anchors, ids and JSON-LD
+npm test               # unit tests: pricing rules, data validation, link paths
+npm run check          # tests + both builds + links, anchors, ids, JSON-LD and vercel.json drift
 npm run serve          # build + serve dist/ on http://localhost:8080
 ```
 
@@ -24,6 +25,8 @@ Requires Node 18+. Nothing to install.
 | Header, footer, mobile action bar, `<head>` | `src/layout.mjs` |
 | Design system (tokens, light + dark theme) | `src/assets/site.css` |
 | Fare widget, booking steps, form handling | `src/assets/site.js` |
+
+**The build checks the data first.** A route that doesn't exist, a nearby place with a typo, a price that isn't a whole number or a phone number that doesn't match its `+31` form stops the build with a message saying what to fix.
 
 **One price source.** A price is entered once in `fares.json` and from there appears on the homepage, the tariffs page, the town or airport page, the booking form, the taxibus price (`busFactor`, rounded) and the structured data search engines read. A route with `"price": null` shows "op aanvraag" everywhere rather than a guess.
 
@@ -57,7 +60,8 @@ After launch: submit the sitemap in Google Search Console and check that every o
 - Works without JavaScript: the fare widget submits to the booking page, and booking falls back to a single form
 - Structured data per page: LocalBusiness, TaxiService with price, BreadcrumbList, FAQPage
 - Security headers (CSP with a hashed inline script, HSTS, nosniff, frame-ancestors, Permissions-Policy) in `_headers` and `vercel.json`; `npm run check` fails if the root `vercel.json` drifts from the generated one
-- One minified, fingerprinted stylesheet and script (`/assets/build/`), cached for a year; fonts preloaded
+- One minified, fingerprinted stylesheet and script (`/assets/build/`), cached for a year
+- Fonts subset to the characters the site uses and Archivo limited to the weights/widths it uses: about 63 KB instead of 120 KB, preloaded (Lighthouse performance 99–100 on simulated mobile 4G)
 - Valid HTML (html-validate), Lighthouse 100 for accessibility, best practices and SEO
 - Share image (`og.png`, 1200×630) and app icons for link previews and home screens
 - No cookies, no trackers, fonts self-hosted (Archivo, IBM Plex Mono, SIL OFL)
