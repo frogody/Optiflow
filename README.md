@@ -11,7 +11,7 @@ npm run serve          # build + serve dist/ on http://localhost:8080
 npm run qa             # browser QA in Chromium (installs qa/ dev dependencies first)
 ```
 
-Requires Node 18+. Nothing to install.
+Requires Node 18+. The site has no dependencies; only the optional browser QA in `qa/` installs two dev packages (Playwright core and axe-core).
 
 ## Where things live
 
@@ -26,6 +26,8 @@ Requires Node 18+. Nothing to install.
 | Header, footer, mobile action bar, `<head>` | `src/layout.mjs` |
 | Design system (tokens, light + dark theme) | `src/assets/site.css` |
 | Fare widget, booking steps, form handling | `src/assets/site.js` |
+| Data rules the build enforces | `src/validate.mjs` |
+| Unit tests / browser QA | `tests/site.test.mjs` / `qa/run.mjs` |
 
 **The build checks the data first.** A route that doesn't exist, a nearby place with a typo, a price that isn't a whole number or a phone number that doesn't match its `+31` form stops the build with a message saying what to fix.
 
@@ -51,7 +53,7 @@ The build prints this list every time. Currently open:
 - `_redirects` (Netlify, Cloudflare Pages), `vercel.json` (Vercel) and `.htaccess` (Apache), with 301 redirects from the old URLs (`/taxi-schiphol-airport/`, `/zakelijk-vervoer-utrecht/`, `/taxi-nieuwegein/` …) so existing rankings and links carry over
 - `sitemap.xml`, `robots.txt`, `site.webmanifest`, `404.html`
 
-From this repository: Vercel and Netlify pick up `vercel.json` and `netlify.toml` (build command `npm run build`, output `dist/`). If you add a town page or change the form endpoint, copy `headers` and `redirects` from `dist/vercel.json` into the root `vercel.json` (`npm run check` tells you when they differ). Every push runs `npm run check` and the browser QA (`qa/run.mjs`: overflow at 320–1440px, axe on every page in light and dark, the production CSP, booking flows, no-JS, a mocked form endpoint) in GitHub Actions.
+From this repository: Vercel and Netlify pick up `vercel.json` and `netlify.toml` (build command `npm run build`, output `dist/`). If you add a town page or change the form endpoint, copy `headers` and `redirects` from `dist/vercel.json` into the root `vercel.json` (`npm run check` tells you when they differ, and also fails if an old-site redirect points to a page that no longer exists). Every push runs `npm run check` and the browser QA (`qa/run.mjs`: overflow at 320–1440px, axe on every page in light and dark, the production CSP, booking flows, no-JS, a mocked form endpoint) in GitHub Actions.
 
 After launch: submit the sitemap in Google Search Console and check that every old URL redirects.
 
