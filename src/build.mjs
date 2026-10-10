@@ -56,6 +56,8 @@ for (const p of pages) {
   seen.add(p.path);
   const ctx = { mode, ...linker(p.path, mode) };
   const page = p.make(ctx);
+  // A page that still shows [placeholders] stays out of search results until it is filled in.
+  if (page.body.includes('class="todo"')) { page.noindex = true; p.draft = true; }
   p.noindex = page.noindex;
   const file = join(out, fileFor(page.path));
   mkdirSync(dirname(file), { recursive: true });
@@ -135,4 +137,6 @@ if (noPrice.length) console.log(`\n• Nog geen vaste prijs (toont "op aanvraag"
 if (missing.length) console.log(`\n• Ontbrekende bedrijfsgegevens:\n  - ${missing.join('\n  - ')}`);
 const uniq = [...new Set(todos)];
 if (uniq.length) console.log(`\n• Zichtbare [placeholders] op de site (${uniq.length}):\n  - ${uniq.join('\n  - ')}`);
+const drafts = pages.filter((p) => p.draft).map((p) => p.path);
+if (drafts.length) console.log(`\n• Niet geïndexeerd tot de placeholders zijn ingevuld: ${drafts.join(', ')}`);
 console.log('');

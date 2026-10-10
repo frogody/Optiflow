@@ -40,7 +40,7 @@ The build prints this list every time. Currently open:
 4. **`site.whatsapp`.** WhatsApp buttons appear automatically once a number is set (digits only, e.g. `31612345678`).
 5. **`site.reviews`.** Real score, count, source and URL, e.g. `{"score": 4.7, "count": 213, "source": "Google", "url": "…"}`. Until then no rating is shown anywhere.
 6. **`site.bookingEndpoint`.** Without it, the booking, contact and business forms open the visitor's e-mail program with the request filled in. With an endpoint (Formspree, Basin, or your own API that accepts JSON `POST`), forms send directly and show a confirmation.
-7. **Visible `[placeholders]`** on Over ons, Privacy and Algemene voorwaarden: company story, retention period, processors, which terms apply, cancellation policy. Have the privacy statement and terms reviewed before publishing.
+7. **Visible `[placeholders]`** on Over ons, Privacy and Algemene voorwaarden: company story, retention period, processors, which terms apply, cancellation policy. Have the privacy statement and terms reviewed before publishing. Until a page's placeholders are filled in, the build marks it `noindex` and leaves it out of the sitemap, so draft texts never appear in search results.
 8. **Photos (optional).** The fleet uses line drawings. Real photos of your own cars and drivers would strengthen trust; stock photos would not.
 
 ## Deploying

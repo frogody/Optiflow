@@ -303,7 +303,7 @@ function placePage(pl) {
       p
         ? { q: isCity ? 'Wat kost een taxi binnen Utrecht?' : `Wat kost een taxi van ${pl.name} naar Utrecht Centraal?`, a: `${p} vast, inclusief btw, voor 1–4 personen. Ook ’s nachts en in de spits.` }
         : { q: `Wat kost een taxi in ${pl.name}?`, a: `Je krijgt een vaste prijs voor je adres voordat je boekt. Bel <a href="${telHref}">${esc(phoneNb)}</a> of plan je rit online.` },
-      { q: `Rijden jullie vanuit ${pl.name} naar Schiphol?`, a: 'Ja, tegen een vaste prijs die je hoort voordat je boekt. Boek vooruit voor een vroege vlucht.' },
+      { q: `Rijden jullie vanuit ${pl.name} naar Schiphol?`, a: `Ja, tegen een vaste prijs die je hoort voordat je boekt. Boek vooruit voor een vroege vlucht. Meer over onze <a href="${link('/luchthavens/schiphol/')}">taxi naar Schiphol</a>.` },
       FAQ.speed,
       FAQ.pay,
     ];
