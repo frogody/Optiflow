@@ -150,7 +150,7 @@ function luchthavens(ctx) {
   ${steps()}
 </div></section>
 <section class="sec"><div class="wrap split">
-  <h2 class="h2">Vragen over luchthavenvervoer</h2>
+  <h2 class="h2">Vragen over luchthaven&shy;vervoer</h2>
   ${faq([FAQ.schiphol, FAQ.night, FAQ.traffic, FAQ.reserve, FAQ.bus])}
 </div></section>
 ${cta(ctx)}`;
@@ -321,7 +321,7 @@ function placePage(pl) {
   <div class="wrap hero__in">
     <div class="hero__copy">
       <span class="eyebrow">Taxi</span>
-      <h1 class="display">${esc(pl.name)}</h1>
+      <h1 class="display display--fit" style="--chars: ${Math.max(...pl.name.split(/\s+/).map((w) => w.length))}">${esc(pl.name)}</h1>
       <p class="lead">${esc(pl.intro)}</p>
       ${ticks(['24/7 bereikbaar', 'Geen nachttoeslag', 'Pin, creditcard of contant'])}
     </div>
@@ -582,7 +582,7 @@ function privacy(ctx) {
   return legal(ctx, {
     path: '/privacy/',
     name: 'Privacyverklaring',
-    title: 'Privacy&shy;verklaring',
+    title: 'Privacy&shy;ver&shy;klaring',
     lead: 'Welke gegevens we gebruiken, waarvoor en hoe lang.',
     description: `Privacyverklaring van ${site.name}: welke persoonsgegevens we verwerken voor je taxirit en welke rechten je hebt.`,
     prose: `<p>${todo('Concept — laat deze tekst juridisch controleren vóór publicatie', 'privacy')}</p>
@@ -625,7 +625,7 @@ function cookies(ctx) {
   return legal(ctx, {
     path: '/cookies/',
     name: 'Cookies',
-    title: 'Cookie&shy;verklaring',
+    title: 'Cookie&shy;ver&shy;klaring',
     lead: 'Kort: we volgen je niet.',
     description: `${site.name} plaatst geen tracking- of advertentiecookies.`,
     prose: `<p>Deze website plaatst geen tracking-, analyse- of advertentiecookies. Daarom vragen we ook geen toestemming met een cookiebanner.</p>

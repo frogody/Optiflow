@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 // Browser QA for the built site. Run from the repo root: npm run qa
 // Builds dist/, serves it locally and checks, in Chromium:
-//   layout     no horizontal overflow at 320/360/390/1440 px, no console errors
+//   layout     no horizontal overflow or split heading words at 320–1440 px, no console errors
 //   a11y       axe-core (WCAG 2.x A/AA + best practice) on every page, light + dark, phone + desktop
 //   security   every page with the production CSP applied: no violations, scripts still run
 //   flows      fare widget → booking prefill → all steps → send screen; validation; draft restore
@@ -74,7 +74,7 @@ console.log(`${pages.length} pages at ${base}`);
 
 /* ---------- layout ---------- */
 section('layout: overflow + console errors');
-for (const width of [320, 360, 390, 1440]) {
+for (const width of [320, 360, 390, 768, 1024, 1280, 1440]) {
   const ctx = await browser.newContext({ viewport: { width, height: 800 } });
   for (const path of pages) {
     const page = await ctx.newPage();
@@ -83,6 +83,28 @@ for (const width of [320, 360, 390, 1440]) {
     await page.goto(base + path, { waitUntil: 'load' });
     const over = await page.evaluate(() => document.documentElement.scrollWidth - innerWidth);
     if (over > 0) fail(`${width}px ${path}: page scrolls sideways by ${over}px`);
+    // A heading word may only break at a (soft) hyphen; overflow-wrap splitting "Nieuwegei|n" is a bug.
+    const split = await page.evaluate(() => {
+      const out = [];
+      for (const h of document.querySelectorAll('h1, h2, h3')) {
+        const walker = document.createTreeWalker(h, NodeFilter.SHOW_TEXT);
+        for (let n = walker.nextNode(); n; n = walker.nextNode()) {
+          for (const m of n.data.matchAll(/[^\s­-]+/g)) {
+            const r = document.createRange();
+            r.setStart(n, m.index);
+            r.setEnd(n, m.index + m[0].length);
+            // Chromium reports the hyphen drawn at a soft-hyphen break as part of the next word.
+            const afterShy = n.data[m.index - 1] === '\u00AD';
+            const em = parseFloat(getComputedStyle(h).fontSize);
+            const rects = [...r.getClientRects()].filter((x, i) => x.width > 0 && !(afterShy && i === 0 && x.width < em * 0.5));
+            const tops = new Set(rects.map((x) => Math.round(x.top)));
+            if (tops.size > 1) out.push(m[0]);
+          }
+        }
+      }
+      return out;
+    });
+    for (const w of split) fail(`${width}px ${path}: heading word "${w}" is split across lines`);
     await page.close();
   }
   await ctx.close();

@@ -160,6 +160,9 @@ button, input, select, textarea { font: inherit; color: inherit; }
   text-wrap: balance;
 }
 .display, .h2, .h3 { overflow-wrap: break-word; hyphens: auto; -webkit-hyphens: auto; }
+/* A town name is one word that cannot hyphenate: size it to fit its column instead. */
+.hero__copy { container-type: inline-size; }
+.display--fit { font-size: min(clamp(36px, 6.2vw, 88px), calc(120cqi / var(--chars))); }
 .h3 { font-size: clamp(21px, 2vw, 26px); font-weight: 800; font-stretch: 108%; line-height: 1.2; letter-spacing: -0.01em; text-wrap: balance; }
 .lead { font-size: clamp(17px, 1.6vw, 20px); line-height: 1.5; color: var(--muted); max-width: 36em; text-wrap: pretty; }
 .hero .lead, .sec--ink .lead { color: var(--on-ink-muted); }
