@@ -1,0 +1,10 @@
+{
+  "name": "taxibestellenutrecht-qa",
+  "private": true,
+  "description": "Browser QA for the built site (npm run qa from the repo root).",
+  "type": "module",
+  "devDependencies": {
+    "axe-core": "4.10.2",
+    "playwright-core": "1.56.1"
+  }
+}

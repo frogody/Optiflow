@@ -12,6 +12,7 @@
     "build:preview": "node src/build.mjs --preview",
     "check": "node --test tests/site.test.mjs && node src/build.mjs && node scripts/check.mjs dist && node src/build.mjs --preview && node scripts/check.mjs dist-preview",
     "serve": "node src/build.mjs && python3 -m http.server 8080 --directory dist",
-    "test": "node --test tests/site.test.mjs"
+    "test": "node --test tests/site.test.mjs",
+    "qa": "npm ci --prefix qa --silent && node qa/run.mjs"
   }
 }

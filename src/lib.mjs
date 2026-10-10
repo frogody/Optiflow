@@ -3,7 +3,8 @@ import { readFileSync } from 'node:fs';
 
 const read = (p) => JSON.parse(readFileSync(new URL(p, import.meta.url), 'utf8'));
 
-export const site = read('./data/site.json');
+// TBU_SITE_OVERRIDE (JSON) lets the browser QA build a variant, e.g. with a mocked bookingEndpoint.
+export const site = { ...read('./data/site.json'), ...(process.env.TBU_SITE_OVERRIDE ? JSON.parse(process.env.TBU_SITE_OVERRIDE) : {}) };
 export const fares = read('./data/fares.json');
 export const places = read('./data/places.json');
 export const airports = read('./data/airports.json');

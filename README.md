@@ -8,6 +8,7 @@ npm run build:preview  # → dist-preview/  (relative links, opens from any fold
 npm test               # unit tests: pricing rules, data validation, link paths
 npm run check          # tests + both builds + links, anchors, ids, JSON-LD and vercel.json drift
 npm run serve          # build + serve dist/ on http://localhost:8080
+npm run qa             # browser QA in Chromium (installs qa/ dev dependencies first)
 ```
 
 Requires Node 18+. Nothing to install.
@@ -50,7 +51,7 @@ The build prints this list every time. Currently open:
 - `_redirects` (Netlify, Cloudflare Pages), `vercel.json` (Vercel) and `.htaccess` (Apache), with 301 redirects from the old URLs (`/taxi-schiphol-airport/`, `/zakelijk-vervoer-utrecht/`, `/taxi-nieuwegein/` …) so existing rankings and links carry over
 - `sitemap.xml`, `robots.txt`, `site.webmanifest`, `404.html`
 
-From this repository: Vercel and Netlify pick up `vercel.json` and `netlify.toml` (build command `npm run build`, output `dist/`). If you add a town page or change the form endpoint, copy `headers` and `redirects` from `dist/vercel.json` into the root `vercel.json` (`npm run check` tells you when they differ). Every push runs `npm run check` in GitHub Actions.
+From this repository: Vercel and Netlify pick up `vercel.json` and `netlify.toml` (build command `npm run build`, output `dist/`). If you add a town page or change the form endpoint, copy `headers` and `redirects` from `dist/vercel.json` into the root `vercel.json` (`npm run check` tells you when they differ). Every push runs `npm run check` and the browser QA (`qa/run.mjs`: overflow at 320–1440px, axe on every page in light and dark, the production CSP, booking flows, no-JS, a mocked form endpoint) in GitHub Actions.
 
 After launch: submit the sitemap in Google Search Console and check that every old URL redirects.
 
