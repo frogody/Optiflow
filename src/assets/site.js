@@ -147,7 +147,27 @@
   if (pick('wanneer') === 'later') $('[data-when="later"]', bk).checked = true;
   if (pick('datum')) date.value = pick('datum');
   if (pick('tijd')) time.value = pick('tijd');
-  try { date.min = new Date(Date.now() - new Date().getTimezoneOffset() * 60000).toISOString().slice(0, 10); } catch (e) { /* ignore */ }
+  var localNow = function () { return new Date(Date.now() - new Date().getTimezoneOffset() * 60000).toISOString(); };
+  try { date.min = localNow().slice(0, 10); } catch (e) { /* ignore */ }
+
+  // Keep a half-filled booking when the visitor reloads or comes back in the same tab.
+  var DRAFT = 'tbu-boeking';
+  var fromWidget = q.has('naar') || q.has('van') || q.has('auto');
+  var draft = store.get(DRAFT);
+  if (draft && !fromWidget) {
+    Object.keys(draft).forEach(function (name) {
+      $$('[name="' + esc(name) + '"]', bk).forEach(function (el) {
+        if (el.type === 'radio') el.checked = el.value === draft[name];
+        else if (el.type !== 'checkbox') el.value = draft[name];
+      });
+    });
+  }
+  function saveDraft() {
+    var d = {};
+    new FormData(bk).forEach(function (v, k) { if (k !== 'Akkoord') d[k] = v; });
+    store.set(DRAFT, d);
+  }
+  var tel = $('#bk-tel');
 
   function fmtDate(v) {
     if (!v) return '';
@@ -167,6 +187,11 @@
     date.required = isLater;
     time.required = isLater;
     airField.hidden = !opt.dataset.air;
+    // Field rules the browser can't express on its own.
+    var stamp = localNow();
+    time.setCustomValidity(isLater && date.value === stamp.slice(0, 10) && time.value && time.value <= stamp.slice(11, 16) ? 'Kies een ophaaltijd later dan nu.' : '');
+    var nd = tel.value.replace(/\D/g, '').length;
+    tel.setCustomValidity(tel.value.trim() && (nd < 10 || nd > 15) ? 'Vul een geldig telefoonnummer in, bijvoorbeeld 06 12345678.' : '');
     $$('[data-vprice]', bk).forEach(function (el) {
       var f = +$('input[name="auto"][value="' + el.dataset.vprice + '"]', bk).dataset.factor;
       el.textContent = isOther ? 'Op aanvraag' : priceFor(opt.dataset.price, opt.dataset.from, f) || 'Op aanvraag';
@@ -184,8 +209,8 @@
     sum('note').textContent = p ? (factor > 1 ? 'Taxibus, ca. ' + pct(factor) + '% boven standaard' : 'Vaste prijs, incl. btw') : 'Je hoort de vaste prijs voordat je rit vastligt';
     return { price: p, dest: isOther ? otherInput.value.trim() : opt.textContent, veh: veh.dataset.label, isLater: isLater };
   }
-  bk.addEventListener('input', update);
-  bk.addEventListener('change', update);
+  bk.addEventListener('input', function () { update(); saveDraft(); });
+  bk.addEventListener('change', function () { update(); saveDraft(); });
 
   function show(i, focus) {
     cur = i;
@@ -239,6 +264,7 @@
   }
 
   function finish(sent, text, href) {
+    store.set(DRAFT, null);
     steps.forEach(function (st) { st.setAttribute('data-hidden', ''); });
     nav.hidden = true;
     err.hidden = true;

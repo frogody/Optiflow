@@ -66,6 +66,11 @@ export function linker(pagePath, mode) {
   return { link, asset };
 }
 
+/** Safe CSS minifier: drops comments and collapses whitespace around { } ; , only.
+ *  Never touches spaces around ":" because ".a :focus" and ".a:focus" mean different things. */
+export const minifyCss = (css) =>
+  css.replace(/\/\*[\s\S]*?\*\//g, '').replace(/\s+/g, ' ').replace(/\s*([{};,])\s*/g, '$1').replace(/;}/g, '}').trim();
+
 /* ---------- icons (inline stroke SVG, currentColor) ---------- */
 const svg = (d, { size = 20, sw = 2, label } = {}) =>
   `<svg width="${size}" height="${size}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="${sw}" stroke-linecap="round" stroke-linejoin="round" ${

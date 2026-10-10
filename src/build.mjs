@@ -4,9 +4,16 @@ import { mkdirSync, rmSync, writeFileSync, cpSync, readFileSync } from 'node:fs'
 import { createHash } from 'node:crypto';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { site, fares, places, todos, linker, assetNames } from './lib.mjs';
+import { site, fares, places, airports, todos, linker, assetNames, minifyCss } from './lib.mjs';
+import { validateData } from './validate.mjs';
 import { document, INLINE_JS } from './layout.mjs';
 import { pageFactories, boeken } from './pages.mjs';
+
+const problems = validateData({ site, fares, places, airports });
+if (problems.length) {
+  console.error(`✗ De data in src/data klopt niet:\n  - ${problems.join('\n  - ')}`);
+  process.exit(1);
+}
 
 const args = process.argv.slice(2);
 const mode = args.includes('--preview') ? 'preview' : 'production';
@@ -19,8 +26,6 @@ mkdirSync(join(out, 'assets'), { recursive: true });
 for (const f of ['favicon.svg', 'og.png', 'apple-touch-icon.png', 'icon-512.png']) cpSync(join(root, 'src/assets', f), join(out, 'assets', f));
 const src = (f) => readFileSync(join(root, 'src/assets', f), 'utf8');
 const hash = (s) => createHash('sha256').update(s).digest('hex').slice(0, 10);
-// Safe minifier: drops comments and collapses whitespace around { } ; , only (never around ":" — ".a :focus" ≠ ".a:focus").
-const minifyCss = (css) => css.replace(/\/\*[\s\S]*?\*\//g, '').replace(/\s+/g, ' ').replace(/\s*([{};,])\s*/g, '$1').replace(/;}/g, '}').trim();
 if (mode === 'production') {
   // One stylesheet (fonts + site), fingerprinted so it can be cached for a year.
   cpSync(join(root, 'src/assets/fonts'), join(out, 'assets/fonts'), { recursive: true });

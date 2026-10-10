@@ -2,13 +2,16 @@
   "name": "taxibestellenutrecht",
   "version": "1.0.0",
   "private": true,
-  "description": "Website van Taxi Bestellen Utrecht — statische site, gegenereerd uit één tarieventabel.",
+  "description": "Website van Taxi Bestellen Utrecht \u2014 statische site, gegenereerd uit \u00e9\u00e9n tarieventabel.",
   "type": "module",
-  "engines": { "node": ">=18" },
+  "engines": {
+    "node": ">=18"
+  },
   "scripts": {
     "build": "node src/build.mjs",
     "build:preview": "node src/build.mjs --preview",
-    "check": "node src/build.mjs && node scripts/check.mjs dist && node src/build.mjs --preview && node scripts/check.mjs dist-preview",
-    "serve": "node src/build.mjs && python3 -m http.server 8080 --directory dist"
+    "check": "node --test tests/site.test.mjs && node src/build.mjs && node scripts/check.mjs dist && node src/build.mjs --preview && node scripts/check.mjs dist-preview",
+    "serve": "node src/build.mjs && python3 -m http.server 8080 --directory dist",
+    "test": "node --test tests/site.test.mjs"
   }
 }
