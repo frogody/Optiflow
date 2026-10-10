@@ -234,6 +234,9 @@ export function businessLd() {
     url: `${site.origin}/`,
     telephone: site.phoneE164,
     email: site.email,
+    image: `${site.origin}/assets/og.png`,
+    logo: `${site.origin}/assets/icon-512.png`,
+    potentialAction: { '@type': 'ReserveAction', target: { '@type': 'EntryPoint', urlTemplate: `${site.origin}/boeken/`, inLanguage: 'nl-NL' }, result: { '@type': 'TaxiReservation', name: 'Taxirit' } },
     address: { '@type': 'PostalAddress', streetAddress: a.street, postalCode: a.postalCode, addressLocality: a.city, addressCountry: 'NL' },
     openingHoursSpecification: [
       { '@type': 'OpeningHoursSpecification', dayOfWeek: ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'], opens: '00:00', closes: '23:59' },
